@@ -1,0 +1,14 @@
+{
+  "extends": ["stylelint-config-standard-scss", "stylelint-config-html", "stylelint-config-recommended-vue", "stylelint-config-rational-order", "stylelint-config-prettier-scss"],
+  "defaultSeverity": "warning",
+  "plugins": ["stylelint-order"],
+  "rules": {
+    "at-rule-no-unknown": null,
+    "selector-class-pattern": [
+      "^[a-z0-9-_]+$",
+      {
+        "message": "Expected class selector to be kebab-case"
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+export default {
+  name: "Name",
+  application: "VESM Management System",
+  copyright: "all rights reserved © copyright",
+  test: "test",
+  login: "Login",
+  logout: "Logout",
+  confirmLogout: "Confirm Logout?",
+  register: "Register",
+  tip: "Tip",
+  cancel: "Cancel",
+  userName: "User Name",
+  password: "Password",
+  rememberMe: "Remember Me",
+  resetPassword: "Reset Password",
+  userCenter: "User Center",
+};

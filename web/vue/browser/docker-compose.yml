@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  web:
+    image: nginx:1.24
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./apps/web:/usr/share/nginx/html
+      - ./conf/nginx/conf.d:/etc/nginx/conf.d
+      - ./conf/nginx/cert:/etc/nginx/cert
