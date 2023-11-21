@@ -7,11 +7,12 @@ export default {
   template: html`<el-tabs
     v-model="model"
     type="border-card"
-    class="router-tab"
+    class="router-tabs"
+    :closable="tabsStore.routes.length > 1"
     @tab-remove="remove"
     @tab-click="onClick"
   >
-    <template v-for="(item, index) in appStore.routes" :key="item.fullPath">
+    <template v-for="(item, index) in tabsStore.routes" :key="item.fullPath">
       <el-tab-pane v-model="item.fullPath" :name="item.fullPath">
         <template #label>
           <el-dropdown
@@ -20,12 +21,7 @@ export default {
             trigger="contextmenu"
             @visible-change="showContextMenu(index, $event)"
           >
-            <span class="inline-flex items-center">
-              {{ item.meta?.title ?? item.fullPath }}
-              <el-icon class="el-icon--right is-icon-close" v-if="appStore.routes.length > 1" @click="remove(index)">
-                <ep-close />
-              </el-icon>
-            </span>
+            <span class="inline-flex items-center"> {{ item.meta?.title ?? item.fullPath }} </span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="refresh(index)">
@@ -34,11 +30,11 @@ export default {
                 <el-dropdown-item :disabled="index === 0" @click="removeLeft(index)">
                   <el-icon><ep-back /></el-icon><span>关闭左侧</span>
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="index === appStore.routes.length - 1" @click="removeRight(index)">
+                <el-dropdown-item :disabled="index === tabsStore.routes.length - 1" @click="removeRight(index)">
                   <el-icon><ep-right /></el-icon><span>关闭右侧</span>
                 </el-dropdown-item>
                 <el-dropdown-item
-                  :disabled="index === 0 && index === appStore.routes.length - 1"
+                  :disabled="index === 0 && index === tabsStore.routes.length - 1"
                   @click="removeOthers(index)"
                 >
                   <el-icon><ep-switch /></el-icon>
@@ -51,31 +47,6 @@ export default {
       </el-tab-pane>
     </template>
   </el-tabs>`,
-  styles: html`
-    <style>
-      .router-tab {
-        box-sizing: border-box;
-        height: 40px !important;
-        background-color: var(--el-fill-color-blank);
-        border-width: 0 !important;
-      }
-      .router-tab .el-tabs__item {
-        margin-top: 0 !important;
-        padding: 0 !important;
-        border-bottom-width: 0;
-      }
-      .router-tab .el-dropdown span {
-        padding: 0 0.5em;
-      }
-      .router-tab .el-tabs__content {
-        display: none;
-      }
-
-      .router-tab .el-icon {
-        margin-left: 0.5em;
-      }
-    </style>
-  `,
   setup() {
     const tabsStore = useTabsStore();
     const itemRefs = ref([]);
@@ -169,7 +140,7 @@ export default {
     };
     return {
       model,
-      appStore: tabsStore,
+      tabsStore,
       itemRefs,
       onBeforeRouteUpdate,
       setRef,

@@ -1,14 +1,14 @@
 export default function () {
   return {
     title: "登录",
-    //type: "object",
-    api: {
-      url: "token/create",
-    },
+    url: "token/create",
+    method: "POST",
+    labelWidth: 0,
+    submitStyle: "width:100%",
     properties: {
       userName: {
         title: "用户名",
-        //type: "string",
+        icon: "ep-user",
         rules: [
           {
             required: true,
@@ -17,8 +17,8 @@ export default function () {
       },
       password: {
         title: "密码",
-        //type: "string",
         input: "password",
+        icon: "ep-lock",
         rules: [
           {
             required: true,

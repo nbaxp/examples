@@ -7,4 +7,8 @@ export default {
   color: "#409eff",
   size: "default",
   mode: "auto",
+  useDarkNav: true,
+  useTabs: true,
+  showCopyright: true,
+  showBreadcrumb: true,
 };

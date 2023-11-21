@@ -14,7 +14,7 @@ export default {
       <template v-else-if="schema.type!=='array'||schema.items?.type!=='array'">
         <el-form-item
           :title="prop"
-          :label="schema.title"
+          :label="parentSchema.labelWidth===0?null:schema.title"
           :prop="getProp(prop)"
           :rules="getDisabled()?[]:getRules(parentSchema,schema,model)"
           :error="mode==='query'?null:getError(prop)"

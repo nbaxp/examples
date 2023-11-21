@@ -20,6 +20,7 @@ export default {
   dataTypeAttribute_DateTime: "{0}不是有效的日期格式",
   customValidationAttribute: "{0}验证失败",
   validationAttribute: "{0}验证失败",
+  home: "首页",
   true: "是",
   false: "否",
   select: "选择",

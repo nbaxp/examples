@@ -50,5 +50,21 @@ export default {
         { value: "dark", label: "暗色模式", icon: "ep-moon" },
       ],
     },
+    useDarkNav: {
+      title: "暗色导航",
+      type: "boolean",
+    },
+    useTabs: {
+      title: "多标签页",
+      type: "boolean",
+    },
+    showBreadcrumb: {
+      title: "显示 Breadcrumb",
+      type: "boolean",
+    },
+    showCopyright: {
+      title: "显示 Footer",
+      type: "boolean",
+    },
   },
 };

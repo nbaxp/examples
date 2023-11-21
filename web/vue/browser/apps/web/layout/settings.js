@@ -40,6 +40,9 @@ export default {
       await formRef.value.reset();
     };
     watchEffect(() => {
+      document.documentElement.classList[appStore.useDarkNav ? "add" : "remove"]("dark-nav");
+    });
+    watchEffect(() => {
       document.documentElement.style.setProperty("--el-color-primary", appStore.color);
     });
     watchEffect(() => {

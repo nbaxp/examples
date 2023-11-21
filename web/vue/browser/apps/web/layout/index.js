@@ -4,6 +4,7 @@ import { computed } from "vue";
 import LayoutHeader from "./header.js";
 import LayoutMenu from "./menu.js";
 import LayoutTabs from "./tabs.js";
+import LayoutBreadcrumb from "./breadcrumb.js";
 import LayoutFooter from "./footer.js";
 
 export default {
@@ -11,6 +12,7 @@ export default {
     LayoutHeader,
     LayoutMenu,
     LayoutTabs,
+    LayoutBreadcrumb,
     LayoutFooter,
   },
   template: html`<el-container>
@@ -19,22 +21,26 @@ export default {
       <el-aside width="auto">
         <el-scrollbar><layout-menu /></el-scrollbar>
       </el-aside>
-      <el-container class="backtop">
-        <el-scrollbar>
-          <layout-tabs />
-          <el-main>
-            <router-view v-if="!tabsStore.isRefreshing" v-slot="{ Component, route }">
-              <component :is="Component" v-if="route.meta?.ignoreCache" :key="$route.fullPath" />
-              <keep-alive :include="tabsStore.routes.map(o=>o.path)">
-                <component :is="Component" v-if="!route.meta?.ignoreCache" :key="route.fullPath" />
-              </keep-alive>
-            </router-view>
-          </el-main>
-          <el-footer>
+      <el-container class="is-vertical main backtop">
+        <layout-tabs v-if="appStore.useTabs" />
+        <el-main>
+          <layout-breadcrumb v-if="appStore.showBreadcrumb" />
+          <router-view
+            v-if="!tabsStore.isRefreshing"
+            v-slot="{ Component, route }"
+            class="router-view"
+            :style="minHeight"
+          >
+            <component :is="Component" v-if="route.meta?.ignoreCache" :key="$route.fullPath" />
+            <keep-alive :include="tabsStore.routes.map(o=>o.path)">
+              <component :is="Component" v-if="!route.meta?.ignoreCache" :key="route.fullPath" />
+            </keep-alive>
+          </router-view>
+          <el-footer v-if="appStore.showCopyright">
             <layout-footer />
           </el-footer>
-          <el-backtop target=".backtop > .el-scrollbar > .el-scrollbar__wrap" />
-        </el-scrollbar>
+        </el-main>
+        <el-backtop target=".backtop > .el-main" />
       </el-container>
     </el-container>
   </el-container>`,
@@ -43,11 +49,24 @@ export default {
     const tabsStore = useTabsStore();
     const path = computed(() => useRoute().matched[0].path);
     const items = computed(() => useRoute().matched[0].children);
+
+    const minHeight = computed(() => {
+      let height = 0;
+      if (appStore.showBreadcrumb) {
+        height += 40;
+      }
+      if (appStore.showCopyright) {
+        height += 60;
+      }
+      const minHeight = height === 0 ? "" : `min-height:calc(100% - ${height}px);`;
+      return minHeight;
+    });
     return {
       appStore,
       tabsStore,
       path,
       items,
+      minHeight,
     };
   },
 };

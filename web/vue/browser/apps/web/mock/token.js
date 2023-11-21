@@ -44,7 +44,7 @@ const privateKey = await window.crypto.subtle.importKey(
 const issuer = "urn:example:issuer"; //发行方
 const audience = "urn:example:audience"; //接收方
 const accessTokenTimeout = "1m";
-const refreshTokenTimeout = "2m";
+const refreshTokenTimeout = "24m";
 
 async function createToken(claims, timeout) {
   const jwt = await new jose.SignJWT(claims)

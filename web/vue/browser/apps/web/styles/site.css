@@ -16,6 +16,11 @@ a {
   text-decoration: none;
 }
 
+svg:focus,
+button:focus {
+  outline: none;
+}
+
 #app {
   width: 100vw;
   height: 100vh;
@@ -50,8 +55,12 @@ a {
 }
 
 .el-main {
-  height: calc(100% - 100px);
-  overflow: auto;
+  padding: 0;
+}
+
+.el-main > .router-view {
+  min-height: calc(100% - 100px);
+  padding: 20px;
 }
 
 .el-header {
@@ -108,8 +117,9 @@ a.logo {
 .el-dialog__footer,
 .el-drawer__header,
 .el-drawer__footer {
-  height: var(--header);
-  padding: 15px;
+  height: var(--el-header-height);
+  padding: 11px;
+  line-height: 37px;
   margin: 0;
 }
 
@@ -124,7 +134,8 @@ a.logo {
 }
 
 .el-input {
-  width: 160px;
+  width: 100%;
+  min-width: 240px;
 }
 
 .el-select,
@@ -132,6 +143,7 @@ a.logo {
 .el-date-editor.el-input,
 .el-date-editor.el-input__wrapper {
   width: 100%;
+  min-width: 240px;
 }
 
 /* markdown component */
@@ -140,34 +152,65 @@ a.logo {
   margin: 0 auto;
 }
 
+/*Tabs多页签*/
+.router-tabs {
+  box-sizing: border-box;
+  height: 40px !important;
+  background-color: var(--el-fill-color-blank);
+  border-width: 0 !important;
+  .el-tabs__item {
+    margin-top: 0 !important;
+    padding: 0 !important;
+    border-bottom-width: 0;
+  }
+  .el-dropdown span {
+    padding: 0 20px;
+  }
+  .el-tabs__content {
+    display: none;
+  }
+  .el-icon {
+    margin-right: 5px;
+    margin-left: -15px;
+  }
+}
+
+/*站内导航*/
+.breadcrumb {
+  padding: 16px 20px 0 20px;
+  height: 40px;
+}
+
 /*暗色菜单*/
 
-.el-aside *,
-.el-header,
-.el-header .el-dropdown-link {
-  background-color: #343a40;
-  color: #e5eaf3;
-}
-.el-aside *:hover,
-.el-header *:hover {
-  background-color: #343a40;
-}
+html.dark-nav {
+  .el-aside *,
+  .el-header,
+  .el-header .el-dropdown-link {
+    background-color: #343a40;
+    color: #e5eaf3;
+  }
+  .el-aside *:hover,
+  .el-header *:hover {
+    background-color: #343a40;
+  }
 
-.el-aside .el-menu-item.is-active * {
-  color: #409eff;
-}
+  .el-aside .el-menu-item.is-active * {
+    color: #409eff;
+  }
 
-.el-aside .el-scrollbar__thumb {
-  background-color: #e5eaf3 !important;
-  opacity: 0.5 !important;
-}
-.el-aside el-scrollbar__thumb:hover {
-  background-color: #e5eaf3 !important;
-}
+  .el-aside .el-scrollbar__thumb {
+    background-color: #e5eaf3 !important;
+    opacity: 0.5 !important;
+  }
+  .el-aside el-scrollbar__thumb:hover {
+    background-color: #e5eaf3 !important;
+  }
 
-.el-header {
-  border-bottom-color: #343a40;
-}
-.el-header .el-icon {
-  color: #e5eaf3 !important;
+  .el-header {
+    border-bottom-color: #343a40;
+  }
+  .el-header .el-icon {
+    color: #e5eaf3 !important;
+  }
 }

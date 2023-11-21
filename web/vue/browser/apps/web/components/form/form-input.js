@@ -123,6 +123,7 @@ export default {
           v-model="model[prop]"
           :type="schema.input??'text'"
           :show-password="schema.input==='password'"
+          :prefix-icon="schema.icon"
         />
       </template>
     </template>
