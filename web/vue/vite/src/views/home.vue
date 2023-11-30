@@ -1,0 +1,46 @@
+<template>
+  <jsx-demo />
+  <el-row><md name="home" /></el-row>
+  <el-row><editor v-model="model" upload-url="file/upload" /> </el-row>
+  <el-row><chart :options="options" width="400px" height="200px" /></el-row>
+  <h2>CKEditor</h2>
+</template>
+
+<script setup>
+  import { onMounted, ref, watch } from 'vue';
+
+  import Chart from '@/components/chart/index.vue';
+  import Editor from '@/components/editor/index.vue';
+  import JsxDemo from '@/components/jsx-demo.jsx';
+  import Md from '@/components/markdown/index.vue';
+  import { useUserStore } from '@/store/index.js';
+
+  const userStore = useUserStore();
+  onMounted(async () => {
+    await userStore.getUserInfo();
+  });
+
+  const model = ref('');
+  watch(model, () => {
+    console.log(model.value);
+  });
+
+  const options = {
+    title: {
+      text: '基础折线图',
+    },
+    xAxis: {
+      type: 'category',
+      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    },
+    yAxis: {
+      type: 'value',
+    },
+    series: [
+      {
+        data: [150, 230, 224, 218, 135, 147, 260],
+        type: 'line',
+      },
+    ],
+  };
+</script>

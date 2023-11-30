@@ -1,0 +1,14 @@
+{
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "files.autoSave": "onFocusChange",
+  "eslint.probe": ["javascript", "vue", "json", "jsonc"],
+  "eslint.validate": ["javascript", "vue", "json", "jsonc"],
+  "stylelint.validate": ["html", "vue"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.stylelint": true
+  }
+}
