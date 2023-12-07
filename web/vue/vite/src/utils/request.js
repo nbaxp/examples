@@ -1,8 +1,8 @@
 import qs from 'qs';
 
 import settings from '@/config/settings.js';
-import useLocale from '@/locale/index.js';
-import useRouter from '@/router/index.js';
+import i18n from '@/locale/index.js';
+import router from '@/router/index.js';
 import { useTokenStore } from '@/store/index.js';
 import { getFileNameFromContentDisposition } from '@/utils/index.js';
 
@@ -29,7 +29,6 @@ function getUrl(url) {
 
 const getOptions = async (method, url, data, customOptions, isUrlEncoded) => {
   url = getUrl(url);
-  const i18n = await useLocale();
   // 设置默认值
   const options = {
     method: method ?? 'POST',
@@ -74,55 +73,54 @@ const getOptions = async (method, url, data, customOptions, isUrlEncoded) => {
   };
 };
 
-const getJsonResult = async (response) => {
-  const result = await response.json();
-  if (result.code) {
-    return result;
-  }
-  return {
-    code: response.status,
-    message: messages.get(response.status) ?? response.statusText,
-    data: result,
-  };
-};
-
 const getResult = async (response) => {
-  let result = null;
+  const result = {
+    ok: false,
+    status: response.status,
+  };
+  let data = null;
+  const message = messages.get(response.status) ?? response.statusText;
   if (response.status === 400) {
     // 400输入错误
-    result = await getJsonResult(response);
+    data = await response.json();
   } else if (response.status === 401) {
     // 401未登录
-    result = { code: response.status, message: messages.get(response.status) ?? response.statusText };
-    const router = await useRouter();
+    // result = { code: response.status, message: messages.get(response.status) ?? response.statusText };
     router.push({ path: '/login', query: { redirect: router.currentRoute.value.fullPath } });
   } else if (response.status === 403) {
     // 403权限不足
-    result = { code: response.status, message: messages.get(response.status) ?? response.statusText };
-    const router = await useRouter();
+    // result = { code: response.status, message: messages.get(response.status) ?? response.statusText };
     router.push({ path: '/403', query: { redirect: router.currentRoute.value.fullPath } });
   } else if (response.status === 500) {
     // 500服务端错误
-    result = await getJsonResult(response);
+    data = await response.json();
   } else {
     const contentType = response.headers.get('Content-Type');
     if (contentType?.indexOf('application/json') > -1) {
-      result = await getJsonResult(response);
+      data = await response.json();
     } else {
       const contentDisposition = response.headers.get('Content-Disposition');
       if (contentDisposition) {
-        result = {
-          code: response.status,
-          message: getFileNameFromContentDisposition(contentDisposition),
-          data: await response.blob(),
+        data = {
+          file: await response.blob(),
+          name: getFileNameFromContentDisposition(contentDisposition),
         };
       } else {
-        result = {
-          code: response.status,
-          message: messages.get(response.status) ?? response.statusText,
-          data: await response.text(),
-        };
+        data = await response.text();
       }
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'code')) {
+    result.code = data.code;
+    result.message = data.message;
+    result.data = data.data;
+  } else {
+    result.data = data;
+    result.message = message;
+  }
+  if (response.ok) {
+    if (!result.code || result.code === 0) {
+      result.ok = true;
     }
   }
   return result;
@@ -138,7 +136,7 @@ async function request(method, url, data, customOptions, isUrlEncoded = false) {
     const result = await getResult(response);
     return result;
   } catch (error) {
-    return { code: error.name, message: error.message, error };
+    return { ok: false, code: error.name, message: error.message, error };
   }
 }
 

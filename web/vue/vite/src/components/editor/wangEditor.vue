@@ -47,7 +47,7 @@
     const data = new FormData();
     data.append('file', file);
     const result = await request(method, url, data);
-    insertFn(result.data.data);
+    insertFn(result.data);
   };
 
   const editorRef = shallowRef();

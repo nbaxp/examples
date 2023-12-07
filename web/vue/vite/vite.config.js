@@ -2,7 +2,6 @@ import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import { presetAttributify, presetIcons, presetUno, transformerDirectives, transformerVariantGroup } from 'unocss';
 import UnoCSS from 'unocss/vite';
-import autoImport from 'unplugin-auto-import/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
@@ -30,15 +29,6 @@ export default defineConfig({
     inspect(),
     svgLoader(),
     viteCompression(),
-    autoImport({
-      resolvers: [ElementPlusResolver()],
-      // imports: ['vue', 'vue-router', 'pinia', '@vueuse/head', '@vueuse/core'],
-      // dirs: ['src/components', 'src/views'],
-      vueTemplate: true,
-      eslintrc: {
-        enabled: true,
-      },
-    }),
     components({
       extensions: ['vue', 'md'],
       include: [/\.vue$/, /\.vue\?vue/, /\.md$/],

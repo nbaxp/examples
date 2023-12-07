@@ -3,8 +3,7 @@
     <el-main class="flex">
       <div>
         <div class="flex items-center justify-center">
-          <layout-logo />
-          <layout-locale />
+          <el-space><layout-logo /> <layout-locale /></el-space>
         </div>
         <el-card class="box-card">
           <app-form v-model="model" :schema="schema" @success="success" />
@@ -23,20 +22,18 @@
   import LayoutFooter from '@/layout/footer.vue';
   import LayoutLocale from '@/layout/locale.vue';
   import LayoutLogo from '@/layout/logo.vue';
-  import useLoginModel from '@/models/login.js';
+  import useModel from '@/models/login.js';
   import { useTokenStore, useUserStore } from '@/store/index.js';
   import { schemaToModel } from '@/utils/index.js';
 
-  const schema = ref(useLoginModel());
+  const schema = ref(useModel());
   const model = ref(schemaToModel(schema.value));
   model.value.userName = 'admin';
   model.value.password = '123456';
   const router = useRouter();
   const success = async (data) => {
-    const tokenStore = useTokenStore();
-    tokenStore.setToken(data.access_token, data.refresh_token);
-    const userStore = useUserStore();
-    await userStore.getUserInfo();
+    useTokenStore().setToken(data.access_token, data.refresh_token);
+    await useUserStore().getUserInfo();
     const redirect = router.currentRoute.value.query?.redirect ?? '/';
     router.push(redirect);
   };

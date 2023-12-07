@@ -87,15 +87,12 @@ const validators = {
       const method = rule.method ?? 'GET';
       const data = { [rule.field]: value };
       request(method, url, data)
-        .then((response) => {
-          if (response.status === 200) {
-            if (response.data.code) {
-              if (response.data.code !== 200) {
-                errors.push(new Error(1 + response.data.message));
-              }
-            }
+        .then((result) => {
+          if (!result.ok) {
+            errors.push(new Error(2 + result.data));
+
           } else {
-            errors.push(new Error(2 + response.data));
+            errors.push(new Error(1 + result.message));
           }
           callback(errors);
         })

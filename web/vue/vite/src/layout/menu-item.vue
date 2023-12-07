@@ -2,17 +2,17 @@
   <template v-if="!node.meta?.hideInMenu">
     <el-sub-menu v-if="node.children && node.children.some((o) => !o.meta?.hideInMenu)" :index="path">
       <template #title>
-        <el-icon><svg-icon :name="node.meta.icon ?? 'folder'" /></el-icon>
-        <span>{{ node.meta?.title }}</span>
+        <svg-icon :name="node.meta.icon ?? 'folder'" />
+        <span>{{ $t(node.meta?.title) }}</span>
       </template>
       <template v-for="item in node.children" :key="item.path">
         <menu-item :node="item" :parent="parent + '/' + node.path" />
       </template>
     </el-sub-menu>
     <el-menu-item v-else :index="node.meta?.isExternal ? null : path" @click="click">
-      <el-icon><svg-icon :name="node.meta.icon ?? 'file'" /></el-icon>
+      <svg-icon :name="node.meta.icon ?? 'file'" />
       <template #title>
-        <span>{{ node.meta?.title }}</span>
+        <span>{{ $t(node.meta?.title) }}</span>
       </template>
     </el-menu-item>
   </template>
@@ -32,7 +32,7 @@
     },
     parent: {
       type: String,
-      default: null,
+      default: '',
     },
   });
 
@@ -43,8 +43,8 @@
   const path = `${props.parent}/${props.node.path}`;
   const click = (route) => {
     if (!route.meta?.isExternal) {
-      if (appStore.useTabs && tabsStore.routes.length >= (appStore.maxTabs ?? 10)) {
-        ElMessageBox.alert(`页签达到最大限制${appStore.maxTabs ?? 10},请关闭不再使用的页签`, `提示`);
+      if (appStore.settings.useTabs && tabsStore.routes.length >= (appStore.settings.maxTabs ?? 10)) {
+        ElMessageBox.alert(`页签达到最大限制${appStore.settings.maxTabs ?? 10},请关闭不再使用的页签`, `提示`);
       } else {
         router.push(path);
       }

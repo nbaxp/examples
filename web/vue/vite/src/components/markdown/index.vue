@@ -30,7 +30,7 @@
     const darkClass = 'theme__dark';
     const target = tplRef.value?.querySelector(targetSelector);
     const isDarkNow = useMediaQuery('(prefers-color-scheme: dark)');
-    if ((appStore.mode === 'auto' && isDarkNow.value) || appStore.mode === 'dark') {
+    if ((appStore.settings.mode === 'auto' && isDarkNow.value) || appStore.settings.mode === 'dark') {
       target?.classList.remove(lightClass);
       target?.classList.add(darkClass);
     } else {

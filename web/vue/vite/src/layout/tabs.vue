@@ -16,24 +16,24 @@
             trigger="contextmenu"
             @visible-change="showContextMenu(index, $event)"
           >
-            <span class="inline-flex items-center"> {{ item.meta?.title ?? item.fullPath }} </span>
+            <span class="inline-flex items-center"> {{ $t(item.meta?.title) }} </span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="refresh(index)">
-                  <el-icon><i class="i-ep-refresh" /></el-icon><span>刷新</span>
+                  <el-icon><i class="i-ep-refresh" /></el-icon><span>{{ $t('refresh') }}</span>
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="index === 0" @click="removeLeft(index)">
-                  <el-icon><i class="i-ep-back" /></el-icon><span>关闭左侧</span>
+                  <el-icon><i class="i-ep-back" /></el-icon><span>{{ $t('close left') }}</span>
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="index === tabsStore.routes.length - 1" @click="removeRight(index)">
-                  <el-icon><i class="i-ep-right" /></el-icon><span>关闭右侧</span>
+                  <el-icon><i class="i-ep-right" /></el-icon><span>{{ $t('close right') }}</span>
                 </el-dropdown-item>
                 <el-dropdown-item
                   :disabled="index === 0 && index === tabsStore.routes.length - 1"
                   @click="removeOthers(index)"
                 >
                   <el-icon><i class="i-ep-switch" /></el-icon>
-                  <span>关闭其他</span>
+                  <span>{{ $t('close other') }}</span>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>

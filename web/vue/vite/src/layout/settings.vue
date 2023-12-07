@@ -1,7 +1,7 @@
 <template>
   <i class="i-ep-setting cursor-pointer" @click="show = !show" />
   <el-drawer v-model="show" :title="$t('Page Settings')" append-to-body destroy-on-close size="auto">
-    <app-form ref="formRef" v-model="appStore" :schema="schema" :hide-button="true" />
+    <app-form ref="formRef" v-model="appStore.settings" :schema="schema" :hide-button="true" />
     <template #footer>
       <el-button type="primary" @click="copySettings">复制</el-button>
       <el-button type="primary" @click="reset">还原</el-button>
@@ -15,17 +15,18 @@
   import { ref, watchEffect } from 'vue';
 
   import AppForm from '@/components/form/index.vue';
-  import schema from '@/models/settings.js';
+  import useModel from '@/models/settings.js';
   import { useAppStore } from '@/store/index.js';
 
   const show = ref(false);
   const formRef = ref(null);
+  const schema = useModel();
   const appStore = useAppStore();
   const { copy } = useClipboard();
   const copySettings = async () => {
     try {
       await formRef.value.validate();
-      const text = JSON.stringify(appStore.$state, null, 2);
+      const text = JSON.stringify(appStore.settings, null, 2);
       await copy(text);
       ElMessage({
         message: 'config/settings.json',
@@ -39,17 +40,17 @@
     await formRef.value.reset();
   };
   watchEffect(() => {
-    document.documentElement.classList[appStore.useDarkNav ? 'add' : 'remove']('dark-nav');
+    document.documentElement.classList[appStore.settings.useDarkNav ? 'add' : 'remove']('dark-nav');
   });
   watchEffect(() => {
-    document.documentElement.style.setProperty('--el-color-primary', appStore.color);
+    document.documentElement.style.setProperty('--el-color-primary', appStore.settings.color);
   });
   watchEffect(() => {
     const darkClass = 'dark';
     const toDark = () => document.documentElement.classList.add(darkClass);
     const toLight = () => document.documentElement.classList.remove(darkClass);
     const isDarkNow = useMediaQuery('(prefers-color-scheme: dark)');
-    if ((appStore.mode === 'auto' && isDarkNow.value) || appStore.mode === 'dark') {
+    if ((appStore.settings.mode === 'auto' && isDarkNow.value) || appStore.settings.mode === 'dark') {
       toDark();
     } else {
       toLight();

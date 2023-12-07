@@ -20,7 +20,7 @@
     <template v-if="getInput(schema) === 'tabs' && mode === 'query'">
       <el-tabs v-model="model[prop]" type="card" style="height: 24px; margin: 0" class="form">
         <el-tab-pane key="all" label="全部" :name="''" />
-        <el-tab-pane v-for="item in options" :label="item.label" :name="item.value" />
+        <el-tab-pane v-for="item in options" :key="item.value" :label="item.label" :name="item.value" />
       </el-tabs>
     </template>
     <template v-if="getInput(schema) === 'color'">
@@ -29,22 +29,21 @@
     <template v-else-if="getInput(schema) === 'select' || getInput(schema) === 'tabs'">
       <el-select
         v-model="model[prop]"
-        :placeholder="schema.placeholder ?? schema.title"
+        :placeholder="placeholder"
         :multiple="!!schema.multiple"
         :clearable="!!schema.clearable"
       >
         <template #prefix>
           <svg-icon
             v-if="options?.find((o) => o.value == model[prop])?.icon"
+            class="el-icon--left"
             :name="options.find((o) => o.value == model[prop])?.icon"
           />
         </template>
         <el-option v-for="item in options" :key="item.key" :label="item.label" :value="item.value">
           <span style="display: flex; align-items: center">
-            <el-icon v-if="item.icon" class="el-icon--left">
-              <svg-icon :name="item.icon" />
-            </el-icon>
-            {{ item.label }}
+            <svg-icon v-if="item.icon" :name="item.icon" class="el-icon--left" />
+            <span>{{ item.label }}</span>
           </span>
         </el-option>
       </el-select>
@@ -62,28 +61,13 @@
       />
     </template>
     <template v-else-if="getInput(schema) === 'number'">
-      <el-input
-        v-model="model[prop]"
-        :disabled="getDisabled()"
-        :placeholder="schema.placeholder ?? schema.title"
-        type="number"
-      />
+      <el-input v-model="model[prop]" :disabled="getDisabled()" :placeholder="placeholder" type="number" />
     </template>
     <template v-else-if="getInput(schema) === 'integer'">
-      <el-input-number
-        v-model="model[prop]"
-        :disabled="getDisabled()"
-        :placeholder="schema.placeholder ?? schema.title"
-        :precision="0"
-      />
+      <el-input-number v-model="model[prop]" :disabled="getDisabled()" :placeholder="placeholder" :precision="0" />
     </template>
     <template v-else-if="getInput(schema) === 'boolean'">
-      <el-select
-        v-if="schema.nullable"
-        v-model="model[prop]"
-        :disabled="getDisabled()"
-        :placeholder="schema.placeholder ?? schema.title"
-      >
+      <el-select v-if="schema.nullable" v-model="model[prop]" :disabled="getDisabled()" :placeholder="placeholder">
         <el-option prop="select" value="" :label="$t('select')" />
         <el-option prop="true" :value="true" :label="$t('true')" />
         <el-option prop="false" :value="false" :label="$t('false')" />
@@ -122,7 +106,7 @@
         v-model="model[prop]"
         clearable
         :disabled="getDisabled()"
-        :placeholder="schema.placeholder ?? schema.title"
+        :placeholder="placeholder"
         :type="schema.input ?? 'text'"
         :show-password="schema.input === 'password'"
       >
@@ -136,10 +120,12 @@
 
 <script setup>
   import { dayjs, ElMessage, useFormItem } from 'element-plus';
-  import { onMounted, reactive, ref, watch } from 'vue';
+  import { computed, onMounted, reactive, ref, watch } from 'vue';
+  import { useI18n } from 'vue-i18n';
 
   import SvgIcon from '@/components/icon/index.vue';
   import { bytesFormat, importFunction } from '@/utils/index.js';
+  import request from '@/utils/request.js';
 
   const props = defineProps(['modelValue', 'schema', 'prop', 'isReadOnly', 'mode']);
   const emit = defineEmits(['update:modelValue']);
@@ -149,6 +135,10 @@
     emit('update:modelValue', value);
   });
   /* start */
+  const { t } = useI18n();
+  const placeholder = computed(() => {
+    return t(props.schema.placeholder ?? props.schema.title ?? props.prop);
+  });
   const getDisabled = () => {
     if (props.mode === 'details') {
       return true;
@@ -221,7 +211,7 @@
       try {
         const url = `${props.schema.url}`;
         const result = await request(props.schema.method ?? 'POST', url);
-        options.value = result.data?.items.map((o) => ({
+        options.value = result.data?.map((o) => ({
           value: o[props.schema.value],
           label: o[props.schema.label],
         }));

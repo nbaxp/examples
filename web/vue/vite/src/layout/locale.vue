@@ -19,13 +19,25 @@
 </template>
 
 <script setup>
+  import { useTitle } from '@vueuse/core';
+  import { watchEffect } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useRoute } from 'vue-router';
 
-  import SvgIcon from '@/components/icon/index.vue';
-  import { options } from '@/locale/index.js';
+  import { useAppStore } from '@/store/index.js';
+
+  const appStore = useAppStore();
+
+  const { options } = appStore.locale;
 
   const i18n = useI18n();
   const change = (locale) => {
     i18n.locale.value = locale;
   };
+  const route = useRoute();
+  watchEffect(() => {
+    if (route.meta.title) {
+      useTitle().value = i18n.t(route.meta?.title);
+    }
+  });
 </script>

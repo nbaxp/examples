@@ -4,7 +4,7 @@
     <template v-else-if="schema.type !== 'array' || schema.items?.type !== 'array'">
       <el-form-item
         :title="prop"
-        :label="parentSchema.labelWidth === 0 ? null : schema.title"
+        :label="parentSchema.labelWidth === 0 ? null : $t(schema.title ?? prop)"
         :prop="getProp(prop)"
         :rules="getDisabled() ? [] : getRules(parentSchema, schema, model)"
         :error="mode === 'query' ? null : getError(prop)"

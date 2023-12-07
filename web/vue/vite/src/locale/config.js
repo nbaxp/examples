@@ -3,6 +3,7 @@ import zh from './zh-CN.js';
 
 export default {
   legacy: false,
+  locale: 'zh-CN',
   fallbackLocale: 'en-US',
   options: [
     {

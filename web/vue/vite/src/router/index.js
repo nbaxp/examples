@@ -1,8 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
-import { useTokenStore, useUserStore } from '@/store/index.js';
-import { log } from '@/utils/index.js';
-import { getUrl } from '@/utils/request.js';
+import { useAppStore } from '@/store/index.js';
+import { listToTree } from '@/utils/index.js';
 
 import { afterEach, beforeEach } from './guard.js';
 
@@ -15,15 +14,7 @@ const view = (name) => {
   return views[`../views/${name}.vue`];
 };
 
-let router = null;
-
 const routes = [
-  {
-    name: 'layout',
-    path: '/',
-    redirect: '/home',
-    component: layout('index'),
-  },
   {
     path: '/login',
     component: view('login'),
@@ -58,14 +49,28 @@ const routes = [
   },
 ];
 
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+});
+
 const convert = (list) => {
   list.forEach((o) => {
+    o.meta ??= {};
+    o.meta.type = o.type;
+    delete o.type;
+    if (o.meta.type === 'page') {
+      o.meta.buttons = o.children;
+      delete o.children;
+    }
     if (o.component) {
-      if (o.isMarkdown) {
-        o.meta.file = o.component;
+      const file = o.component;
+      if (o.redirect) {
+        o.component = layout(file);
+      } else if (o.isMarkdown) {
+        o.meta.file = file;
         o.component = view('md');
       } else {
-        const file = o.component;
         o.component = view(file);
       }
     }
@@ -75,31 +80,17 @@ const convert = (list) => {
   });
 };
 
-async function getMenuInfo() {
-  log('fetch menus');
-  const response = await fetch(getUrl('menu'), { method: 'POST' });
-  const result = await response.json();
-  // 转换格式开始
-  convert(result);
-  // 转换格式结束
-  return result;
+async function refreshRouter() {
+  const appStore = useAppStore();
+  await appStore.getMenus();
+  const tree = listToTree(appStore.menus);
+  convert(tree);
+  tree.forEach((o) => router.addRoute(o.path, o));
 }
 
-export default async function () {
-  if (router === null) {
-    log('init router');
-    const serverRoutes = await getMenuInfo();
-    routes.find((o) => o.path === '/').children = serverRoutes;
-    router = createRouter({
-      history: createWebHashHistory(),
-      routes,
-    });
-    router.beforeEach(beforeEach);
-    router.afterEach(afterEach);
-    const tokenStore = useTokenStore();
-    await tokenStore.refresh();
-    const userStore = useUserStore();
-    await userStore.getUserInfo();
-  }
-  return router;
-}
+router.beforeEach(beforeEach);
+router.afterEach(afterEach);
+
+export default router;
+
+export { refreshRouter };

@@ -1,6 +1,8 @@
 /* eslint-disable camelcase */
 import * as jose from 'jose';
 
+import { log } from '@/utils/index.js';
+
 import Mock from '../lib/better-mock/mock.browser.esm.js';
 
 const publicJsonWebKey = {
@@ -46,7 +48,7 @@ const privateKey = await window.crypto.subtle.importKey(
 const issuer = 'urn:example:issuer'; // 发行方
 const audience = 'urn:example:audience'; // 接收方
 const accessTokenTimeout = '1m';
-const refreshTokenTimeout = '24m';
+const refreshTokenTimeout = '10m';
 
 async function createToken(claims, timeout) {
   const jwt = await new jose.SignJWT(claims)
@@ -61,6 +63,7 @@ async function createToken(claims, timeout) {
 
 export default function () {
   Mock.mock('/api/token/create', 'POST', (request) => {
+    log(`mock:${request.url}`);
     const { userName, password } = JSON.parse(request.body ?? '{}');
 
     if (!userName) {
@@ -87,6 +90,7 @@ export default function () {
   });
 
   Mock.mock('/api/token/refresh', 'POST', (request) => {
+    log(`mock:${request.url}`);
     const jwt = JSON.parse(request.body);
     return new Promise((resolve) => {
       jose

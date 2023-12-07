@@ -1,4 +1,25 @@
-# 路线图
+# 思维导图
+
+## 应用启动
+
+```mermaid
+flowchart LR
+
+createPinia --> useMock
+createI18n --> useMock
+createRouter --> useMock
+useMock --> createApp
+createApp --> store["app.use(store)"]  --> app.mount
+createApp --> i18n["app.use(i18n)"] --> app.mount
+createApp --> router["app.use(router)"] --> app.mount
+```
+
+## 路由守卫
+
+```mermaid
+flowchart LR
+createRouter --> beforeEach --> locale[fetch locale] --> menu[fetch menu] --> refresh[refresh token] --> login[valid permission]
+```
 
 ```mermaid
 flowchart LR

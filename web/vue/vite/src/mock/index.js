@@ -5,6 +5,7 @@ import { log } from '@/utils/index.js';
 import useFile from './file.js';
 import useLocale from './locale.js';
 import useMenu from './menu.js';
+import useRole from './role.js';
 import useToken from './token.js';
 import useUser from './user.js';
 
@@ -22,4 +23,5 @@ export default function () {
   useUser();
   useMenu();
   useFile();
+  useRole();
 }

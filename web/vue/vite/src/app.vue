@@ -1,5 +1,5 @@
 <template>
-  <el-config-provider :locale="options[$i18n.locale]" :size="appStore.size">
+  <el-config-provider :locale="options[$i18n.locale]" :size="appStore.settings.size">
     <router-view></router-view>
   </el-config-provider>
 </template>

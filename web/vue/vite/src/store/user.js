@@ -5,8 +5,6 @@ import request from '@/utils/request.js';
 
 import useTokenStore from './token.js';
 
-export const REFRESH_TOKEN_KEY = 'refresh_token';
-
 export default defineStore('user', {
   state: () => ({
     userName: null,
@@ -20,7 +18,7 @@ export default defineStore('user', {
       if (tokenStore.accessToken) {
         const url = 'user/info';
         const result = await request('POST', url);
-        if (!result.errors) {
+        if (result.ok) {
           this.$patch(result.data);
         }
       }

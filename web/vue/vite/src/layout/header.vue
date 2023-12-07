@@ -2,13 +2,23 @@
   <div class="flex items-center justify-between">
     <div class="flex items-center justify-center">
       <layout-logo />
-      <el-icon @click="toggleMenuCollapse">
-        <i v-if="appStore.isMenuCollapse" class="i-uiw-menu-unfold" />
+      <el-icon style="margin: 0 20px" @click="toggleMenuCollapse">
+        <i v-if="appStore.settings.isMenuCollapse" class="i-uiw-menu-unfold" />
         <i v-else class="i-uiw-menu-fold" />
       </el-icon>
+      <el-menu mode="horizontal" :default-active="$route.matched[0].path" :ellipsis="false" router>
+        <template v-for="route in $router.getRoutes().filter((o) => !o.meta?.hideInMenu && o.redirect)">
+          <el-menu-item v-if="!route.meta?.hideInMenu" :key="route.path" :index="route.path">
+            <template #title>
+              <svg-icon v-if="route.meta?.icon" :name="route.meta.icon" />
+              <span>{{ $t(route.meta?.title ?? route.path) }}</span>
+            </template>
+          </el-menu-item>
+        </template>
+      </el-menu>
     </div>
     <div class="flex">
-      <el-space>
+      <el-space size="large">
         <el-icon @click="clickSearch">
           <i class="i-ep-search" />
         </el-icon>
@@ -41,27 +51,26 @@
             <el-icon v-else class="el-icon--left">
               <i class="i-ep-user" />
             </el-icon>
-            {{ userStore.userName }}
+            <span>{{ userStore.userName }}</span>
             <el-icon class="el-icon--right">
-              <i class="i-ep-arrow-down" />
+              <b class="i-ep-arrow-down" />
             </el-icon>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item>
                 <router-link to="/account">
-                  <el-icon> <i class="i-ep-user" /> </el-icon>{{ $t('userCenter') }}
+                  <el-icon> <b class="i-ep-user" /> </el-icon>
+                  <span>{{ $t('userCenter') }}</span>
                 </router-link>
               </el-dropdown-item>
               <el-dropdown-item divided @click="confirmLogout">
-                <el-icon> <i class="i-ep-switch-button" /> </el-icon>{{ $t('logout') }}
+                <el-icon> <b class="i-ep-switch-button" /> </el-icon>
+                <span>{{ $t('logout') }}</span>
               </el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-        <el-link v-else type="info">
-          <router-link to="/register"> {{ $t('register') }}</router-link>
-        </el-link>
         <layout-locale />
         <layout-settings />
       </el-space>
@@ -76,6 +85,7 @@
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
 
+  import SvgIcon from '@/components/icon/index.vue';
   import { useAppStore, useTokenStore, useUserStore } from '@/store/index.js';
 
   import LayoutLocale from './locale.vue';
@@ -126,7 +136,7 @@
   };
   //
   const toggleMenuCollapse = () => {
-    appStore.isMenuCollapse = !appStore.isMenuCollapse;
+    appStore.settings.isMenuCollapse = !appStore.settings.isMenuCollapse;
   };
   //
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(document.documentElement);

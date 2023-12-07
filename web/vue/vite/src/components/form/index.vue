@@ -1,32 +1,30 @@
 <template>
-  <div v-loading="loading">
-    <el-form ref="formRef" :model="model" label-width="auto" :inline="inline" @keyup.enter="submit">
-      <el-form-item v-if="errorMessage" :label-width="0" style="margin-bottom: 0">
-        <el-text type="danger">{{ errorMessage }}</el-text>
-      </el-form-item>
-      <template v-if="schema && schema.properties">
-        <template v-for="(value, prop) in getProperties(schema.properties)">
-          <app-form-item
-            v-model="model"
-            :parent-schema="schema"
-            :schema="value"
-            :prop="prop"
-            :mode="mode"
-            :errors="errors"
-          />
-        </template>
+  <el-form ref="formRef" v-loading="loading" :model="model" label-width="auto" :inline="inline" @keyup.enter="submit">
+    <el-form-item v-if="errorMessage" :label-width="0" style="margin-bottom: 0">
+      <el-text type="danger">{{ errorMessage }}</el-text>
+    </el-form-item>
+    <template v-if="schema && schema.properties">
+      <template v-for="(value, prop) in getProperties(schema.properties)" :key="prop">
+        <app-form-item
+          v-model="model"
+          :parent-schema="schema"
+          :schema="value"
+          :prop="prop"
+          :mode="mode"
+          :errors="errors"
+        />
       </template>
-      <slot></slot>
-      <el-form-item v-if="!hideButton" :label-width="0" style="margin-bottom: 0">
-        <slot name="submit">
-          <el-button type="primary" :disabled="loading" :style="schema.submitStyle" @click="submit">
-            {{ $t(schema.title ?? 'confirm') }}
-          </el-button>
-          <el-button v-if="showReset" :disabled="loading" @click="reset"> {{ $t('reset') }} </el-button>
-        </slot>
-      </el-form-item>
-    </el-form>
-  </div>
+    </template>
+    <slot></slot>
+    <el-form-item v-if="!hideButton" :label-width="0" style="margin-bottom: 0">
+      <slot name="submit">
+        <el-button type="primary" :disabled="loading" :style="schema.submitStyle" @click="submit">
+          {{ $t(schema.title ?? 'confirm') }}
+        </el-button>
+        <el-button v-if="showReset" :disabled="loading" @click="reset"> {{ $t('reset') }} </el-button>
+      </slot>
+    </el-form-item>
+  </el-form>
 </template>
 
 <script setup>
@@ -76,7 +74,7 @@
         const method = props.schema.method ?? 'POST';
         errorMessage.value = null;
         const result = await request(method, url, model);
-        if (!result.error && (Number.parseInt(result.code / 100, 10) === 2 || result.code === 0)) {
+        if (result.ok) {
           emit('success', result.data);
         } else {
           errorMessage.value = result.message;

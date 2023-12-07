@@ -1,13 +1,13 @@
 import { jwtDecode } from 'jwt-decode';
 import { defineStore } from 'pinia';
 
-import useRouter from '@/router/index.js';
+import router from '@/router/index.js';
 import { log } from '@/utils/index.js';
 import { getUrl } from '@/utils/request.js';
 
 import useUserStore from './user.js';
 
-export const REFRESH_TOKEN_KEY = 'refresh_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 export default defineStore('token', {
   state: () => ({
@@ -42,12 +42,9 @@ export default defineStore('token', {
         if (exp > new Date()) {
           return true;
         }
-        await this.refresh();
-        if (this.accessToken) {
-          return true;
-        }
       }
-      return false;
+      await this.refresh();
+      return !!this.accessToken;
     },
     setToken(accessToken, refreshToken) {
       if (accessToken && refreshToken) {
@@ -65,7 +62,6 @@ export default defineStore('token', {
       this.removeToken();
       const userStore = useUserStore();
       userStore.$reset();
-      const router = await useRouter();
       router.push({ path: '/redirect', query: { redirect: router.currentRoute.value.fullPath } });
     },
   },
