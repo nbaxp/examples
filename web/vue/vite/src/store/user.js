@@ -8,6 +8,7 @@ import useTokenStore from './token.js';
 export default defineStore('user', {
   state: () => ({
     userName: null,
+    name: null,
     avatar: null,
     permissions: [],
   }),

@@ -1,8 +1,8 @@
 <template>
   <a href="javascript:;" class="logo" @click="reload">
-    <div class="flex h-full items-center">
+    <div class="flex items-center">
       <img src="../assets/logo.svg" />
-      <h1 v-if="!appStore.settings.isMenuCollapse">{{ $t('Application') }}</h1>
+      <h1 v-if="!appStore.settings.isMenuCollapse">{{ $t('application') }}</h1>
     </div>
   </a>
 </template>

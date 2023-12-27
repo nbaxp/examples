@@ -69,9 +69,9 @@ export default [
                 type: 'button',
                 meta: {
                   title: 'Search',
-                  action: 'query',
+                  action: 'search',
                   method: 'POST',
-                  api: 'role',
+                  url: 'role',
                 },
               },
               {
@@ -80,16 +80,17 @@ export default [
                   title: 'Create',
                   action: 'create',
                   method: 'POST',
-                  api: 'role',
+                  url: 'role',
                 },
               },
               {
                 type: 'button',
                 meta: {
-                  title: 'Edit',
-                  action: 'edit',
+                  position: 'row',
+                  title: 'Update',
+                  action: 'update',
                   method: 'POST',
-                  api: 'role',
+                  url: 'role',
                 },
               },
               {
@@ -98,7 +99,25 @@ export default [
                   title: 'Delete',
                   action: 'delete',
                   method: 'POST',
-                  api: 'role',
+                  url: 'role',
+                },
+              },
+              {
+                type: 'button',
+                meta: {
+                  title: 'Import',
+                  action: 'import',
+                  method: 'POST',
+                  url: 'role',
+                },
+              },
+              {
+                type: 'button',
+                meta: {
+                  title: 'Export',
+                  action: 'export',
+                  method: 'POST',
+                  url: 'role',
                 },
               },
             ],
@@ -306,7 +325,7 @@ export default [
     children: [
       {
         path: 'home',
-        component: 'home',
+        component: 'm2/home',
         meta: { title: 'Module2 Home Page' },
       },
     ],

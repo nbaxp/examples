@@ -33,15 +33,57 @@ const schema = {
     query: {
       type: 'object',
       method: 'POST',
-      api: 'role',
+      url: 'role',
       properties,
     },
     list: {
       type: 'object',
       properties,
     },
-    edit: {
+    export: {
       type: 'object',
+      title: 'Export',
+      method: 'POST',
+      url: 'role/export',
+      properties: {
+        all: {
+          title: 'Export All',
+          type: 'boolean',
+        },
+      },
+    },
+    import: {
+      type: 'object',
+      title: 'Import',
+      method: 'POST',
+      url: 'role/import',
+      properties: {
+        files: {
+          title: 'Files',
+          type: 'array',
+          multiple: true,
+          input: 'file',
+          accept: '.xlsx',
+          default: [],
+          limit: 10,
+          size: 100 * 1024 * 1024,
+          rules: [
+            {
+              required: true,
+              trigger: 'change',
+            },
+          ],
+        },
+      },
+    },
+    create: {
+      type: 'object',
+      title: 'Create',
+      properties,
+    },
+    update: {
+      type: 'object',
+      title: 'Update',
       properties,
     },
   },

@@ -8,7 +8,7 @@
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item v-for="locale in $i18n.availableLocales" :key="locale" @click="change(locale)">
-          {{ options.find((o) => o.value === locale).label }}
+          {{ options.find((o) => o.key === locale).value }}
           <el-icon v-if="locale === $i18n.locale" class="el-icon--right">
             <i class="i-ep-select" />
           </el-icon>

@@ -47,11 +47,11 @@
         </el-icon>
         <el-dropdown v-if="tokenStore.accessToken">
           <span class="el-dropdown-link flex">
-            <el-avatar v-if="userStore.avatar" :size="18" class="el-icon--left" :src="'./assets/icons/avatar.svg'" />
+            <el-avatar v-if="userStore.avatar" :size="18" class="el-icon--left" :src="userStore.avatar" />
             <el-icon v-else class="el-icon--left">
               <i class="i-ep-user" />
             </el-icon>
-            <span>{{ userStore.userName }}</span>
+            <span>{{ userStore.name }}</span>
             <el-icon class="el-icon--right">
               <b class="i-ep-arrow-down" />
             </el-icon>

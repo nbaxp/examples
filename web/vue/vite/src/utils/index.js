@@ -43,27 +43,8 @@ function bytesFormat(bytes) {
 
 // string format
 function format(template, ...args) {
-  const formatRegExp = /%[sdj%]/g;
-  let counter = 0;
-  return template.replace(formatRegExp, (match) => {
-    const index = counter;
-    counter += 1;
-    if (match === '%%') {
-      return '%';
-    }
-    if (index > args.length - 1) {
-      return match;
-    }
-    if (match === '%s') {
-      return String(args[index]);
-    }
-    if (match === '%d') {
-      return Number(args[index]);
-    }
-    if (match === '%j') {
-      return JSON.stringify(args[index]);
-    }
-    return match;
+  return template.replace(/{([0-9]+)}/g, function (match, index) {
+    return typeof args[index] === 'undefined' ? match : args[index];
   });
 }
 
@@ -74,18 +55,19 @@ function schemaToModel(schema) {
       const property = schema.properties[propertyName];
       if (property.type === 'object') {
         entity[propertyName] = schemaToModel(property);
-      } else if ('default' in property) {
-        entity[propertyName] = property.default;
       } else if (property.type === 'array') {
         entity[propertyName] = [];
       } else if (property.type === 'boolean') {
-        entity[propertyName] = property.nullable ? null : false;
+        entity[propertyName] = false;
       } else if (property.type === 'number' || property.type === 'integer') {
-        entity[propertyName] = property.nullable ? null : 0;
+        entity[propertyName] = null;
       } else if (property.type === 'string') {
         entity[propertyName] = null;
       } else {
         entity[propertyName] = null;
+      }
+      if ('default' in property) {
+        entity[propertyName] = property.default;
       }
     });
   }

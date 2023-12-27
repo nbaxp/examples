@@ -1,12 +1,48 @@
 <template>
   <el-container>
-    <el-main class="flex">
-      <div>
-        <div class="flex items-center justify-center">
+    <el-main style="display: flex; align-items: center; justify-content: center">
+      <div class="login">
+        <div style="display: flex; align-items: center; justify-content: center">
           <el-space><layout-logo /> <layout-locale /></el-space>
         </div>
         <el-card class="box-card">
-          <app-form v-model="model" :schema="schema" @success="success" />
+          <el-row :gutter="40" style="width: 600px; height: 360px">
+            <el-col
+              :span="10"
+              style="
+                border-right: 1px solid var(--el-border-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <img v-if="qrcode" style="cursor: pointer" :src="qrcode" @click="getQrCode" />
+            </el-col>
+            <el-col :span="14">
+              <el-tabs>
+                <el-tab-pane :label="$t('passwordLogin')">
+                  <app-form v-model="passwordModel" :schema="config.properties.passwordLogin" @success="success" />
+                </el-tab-pane>
+                <el-tab-pane :label="$t('smsLogin')">
+                  <app-form v-model="smsModel" :schema="config.properties.smsLogin" @success="success" />
+                </el-tab-pane>
+              </el-tabs>
+              <div style="display: flex; align-items: center; justify-content: space-between; height: 50px">
+                <router-link style to="/register">{{ $t('register') }}</router-link>
+                <router-link style to="/forgot-password">{{ $t('forgotPassword') }}</router-link>
+              </div>
+              <el-divider>{{ $t('externalLogin') }}</el-divider>
+              <el-space :size="24" style="display: flex; align-items: center; justify-content: center">
+                <svg-icon
+                  v-for="item in config.properties.externalLogin"
+                  :key="item.name"
+                  size="24"
+                  :name="item.icon"
+                  class="is-circle"
+                />
+              </el-space>
+            </el-col>
+          </el-row>
         </el-card>
         <layout-footer />
       </div>
@@ -15,34 +51,38 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue';
+  import QRCode from 'qrcode';
+  import { onMounted, ref } from 'vue';
   import { useRouter } from 'vue-router';
 
   import AppForm from '@/components/form/index.vue';
+  import SvgIcon from '@/components/icon/index.vue';
   import LayoutFooter from '@/layout/footer.vue';
   import LayoutLocale from '@/layout/locale.vue';
   import LayoutLogo from '@/layout/logo.vue';
   import useModel from '@/models/login.js';
-  import { useTokenStore, useUserStore } from '@/store/index.js';
+  import { useTokenStore } from '@/store/index.js';
   import { schemaToModel } from '@/utils/index.js';
 
-  const schema = ref(useModel());
-  const model = ref(schemaToModel(schema.value));
-  model.value.userName = 'admin';
-  model.value.password = '123456';
+  const config = ref(useModel());
+  const qrcode = ref(null);
+  const passwordModel = ref(schemaToModel(config.value.properties.passwordLogin));
+  const smsModel = ref(schemaToModel(config.value.properties.smsLogin));
   const router = useRouter();
-  const success = async (data) => {
+  const success = (data) => {
     useTokenStore().setToken(data.access_token, data.refresh_token);
-    await useUserStore().getUserInfo();
+    // await useUserStore().getUserInfo();
     const redirect = router.currentRoute.value.query?.redirect ?? '/';
     router.push(redirect);
   };
-</script>
+  const getQrCode = async () => {
+    const result = await QRCode.toDataURL(new Date().toString());
+    return result;
+  };
+  passwordModel.value.userName = 'admin';
+  passwordModel.value.password = '123456';
 
-<style scoped>
-  .el-main {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
+  onMounted(async () => {
+    qrcode.value = await getQrCode();
+  });
+</script>

@@ -6,10 +6,10 @@
         <span>{{ $t(node.meta?.title) }}</span>
       </template>
       <template v-for="item in node.children" :key="item.path">
-        <menu-item :node="item" :parent="parent + '/' + node.path" />
+        <menu-item :node="item" :parent="path" />
       </template>
     </el-sub-menu>
-    <el-menu-item v-else :index="node.meta?.isExternal ? null : path" @click="click">
+    <el-menu-item v-else :index="node.meta?.isExternal ? null : path" @click="click(node, $event)">
       <svg-icon :name="node.meta.icon ?? 'file'" />
       <template #title>
         <span>{{ $t(node.meta?.title) }}</span>
@@ -20,7 +20,7 @@
 
 <script setup>
   import { ElMessageBox } from 'element-plus';
-  import { useRouter } from 'vue-router';
+  import { computed } from 'vue';
 
   import SvgIcon from '@/components/icon/index.vue';
   import { useAppStore, useTabsStore } from '@/store/index.js';
@@ -38,17 +38,18 @@
 
   const appStore = useAppStore();
   const tabsStore = useTabsStore();
-  const router = useRouter();
 
-  const path = `${props.parent}/${props.node.path}`;
-  const click = (route) => {
+  const path = computed(() => {
+    return props.parent + (props.parent.endsWith('/') ? '' : '/') + props.node.path;
+  });
+  const click = (route, event) => {
     if (!route.meta?.isExternal) {
       if (appStore.settings.useTabs && tabsStore.routes.length >= (appStore.settings.maxTabs ?? 10)) {
         ElMessageBox.alert(`页签达到最大限制${appStore.settings.maxTabs ?? 10},请关闭不再使用的页签`, `提示`);
-      } else {
-        router.push(path);
+        event.preventDefault();
       }
     } else {
+      event.preventDefault();
       window.open(props.node.path);
     }
   };

@@ -7,13 +7,15 @@ export default function () {
   Mock.mock('/api/user/info', 'POST', (request) => {
     log(`mock:${request.url}`);
     const token = request.headers.authorization.split(' ')[1];
-    const { exp, user } = jwtDecode(token);
+    const { exp, Name } = jwtDecode(token);
     if (new Date(exp * 1000) < new Date()) {
       return { _status: 401 };
     }
     const result = {
-      userName: user,
+      Name: '管理员',
+      userName: Name,
       avatar: '/assets/icons/avatar.svg',
+      roles: [],
       permissions: ['user'],
     };
     return JSON.parse(JSON.stringify(result));

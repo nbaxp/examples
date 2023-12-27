@@ -12,19 +12,35 @@ export default defineStore('app', {
   actions: {
     async getLocale() {
       log('fetch locale');
-      const response = await fetch(getUrl('locale'), { method: 'POST' });
-      const result = await response.json();
-      this.locale = result;
-      i18n.global.locale.value = this.locale.locale;
-      i18n.global.fallbackLocale.value = this.locale.fallbackLocale;
-      Object.keys(this.locale.messages).forEach((key) => i18n.global.setLocaleMessage(key, this.locale.messages[key]));
+      try {
+        const response = await fetch(getUrl('locale'), { method: 'POST' });
+        if (response.ok) {
+          const result = await response.json();
+          this.locale = result.data;
+          i18n.global.locale.value = this.locale.locale;
+          Object.keys(this.locale.messages).forEach((key) => {
+            i18n.global.setLocaleMessage(key, this.locale.messages[key]);
+          });
+        } else {
+          throw new Error(response.statusText);
+        }
+      } catch (e) {
+        log(e);
+      }
     },
     async getMenus() {
       log('fetch menus');
-      const response = await fetch(getUrl('menu'), { method: 'POST' });
-      const result = await response.json();
-      this.menus = result;
-      return result;
+      try {
+        const response = await fetch(getUrl('menu'), { method: 'POST' });
+        if (response.ok) {
+          const result = await response.json();
+          this.menus = result;
+        } else {
+          throw new Error(response.statusText);
+        }
+      } catch (e) {
+        log(e);
+      }
     },
   },
 });

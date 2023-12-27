@@ -73,11 +73,13 @@
         const { url } = props.schema;
         const method = props.schema.method ?? 'POST';
         errorMessage.value = null;
+        errors.value = {}; // 必须先清空
         const result = await request(method, url, model);
         if (result.ok) {
           emit('success', result.data);
         } else {
           errorMessage.value = result.message;
+          errors.value = result.data;
           emit('error', result.data);
         }
       }

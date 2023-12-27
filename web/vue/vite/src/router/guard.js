@@ -2,7 +2,7 @@ import { useTitle } from '@vueuse/core';
 import NProgress from 'nprogress';
 
 import i18n from '@/locale/index.js';
-import router, { refreshRouter } from '@/router/index.js';
+import { refreshRouter } from '@/router/index.js';
 import { useAppStore, useTabsStore, useTokenStore, useUserStore } from '@/store/index.js';
 import { log } from '@/utils/index.js';
 
@@ -12,7 +12,9 @@ const beforeEach = async (to, from, next) => {
   log(`before route: ${from.fullPath}-->${to.fullPath}`);
   NProgress.start();
   const appStore = useAppStore();
-
+  const tokenStore = useTokenStore();
+  const userStore = useUserStore();
+  let refresh = false;
   if (!appStore.locale) {
     // 加载资源文件
     await appStore.getLocale();
@@ -20,20 +22,18 @@ const beforeEach = async (to, from, next) => {
   if (!appStore.menus) {
     // 加载服务端菜单
     await refreshRouter();
-    router.push(to.fullPath);
+    refresh = true;
   }
-
-  const tokenStore = useTokenStore();
   const isLogin = await tokenStore.isLogin();
-  const userStore = useUserStore();
-
   if (isLogin && !userStore.userName) {
     // 加载用户信息
     await userStore.getUserInfo();
   }
 
   // 认证和授权
-  if (to.path !== '/login' && !isLogin) {
+  if (refresh) {
+    next({ path: to.fullPath });
+  } else if (to.path !== '/login' && !isLogin) {
     if (!isLogin) {
       next({ path: '/login', query: { redirect: to.fullPath } });
     } else if (!userStore.hasPermission(to.meta.permission)) {

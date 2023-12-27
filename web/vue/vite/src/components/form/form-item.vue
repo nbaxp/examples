@@ -6,17 +6,17 @@
         :title="prop"
         :label="parentSchema.labelWidth === 0 ? null : $t(schema.title ?? prop)"
         :prop="getProp(prop)"
-        :rules="getDisabled() ? [] : getRules(parentSchema, schema, model)"
-        :error="mode === 'query' ? null : getError(prop)"
+        :rules="getDisabled() ? [] : getRules(parentSchema, prop, model)"
+        :error="error"
       >
-        <app-form-input :schema="schema" :prop="prop" v-model="model" :mode="mode" />
+        <app-form-input v-model="model" :schema="schema" :prop="prop" :mode="mode" />
       </el-form-item>
     </template>
   </template>
 </template>
 
 <script setup>
-  import { reactive, watch } from 'vue';
+  import { computed, reactive, watch } from 'vue';
 
   import AppFormInput from '@/components/form/form-input.vue';
   import { getRules } from '@/utils/validation.js';
@@ -52,7 +52,7 @@
     return prop;
   };
   //
-  const getError = (prop) => {
-    return props.errors[prop];
-  };
+  const error = computed(() => {
+    return props.mode === 'query' ? null : props.errors[props.prop];
+  });
 </script>

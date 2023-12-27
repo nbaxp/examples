@@ -1,5 +1,7 @@
 // import Schema from 'async-validator';
 
+import i18n from '@/locale/index.js';
+
 import { format } from './index.js';
 import request from './request.js';
 
@@ -90,7 +92,6 @@ const validators = {
         .then((result) => {
           if (!result.ok) {
             errors.push(new Error(2 + result.data));
-
           } else {
             errors.push(new Error(1 + result.message));
           }
@@ -105,7 +106,15 @@ const validators = {
 };
 
 //
-const getRules = (parentSchema, property, data) => {
+const getMessage = (key, ...args) => {
+  const current = i18n.global.locale.value;
+  const template = i18n.global.messages.value[current][key];
+  const args2 = args.map((o) => i18n.global.t(o));
+  return format(template, ...args2);
+};
+//
+const getRules = (parentSchema, prop, data) => {
+  const property = parentSchema.properties[prop];
   if (!property.rules) {
     return null;
   }
@@ -124,9 +133,9 @@ const getRules = (parentSchema, property, data) => {
     }
     if (!rule.message) {
       if (rule.required) {
-        rule.message = format(messages.required, property.title);
+        rule.message = getMessage('errorMessageRequired', prop);
       } else if (rule.type === 'email') {
-        rule.message = format(messages.types.email, property.title);
+        rule.message = getMessage('dataTypeAttribute_EmailAddress', prop);
       } else if (rule.pattern) {
         rule.message = format(messages.pattern.mismatch, property.title);
       } else if (property.type === 'string' || property.type === 'number' || property.type === 'array') {
@@ -141,7 +150,7 @@ const getRules = (parentSchema, property, data) => {
         }
       }
     } else {
-      rule.message = format(rule.message, property.title);
+      rule.message = getMessage(rule.message, prop);
     }
   });
   return rules;

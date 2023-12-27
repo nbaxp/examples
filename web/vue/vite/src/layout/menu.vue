@@ -5,7 +5,7 @@
     :default-active="$route.path"
     router
   >
-    <menu-item v-for="item in menus" :key="item.path" :node="item" />
+    <menu-item v-for="item in items" :key="item.path" :node="item" :parent="parent" />
   </el-menu>
 </template>
 
@@ -18,6 +18,10 @@
 
   const appStore = useAppStore();
   const route = useRoute();
-  const parent = computed(() => route.matched[0].path);
-  const menus = computed(() => route.matched[0].children);
+  const parent = computed(() => {
+    return route.matched[0].path;
+  });
+  const items = computed(() => {
+    return route.matched[0].children;
+  });
 </script>

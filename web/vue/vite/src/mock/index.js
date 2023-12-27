@@ -18,9 +18,9 @@ export default function () {
     return;
   }
   log('init mock');
-  useLocale();
-  useToken();
-  useUser();
+  // useLocale();
+  // useToken();
+  // useUser();
   useMenu();
   useFile();
   useRole();

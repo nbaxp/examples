@@ -9,7 +9,7 @@
         <layout-tabs v-if="appStore.settings.useTabs" />
         <el-main>
           <layout-breadcrumb v-if="appStore.settings.showBreadcrumb" />
-          <div class="router-view" style="flex: 1; overflow: hidden">
+          <div class="router-view" :class="$route.path" style="flex: 1; overflow: auto">
             <router-view v-if="!tabsStore.isRefreshing" v-slot="{ Component, route }">
               <component :is="Component" v-if="route.meta?.ignoreCache" :key="$route.fullPath" />
               <keep-alive :include="tabsStore.routes.map((o) => o.path)">

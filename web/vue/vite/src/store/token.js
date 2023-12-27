@@ -24,10 +24,13 @@ export default defineStore('token', {
           const response = await fetch(getUrl('token/refresh'), {
             method: 'POST',
             body: JSON.stringify(this.refreshToken),
+            headers: {
+              'Content-Type': 'application/json',
+            },
           });
           if (response.status === 200) {
             const result = await response.json();
-            this.setToken(result.access_token, result.refresh_token);
+            this.setToken(result.data.access_token, result.data.refresh_token);
             valid = true;
           }
         }

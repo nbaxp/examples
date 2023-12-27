@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-  import { getCurrentInstance, nextTick, ref } from 'vue';
+  import { computed, getCurrentInstance, nextTick, ref } from 'vue';
   import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
 
   import { useTabsStore } from '../store/index.js';
@@ -54,7 +54,7 @@
   const itemRefs = ref([]);
   const currentRoute = useRoute();
   const router = useRouter();
-  const model = ref(currentRoute.fullPath);
+  const model = computed(() => currentRoute.fullPath);
 
   onBeforeRouteUpdate((to) => {
     model.value = to.fullPath;

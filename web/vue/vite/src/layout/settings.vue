@@ -3,8 +3,8 @@
   <el-drawer v-model="show" :title="$t('Page Settings')" append-to-body destroy-on-close size="auto">
     <app-form ref="formRef" v-model="appStore.settings" :schema="schema" :hide-button="true" />
     <template #footer>
-      <el-button type="primary" @click="copySettings">复制</el-button>
-      <el-button type="primary" @click="reset">还原</el-button>
+      <el-button type="primary" @click="copySettings">{{ $t('Copy') }}</el-button>
+      <el-button type="primary" @click="reset">{{ $t('Reset') }}</el-button>
     </template>
   </el-drawer>
 </template>

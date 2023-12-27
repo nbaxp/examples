@@ -85,6 +85,9 @@ span,
     overflow: auto;
     border-right: none;
   }
+  .el-menu--vertical:not(.el-menu--collapse) {
+    min-width: 200px;
+  }
 }
 
 #app .el-main {
@@ -92,6 +95,7 @@ span,
   flex-direction: column;
   padding: 0;
   overflow: hidden;
+  font-size: 14px;
 }
 
 .el-main > .router-view {
@@ -119,7 +123,6 @@ span,
 
 a.logo {
   display: block;
-  height: var(--header);
 }
 
 .footer {
@@ -127,8 +130,8 @@ a.logo {
 }
 
 .logo img {
-  min-width: 28px;
-  height: 28px;
+  min-width: 24px;
+  height: 24px;
   margin-right: 16px;
 }
 
@@ -163,20 +166,36 @@ a.logo {
 .el-dialog__footer,
 .el-drawer__header,
 .el-drawer__footer {
-  height: var(--el-header-height);
-  padding: 11px;
-  line-height: 37px;
-  margin: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+
+  padding: 0 20px !important;
+  margin: 0 !important;
 }
 
 .el-dialog__header,
 .el-drawer__header {
   border-bottom: 1px solid var(--el-border-color);
+  justify-content: space-between;
+  .el-dialog__headerbtn {
+    top: 0;
+    height: 60px;
+  }
 }
 
 .el-dialog__footer,
 .el-drawer__footer {
   border-top: 1px solid var(--el-border-color);
+  justify-content: end;
+}
+
+.el-drawer {
+  min-width: 10%;
+}
+
+.el-dialog {
+  width: fit-content !important;
 }
 
 .el-form {
@@ -194,7 +213,7 @@ a.logo {
   }
 
   .el-input .el-input__prefix-inner > :last-child {
-    margin-right: 0;
+    margin-right: 5px;
   }
 }
 

@@ -36,7 +36,6 @@
         <template #prefix>
           <svg-icon
             v-if="options?.find((o) => o.value == model[prop])?.icon"
-            class="el-icon--left"
             :name="options.find((o) => o.value == model[prop])?.icon"
           />
         </template>
@@ -72,7 +71,7 @@
         <el-option prop="true" :value="true" :label="$t('true')" />
         <el-option prop="false" :value="false" :label="$t('false')" />
       </el-select>
-      <el-switch v-else v-model="model[prop]" type="checked" />
+      <el-checkbox v-else v-model="model[prop]" :label="$t(placeholder)" />
     </template>
     <template v-else-if="getInput(schema) === 'file'">
       <el-upload

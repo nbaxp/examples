@@ -20,7 +20,7 @@ export default function () {
   Mock.mock('/api/role', 'POST', (request) => {
     log(`mock:${request.url}`);
     const { pageIndex = 1, pageSize = 10 } = JSON.parse(request.body ?? '{}');
-    const totalCount = 101;
+    const totalCount = 10100;
     const list = [
       {
         name: '管理员',
