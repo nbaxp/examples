@@ -27,6 +27,7 @@ export default function () {
           },
           rememberMe: {
             type: 'boolean',
+            showLabel: true,
           },
         },
       },

@@ -78,8 +78,11 @@
         if (result.ok) {
           emit('success', result.data);
         } else {
-          errorMessage.value = result.message;
-          errors.value = result.data;
+          if (result.code == 400) {
+            errors.value = result.data;
+          } else if (result.code == 500) {
+            errorMessage.value = result.message;
+          }
           emit('error', result.data);
         }
       }
@@ -92,5 +95,5 @@
   const getProperties = (properties) => {
     return Object.fromEntries(Object.entries(properties).sort(([, a], [, b]) => a.order - b.order));
   };
-  defineExpose({ validate, reset });
+  defineExpose({ validate, reset, submit });
 </script>

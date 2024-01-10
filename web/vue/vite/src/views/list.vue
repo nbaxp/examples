@@ -14,7 +14,7 @@
     console.log(item.path, item, rows);
   };
   onMounted(async () => {
-    const defaultExport = (await (await modules[`../models/${route.meta.model}.js`])()).default;
+    const defaultExport = (await (await modules[`../models/${route.meta.schema}.js`])()).default;
     config.value = typeof defaultExport === 'function' ? defaultExport() : defaultExport;
   });
 </script>

@@ -6,6 +6,6 @@ import routes from '../router/routes.js';
 export default function () {
   Mock.mock('/api/menu', 'POST', (request) => {
     log(`mock:${request.url}`);
-    return JSON.parse(JSON.stringify(routes));
+    return { data: JSON.parse(JSON.stringify(routes)) };
   });
 }

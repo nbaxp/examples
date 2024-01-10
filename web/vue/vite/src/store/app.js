@@ -34,7 +34,7 @@ export default defineStore('app', {
         const response = await fetch(getUrl('menu'), { method: 'POST' });
         if (response.ok) {
           const result = await response.json();
-          this.menus = result;
+          this.menus = result.data;
         } else {
           throw new Error(response.statusText);
         }

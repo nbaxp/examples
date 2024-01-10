@@ -1,4 +1,6 @@
-# Vue 3 (Vite 5)
+# Vue Web Template
+
+Vite 5 + Vue 3 + Element Plus
 
 ## IDE 和插件
 

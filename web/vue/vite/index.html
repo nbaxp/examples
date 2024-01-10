@@ -14,6 +14,22 @@
             transform: rotate(360deg);
           }
         }
+        @keyframes loading-dash {
+          0% {
+            stroke-dasharray: 1, 200;
+            stroke-dashoffset: 0;
+          }
+
+          50% {
+            stroke-dasharray: 90, 150;
+            stroke-dashoffset: -40px;
+          }
+
+          to {
+            stroke-dasharray: 90, 150;
+            stroke-dashoffset: -120px;
+          }
+        }
       </style>
       <svg
         viewBox="0 0 50 50"
@@ -26,7 +42,7 @@
           width: 50px;
           height: 50px;
           margin: auto;
-          animation: loading-rotate 1.2s linear infinite;
+          animation: loading-rotate 2s linear infinite;
         "
       >
         <circle
@@ -41,6 +57,7 @@
             stroke-dashoffset: 0;
             stroke-width: 2;
             stroke-linecap: round;
+            animation: loading-dash 1.5s ease-in-out infinite;
           "
         />
       </svg>

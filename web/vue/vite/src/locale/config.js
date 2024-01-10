@@ -7,12 +7,12 @@ export default {
   fallbackLocale: 'en-US',
   options: [
     {
-      value: 'zh-CN',
-      label: '中文',
+      key: 'zh-CN',
+      value: '中文（中国）',
     },
     {
-      value: 'en-US',
-      label: 'English',
+      key: 'en-US',
+      value: 'English (United States)',
     },
   ],
   messages: {

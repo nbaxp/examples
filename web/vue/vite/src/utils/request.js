@@ -24,7 +24,7 @@ function getUrl(url) {
   if (url.startsWith('http') || url.startsWith('/')) {
     return url;
   }
-  return `${settings.baseURL}/${url}`;
+  return url.startsWith('api/') ? url : `${settings.baseURL}/${url}`;
 }
 
 const getOptions = async (method, url, data, customOptions, isUrlEncoded) => {
@@ -56,7 +56,7 @@ const getOptions = async (method, url, data, customOptions, isUrlEncoded) => {
     }
   } else if (data instanceof FormData) {
     // 上传参数
-    options.headers['Content-Type'] = 'application/json';
+    delete options.headers['Content-Type'];
     options.body = data;
   } else if (isUrlEncoded) {
     // urlencoded

@@ -48,6 +48,14 @@ function format(template, ...args) {
   });
 }
 
+function camelCase(str) {
+  return str
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+      return index == 0 ? word.toLowerCase() : word.toUpperCase();
+    })
+    .replace(/\s+/g, '');
+}
+
 function schemaToModel(schema) {
   const entity = {};
   if (schema && schema.properties) {
@@ -75,16 +83,16 @@ function schemaToModel(schema) {
   return entity;
 }
 
-function listToTree(list, func) {
+function listToTree(list, func = null, id = 'id', parentId = 'parentId', children = 'children') {
   const tree = [];
   list.forEach((item) => {
-    if (!item.parentId) {
+    if (!item[parentId]) {
       tree.push(item);
     } else {
-      const parent = list.find((node) => node.id === item.parentId);
+      const parent = list.find((node) => node[id] === item[parentId]);
       if (parent) {
-        parent.children = parent.children || [];
-        parent.children.push(item);
+        parent[children] = parent[children] || [];
+        parent[children].push(item);
       }
     }
     if (func) {
@@ -94,14 +102,38 @@ function listToTree(list, func) {
   return tree;
 }
 
-function treeToList(tree, list = []) {
+function treeToList(tree, children = 'children', list = []) {
   tree.forEach((o) => {
     list.push(o);
     if (o.children?.length) {
-      treeToList(o.children, list);
+      treeToList(o[children], list);
     }
   });
   return list;
+}
+
+function pathToTree(paths, sep = '/', results = []) {
+  return paths.reduce((currentResults, currentPath) => {
+    const pathParts = currentPath.split(sep);
+    const byPath = {};
+    pathParts.reduce((nodes, name, index, arr) => {
+      let node = nodes.find((o) => o.name === name);
+      const path = arr.slice(0, index + 1).join(sep);
+      const parentPath = arr.slice(0, index).join(sep);
+      if (!node) {
+        node = {
+          name,
+          path,
+          parent: byPath[parentPath],
+          children: [],
+        };
+        nodes.push(node);
+      }
+      byPath[path] = node;
+      return node.children;
+    }, currentResults);
+    return currentResults;
+  }, results);
 }
 
 function getProp(instance, propPath) {
@@ -109,12 +141,31 @@ function getProp(instance, propPath) {
 }
 
 function getFileNameFromContentDisposition(contentDisposition) {
-  return decodeURIComponent(/filename\*=UTF-8''([^\s]*)/i.exec(contentDisposition)[1]);
+  const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+  const matches = filenameRegex.exec(contentDisposition);
+  if (matches != null && matches[1]) {
+    return matches[1].replace(/['"]/g, '');
+  }
+  return null;
+}
+
+function downloadFile(file, name) {
+  const url = window.URL.createObjectURL(file);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', name);
+  document.body.appendChild(link);
+  try {
+    link.click();
+  } finally {
+    document.body.removeChild(link);
+    url.revokeObjectURL();
+  }
 }
 
 async function importModule(input) {
   const dataUri = `data:text/javascript;charset=utf-8,${encodeURIComponent(input)}`;
-  const result = await import(dataUri);
+  const result = await import(/* @vite-ignore */ dataUri);
   return result.default;
 }
 
@@ -135,13 +186,16 @@ export {
   delay,
   format,
   getFileNameFromContentDisposition,
+  downloadFile,
   getProp,
   importFunction,
   json,
   listToTree,
   log,
+  pathToTree,
   persentFormat,
   reload,
   schemaToModel,
   treeToList,
+  camelCase,
 };

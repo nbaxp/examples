@@ -3,10 +3,12 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import { useAppStore } from '@/store/index.js';
 import { listToTree } from '@/utils/index.js';
 
+import docs from './docs.js';
 import { afterEach, beforeEach } from './guard.js';
 
 const layouts = import.meta.glob('../layout/**/*.vue');
 const views = import.meta.glob('../views/**/*.vue');
+
 const layout = (name) => {
   return layouts[`../layout/${name}.vue`];
 };
@@ -19,7 +21,7 @@ const routes = [
     path: '/login',
     component: view('login'),
     meta: {
-      title: '登录',
+      title: 'login',
       hideInMenu: true,
     },
   },
@@ -27,7 +29,7 @@ const routes = [
     path: '/403',
     component: view('403'),
     meta: {
-      title: '权限不足',
+      title: '403',
       hideInMenu: true,
     },
   },
@@ -35,7 +37,7 @@ const routes = [
     path: '/redirect',
     component: view('redirect'),
     meta: {
-      title: '跳转',
+      title: 'redirect',
       hideInMenu: true,
     },
   },
@@ -43,10 +45,11 @@ const routes = [
     path: '/:pathMatch(.*)*',
     component: view('404'),
     meta: {
-      title: '无法找到',
+      title: '404',
       hideInMenu: true,
     },
   },
+  docs,
 ];
 
 const router = createRouter({
@@ -56,23 +59,15 @@ const router = createRouter({
 
 const convert = (list) => {
   list.forEach((o) => {
-    o.meta ??= {};
-    o.meta.type = o.type;
-    delete o.type;
-    if (o.meta.type === 'page') {
+    if (o.meta.type === 'menu') {
       o.meta.buttons = o.children;
       delete o.children;
     }
-    if (o.component) {
-      const file = o.component;
-      if (o.redirect) {
-        o.component = layout(file);
-      } else if (o.isMarkdown) {
-        o.meta.file = file;
-        o.component = view('md');
-      } else {
-        o.component = view(file);
-      }
+    const file = o.component;
+    if (o.redirect) {
+      o.component = layout(file ?? 'index');
+    } else if (file) {
+      o.component = view(file);
     }
     if (o.children?.length) {
       convert(o.children);
@@ -83,9 +78,42 @@ const convert = (list) => {
 async function refreshRouter() {
   const appStore = useAppStore();
   await appStore.getMenus();
-  const tree = listToTree(appStore.menus);
+  const tree = listToTree(appStore.menus, (o) => {
+    o.meta ??= {};
+    o.meta.type = o.type;
+    o.meta.title = o.title;
+    o.meta.icon = o.icon;
+    o.meta.order = o.order;
+    o.meta.buttonType = o.buttonType;
+    o.meta.buttonClass = o.buttonClass;
+    o.meta.apiMethod = o.apiMethod;
+    o.meta.apiUrl = o.apiUrl;
+    o.meta.command = o.command;
+    o.meta.schema = o.schema;
+    delete o.type;
+    delete o.title;
+    delete o.icon;
+    delete o.order;
+    delete o.buttonType;
+    delete o.buttonClass;
+    delete o.apiMethod;
+    delete o.apiUrl;
+    delete o.command;
+    delete o.schema;
+  });
   convert(tree);
-  tree.forEach((o) => router.addRoute(o.path, o));
+  const route = router.getRoutes().find((o) => o.name === 'layout');
+  if (route) {
+    router.removeRoute(route.name);
+  }
+  router.addRoute('/', {
+    name: 'layout',
+    path: '/',
+    redirect: '/home',
+    component: layout('index'),
+    meta: { title: 'home', icon: 'home' },
+    children: tree,
+  });
 }
 
 router.beforeEach(beforeEach);

@@ -23,17 +23,17 @@
                   <el-icon><i class="i-ep-refresh" /></el-icon><span>{{ $t('refresh') }}</span>
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="index === 0" @click="removeLeft(index)">
-                  <el-icon><i class="i-ep-back" /></el-icon><span>{{ $t('close left') }}</span>
+                  <el-icon><i class="i-ep-back" /></el-icon><span>{{ $t('closeLeft') }}</span>
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="index === tabsStore.routes.length - 1" @click="removeRight(index)">
-                  <el-icon><i class="i-ep-right" /></el-icon><span>{{ $t('close right') }}</span>
+                  <el-icon><i class="i-ep-right" /></el-icon><span>{{ $t('closeRight') }}</span>
                 </el-dropdown-item>
                 <el-dropdown-item
                   :disabled="index === 0 && index === tabsStore.routes.length - 1"
                   @click="removeOthers(index)"
                 >
                   <el-icon><i class="i-ep-switch" /></el-icon>
-                  <span>{{ $t('close other') }}</span>
+                  <span>{{ $t('closeOther') }}</span>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>

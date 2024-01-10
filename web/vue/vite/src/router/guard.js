@@ -14,22 +14,23 @@ const beforeEach = async (to, from, next) => {
   const appStore = useAppStore();
   const tokenStore = useTokenStore();
   const userStore = useUserStore();
+  const isLogin = await tokenStore.isLogin();
   let refresh = false;
-  if (!appStore.locale) {
+  if (appStore.settings.serverLocale && !appStore.locale) {
     // 加载资源文件
     await appStore.getLocale();
   }
-  if (!appStore.menus) {
+  if (appStore.settings.serverRoute && !appStore.menus) {
     // 加载服务端菜单
     await refreshRouter();
     refresh = true;
   }
-  const isLogin = await tokenStore.isLogin();
-  if (isLogin && !userStore.userName) {
-    // 加载用户信息
-    await userStore.getUserInfo();
+  if (to.path !== '/login' && to.path !== '/403') {
+    if (isLogin && !userStore.userName) {
+      // 加载用户信息
+      await userStore.getUserInfo();
+    }
   }
-
   // 认证和授权
   if (refresh) {
     next({ path: to.fullPath });

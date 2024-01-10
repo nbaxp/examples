@@ -20,6 +20,14 @@ export default function () {
         title: 'API路径',
         rules,
       },
+      serverLocale: {
+        title: '服务端资源',
+        type: 'boolean',
+      },
+      serverRoute: {
+        title: '服务端路由',
+        type: 'boolean',
+      },
       maxTabs: {
         title: 'Tabs数量',
         type: 'integer',

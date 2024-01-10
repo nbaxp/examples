@@ -23,6 +23,10 @@ button:focus {
   outline: none;
 }
 
+pre {
+  margin: 0;
+}
+
 li.el-menu-item {
   display: flex;
 }
@@ -169,7 +173,6 @@ a.logo {
   height: 60px;
   display: flex;
   align-items: center;
-
   padding: 0 20px !important;
   margin: 0 !important;
 }

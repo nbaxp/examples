@@ -13,9 +13,9 @@
             :hide-button="true"
           />
           <div v-if="tableButtons.length" style="padding-bottom: 20px">
-            <template v-for="item in tableButtons" :key="item.action">
+            <template v-for="item in tableButtons" :key="item.path">
               <el-button
-                :type="getButtonType(item.meta?.action)"
+                :type="getButtonType(item.meta?.path)"
                 @click="
                   click(
                     item,
@@ -24,18 +24,20 @@
                 "
               >
                 <template #default>
-                  <svg-icon v-if="item.meta.icon" :name="item.meta.icon" />
-                  <span>{{ $t(item.meta?.title) }}</span>
+                  <svg-icon v-if="item.meta?.icon" :name="item.meta?.icon" />
+                  <span v-if="item.meta?.title">{{ $t(item.meta?.title) }}</span>
                 </template>
               </el-button>
             </template>
-            <el-button type="primary" style="float: right" @click="drawerVisible = true">{{ $t('Filter') }}</el-button>
-            <el-button type="info" style="float: right" @click="reset">{{ $t('Reset') }}</el-button>
+            <el-button type="primary" style="float: right" @click="print">{{ $t('print') }}</el-button>
+            <el-button type="primary" style="float: right" @click="drawerVisible = true">{{ $t('filter') }}</el-button>
+            <el-button type="primary" style="float: right" @click="reset">{{ $t('reset') }}</el-button>
           </div>
           <div style="flex: 1; overflow: hidden">
             <el-auto-resizer>
               <template #default="{ height, width }">
                 <el-table-v2
+                  id="table"
                   v-model:sort-state="sortModel"
                   :columns="columns"
                   :data="listModel"
@@ -62,7 +64,7 @@
         </div>
       </el-card>
     </template>
-    <el-drawer v-model="drawerVisible" :title="$t('Filter')" size="auto" destroy-on-close>
+    <el-drawer v-model="drawerVisible" :title="$t('filter')" size="auto" destroy-on-close>
       <template v-for="(item, i) in columns" :key="item">
         <div
           v-if="item.title"
@@ -81,26 +83,37 @@
       </template>
       <template #footer>
         <el-button type="primary" @click="selectAll">
-          {{ $t('Select All') }}
+          {{ $t('selectAll') }}
         </el-button>
         <el-button type="primary" @click="invertSelect">
-          {{ $t('Invert Selection') }}
+          {{ $t('invertSelection') }}
         </el-button>
-        <el-button type="primary" @click="resetColumns">{{ $t('Reset') }}</el-button>
+        <el-button type="primary" @click="resetColumns">{{ $t('reset') }}</el-button>
       </template>
     </el-drawer>
     <el-dialog v-if="dialogVisible" v-model="dialogVisible" :title="$t(dialogSchema.title)" destroy-on-close>
+      <el-button
+        link
+        style="height: 50px"
+        v-if="dialogSchema.action === 'import' && buttons.find((o) => o.meta?.command === 'import-template')"
+        type="primary"
+        @click="click(buttons.find((o) => o.meta?.command === 'import-template'))"
+      >
+        {{ $t('importTemplate') }}
+      </el-button>
       <app-form
         ref="dialogFormRef"
         v-model="dialogModel"
         :schema="dialogSchema"
         label-position="left"
         :hide-button="true"
+        :mode="dialogSchema.action"
+        @success="success"
       />
       <template #footer>
         <span class="dialog-footer">
           <el-button type="primary" @click="dialogConfirm(dialogSchema.action)">
-            {{ $t('Confirm') }}
+            {{ $t('confirm') }}
           </el-button>
         </span>
       </template>
@@ -117,8 +130,10 @@
   import AppForm from '@/components/form/index.vue';
   import SvgIcon from '@/components/icon/index.vue';
   import { useAppStore } from '@/store/index.js';
-  import { listToTree, log, schemaToModel } from '@/utils/index.js';
+  import { listToTree, log, schemaToModel, downloadFile } from '@/utils/index.js';
   import request from '@/utils/request.js';
+  import printJS from 'print-js';
+  import html2canvas from 'html2canvas';
 
   const props = defineProps({
     config: {
@@ -143,7 +158,9 @@
   const dialogModel = ref(null);
   const dialogSchema = ref(null);
   const buttons = ref((props.routeValue ?? route).meta?.buttons ?? []);
-  const tableButtons = ref(buttons.value?.filter((o) => o.meta?.position !== 'row'));
+  const tableButtons = ref(
+    buttons.value?.filter((o) => o.meta?.buttonType === 'table' && o.meta.command !== 'import-template'),
+  );
   const querySchema = ref(props.config.properties.query);
   const queryModel = ref(schemaToModel(querySchema.value));
   const listSchema = ref(props.config.properties.list);
@@ -228,7 +245,9 @@
     loading.value = true;
     try {
       const data = buildQuery();
-      const result = await request(querySchema.value.method, querySchema.value.url, data);
+      const method = buttons.value.find((button) => button.meta?.command === 'search')?.meta?.apiMethod ?? 'POST';
+      const url = buttons.value.find((button) => button.meta?.command === 'search')?.meta?.apiUrl;
+      const result = await request(method, url, data);
       if (result.ok) {
         const { items, pageIndex, pageSize, totalCount } = result.data;
         listModel.value = listSchema.value.isTree ? listToTree(items) : items;
@@ -239,9 +258,11 @@
         const rowNumberRow = columns.value.find((o) => o.key === 'rowNumber');
         rowNumberRow.width = rowNumberWidth > rowNumberRow.width ? rowNumberWidth : rowNumberRow.width;
       } else {
-        await ElMessageBox.confirm(result.message, t('Tip'), {
-          type: 'warning',
-        });
+        if (result.code === 500) {
+          await ElMessageBox.confirm(result.message, t('tip'), {
+            type: 'warning',
+          });
+        }
       }
     } catch (e) {
       log(e);
@@ -281,33 +302,51 @@
   };
 
   const click = async (button, rows) => {
-    const { action } = button.meta;
-    if (
-      action === 'create' ||
-      action === 'update' ||
-      action === 'import' ||
-      action === 'export' ||
-      action === 'detail'
-    ) {
-      const schema = props.config.properties[action];
-      schema.action = action;
-      dialogSchema.value = schema;
-      dialogModel.value = schemaToModel(schema);
-      dialogVisible.value = true;
-    } else if (action === 'search') {
+    const { command } = button.meta;
+    if (command === 'search') {
       await load();
-    } else if (button.meta.action === 'delete') {
-      const count = listModel.value.filter((o) => o.checked).length;
-      if (count === 0) {
+      return;
+    }
+    if (command === 'import-template') {
+      loading.value = true;
+      try {
+        const method = button.meta?.apiMethod ?? 'POST';
+        const url = button.meta?.apiUrl;
+        const result = await request(method, url);
+        if (result.ok) {
+          dialogVisible.value = false;
+          downloadFile(result.data.file, result.data.name);
+        } else {
+          if (result.code === 500) {
+            await ElMessageBox.confirm(result.message, t('tip'), {
+              type: 'warning',
+            });
+          }
+        }
+      } catch (e) {
+        log(e);
+      } finally {
+        loading.value = false;
+      }
+    }
+    if (command === 'delete') {
+      const data = rows.filter((o) => o.checked).map((o) => o.id);
+      if (data.length === 0) {
         return;
       }
       try {
         loading.value = true;
-        await ElMessageBox.confirm(t('Confirm Delete', { count }), t('Warning'), {
-          confirmButtonText: t('Confirm'),
-          cancelButtonText: t('Cancel'),
+        await ElMessageBox.confirm(t('confirmDelete', [data.length]), t('warning'), {
+          confirmButtonText: t('confirm'),
+          cancelButtonText: t('cancel'),
           type: 'warning',
         });
+        const method = button.meta?.apiMethod ?? 'POST';
+        const url = button.meta?.apiUrl;
+        const result = await request(method, url, data);
+        if (result.ok) {
+          await reload();
+        }
       } catch (error) {
         if (error === 'cancel') {
           ElMessage({
@@ -318,32 +357,116 @@
       } finally {
         loading.value = false;
       }
+      return;
+    }
+    if (
+      command === 'create' ||
+      command === 'update' ||
+      command === 'import' ||
+      command === 'export' ||
+      command === 'details'
+    ) {
+      const schema = props.config.properties[command];
+      schema.action = command;
+      schema.method = button.meta?.apiMethod;
+      schema.url = button.meta?.apiUrl;
+      dialogSchema.value = schema;
+      if (command === 'details' || command === 'update') {
+        const detailsButton = buttons.value.find((button) => button.meta?.command === 'details');
+        const method = detailsButton?.meta?.apiMethod ?? 'POST';
+        const url = detailsButton?.meta?.apiUrl;
+        const data = rows[0].id;
+        try {
+          loading.value = true;
+          const result = await request(method, url, data);
+          if (result.ok) {
+            dialogModel.value = result.data;
+          } else {
+            if (result.code === 500) {
+              await ElMessageBox.confirm(result.message, t('tip'), {
+                type: 'warning',
+              });
+            }
+          }
+        } finally {
+          loading.value = false;
+        }
+      } else {
+        dialogModel.value = schemaToModel(schema);
+      }
+      dialogVisible.value = true;
     }
     console.log(button);
     console.log(rows);
   };
 
   const dialogConfirm = async (action) => {
-    console.log(action);
-    loading.value = true;
-    try {
-      // if (action === 'import') {
-      // }
-      const data = buildQuery();
-      Object.assign(data, dialogModel.value);
-      const result = await request(dialogSchema.value.method, dialogSchema.value.url, data);
-      if (result.ok) {
-        console.log(result.data);
-      } else {
-        await ElMessageBox.alert(result.message, t('Tip'), {
-          type: 'warning',
-        });
-      }
-    } catch (e) {
-      log(e);
-    } finally {
-      loading.value = false;
+    console.log(dialogFormRef.value);
+    if (action === 'details') {
+      dialogVisible.value = false;
+      return;
     }
+    if (action === 'create' || action === 'update') {
+      await dialogFormRef.value.submit();
+      return;
+    }
+    if (action === 'export' || action === 'import') {
+      loading.value = true;
+      try {
+        let data = null;
+        if (action === 'export') {
+          data = buildQuery();
+          Object.assign(data, dialogModel.value);
+        } else {
+          data = new FormData();
+          Object.keys(dialogModel.value).forEach((key) => {
+            const schema = dialogSchema.value.properties[key];
+            if (schema?.type === 'array') {
+              dialogModel.value[key].forEach((value) => {
+                data.append(key, schema.input === 'file' ? value.raw : value);
+              });
+            } else {
+              const value = dialogModel.value[key];
+              data.append(key, schema.input === 'file' ? value.raw : value);
+            }
+          });
+        }
+        const button = buttons.value.find((o) => o.meta?.command === action);
+        const method = button.meta?.apiMethod ?? 'POST';
+        const url = button.meta?.apiUrl;
+        const result = await request(method, url, data);
+        if (result.ok) {
+          dialogVisible.value = false;
+          if (action === 'export') {
+            downloadFile(result.data.file, result.data.name);
+          } else {
+            await reload();
+          }
+        } else {
+          if (result.code === 500) {
+            await ElMessageBox.confirm(result.message, t('tip'), {
+              type: 'warning',
+            });
+          }
+        }
+      } catch (e) {
+        log(e);
+      } finally {
+        loading.value = false;
+      }
+    }
+  };
+
+  const success = async (data) => {
+    dialogVisible.value = false;
+    await reload();
+  };
+
+  const print = () => {
+    html2canvas(document.getElementById('table')).then((canvas) => {
+      const img = canvas.toDataURL('image/png', 1);
+      printJS(img, 'image');
+    });
   };
 
   const initColumns = () => {
@@ -377,7 +500,7 @@
       {
         key: 'rowNumber',
         dataKey: 'rowNumber',
-        title: t('Row Number'),
+        title: t('rowNumber'),
         fixed: 'left',
         width: 44,
         hidden: false,
@@ -388,11 +511,15 @@
     ];
     Object.keys(listSchema.value.properties).forEach((key) => {
       const property = listSchema.value.properties[key];
+      if (property.hidden) {
+        return;
+      }
       const column = {
         key,
         dataKey: key,
-        title: t(property?.title),
+        title: t(property?.title ?? key),
         width: property?.width ?? 120,
+        hidden: property.hidden,
         sortable: property?.sortable ?? true,
         draggable: true,
       };
@@ -412,18 +539,18 @@
       }
       result.push(column);
     });
-    const rowButtons = buttons.value?.filter((o) => o.meta?.position === 'row');
+    const rowButtons = buttons.value?.filter((o) => o.meta?.buttonType === 'row');
     const width =
       rowButtons
         .map((o) => o.meta?.width)
         .filter((o) => o)
-        .reduce((a, b) => a + b, null) ?? 120;
+        .reduce((a, b) => a + b, null) ?? 130;
     if (rowButtons.length) {
       result.push({
         key: 'operations',
         width,
         fixed: 'right',
-        title: t('Operations'),
+        title: t('operations'),
         cellRenderer: (prop) => {
           return (
             <>

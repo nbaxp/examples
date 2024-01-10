@@ -18,10 +18,10 @@ export default function () {
     return;
   }
   log('init mock');
+  useFile();
   // useLocale();
   // useToken();
   // useUser();
-  useMenu();
-  useFile();
-  useRole();
+  // useMenu();
+  // useRole();
 }

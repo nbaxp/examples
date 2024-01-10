@@ -1,6 +1,6 @@
 <template>
   <template v-if="getDisabled()">
-    <template v-if="model[prop] !== null">
+    <div class="el-input" v-if="model[prop] !== null">
       <el-switch v-if="schema.type === 'boolean'" v-model="model[prop]" disabled type="checked" />
       <template v-else-if="schema.input === 'year'">{{ dayjs(model[prop]).format('YYYY') }}</template>
       <template v-else-if="schema.input === 'date'">{{ dayjs(model[prop]).format('YYYY-MM-DD') }}</template>
@@ -14,7 +14,7 @@
       <template v-else>
         <pre>{{ model[prop] }}</pre>
       </template>
-    </template>
+    </div>
   </template>
   <template v-else>
     <template v-if="getInput(schema) === 'tabs' && mode === 'query'">
@@ -71,7 +71,7 @@
         <el-option prop="true" :value="true" :label="$t('true')" />
         <el-option prop="false" :value="false" :label="$t('false')" />
       </el-select>
-      <el-checkbox v-else v-model="model[prop]" :label="$t(placeholder)" />
+      <el-checkbox v-else v-model="model[prop]" :label="schema.showLabel ? $t(placeholder) : ''" />
     </template>
     <template v-else-if="getInput(schema) === 'file'">
       <el-upload
@@ -223,10 +223,3 @@
     }
   });
 </script>
-
-<style>
-  .form .el-tabs__header,
-  .form .el-tabs__item {
-    height: 24px;
-  }
-</style>
