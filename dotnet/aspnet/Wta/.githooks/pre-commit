@@ -1,0 +1,22 @@
+#!/bin/sh
+LC_ALL=C
+# Select files to format
+FILES=$(git diff --cached --name-only --diff-filter=ACM "*.cs" | sed 's| |\\ |g')
+[ -z "$FILES" ] && exit 0
+
+# Format all selected files
+cd be && echo "$FILES" | cat | xargs | sed -e 's/ /,/g' | xargs dotnet format --include true
+
+# Add back the modified files to staging
+echo "$FILES" | xargs git add
+
+# pipefail
+set -eo pipefail
+
+# be: build
+#dotnet build
+
+# fe: lint
+# cd fe && npx --no-install lint-staged
+
+exit 0

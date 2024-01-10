@@ -1,0 +1,14 @@
+{
+  "DbContext": {
+    //"Default": "MySql"
+  },
+  "Jwt": {
+    "AccessTokenExpires": "00:02:00",
+    "RefreshTokenExpires": "00:10:00",
+    "MaxFailedAccessAttempts": 3,
+    "DefaultLockout": "00:01:00"
+  },
+  "AuthServer": {
+    "Url": "http://localhost:5000"
+  }
+}
