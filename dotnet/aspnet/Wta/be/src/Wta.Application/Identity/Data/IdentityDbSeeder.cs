@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -63,6 +64,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 Component = "home",
                 Title = "home",
                 Icon = "home",
+                NoCache = true,
                 Order = -1
             }
         };
@@ -77,7 +79,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 var resourcePermission = new Permission
                 {
                     Type = MenuType.Menu,
-                    Title = stringLocalizer.GetString(resourceType.Name),
+                    Title = resourceType.Name,
                     Path = resourceType.Name.ToSlugify(),
                     Component = "list",
                     Schema = $"{resourceType.Name.ToSlugify()}",
@@ -87,14 +89,14 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 // 按钮
                 actionDescriptors
                 .Select(o => (o as ControllerActionDescriptor)!)
-                .Where(o => o != null && o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType))
+                .Where(o => o != null && o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType) && o.MethodInfo.GetCustomAttribute<ApiExplorerSettingsAttribute>()?.IgnoreApi != true)
                 .ForEach(descriptor =>
                 {
                     list.Add(new Permission
                     {
                         ParentId = resourcePermission.Id,
                         Type = MenuType.Button,
-                        Title = stringLocalizer.GetString(descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName),
+                        Title = descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName,
                         Path = $"{descriptor.ControllerName}.{descriptor.ActionName}",
                         ApiUrl = descriptor.AttributeRouteInfo?.Template,
                         ApiMethod = (descriptor.ActionConstraints?.FirstOrDefault() as HttpMethodActionConstraint)?.HttpMethods.FirstOrDefault(),
@@ -113,7 +115,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                         groupPermission = new Permission
                         {
                             Type = MenuType.Group,
-                            Title = stringLocalizer.GetString(group.Name),
+                            Title = group.Name,
                             Path = group.Name.ToSlugify(),
                             Icon = group.Icon,
                             Order = group.Order

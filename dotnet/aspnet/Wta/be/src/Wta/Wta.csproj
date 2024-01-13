@@ -1,30 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <BeautySharedRuntimeMode>False</BeautySharedRuntimeMode>
-    <BeautyLibsDir Condition="$(BeautySharedRuntimeMode) == 'True'">../libraries</BeautyLibsDir>
-    <BeautyLibsDir Condition="$(BeautySharedRuntimeMode) != 'True'">./libraries</BeautyLibsDir>
-    <BeautyExcludes>Wta.*</BeautyExcludes>
-    <DisableBeauty>False</DisableBeauty>
-    <BeautyOnPublishOnly>False</BeautyOnPublishOnly>
-    <BeautyEnableDebugging>True</BeautyEnableDebugging>
-    <BeautyUsePatch>True</BeautyUsePatch>
-    <BeautyLogLevel>Info</BeautyLogLevel>
-    <GitCDN>https://gitee.com/liesauer/HostFXRPatcher</GitCDN>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="appsettings.Development.json.example" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="appsettings.Development.json.example" />
+    <_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.win-x64.pubxml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
-    <PackageReference Include="nulastudio.NetCoreBeauty" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Wta.Application\Wta.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="start.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="start.sh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="stop.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="stop.sh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wta.service">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

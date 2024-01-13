@@ -31,6 +31,11 @@ public class Permission : Entity
     public bool Hidden { get; set; }
 
     /// <summary>
+    /// 不缓存
+    /// </summary>
+    public bool NoCache { get; set; }
+
+    /// <summary>
     /// Vue Router Meta Title
     /// </summary>
     public string? Title { get; set; }

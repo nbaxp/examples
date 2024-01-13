@@ -134,7 +134,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         return Json(true);
     }
 
-    [AllowAnonymous]
+    [AllowAnonymous, ApiExplorerSettings(IgnoreApi = true)]
     public JsonResult Schema()
     {
         return new JsonResult(typeof(TModel).GetMetadataForType());
