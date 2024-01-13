@@ -14,6 +14,9 @@ export default {
   component: Layout,
   meta: {
     title: 'docs',
+    order: 1000,
+    permission: '*',
+    icon: 'book',
   },
   children: [
     {

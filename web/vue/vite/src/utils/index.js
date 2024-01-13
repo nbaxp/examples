@@ -112,30 +112,6 @@ function treeToList(tree, children = 'children', list = []) {
   return list;
 }
 
-function pathToTree(paths, sep = '/', results = []) {
-  return paths.reduce((currentResults, currentPath) => {
-    const pathParts = currentPath.split(sep);
-    const byPath = {};
-    pathParts.reduce((nodes, name, index, arr) => {
-      let node = nodes.find((o) => o.name === name);
-      const path = arr.slice(0, index + 1).join(sep);
-      const parentPath = arr.slice(0, index).join(sep);
-      if (!node) {
-        node = {
-          name,
-          path,
-          parent: byPath[parentPath],
-          children: [],
-        };
-        nodes.push(node);
-      }
-      byPath[path] = node;
-      return node.children;
-    }, currentResults);
-    return currentResults;
-  }, results);
-}
-
 function getProp(instance, propPath) {
   return get(instance, propPath);
 }
@@ -192,7 +168,6 @@ export {
   json,
   listToTree,
   log,
-  pathToTree,
   persentFormat,
   reload,
   schemaToModel,

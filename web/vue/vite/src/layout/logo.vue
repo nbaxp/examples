@@ -1,7 +1,7 @@
 <template>
   <a href="javascript:;" class="logo" @click="reload">
     <div class="flex items-center">
-      <img src="../assets/logo.svg" />
+      <img :src="logoUrl" />
       <h1 v-if="!appStore.settings.isMenuCollapse">{{ $t('application') }}</h1>
     </div>
   </a>
@@ -10,6 +10,7 @@
   import { reload } from '@/utils/index.js';
 
   import { useAppStore } from '../store/index.js';
+  import logoUrl from '../assets/logo.svg?url';
 
   const appStore = useAppStore();
 </script>

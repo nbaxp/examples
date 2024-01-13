@@ -16,7 +16,7 @@
             trigger="contextmenu"
             @visible-change="showContextMenu(index, $event)"
           >
-            <span class="inline-flex items-center"> {{ $t(item.meta?.title) }} </span>
+            <span class="inline-flex items-center"> {{ $t(camelCase(item.meta?.title)) }} </span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="refresh(index)">
@@ -45,9 +45,9 @@
 </template>
 
 <script setup>
-  import { computed, getCurrentInstance, nextTick, ref } from 'vue';
+  import { computed, nextTick, ref } from 'vue';
   import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
-
+  import { camelCase } from '@/utils/index.js';
   import { useTabsStore } from '../store/index.js';
 
   const tabsStore = useTabsStore();
@@ -91,8 +91,6 @@
 
   const deleteItem = (start, end) => {
     tabsStore.routes.splice(start, end);
-    const vue = getCurrentInstance();
-    console.log(vue);
   };
 
   const remove = (name) => {

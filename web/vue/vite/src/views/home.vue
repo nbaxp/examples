@@ -4,7 +4,9 @@
   <el-row><chart :options="options" width="400px" height="200px" /></el-row>
   <h2>CKEditor</h2>
 </template>
-
+<script>
+  export default { name: '/home' };
+</script>
 <script setup>
   import { ref, watch } from 'vue';
 

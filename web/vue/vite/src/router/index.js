@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-
 import { useAppStore } from '@/store/index.js';
 import { listToTree } from '@/utils/index.js';
+import { defineAsyncComponent } from 'vue';
 
 import docs from './docs.js';
 import { afterEach, beforeEach } from './guard.js';
@@ -57,20 +57,27 @@ const router = createRouter({
   routes,
 });
 
-const convert = (list) => {
+const convert = (list, parent = null) => {
   list.forEach((o) => {
     if (o.meta.type === 'menu') {
       o.meta.buttons = o.children;
       delete o.children;
     }
+    o.name = (parent ? parent.name + '/' : '/') + o.path;
     const file = o.component;
     if (o.redirect) {
       o.component = layout(file ?? 'index');
     } else if (file) {
-      o.component = view(file);
+      o.component = {
+        name: o.name,
+        template: `<page-view></page-view>`,
+        components: {
+          PageView: defineAsyncComponent(() => import(`../views/${file}.vue`)),
+        },
+      };
     }
     if (o.children?.length) {
-      convert(o.children);
+      convert(o.children, o);
     }
   });
 };
@@ -81,6 +88,7 @@ async function refreshRouter() {
   const tree = listToTree(appStore.menus, (o) => {
     o.meta ??= {};
     o.meta.type = o.type;
+    o.meta.noCache = o.noCache;
     o.meta.title = o.title;
     o.meta.icon = o.icon;
     o.meta.order = o.order;

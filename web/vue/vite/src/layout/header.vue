@@ -8,7 +8,12 @@
       </el-icon>
       <el-menu mode="horizontal" :default-active="$route.matched[0].path" :ellipsis="false" router>
         <template v-for="route in $router.getRoutes().filter((o) => !o.meta?.hideInMenu && o.redirect)">
-          <el-menu-item v-if="!route.meta?.hideInMenu" :key="route.path" :index="route.path">
+          <el-menu-item
+            v-if="!route.meta?.hideInMenu"
+            :key="route.path"
+            :index="route.path"
+            @click="click(route, $event)"
+          >
             <template #title>
               <svg-icon v-if="route.meta?.icon" :name="route.meta.icon" />
               <span>{{ $t(route.meta?.title ?? route.path) }}</span>
@@ -19,9 +24,6 @@
     </div>
     <div class="flex">
       <el-space size="large">
-        <el-icon @click="clickSearch">
-          <i class="i-ep-search" />
-        </el-icon>
         <el-select
           v-show="showSearch"
           ref="searchRef"
@@ -32,15 +34,19 @@
           :remote-method="searchMenu"
           :loading="searchLoading"
           @blur="hideSearch"
+          style="width: 200px"
         >
           <el-option
             v-for="item in searchOptions"
             :key="item.path"
             :value="item.path"
-            :label="item.meta.title"
+            :label="$t(camelCase(item.meta.title))"
             @click="searchChange(item)"
           />
         </el-select>
+        <el-icon @click="clickSearch">
+          <i class="i-ep-search" />
+        </el-icon>
         <el-icon @click="toggleFullscreen">
           <i v-if="isFullscreen" class="i-dashicons-fullscreen-exit-alt" />
           <i v-else class="i-dashicons-fullscreen-alt" />
@@ -84,17 +90,19 @@
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
+  import { camelCase } from '@/utils/index.js';
 
   import SvgIcon from '@/components/icon/index.vue';
-  import { useAppStore, useTokenStore, useUserStore } from '@/store/index.js';
+  import { useAppStore, useTokenStore, useUserStore, useTabsStore } from '@/store/index.js';
 
   import LayoutLocale from './locale.vue';
   import LayoutLogo from './logo.vue';
   import LayoutSettings from './settings.vue';
 
   const router = useRouter();
-  const i18n = useI18n();
+  const { t } = useI18n();
   const appStore = useAppStore();
+  const tabsStore = useTabsStore();
   const tokenStore = useTokenStore();
   const userStore = useUserStore();
   //
@@ -118,7 +126,7 @@
         searchLoading.value = true;
         searchOptions.value = router
           .getRoutes()
-          .filter((o) => !o.meta?.hideInMenu && !o.children?.length && o.meta?.title.indexOf(query) >= 0);
+          .filter((o) => !o.meta?.hideInMenu && !o.children?.length && t(camelCase(o.meta?.title)).indexOf(query) >= 0);
       } finally {
         searchLoading.value = false;
       }
@@ -142,15 +150,23 @@
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(document.documentElement);
   const confirmLogout = async () => {
     try {
-      await ElMessageBox.confirm(i18n.t('confirmLogout'), i18n.t('tip'), { type: 'warning' });
+      await ElMessageBox.confirm(t('confirmLogout'), t('tip'), { type: 'warning' });
       await tokenStore.logout();
     } catch (error) {
       if (error === 'cancel') {
         ElMessage({
           type: 'info',
-          message: i18n.t('cancel'),
+          message: t('cancel'),
         });
       }
+    }
+  };
+  //
+
+  const click = (route, event) => {
+    if (route.path.startsWith('http')) {
+      event.preventDefault();
+      window.open(props.node.path);
     }
   };
 </script>

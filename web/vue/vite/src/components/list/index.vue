@@ -1,132 +1,136 @@
 <template>
-  <div v-loading="loading">
-    <template v-if="config">
-      <el-card style="height: 100%">
-        <div style="height: 100%; display: flex; flex-direction: column">
-          <app-form
-            ref="queryFormRef"
-            v-model="queryModel"
-            inline
-            mode="query"
-            :schema="querySchema"
-            label-position="left"
-            :hide-button="true"
-          />
-          <div v-if="tableButtons.length" style="padding-bottom: 20px">
-            <template v-for="item in tableButtons" :key="item.path">
-              <el-button
-                :type="getButtonType(item.meta?.path)"
-                @click="
-                  click(
-                    item,
-                    listModel.filter((o) => o.checked),
-                  )
-                "
-              >
-                <template #default>
-                  <svg-icon v-if="item.meta?.icon" :name="item.meta?.icon" />
-                  <span v-if="item.meta?.title">{{ $t(item.meta?.title) }}</span>
-                </template>
-              </el-button>
-            </template>
-            <el-button type="primary" style="float: right" @click="print">{{ $t('print') }}</el-button>
-            <el-button type="primary" style="float: right" @click="drawerVisible = true">{{ $t('filter') }}</el-button>
-            <el-button type="primary" style="float: right" @click="reset">{{ $t('reset') }}</el-button>
-          </div>
-          <div style="flex: 1; overflow: hidden">
-            <el-auto-resizer>
-              <template #default="{ height, width }">
-                <el-table-v2
-                  id="table"
-                  v-model:sort-state="sortModel"
-                  :columns="columns"
-                  :data="listModel"
-                  :width="width"
-                  :height="height"
-                  fixed
-                  @column-sort="onSort"
-                />
+  <page>
+    <div v-loading="loading" style="height: 100%">
+      <template v-if="config">
+        <el-card style="height: 100%">
+          <div style="height: 100%; display: flex; flex-direction: column">
+            <app-form
+              ref="queryFormRef"
+              v-model="queryModel"
+              inline
+              mode="query"
+              :schema="querySchema"
+              label-position="left"
+              :hide-button="true"
+            />
+            <div v-if="tableButtons.length" style="padding-bottom: 20px">
+              <template v-for="item in tableButtons" :key="item.path">
+                <el-button
+                  :type="getButtonType(item.meta?.path)"
+                  @click="
+                    click(
+                      item,
+                      listModel.filter((o) => o.checked),
+                    )
+                  "
+                >
+                  <template #default>
+                    <svg-icon v-if="item.meta?.icon" :name="item.meta?.icon" />
+                    <span v-if="item.meta?.title">{{ $t(camelCase(item.meta?.title)) }}</span>
+                  </template>
+                </el-button>
               </template>
-            </el-auto-resizer>
+              <el-button type="primary" style="float: right" @click="print">{{ $t('print') }}</el-button>
+              <el-button type="primary" style="float: right" @click="drawerVisible = true">{{
+                $t('filter')
+              }}</el-button>
+              <el-button type="primary" style="float: right" @click="reset">{{ $t('reset') }}</el-button>
+            </div>
+            <div style="flex: 1; overflow: auto">
+              <el-auto-resizer>
+                <template #default="{ height, width }">
+                  <el-table-v2
+                    id="table"
+                    v-model:sort-state="sortModel"
+                    :columns="columns"
+                    :data="listModel"
+                    :width="width"
+                    :height="height"
+                    fixed
+                    @column-sort="onSort"
+                  />
+                </template>
+              </el-auto-resizer>
+            </div>
+            <el-pagination
+              v-model:currentPage="pageModel.pageIndex"
+              v-model:page-size="pageModel.pageSize"
+              :small="appStore.settings.size === 'small'"
+              :total="pageModel.total"
+              :page-sizes="pageModel.sizeList"
+              :background="true"
+              layout="total, sizes, prev, pager, next, jumper"
+              style="margin-top: 20px"
+              @size-change="onPageSizeChange"
+              @current-change="onPageIndexChange"
+            />
           </div>
-          <el-pagination
-            v-model:currentPage="pageModel.pageIndex"
-            v-model:page-size="pageModel.pageSize"
-            :small="appStore.settings.size === 'small'"
-            :total="pageModel.total"
-            :page-sizes="pageModel.sizeList"
-            :background="true"
-            layout="total, sizes, prev, pager, next, jumper"
-            style="margin-top: 20px"
-            @size-change="onPageSizeChange"
-            @current-change="onPageIndexChange"
-          />
-        </div>
-      </el-card>
-    </template>
-    <el-drawer v-model="drawerVisible" :title="$t('filter')" size="auto" destroy-on-close>
-      <template v-for="(item, i) in columns" :key="item">
-        <div
-          v-if="item.title"
-          style="display: flex; align-items: center"
-          :draggable="item.draggable"
-          @dragstart.stop="dragStartIndex = i"
-          @dragenter="$event.preventDefault()"
-          @dragover="$event.preventDefault()"
-          @drop.prevent="drop($event, i)"
-        >
-          <el-icon :style="{ cursor: item.draggable ? 'pointer' : 'not-allowed' }" style="margin-right: 5px">
-            <i class="i-ri-drag-move-fill" />
-          </el-icon>
-          <el-checkbox v-model="item.show" :label="item.title" @change="filterChange(item)" />
-        </div>
+        </el-card>
       </template>
-      <template #footer>
-        <el-button type="primary" @click="selectAll">
-          {{ $t('selectAll') }}
-        </el-button>
-        <el-button type="primary" @click="invertSelect">
-          {{ $t('invertSelection') }}
-        </el-button>
-        <el-button type="primary" @click="resetColumns">{{ $t('reset') }}</el-button>
-      </template>
-    </el-drawer>
-    <el-dialog v-if="dialogVisible" v-model="dialogVisible" :title="$t(dialogSchema.title)" destroy-on-close>
-      <el-button
-        link
-        style="height: 50px"
-        v-if="dialogSchema.action === 'import' && buttons.find((o) => o.meta?.command === 'import-template')"
-        type="primary"
-        @click="click(buttons.find((o) => o.meta?.command === 'import-template'))"
-      >
-        {{ $t('importTemplate') }}
-      </el-button>
-      <app-form
-        ref="dialogFormRef"
-        v-model="dialogModel"
-        :schema="dialogSchema"
-        label-position="left"
-        :hide-button="true"
-        :mode="dialogSchema.action"
-        @success="success"
-      />
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @click="dialogConfirm(dialogSchema.action)">
-            {{ $t('confirm') }}
+      <el-drawer v-model="drawerVisible" :title="$t('filter')" size="auto" destroy-on-close>
+        <template v-for="(item, i) in columns" :key="item">
+          <div
+            v-if="item.title"
+            style="display: flex; align-items: center"
+            :draggable="item.draggable"
+            @dragstart.stop="dragStartIndex = i"
+            @dragenter="$event.preventDefault()"
+            @dragover="$event.preventDefault()"
+            @drop.prevent="drop($event, i)"
+          >
+            <el-icon :style="{ cursor: item.draggable ? 'pointer' : 'not-allowed' }" style="margin-right: 5px">
+              <i class="i-ri-drag-move-fill" />
+            </el-icon>
+            <el-checkbox v-model="item.show" :label="item.title" @change="filterChange(item)" />
+          </div>
+        </template>
+        <template #footer>
+          <el-button type="primary" @click="selectAll">
+            {{ $t('selectAll') }}
           </el-button>
-        </span>
-      </template>
-    </el-dialog>
-  </div>
+          <el-button type="primary" @click="invertSelect">
+            {{ $t('invertSelection') }}
+          </el-button>
+          <el-button type="primary" @click="resetColumns">{{ $t('reset') }}</el-button>
+        </template>
+      </el-drawer>
+      <el-dialog v-if="dialogVisible" v-model="dialogVisible" :title="$t(dialogSchema.title)" destroy-on-close>
+        <el-button
+          link
+          style="height: 50px"
+          v-if="dialogSchema.action === 'import' && buttons.find((o) => o.meta?.command === 'import-template')"
+          type="primary"
+          @click="click(buttons.find((o) => o.meta?.command === 'import-template'))"
+        >
+          {{ $t('importTemplate') }}
+        </el-button>
+        <app-form
+          ref="dialogFormRef"
+          v-model="dialogModel"
+          :schema="dialogSchema"
+          label-position="left"
+          :hide-button="true"
+          :mode="dialogSchema.action"
+          @success="success"
+        />
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button type="primary" @click="dialogConfirm(dialogSchema.action)">
+              {{ $t('confirm') }}
+            </el-button>
+          </span>
+        </template>
+      </el-dialog>
+    </div>
+  </page>
 </template>
-
 <script lang="jsx" setup>
   import { dayjs, ElMessage, ElMessageBox } from 'element-plus';
-  import { onMounted, ref, unref } from 'vue';
+  import { provide, inject, onMounted, ref, unref, nextTick } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
-
+  import { camelCase } from '@/utils/index.js';
+  import Page from '@/components/page/index.vue';
   import AppForm from '@/components/form/index.vue';
   import SvgIcon from '@/components/icon/index.vue';
   import { useAppStore } from '@/store/index.js';
@@ -145,6 +149,11 @@
       default: null,
     },
   });
+
+  let pageData = inject('pageData');
+  if (!pageData) {
+    pageData = provide('pageData', new Map());
+  }
 
   const { t } = useI18n();
   const route = useRoute();
@@ -557,7 +566,7 @@
               {rowButtons.map((o) => {
                 return (
                   <el-button type="primary" text={true} onClick={() => click(o, [prop.rowData])}>
-                    {t(o.meta.title)}
+                    {t(camelCase(o.meta.title))}
                   </el-button>
                 );
               })}

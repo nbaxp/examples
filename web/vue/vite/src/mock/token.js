@@ -5,45 +5,8 @@ import { log } from '@/utils/index.js';
 
 import Mock from '../lib/better-mock/mock.browser.esm.js';
 
-const publicJsonWebKey = {
-  crv: 'P-256',
-  ext: true,
-  key_ops: ['verify'],
-  kty: 'EC',
-  x: '-JaTLMzlNj6a4DFNHbeXfEOimiqmB1SV-lVyW6CZ0Cs',
-  y: 'H8FwD_z3eLs5X3l0_JZnuIgSFf1kNbWNAa1yuDfcvJ8',
-};
-
-const privateJsonWebKey = {
-  crv: 'P-256',
-  d: 'E40lOv52Czs0F3Y1TUPWVtZe2nWKuLOM2Igd86mpQSg',
-  ext: true,
-  key_ops: ['sign'],
-  kty: 'EC',
-  x: '-JaTLMzlNj6a4DFNHbeXfEOimiqmB1SV-lVyW6CZ0Cs',
-  y: 'H8FwD_z3eLs5X3l0_JZnuIgSFf1kNbWNAa1yuDfcvJ8',
-};
-
-const publicKey = await window.crypto.subtle.importKey(
-  'jwk',
-  publicJsonWebKey,
-  {
-    name: 'ECDSA',
-    namedCurve: 'P-256',
-  },
-  true,
-  ['verify'],
-);
-const privateKey = await window.crypto.subtle.importKey(
-  'jwk',
-  privateJsonWebKey,
-  {
-    name: 'ECDSA',
-    namedCurve: 'P-256',
-  },
-  true,
-  ['sign'],
-);
+const secret = new TextEncoder().encode('cc7e0d44fd473002f1c42167459001140ec6389b7353f8088f4d9a95f2f596f2');
+const alg = 'HS256';
 
 const issuer = 'urn:example:issuer'; // 发行方
 const audience = 'urn:example:audience'; // 接收方
@@ -52,12 +15,12 @@ const refreshTokenTimeout = '10m';
 
 async function createToken(claims, timeout) {
   const jwt = await new jose.SignJWT(claims)
-    .setProtectedHeader({ alg: 'ES256' })
+    .setProtectedHeader({ alg })
     .setIssuedAt()
     .setIssuer(issuer)
     .setAudience(audience)
     .setExpirationTime(timeout)
-    .sign(privateKey);
+    .sign(secret);
   return jwt;
 }
 
@@ -94,7 +57,7 @@ export default function () {
     const jwt = JSON.parse(request.body);
     return new Promise((resolve) => {
       jose
-        .jwtVerify(jwt, publicKey, { issuer, audience })
+        .jwtVerify(jwt, secret, { issuer, audience })
         .then((_) => {
           const claims = { user: 'admin' };
           Promise.all([createToken(claims, accessTokenTimeout), createToken(claims, refreshTokenTimeout)]).then(

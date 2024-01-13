@@ -3,7 +3,7 @@
     <el-breadcrumb>
       <template v-for="item in $route.matched">
         <el-breadcrumb-item v-if="!item.meta?.hideInMenu" :key="item.path" :to="{ path: item.path }">
-          {{ $t(getTitle(item)) }}
+          {{ $t(camelCase(getTitle(item))) }}
         </el-breadcrumb-item>
       </template>
     </el-breadcrumb>
@@ -12,6 +12,7 @@
 
 <script setup>
   import { useRouter } from 'vue-router';
+  import { camelCase } from '@/utils/index.js';
 
   const router = useRouter();
   const getTitle = (route) => {

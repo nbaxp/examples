@@ -119,7 +119,7 @@
 
 <script setup>
   import { dayjs, ElMessage, useFormItem } from 'element-plus';
-  import { computed, onMounted, reactive, ref, watch } from 'vue';
+  import { computed, onMounted, reactive, ref, watch, inject } from 'vue';
   import { useI18n } from 'vue-i18n';
 
   import SvgIcon from '@/components/icon/index.vue';
@@ -203,23 +203,29 @@
       }
     },
   );
+  const pageData = inject('pageData');
   onMounted(async () => {
+    if (props.schema.url && !props.schema.options) {
+      let list = pageData[prop];
+      if (!list) {
+        try {
+          const url = `${props.schema.url}`;
+          const result = await request(props.schema.method ?? 'POST', url);
+          list = result.data?.map((o) => ({
+            value: o[props.schema.value],
+            label: o[props.schema.label],
+          }));
+        } catch (error) {
+          console.log(error);
+        }
+        options.value = list;
+        // if (props.schema.defaultSelected && options.value.length) {
+        //   model[props.prop] = options.value[0].value;
+        // }
+      }
+    }
     if (props.schema.options) {
       options.value = props.schema.options;
-    } else if (props.schema.url) {
-      try {
-        const url = `${props.schema.url}`;
-        const result = await request(props.schema.method ?? 'POST', url);
-        options.value = result.data?.map((o) => ({
-          value: o[props.schema.value],
-          label: o[props.schema.label],
-        }));
-        if (props.schema.defaultSelected && options.value.length) {
-          model[props.prop] = options.value[0].value;
-        }
-      } catch (error) {
-        console.log(error);
-      }
     }
   });
 </script>

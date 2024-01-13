@@ -4,7 +4,7 @@ import NProgress from 'nprogress';
 import i18n from '@/locale/index.js';
 import { refreshRouter } from '@/router/index.js';
 import { useAppStore, useTabsStore, useTokenStore, useUserStore } from '@/store/index.js';
-import { log } from '@/utils/index.js';
+import { log, camelCase } from '@/utils/index.js';
 
 NProgress.configure({ showSpinner: false });
 
@@ -56,7 +56,7 @@ const afterEach = (to, from) => {
       tabsStore.addRoute(to);
     }
     if (to.meta?.title) {
-      useTitle().value = i18n.global.t(to.meta.title);
+      useTitle().value = i18n.global.t(camelCase(to.meta.title));
     }
   } finally {
     NProgress.done();
