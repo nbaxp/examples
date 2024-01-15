@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { useAppStore } from '@/store/index.js';
 import { listToTree } from '@/utils/index.js';
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent, provide } from 'vue';
 
 import docs from './docs.js';
 import { afterEach, beforeEach } from './guard.js';
@@ -70,9 +70,12 @@ const convert = (list, parent = null) => {
     } else if (file) {
       o.component = {
         name: o.name,
-        template: `<page-view></page-view>`,
         components: {
           PageView: defineAsyncComponent(() => import(`../views/${file}.vue`)),
+        },
+        template: `<page-view></page-view>`,
+        setup() {
+          provide('routeData', new Map([['name', o.name]]));
         },
       };
     }

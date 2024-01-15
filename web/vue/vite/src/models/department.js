@@ -8,12 +8,22 @@ const properties = {
   },
   name: {},
   number: {},
+  parentId: {
+    type: 'string',
+    input: 'select',
+    value: 'id',
+    label: 'name',
+    method: 'POST',
+    url: 'department/search',
+    hideInList: true,
+  },
 };
 
 const schema = {
   properties: {
-    query: useQuery(properties),
+    query: useQuery(properties, true),
     list: {
+      isTree: true,
       properties,
     },
     details: {

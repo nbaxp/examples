@@ -1,3 +1,4 @@
+import useQuery from './query.js';
 import useExport from './export.js';
 import useImport from './import.js';
 
@@ -5,7 +6,10 @@ const properties = {
   id: {
     hidden: true,
   },
-  path: {},
+  path: {
+    width: 300,
+  },
+  order: {},
   // order: {
   //   title: 'Display Number',
   //   type: 'number',
@@ -29,10 +33,10 @@ const properties = {
 
 const schema = {
   properties: {
-    query: {
-      properties,
-    },
+    query: useQuery(properties, true, 'order'),
     list: {
+      isTree: true,
+      key: 'path',
       properties,
     },
     details: {

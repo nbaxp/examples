@@ -27,12 +27,7 @@
       <el-color-picker v-model="model[prop]" />
     </template>
     <template v-else-if="getInput(schema) === 'select' || getInput(schema) === 'tabs'">
-      <el-select
-        v-model="model[prop]"
-        :placeholder="placeholder"
-        :multiple="!!schema.multiple"
-        :clearable="!!schema.clearable"
-      >
+      <el-select v-model="model[prop]" :placeholder="placeholder" :multiple="!!schema.multiple" :clearable="true">
         <template #prefix>
           <svg-icon
             v-if="options?.find((o) => o.value == model[prop])?.icon"
@@ -189,40 +184,38 @@
   };
 
   // watch
-  watch(
-    () => model[props.prop],
-    async (value) => {
-      if (props.schema.watch) {
-        console.log(value);
-        if (props.schema.watch?.constructor === String) {
-          props.schema.watch = await importFunction(props.schema.watch);
-        }
-        if (props.schema.watch?.constructor === Function) {
-          props.schema.watch(model, value);
-        }
-      }
-    },
-  );
-  const pageData = inject('pageData');
+  // watch(
+  //   () => model[props.prop],
+  //   async (value) => {
+  //     if (props.schema.watch) {
+  //       console.log(value);
+  //       if (props.schema.watch?.constructor === String) {
+  //         props.schema.watch = await importFunction(props.schema.watch);
+  //       }
+  //       if (props.schema.watch?.constructor === Function) {
+  //         props.schema.watch(model, value);
+  //       }
+  //     }
+  //   },
+  // );
+  const routeData = inject('routeData');
   onMounted(async () => {
     if (props.schema.url && !props.schema.options) {
-      let list = pageData[prop];
+      let list = routeData.get(props.prop);
       if (!list) {
         try {
           const url = `${props.schema.url}`;
-          const result = await request(props.schema.method ?? 'POST', url);
-          list = result.data?.map((o) => ({
-            value: o[props.schema.value],
-            label: o[props.schema.label],
+          const result = await request(props.schema.method ?? 'POST', url, { includeAll: true });
+          list = result.data.items.map((o) => ({
+            value: o[props.schema.value ?? 'id'],
+            label: o[props.schema.label ?? 'name'],
           }));
+          routeData.set(props.prop, list);
         } catch (error) {
           console.log(error);
         }
-        options.value = list;
-        // if (props.schema.defaultSelected && options.value.length) {
-        //   model[props.prop] = options.value[0].value;
-        // }
       }
+      options.value = list;
     }
     if (props.schema.options) {
       options.value = props.schema.options;

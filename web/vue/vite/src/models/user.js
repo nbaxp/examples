@@ -1,3 +1,4 @@
+import useQuery from './query.js';
 import useExport from './export.js';
 import useImport from './import.js';
 
@@ -6,32 +7,17 @@ const properties = {
     hidden: true,
   },
   userName: {},
-  // order: {
-  //   title: 'Display Number',
-  //   type: 'number',
-  //   width: 80,
-  // },
-  // isReadonly: {
-  //   title: 'Readonly',
-  //   type: 'boolean',
-  // },
-  // createdAt: {
-  //   title: 'Created Time',
-  //   input: 'datetime',
-  //   width: 150,
-  // },
-  // menus: {
-  //   title: 'Menu',
-  //   type: 'array',
-  //   items: [],
-  // },
+  roles: {
+    type: 'array',
+    input: 'select',
+    multiple: true,
+    url: 'role/search',
+  },
 };
 
 const schema = {
   properties: {
-    query: {
-      properties,
-    },
+    query: useQuery(properties),
     list: {
       properties,
     },

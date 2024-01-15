@@ -61,20 +61,21 @@ function schemaToModel(schema) {
   if (schema && schema.properties) {
     Object.keys(schema.properties).forEach((propertyName) => {
       const property = schema.properties[propertyName];
-      if (property.type === 'object') {
+      const propertyType = property?.type;
+      if (propertyType === 'object') {
         entity[propertyName] = schemaToModel(property);
-      } else if (property.type === 'array') {
+      } else if (propertyType === 'array') {
         entity[propertyName] = [];
-      } else if (property.type === 'boolean') {
+      } else if (propertyType === 'boolean') {
         entity[propertyName] = false;
-      } else if (property.type === 'number' || property.type === 'integer') {
+      } else if (propertyType === 'number' || propertyType === 'integer') {
         entity[propertyName] = null;
-      } else if (property.type === 'string') {
+      } else if (propertyType === 'string') {
         entity[propertyName] = null;
       } else {
         entity[propertyName] = null;
       }
-      if ('default' in property) {
+      if (property && 'default' in property) {
         entity[propertyName] = property.default;
       }
     });
@@ -93,6 +94,8 @@ function listToTree(list, func = null, id = 'id', parentId = 'parentId', childre
       if (parent) {
         parent[children] = parent[children] || [];
         parent[children].push(item);
+      } else {
+        tree.push(item);
       }
     }
     if (func) {

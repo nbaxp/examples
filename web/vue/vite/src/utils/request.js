@@ -65,7 +65,7 @@ const getOptions = async (method, url, data, customOptions, isUrlEncoded) => {
   } else {
     // json
     options.headers['Content-Type'] = 'application/json';
-    options.body = JSON.stringify(data);
+    options.body = JSON.stringify(data ?? {});
   }
   return {
     fullUrl: url,

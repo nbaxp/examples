@@ -1,137 +1,135 @@
 <template>
-  <page>
-    <div v-loading="loading" style="height: 100%">
-      <template v-if="config">
-        <el-card style="height: 100%">
-          <div style="height: 100%; display: flex; flex-direction: column">
-            <app-form
-              ref="queryFormRef"
-              v-model="queryModel"
-              inline
-              mode="query"
-              :schema="querySchema"
-              label-position="left"
-              :hide-button="true"
-            />
-            <div v-if="tableButtons.length" style="padding-bottom: 20px">
-              <template v-for="item in tableButtons" :key="item.path">
-                <el-button
-                  :type="getButtonType(item.meta?.path)"
-                  @click="
-                    click(
-                      item,
-                      listModel.filter((o) => o.checked),
-                    )
-                  "
-                >
-                  <template #default>
-                    <svg-icon v-if="item.meta?.icon" :name="item.meta?.icon" />
-                    <span v-if="item.meta?.title">{{ $t(camelCase(item.meta?.title)) }}</span>
-                  </template>
-                </el-button>
-              </template>
-              <el-button type="primary" style="float: right" @click="print">{{ $t('print') }}</el-button>
-              <el-button type="primary" style="float: right" @click="drawerVisible = true">{{
-                $t('filter')
-              }}</el-button>
-              <el-button type="primary" style="float: right" @click="reset">{{ $t('reset') }}</el-button>
-            </div>
-            <div style="flex: 1; overflow: auto">
-              <el-auto-resizer>
-                <template #default="{ height, width }">
-                  <el-table-v2
-                    id="table"
-                    v-model:sort-state="sortModel"
-                    :columns="columns"
-                    :data="listModel"
-                    :width="width"
-                    :height="height"
-                    fixed
-                    @column-sort="onSort"
-                  />
+  <div v-loading="loading" style="height: 100%" v-if="!refresh">
+    <template v-if="config">
+      <el-card style="height: 100%">
+        <div style="height: 100%; display: flex; flex-direction: column">
+          <app-form
+            ref="queryFormRef"
+            v-model="queryModel.query"
+            inline
+            mode="query"
+            :schema="querySchema.properties.query"
+            label-position="left"
+            :hide-button="true"
+          />
+          <div v-if="tableButtons.length" style="padding-bottom: 20px">
+            <template v-for="item in tableButtons" :key="item.path">
+              <el-button
+                :type="getButtonType(item.meta?.path)"
+                @click="
+                  click(
+                    item,
+                    queryModel.items.filter((o) => o.checked),
+                  )
+                "
+              >
+                <template #default>
+                  <svg-icon v-if="item.meta?.icon" :name="item.meta?.icon" />
+                  <span v-if="item.meta?.title">{{ $t(camelCase(item.meta?.title)) }}</span>
                 </template>
-              </el-auto-resizer>
-            </div>
-            <el-pagination
-              v-model:currentPage="pageModel.pageIndex"
-              v-model:page-size="pageModel.pageSize"
-              :small="appStore.settings.size === 'small'"
-              :total="pageModel.total"
-              :page-sizes="pageModel.sizeList"
-              :background="true"
-              layout="total, sizes, prev, pager, next, jumper"
-              style="margin-top: 20px"
-              @size-change="onPageSizeChange"
-              @current-change="onPageIndexChange"
-            />
+              </el-button>
+            </template>
+            <el-button type="primary" style="float: right" @click="print">{{ $t('print') }}</el-button>
+            <el-button type="primary" style="float: right" @click="drawerVisible = true">{{ $t('filter') }}</el-button>
+            <el-button type="primary" style="float: right" @click="reset">{{ $t('reset') }}</el-button>
           </div>
-        </el-card>
-      </template>
-      <el-drawer v-model="drawerVisible" :title="$t('filter')" size="auto" destroy-on-close>
-        <template v-for="(item, i) in columns" :key="item">
-          <div
-            v-if="item.title"
-            style="display: flex; align-items: center"
-            :draggable="item.draggable"
-            @dragstart.stop="dragStartIndex = i"
-            @dragenter="$event.preventDefault()"
-            @dragover="$event.preventDefault()"
-            @drop.prevent="drop($event, i)"
-          >
-            <el-icon :style="{ cursor: item.draggable ? 'pointer' : 'not-allowed' }" style="margin-right: 5px">
-              <i class="i-ri-drag-move-fill" />
-            </el-icon>
-            <el-checkbox v-model="item.show" :label="item.title" @change="filterChange(item)" />
+          <div style="flex: 1; overflow: auto">
+            <el-auto-resizer>
+              <template #default="{ height, width }">
+                <el-table-v2
+                  id="table"
+                  v-model:sort-state="sortModel"
+                  :columns="columns"
+                  :data="listModel"
+                  :expand-column-key="listSchema.key ?? 'name'"
+                  :width="width"
+                  :height="height"
+                  fixed
+                  @column-sort="onSort"
+                />
+              </template>
+            </el-auto-resizer>
           </div>
-        </template>
-        <template #footer>
-          <el-button type="primary" @click="selectAll">
-            {{ $t('selectAll') }}
-          </el-button>
-          <el-button type="primary" @click="invertSelect">
-            {{ $t('invertSelection') }}
-          </el-button>
-          <el-button type="primary" @click="resetColumns">{{ $t('reset') }}</el-button>
-        </template>
-      </el-drawer>
-      <el-dialog v-if="dialogVisible" v-model="dialogVisible" :title="$t(dialogSchema.title)" destroy-on-close>
-        <el-button
-          link
-          style="height: 50px"
-          v-if="dialogSchema.action === 'import' && buttons.find((o) => o.meta?.command === 'import-template')"
-          type="primary"
-          @click="click(buttons.find((o) => o.meta?.command === 'import-template'))"
+          <el-pagination
+            v-if="!queryModel.includeAll"
+            v-model:currentPage="queryModel.pageIndex"
+            v-model:page-size="queryModel.pageSize"
+            :small="appStore.settings.size === 'small'"
+            :total="queryModel.totalCount"
+            :page-sizes="queryModel.pageSizeOptions"
+            :background="true"
+            layout="total, sizes, prev, pager, next, jumper"
+            style="margin-top: 20px"
+            @size-change="onPageSizeChange"
+            @current-change="onPageIndexChange"
+          />
+        </div>
+      </el-card>
+    </template>
+    <el-drawer v-model="drawerVisible" :title="$t('filter')" size="auto" destroy-on-close>
+      <template v-for="(item, i) in columns" :key="item">
+        <div
+          v-if="item.title"
+          style="display: flex; align-items: center"
+          :draggable="item.draggable"
+          @dragstart.stop="dragStartIndex = i"
+          @dragenter="$event.preventDefault()"
+          @dragover="$event.preventDefault()"
+          @drop.prevent="drop($event, i)"
         >
-          {{ $t('importTemplate') }}
+          <el-icon :style="{ cursor: item.draggable ? 'pointer' : 'not-allowed' }" style="margin-right: 5px">
+            <i class="i-ri-drag-move-fill" />
+          </el-icon>
+          <el-checkbox v-model="item.show" :label="item.title" @change="filterChange(item)" />
+        </div>
+      </template>
+      <template #footer>
+        <el-button type="primary" @click="selectAll">
+          {{ $t('selectAll') }}
         </el-button>
-        <app-form
-          ref="dialogFormRef"
-          v-model="dialogModel"
-          :schema="dialogSchema"
-          label-position="left"
-          :hide-button="true"
-          :mode="dialogSchema.action"
-          @success="success"
-        />
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button type="primary" @click="dialogConfirm(dialogSchema.action)">
-              {{ $t('confirm') }}
-            </el-button>
-          </span>
-        </template>
-      </el-dialog>
-    </div>
-  </page>
+        <el-button type="primary" @click="invertSelect">
+          {{ $t('invertSelection') }}
+        </el-button>
+        <el-button type="primary" @click="resetColumns">{{ $t('reset') }}</el-button>
+      </template>
+    </el-drawer>
+    <el-dialog v-if="dialogVisible" v-model="dialogVisible" :title="$t(dialogSchema.title)" destroy-on-close>
+      <el-button
+        link
+        style="height: 50px"
+        v-if="dialogSchema.action === 'import' && buttons.find((o) => o.meta?.command === 'import-template')"
+        type="primary"
+        @click="click(buttons.find((o) => o.meta?.command === 'import-template'))"
+      >
+        {{ $t('importTemplate') }}
+      </el-button>
+      <app-form
+        ref="dialogFormRef"
+        v-model="dialogModel"
+        :schema="dialogSchema"
+        label-position="left"
+        :hide-button="true"
+        :mode="dialogSchema.action"
+        @success="success"
+      />
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="dialogConfirm(dialogSchema.action)">
+            {{ $t('confirm') }}
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 <script lang="jsx" setup>
-  import { dayjs, ElMessage, ElMessageBox } from 'element-plus';
-  import { provide, inject, onMounted, ref, unref, nextTick } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { inject, onMounted, ref, unref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
   import { camelCase } from '@/utils/index.js';
-  import Page from '@/components/page/index.vue';
   import AppForm from '@/components/form/index.vue';
+  import AppFormInput from '@/components/form/form-input.vue';
   import SvgIcon from '@/components/icon/index.vue';
   import { useAppStore } from '@/store/index.js';
   import { listToTree, log, schemaToModel, downloadFile } from '@/utils/index.js';
@@ -150,15 +148,11 @@
     },
   });
 
-  let pageData = inject('pageData');
-  if (!pageData) {
-    pageData = provide('pageData', new Map());
-  }
-
   const { t } = useI18n();
   const route = useRoute();
   const appStore = useAppStore();
 
+  const refresh = ref(false);
   const loading = ref(true);
   const queryFormRef = ref(null);
   const dialogFormRef = ref(null);
@@ -180,7 +174,7 @@
   const sortModel = ref(
     (() => {
       const result = {};
-      (queryModel.value.sorting ?? '')
+      (queryModel.value.orderBy ?? '')
         .split(',')
         .map((o) => o.trim())
         .filter((o) => o)
@@ -191,12 +185,6 @@
       return result;
     })(),
   );
-  const pageModel = ref({
-    sizeList: [10, 100, 1000, 10000],
-    pageIndex: 1,
-    pageSize: 10,
-    total: 0,
-  });
 
   const drop = (e, index) => {
     if (dragStartIndex.value !== index) {
@@ -235,18 +223,17 @@
   };
 
   const buildQuery = () => {
-    const data = {
-      pageIndex: pageModel.value.pageIndex,
-      pageSize: pageModel.value.pageSize,
-      sorting: Object.entries(sortModel.value)
-        .map(({ key, order }) => `${key} ${order}`)
-        .join(','),
-    };
+    const data = {};
     Object.entries(unref(queryModel)).forEach(([key, value]) => {
-      if (value !== null) {
-        data[key] = value;
+      if (key !== 'totalCount' && key !== 'items' && key !== 'pageSizeOptions') {
+        if (value !== null) {
+          data[key] = value;
+        }
       }
     });
+    data.orderBy = Object.entries(sortModel.value)
+      .map(([key, order]) => `${key} ${order}`)
+      .join(',');
     return data;
   };
 
@@ -258,11 +245,12 @@
       const url = buttons.value.find((button) => button.meta?.command === 'search')?.meta?.apiUrl;
       const result = await request(method, url, data);
       if (result.ok) {
-        const { items, pageIndex, pageSize, totalCount } = result.data;
-        listModel.value = listSchema.value.isTree ? listToTree(items) : items;
-        pageModel.value.total = totalCount;
-        pageModel.value.pageIndex = pageIndex;
-        pageModel.value.pageSize = pageSize;
+        const { items, pageIndex, pageSize } = result.data;
+        queryModel.value = result.data;
+        if (listSchema.value.isTree) {
+          queryModel.value.items = listToTree(items);
+        }
+        listModel.value = queryModel.value.items;
         const rowNumberWidth = `${pageIndex * pageSize}`.length * 8 + 16;
         const rowNumberRow = columns.value.find((o) => o.key === 'rowNumber');
         rowNumberRow.width = rowNumberWidth > rowNumberRow.width ? rowNumberWidth : rowNumberRow.width;
@@ -281,7 +269,7 @@
   };
 
   const reload = async () => {
-    pageModel.value.pageIndex = 1;
+    queryModel.value.pageIndex = 1;
     await load();
   };
 
@@ -514,13 +502,13 @@
         width: 44,
         hidden: false,
         cellRenderer: (prop) => {
-          return <>{(pageModel.value.pageIndex - 1) * pageModel.value.pageSize + prop.rowIndex + 1}</>;
+          return <>{(queryModel.value.pageIndex - 1) * queryModel.value.pageSize + prop.rowIndex + 1}</>;
         },
       },
     ];
     Object.keys(listSchema.value.properties).forEach((key) => {
       const property = listSchema.value.properties[key];
-      if (property.hidden) {
+      if (property.hidden || property.hideInList) {
         return;
       }
       const column = {
@@ -532,20 +520,31 @@
         sortable: property?.sortable ?? true,
         draggable: true,
       };
-      if (property.input === 'datetime') {
-        column.cellRenderer = ({ cellData }) => {
-          return <span>{dayjs(cellData).format(property.format ?? 'YYYY-MM-DD HH:mm:ss')}</span>;
-        };
-      }
-      if (property.type === 'boolean') {
-        column.cellRenderer = ({ cellData }) => {
-          return (
-            <span>
-              <el-checkbox disabled vModel={cellData} />
-            </span>
-          );
-        };
-      }
+      // if (property.input === 'datetime') {
+      //   column.cellRenderer = ({ cellData }) => {
+      //     return <span>{dayjs(cellData).format(property.format ?? 'YYYY-MM-DD HH:mm:ss')}</span>;
+      //   };
+      // }
+      // if (property.type === 'boolean') {
+      //   column.cellRenderer = ({ cellData }) => {
+      //     return (
+      //       <span>
+      //         <el-checkbox disabled vModel={cellData} />
+      //       </span>
+      //     );
+      //   };
+      // }
+      column.cellRenderer = (data) => {
+        return (
+          <AppFormInput
+            key={data.rowData}
+            v-model={data.rowData}
+            mode="details"
+            schema={listSchema.value.properties[key]}
+            prop={key}
+          />
+        );
+      };
       result.push(column);
     });
     const rowButtons = buttons.value?.filter((o) => o.meta?.buttonType === 'row');
@@ -601,6 +600,7 @@
   };
 
   onMounted(async () => {
+    console.log(inject('routeData'));
     await load();
   });
 
