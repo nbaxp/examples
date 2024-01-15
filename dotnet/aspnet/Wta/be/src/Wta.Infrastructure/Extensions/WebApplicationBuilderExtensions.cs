@@ -291,6 +291,7 @@ public static class WebApplicationBuilderExtensions
             options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
             options.JsonSerializerOptions.WriteIndented = builder.Environment.IsDevelopment() ? true : false;
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            options.JsonSerializerOptions.Converters.Add(new CustomJsonNullableGuidConverter());
         })
         .ConfigureApiBehaviorOptions(options =>
         {

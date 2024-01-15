@@ -1,19 +1,12 @@
 using Wta.Application.Identity.Domain;
-using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Models;
 
 namespace Wta.Application.Identity.Models;
 
-public class RoleModel : IBaseModel<Role>
+public class DepartmentModel : IBaseModel<Department>
 {
-    [NotDefault]
     public Guid? Id { get; set; }
-
-    [Required]
     public string? Name { get; set; }
-
-    [Required]
     public string? Number { get; set; }
-
-    public List<Guid> Roles { get; set; } = new List<Guid>();
+    public Guid? ParentId { get; set; }
 }

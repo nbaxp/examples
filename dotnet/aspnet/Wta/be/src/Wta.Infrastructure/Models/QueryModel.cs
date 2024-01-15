@@ -22,6 +22,8 @@ public class QueryModel<TModel>
 
     public TModel? Query { get; set; }
 
+    public bool IncludeAll { get; set; }
+
     public List<QueryFilter> Filters { get; set; } = new List<QueryFilter>();
 
     public List<TModel> Items { get; set; } = new List<TModel>();

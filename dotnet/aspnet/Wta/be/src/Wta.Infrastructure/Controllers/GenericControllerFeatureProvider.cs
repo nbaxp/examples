@@ -12,7 +12,7 @@ public class GenericControllerFeatureProvider : IApplicationFeatureProvider<Cont
     {
         var typeInfos = WebApp.Instance.Assemblies!
             .SelectMany(o => o.GetTypes())
-            .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(Entity)))
+            .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(BaseEntity)))
             .Select(o => o.GetTypeInfo())
             .ToList();
         foreach (var entityTypeInfo in typeInfos)

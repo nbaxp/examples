@@ -6,7 +6,7 @@ using Wta.Shared;
 
 namespace Wta.Infrastructure.Data;
 
-public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : Entity
+public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity
 {
     public EfRepository(IServiceProvider serviceProvider)
     {

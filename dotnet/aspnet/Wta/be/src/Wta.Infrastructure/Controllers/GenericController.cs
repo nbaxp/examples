@@ -31,9 +31,15 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         var query = this.Where(model);
         model.TotalCount = query.Count();
         query = this.OrderBy(query, model.OrderBy);
-        query = this.SkipTake(query, model.PageIndex, model.PageSize);
-        var entities = query.Skip((model.PageIndex - 1) * model.PageSize).Take(model.PageSize);
-        model.Items = entities.MapTo<List<TModel>>();
+        if (!model.IncludeAll)
+        {
+            query = this.SkipTake(query, model.PageIndex, model.PageSize);
+        }
+        else
+        {
+            model.PageSize = model.TotalCount;
+        }
+        model.Items = query.MapTo<List<TModel>>();
         return Json(model);
     }
 
@@ -108,6 +114,10 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
     [Button(Type = ButtonType.Row)]
     public CustomApiResponse<bool> Update([FromBody] TModel model)
     {
+        if (!ModelState.IsValid)
+        {
+            throw new BadRequestException();
+        }
         var id = (Guid)(typeof(TModel).GetProperty("Id")!.GetValue(model)!);
         var entity = Repository.Query().FirstOrDefault(o => o.Id == id);
         if (entity == null)

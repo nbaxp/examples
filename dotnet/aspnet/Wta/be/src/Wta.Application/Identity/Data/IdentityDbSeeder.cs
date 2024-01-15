@@ -19,6 +19,8 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
 {
     public void Seed(IdentityDbContext context)
     {
+        //添加部门
+        var departments = InitDepartment(context);
         //添加权限
         var permissions = InitPermission(context);
         //添加管理员角色
@@ -50,6 +52,28 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
             }
         };
         context.Set<User>().Add(admin);
+    }
+
+    private List<Department> InitDepartment(IdentityDbContext context)
+    {
+        var list = new List<Department> {
+            new Department{
+                Name="机构",
+                Number="Organ",
+                Children=new List<Department>{
+                    new Department
+                    {
+                        Name="技术部",
+                        Number="Technology"
+                    }
+                }
+            }
+        };
+        foreach (var item in list)
+        {
+            context.Set<Department>().Add(item);
+        }
+        return list;
     }
 
     private List<Permission> InitPermission(IdentityDbContext context)

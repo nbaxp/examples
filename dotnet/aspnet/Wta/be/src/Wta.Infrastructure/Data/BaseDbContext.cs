@@ -45,8 +45,8 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                 if (entityType.IsAssignableTo(typeof(BaseEntity)))
                 {
                     var entityTypeBuilder = modelBuilder.Entity(entityType);
-                    entityTypeBuilder.HasKey(nameof(Entity.Id));
-                    entityTypeBuilder.Property(nameof(Entity.Id)).ValueGeneratedNever();
+                    entityTypeBuilder.HasKey(nameof(BaseEntity.Id));
+                    entityTypeBuilder.Property(nameof(BaseEntity.Id)).ValueGeneratedNever();
                     if (entityType.IsAssignableTo(typeof(IConcurrencyStampEntity)))
                     {
                         entityTypeBuilder.Property(nameof(IConcurrencyStampEntity.ConcurrencyStamp)).ValueGeneratedNever();
