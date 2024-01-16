@@ -8,8 +8,11 @@
         dayjs(model[prop]).format('YYYY-MM-DD HH:mm:ss')
       }}</template>
       <template v-else-if="schema.input === 'password'">******</template>
-      <template v-else-if="schema.input === 'select' || schema.input === 'tabs'">
-        {{ options.find((o) => o.value == model[prop])?.label ?? model[prop] }}
+      <template v-else-if="schema.input === 'select'">
+        <template v-if="schema.multiple">{{
+          options.filter((o) => model[prop].includes(o.value)).map((o) => o.label)
+        }}</template>
+        <template v-else>{{ options.find((o) => o.value == model[prop])?.label ?? model[prop] }}</template>
       </template>
       <template v-else>
         <pre>{{ model[prop] }}</pre>

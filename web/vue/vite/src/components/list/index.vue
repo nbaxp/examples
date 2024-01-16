@@ -124,7 +124,7 @@
 </template>
 <script lang="jsx" setup>
   import { ElMessage, ElMessageBox } from 'element-plus';
-  import { inject, onMounted, ref, unref } from 'vue';
+  import { inject, onMounted, ref, unref, nextTick } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
   import { camelCase } from '@/utils/index.js';
@@ -247,10 +247,10 @@
       if (result.ok) {
         const { items, pageIndex, pageSize } = result.data;
         queryModel.value = result.data;
-        if (listSchema.value.isTree) {
-          queryModel.value.items = listToTree(items);
-        }
         listModel.value = queryModel.value.items;
+        if (listSchema.value.isTree) {
+          listModel.value = listToTree(items);
+        }
         const rowNumberWidth = `${pageIndex * pageSize}`.length * 8 + 16;
         const rowNumberRow = columns.value.find((o) => o.key === 'rowNumber');
         rowNumberRow.width = rowNumberWidth > rowNumberRow.width ? rowNumberWidth : rowNumberRow.width;
@@ -267,10 +267,15 @@
       loading.value = false;
     }
   };
-
+  const routeData = inject('routeData');
   const reload = async () => {
+    routeData.clear();
     queryModel.value.pageIndex = 1;
-    await load();
+    refresh.value = true;
+    nextTick(async () => {
+      refresh.value = false;
+      await load();
+    });
   };
 
   const reset = async () => {
@@ -600,7 +605,6 @@
   };
 
   onMounted(async () => {
-    console.log(inject('routeData'));
     await load();
   });
 

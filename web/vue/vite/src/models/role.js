@@ -8,6 +8,14 @@ const properties = {
   },
   name: {},
   number: {},
+  permissions: {
+    type: 'array',
+    input: 'select',
+    multiple: true,
+    label: 'path',
+    url: 'permission/search',
+    hideInList: true,
+  },
 };
 
 const schema = {
