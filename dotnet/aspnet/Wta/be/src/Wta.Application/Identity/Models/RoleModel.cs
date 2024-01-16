@@ -15,5 +15,5 @@ public class RoleModel : IBaseModel<Role>
     [Required]
     public string? Number { get; set; }
 
-    public List<Guid> Roles { get; set; } = new List<Guid>();
+    public List<Guid> Permissions { get; set; } = new List<Guid>();
 }

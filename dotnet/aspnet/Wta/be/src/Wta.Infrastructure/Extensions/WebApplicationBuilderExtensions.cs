@@ -29,6 +29,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OrchardCore.Localization;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Wta.Infrastructure.Application;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Common;
 using Wta.Infrastructure.Configuration;
@@ -67,6 +68,7 @@ public static class WebApplicationBuilderExtensions
         contentTypeProvider.Mappings.Add(".apk", "application/vnd.android.package-archive");
         contentTypeProvider.Mappings.Add(".ipa", "application/vnd.iphone");
         builder.Services.AddSingleton(contentTypeProvider);
+        builder.Services.AddSingleton(typeof(IMapper<,>), typeof(DefaultMapper<,>));
         builder.AddDefaultLocalization();
         builder.AddDefaultMvc();
         builder.AddDefaultSwager();

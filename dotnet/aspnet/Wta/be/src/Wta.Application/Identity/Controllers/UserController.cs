@@ -1,16 +1,16 @@
-using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Wta.Application.Identity.Domain;
 using Wta.Application.Identity.Models;
+using Wta.Infrastructure.Application;
 using Wta.Infrastructure.Controllers;
 using Wta.Infrastructure.Interfaces;
 using Wta.Infrastructure.Web;
 
 namespace Wta.Application.Identity.Controllers;
 
-public class UserController(ILogger<User> logger, IRepository<User> repository, IExportImportService exportImportService) : GenericController<User, UserModel>(logger, repository, exportImportService)
+public class UserController(ILogger<User> logger, IRepository<User> repository, IMapper<User, UserModel> mapper, IExportImportService exportImportService) : GenericController<User, UserModel>(logger, repository, mapper, exportImportService)
 {
     [Authorize]
     public CustomApiResponse<UserModel> Info()
@@ -26,7 +26,7 @@ public class UserController(ILogger<User> logger, IRepository<User> repository, 
             UserName = result.UserName,
             Name = result.Name,
             Avatar = result.Avatar,
-            Roles = result.UserRoles.Select(o => o.Role!).Select(o => new RoleModel { Name = o.Name, Number = o.Number }).ToList()
+            //Roles = result.UserRoles.Select(o => o.Role!).Select(o => new RoleModel { Name = o.Name, Number = o.Number }).ToList()
         });
     }
 }

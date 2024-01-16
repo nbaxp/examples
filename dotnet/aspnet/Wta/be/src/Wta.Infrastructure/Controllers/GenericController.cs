@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Wta.Application;
 using Wta.Application.Identity.Domain;
 using Wta.Infrastructure.Abstractions;
+using Wta.Infrastructure.Application;
 using Wta.Infrastructure.Domain;
 using Wta.Infrastructure.Exceptions;
 using Wta.Infrastructure.Extensions;
@@ -18,12 +19,13 @@ using Wta.Shared;
 namespace Wta.Infrastructure.Controllers;
 
 [GenericControllerNameConvention]
-public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IRepository<TEntity> repository, IExportImportService exportImportService) : BaseController, IResourceService<TEntity>
+public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IRepository<TEntity> repository, IMapper<TEntity, TModel> mapper, IExportImportService exportImportService) : BaseController, IResourceService<TEntity>
     where TEntity : BaseEntity
     where TModel : class
 {
     public ILogger<TEntity> Logger { get; } = logger;
     public IRepository<TEntity> Repository { get; } = repository;
+    public IMapper<TEntity, TModel> Mapper { get; } = mapper;
 
     [Display(Order = -5)]
     public CustomApiResponse<QueryModel<TModel>> Search(QueryModel<TModel> model)
@@ -39,7 +41,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         {
             model.PageSize = model.TotalCount;
         }
-        model.Items = query.MapTo<List<TModel>>();
+        model.Items = Mapper.ToModelList(query);
         return Json(model);
     }
 
@@ -52,9 +54,9 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         {
             query = this.SkipTake(query, model.PageIndex, model.PageSize);
         }
-        var entities = query.MapTo<List<TModel>>();
+        var items = Mapper.ToModelList(query);
         var contentType = WebApp.Instance.WebApplication.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
-        var result = new FileContentResult(exportImportService.Export(entities), contentType);
+        var result = new FileContentResult(exportImportService.Export(items), contentType);
         result.FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx";
         return result;
     }
@@ -62,12 +64,11 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
     [Button(Type = ButtonType.Row)]
     public CustomApiResponse<TModel> Details([FromBody] Guid id)
     {
-        var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id);
-        if (entity == null)
+        var model = Mapper.ToModelList(Repository.AsNoTracking().Where(o => o.Id == id)).FirstOrDefault();
+        if (model == null)
         {
             throw new ProblemException("Not Found");
         }
-        var model = entity.MapTo<TModel>();
         return Json(model);
     }
 
@@ -79,7 +80,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
             throw new BadRequestException();
         }
         var entity = Activator.CreateInstance<TEntity>();
-        entity.UpdateFrom(model);
+        Mapper.FromModel(entity, model);
         Repository.Add(entity);
         Repository.SaveChanges();
         return Json(true);
@@ -124,7 +125,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         {
             throw new ProblemException("Not Found");
         }
-        entity.UpdateFrom(model);
+        Mapper.FromModel(entity, model);
         Repository.SaveChanges();
         return Json(true);
     }
