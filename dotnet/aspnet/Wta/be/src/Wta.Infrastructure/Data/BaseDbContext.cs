@@ -95,42 +95,51 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         //var userName = this.GetService<IHttpContextAccessor>().HttpContext?.User.Identity?.Name;
         //var tenant = this.GetService<ITenantService>().TenantId;
         //var now = DateTime.UtcNow;
-        //foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
-        //{
-        //    // 设置审计属性和租户
-        //    if (item.Entity is BaseEntity entity)
-        //    {
-        //        Debug.WriteLine($"{entity.Id},{entity.GetPropertyValue<BaseEntity, string>("Number")}");
-        //        if (item.State == EntityState.Added)
-        //        {
-        //            entity.CreatedOn = now;
-        //            entity.CreatedBy = userName ?? "super";
-        //            entity.TenantId = tenant;
-        //            entity.IsDisabled ??= false;
-        //            entity.IsReadonly ??= false;
-        //        }
-        //        else if (item.State == EntityState.Modified)
-        //        {
-        //            entity.UpdatedOn = now;
-        //            entity.UpdatedBy = userName;
-        //        }
-        //        else if (item.State == EntityState.Deleted)
-        //        {
-        //            if (entity is ISoftDeleteEntity)
-        //            {
-        //                item.State = EntityState.Modified;
-        //                entity.IsDeleted = true;
-        //                entity.DeletedOn = now;
-        //                entity.DeletedBy = userName;
-        //            }
-        //            else if (entity.IsReadonly.HasValue && entity.IsReadonly.Value)
-        //            {
-        //                throw new Exception("内置数据无法删除");
-        //            }
-        //        }
-        //        entity.ConcurrencyStamp = Guid.NewGuid().ToString();
-        //    }
-        //}
+        foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
+        {
+            var entity = item.Entity;
+            if (item.State == EntityState.Deleted)
+            {
+                var isReadOnly = entity.GetType().GetProperty("IsReadOnly")?.GetValue(entity) as bool?;
+                if (isReadOnly.HasValue && isReadOnly.Value)
+                {
+                    item.State = EntityState.Unchanged;
+                }
+            }
+            // 设置审计属性和租户
+            //if (item.Entity is BaseEntity entity)
+            //{
+            //    Debug.WriteLine($"{entity.Id},{entity.GetPropertyValue<BaseEntity, string>("Number")}");
+            //    if (item.State == EntityState.Added)
+            //    {
+            //        entity.CreatedOn = now;
+            //        entity.CreatedBy = userName ?? "super";
+            //        entity.TenantId = tenant;
+            //        entity.IsDisabled ??= false;
+            //        entity.IsReadonly ??= false;
+            //    }
+            //    else if (item.State == EntityState.Modified)
+            //    {
+            //        entity.UpdatedOn = now;
+            //        entity.UpdatedBy = userName;
+            //    }
+            //    else if (item.State == EntityState.Deleted)
+            //    {
+            //        if (entity is ISoftDeleteEntity)
+            //        {
+            //            item.State = EntityState.Modified;
+            //            entity.IsDeleted = true;
+            //            entity.DeletedOn = now;
+            //            entity.DeletedBy = userName;
+            //        }
+            //        else if (entity.IsReadonly.HasValue && entity.IsReadonly.Value)
+            //        {
+            //            throw new Exception("内置数据无法删除");
+            //        }
+            //    }
+            //    entity.ConcurrencyStamp = Guid.NewGuid().ToString();
+            //}
+        }
     }
 
     private List<EntityEntry> GetEntries()

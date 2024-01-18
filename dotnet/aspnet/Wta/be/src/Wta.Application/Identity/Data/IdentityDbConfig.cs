@@ -19,11 +19,14 @@ public class IdentityDbConfig : IDbConfig<IdentityDbContext>,
 
     public void Configure(EntityTypeBuilder<User> builder)
     {
+        builder.HasOne(o => o.Department).WithMany(o => o.Users).HasForeignKey(o => o.DepartmentId).OnDelete(DeleteBehavior.SetNull);
+        builder.Navigation(o => o.UserRoles).AutoInclude();
         builder.HasIndex(x => x.NormalizedUserName).IsUnique();
     }
 
     public void Configure(EntityTypeBuilder<Role> builder)
     {
+        builder.Navigation(o => o.RolePermissions).AutoInclude();
     }
 
     public void Configure(EntityTypeBuilder<UserRole> builder)

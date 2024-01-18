@@ -33,7 +33,9 @@ public static class WebAppExtensions
         app.UseDefaultFiles();
         app.UseStaticFiles(new StaticFileOptions
         {
-            FileProvider = new CompositeFileProvider(app.Services.GetRequiredService<CustomFileProvider>(), new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "wwwroot")),
+            FileProvider = new CompositeFileProvider(app.Services.GetRequiredService<CustomFileProvider>(),
+                new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "wwwroot"),
+                new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))),
             ContentTypeProvider = app.Services.GetRequiredService<FileExtensionContentTypeProvider>(),
             ServeUnknownFileTypes = true,
         });

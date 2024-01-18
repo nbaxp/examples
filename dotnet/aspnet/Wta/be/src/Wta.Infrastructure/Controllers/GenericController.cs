@@ -8,6 +8,7 @@ using Wta.Application;
 using Wta.Application.Identity.Domain;
 using Wta.Infrastructure.Abstractions;
 using Wta.Infrastructure.Application;
+using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Domain;
 using Wta.Infrastructure.Exceptions;
 using Wta.Infrastructure.Extensions;
@@ -86,7 +87,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         return Json(true);
     }
 
-    [Display(Order = -3)]
+    [Display(Order = -3), Hidden]
     public FileContentResult ImportTemplate()
     {
         var contentType = WebApp.Instance.WebApplication.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
@@ -125,6 +126,10 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         {
             throw new ProblemException("Not Found");
         }
+        if (typeof(TEntity).IsAssignableTo(typeof(BaseTreeEntity<>).MakeGenericType(typeof(TEntity))))
+        {
+            //防止循环依赖
+        }
         Mapper.FromModel(entity, model);
         Repository.SaveChanges();
         return Json(true);
@@ -145,7 +150,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         return Json(true);
     }
 
-    [AllowAnonymous, ApiExplorerSettings(IgnoreApi = true)]
+    [AllowAnonymous, Hidden]
     public JsonResult Schema()
     {
         return new JsonResult(typeof(TModel).GetMetadataForType());

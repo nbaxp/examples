@@ -28,7 +28,12 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
         {
             Name = "管理员",
             Number = "admin",
-            RolePermissions = permissions.Select(o => new RolePermission { Permission = o }).ToList()
+            RolePermissions = permissions.Select(o => new RolePermission
+            {
+                Permission = o,
+                IsReadOnly = true
+            }
+            ).ToList()
         };
         context.Set<Role>().Add(adminRole);
         //添加管理员用户
@@ -40,14 +45,16 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
         {
             Name = "管理员",
             UserName = userName,
-            Avatar = "upload/avatar.svg",
+            Avatar = "api/upload/avatar.svg",
             NormalizedUserName = userName.ToUpperInvariant(),
             SecurityStamp = salt,
             PasswordHash = passwordHash,
+            IsReadOnly = true,
             UserRoles = new List<UserRole> {
                 new UserRole
                 {
-                    Role = adminRole
+                    Role = adminRole,
+                    IsReadOnly = true
                 }
             }
         };
@@ -126,6 +133,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                         ApiMethod = (descriptor.ActionConstraints?.FirstOrDefault() as HttpMethodActionConstraint)?.HttpMethods.FirstOrDefault(),
                         Command = descriptor.ActionName.ToSlugify(),
                         ButtonType = descriptor.MethodInfo.GetCustomAttribute<ButtonAttribute>()?.Type ?? ButtonType.Table,
+                        Hidden = descriptor.MethodInfo.GetCustomAttribute<HiddenAttribute>() == null ? false : true,
                         Order = descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Order ?? 0
                     });
                 });

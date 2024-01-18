@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Wta.Application.Identity.Domain;
 using Wta.Application.Identity.Models;
 using Wta.Infrastructure.Application;
+using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Controllers;
 using Wta.Infrastructure.Interfaces;
 using Wta.Infrastructure.Web;
@@ -12,7 +13,7 @@ namespace Wta.Application.Identity.Controllers;
 
 public class UserController(ILogger<User> logger, IRepository<User> repository, IMapper<User, UserModel> mapper, IExportImportService exportImportService) : GenericController<User, UserModel>(logger, repository, mapper, exportImportService)
 {
-    [Authorize]
+    [Authorize, Hidden]
     public CustomApiResponse<UserModel> Info()
     {
         var result = Repository

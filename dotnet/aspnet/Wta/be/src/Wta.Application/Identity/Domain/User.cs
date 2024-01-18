@@ -20,5 +20,8 @@ public class User : Entity
     public int AccessFailedCount { get; set; }
     public DateTime? LockoutEnd { get; set; }
     public bool LockoutEnabled { get; set; }
+    public bool IsReadOnly { get; set; }
+    public Guid? DepartmentId { get; set; }
+    public Department? Department { get; set; }
     public List<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

@@ -6,4 +6,5 @@ public class RolePermission
     public Guid PermissionId { get; set; }
     public Role? Role { get; set; }
     public Permission? Permission { get; set; }
+    public bool IsReadOnly { get; set; }
 }
