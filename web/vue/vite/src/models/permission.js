@@ -9,7 +9,11 @@ const properties = {
   path: {
     width: 300,
   },
+  icon: {
+    input: 'icon',
+  },
   order: {},
+
   // order: {
   //   title: 'Display Number',
   //   type: 'number',

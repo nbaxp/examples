@@ -7,11 +7,24 @@ const properties = {
     hidden: true,
   },
   userName: {},
+  avatar: {
+    type: 'string',
+    input: 'upload',
+    isImage: true,
+    url: 'file/upload',
+    accept: '.svg,.png',
+  },
+  departmentId: {
+    input: 'cascader',
+    checkStrictly: true,
+    url: 'department/search',
+  },
   roles: {
     type: 'array',
     input: 'select',
     multiple: true,
     url: 'role/search',
+    hideInList: true,
   },
 };
 

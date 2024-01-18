@@ -10,8 +10,9 @@ const properties = {
   number: {},
   permissions: {
     type: 'array',
-    input: 'select',
+    input: 'cascader',
     multiple: true,
+    checkStrictly: true,
     label: 'path',
     url: 'permission/search',
     hideInList: true,

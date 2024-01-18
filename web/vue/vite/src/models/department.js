@@ -10,10 +10,8 @@ const properties = {
   number: {},
   parentId: {
     type: 'string',
-    input: 'select',
-    value: 'id',
-    label: 'name',
-    method: 'POST',
+    input: 'cascader',
+    checkStrictly: true,
     url: 'department/search',
     hideInList: true,
   },

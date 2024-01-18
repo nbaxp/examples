@@ -38,10 +38,10 @@
     'modelValue',
     'inline',
     'schema',
-    'action',
     'hideButton',
     'showReset',
     'isQueryForm',
+    'beforeSubmit',
     'mode',
   ]);
   const emit = defineEmits(['update:modelValue', 'success', 'error']);
@@ -74,16 +74,17 @@
         const method = props.schema.method ?? 'POST';
         errorMessage.value = null;
         errors.value = {}; // 必须先清空
-        const result = await request(method, url, model);
+        const data = props.beforeSubmit ? props.beforeSubmit(props.mode, model) ?? model : model;
+        const result = await request(method, url, data);
         if (result.ok) {
-          emit('success', result.data);
+          emit('success', { action: props.mode, data: result.data });
         } else {
           if (result.code == 400) {
             errors.value = result.data;
           } else if (result.code == 500) {
             errorMessage.value = result.message;
           }
-          emit('error', result.data);
+          emit('error', { action: props.mode, data: result.data });
         }
       }
     } catch (error) {

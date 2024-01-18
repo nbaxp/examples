@@ -8,8 +8,8 @@
             v-model="queryModel.query"
             inline
             mode="query"
-            :schema="querySchema.properties.query"
             label-position="left"
+            :schema="querySchema.properties.query"
             :hide-button="true"
           />
           <div v-if="tableButtons.length" style="padding-bottom: 20px">
@@ -88,12 +88,13 @@
           {{ $t('selectAll') }}
         </el-button>
         <el-button type="primary" @click="invertSelect">
-          {{ $t('invertSelection') }}
+          {{ $t('invertSelect') }}
         </el-button>
         <el-button type="primary" @click="resetColumns">{{ $t('reset') }}</el-button>
       </template>
     </el-drawer>
-    <el-dialog v-if="dialogVisible" v-model="dialogVisible" :title="$t(dialogSchema.title)" destroy-on-close>
+    <el-dialog v-if="dialogVisible" v-model="dialogVisible" align-center append-to-body lock-scroll destroy-on-close>
+      <template #header>{{ $t(dialogSchema.title) }}</template>
       <el-button
         link
         style="height: 50px"
@@ -110,6 +111,7 @@
         label-position="left"
         :hide-button="true"
         :mode="dialogSchema.action"
+        :before-submit="beforeSubmit"
         @success="success"
       />
       <template #footer>
@@ -161,9 +163,7 @@
   const dialogModel = ref(null);
   const dialogSchema = ref(null);
   const buttons = ref((props.routeValue ?? route).meta?.buttons ?? []);
-  const tableButtons = ref(
-    buttons.value?.filter((o) => o.meta?.buttonType === 'table' && o.meta.command !== 'import-template'),
-  );
+  const tableButtons = ref(buttons.value?.filter((o) => !o.meta?.hidden && o.meta?.buttonType === 'table'));
   const querySchema = ref(props.config.properties.query);
   const queryModel = ref(schemaToModel(querySchema.value));
   const listSchema = ref(props.config.properties.list);
@@ -243,14 +243,15 @@
       const data = buildQuery();
       const method = buttons.value.find((button) => button.meta?.command === 'search')?.meta?.apiMethod ?? 'POST';
       const url = buttons.value.find((button) => button.meta?.command === 'search')?.meta?.apiUrl;
+
       const result = await request(method, url, data);
       if (result.ok) {
         const { items, pageIndex, pageSize } = result.data;
-        queryModel.value = result.data;
-        listModel.value = queryModel.value.items;
-        if (listSchema.value.isTree) {
-          listModel.value = listToTree(items);
-        }
+        //避免对querymodel重新赋值导致reset失效
+        queryModel.value.pageIndex = pageIndex;
+        queryModel.value.pageSize = pageSize;
+        queryModel.value.items = items;
+        listModel.value = listSchema.value.isTree ? listToTree(items) : items;
         const rowNumberWidth = `${pageIndex * pageSize}`.length * 8 + 16;
         const rowNumberRow = columns.value.find((o) => o.key === 'rowNumber');
         rowNumberRow.width = rowNumberWidth > rowNumberRow.width ? rowNumberWidth : rowNumberRow.width;
@@ -402,66 +403,44 @@
     console.log(rows);
   };
 
+  const beforeSubmit = (action, model) => {
+    if (action === 'import') {
+      const data = new FormData();
+      Object.keys(dialogModel.value).forEach((key) => {
+        const schema = dialogSchema.value.properties[key];
+        if (schema?.type === 'array') {
+          dialogModel.value[key].forEach((value) => {
+            data.append(key, schema.input === 'file' ? value.raw : value);
+          });
+        } else {
+          const value = dialogModel.value[key];
+          data.append(key, schema.input === 'file' ? value.raw : value);
+        }
+      });
+      return data;
+    } else if (action === 'export') {
+      const data = buildQuery();
+      Object.assign(data, dialogModel.value);
+      return data;
+    }
+  };
+
   const dialogConfirm = async (action) => {
     console.log(dialogFormRef.value);
     if (action === 'details') {
       dialogVisible.value = false;
-      return;
-    }
-    if (action === 'create' || action === 'update') {
+    } else {
       await dialogFormRef.value.submit();
-      return;
-    }
-    if (action === 'export' || action === 'import') {
-      loading.value = true;
-      try {
-        let data = null;
-        if (action === 'export') {
-          data = buildQuery();
-          Object.assign(data, dialogModel.value);
-        } else {
-          data = new FormData();
-          Object.keys(dialogModel.value).forEach((key) => {
-            const schema = dialogSchema.value.properties[key];
-            if (schema?.type === 'array') {
-              dialogModel.value[key].forEach((value) => {
-                data.append(key, schema.input === 'file' ? value.raw : value);
-              });
-            } else {
-              const value = dialogModel.value[key];
-              data.append(key, schema.input === 'file' ? value.raw : value);
-            }
-          });
-        }
-        const button = buttons.value.find((o) => o.meta?.command === action);
-        const method = button.meta?.apiMethod ?? 'POST';
-        const url = button.meta?.apiUrl;
-        const result = await request(method, url, data);
-        if (result.ok) {
-          dialogVisible.value = false;
-          if (action === 'export') {
-            downloadFile(result.data.file, result.data.name);
-          } else {
-            await reload();
-          }
-        } else {
-          if (result.code === 500) {
-            await ElMessageBox.confirm(result.message, t('tip'), {
-              type: 'warning',
-            });
-          }
-        }
-      } catch (e) {
-        log(e);
-      } finally {
-        loading.value = false;
-      }
     }
   };
 
-  const success = async (data) => {
+  const success = async (result) => {
     dialogVisible.value = false;
-    await reload();
+    if (result.action === 'export') {
+      downloadFile(result.data.file, result.data.name);
+    } else {
+      await reload();
+    }
   };
 
   const print = () => {
@@ -552,7 +531,7 @@
       };
       result.push(column);
     });
-    const rowButtons = buttons.value?.filter((o) => o.meta?.buttonType === 'row');
+    const rowButtons = buttons.value?.filter((o) => !o.meta?.hidden && o.meta?.buttonType === 'row');
     const width =
       rowButtons
         .map((o) => o.meta?.width)

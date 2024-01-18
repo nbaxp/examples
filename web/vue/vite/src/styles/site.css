@@ -166,6 +166,10 @@ a.logo {
   white-space: nowrap;
 }
 
+.el-dialog {
+  max-height: 100%;
+}
+
 .el-dialog__header,
 .el-dialog__footer,
 .el-drawer__header,
@@ -193,6 +197,11 @@ a.logo {
   justify-content: end;
 }
 
+.el-dialog__body {
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+}
+
 .el-drawer {
   min-width: 10%;
 }
@@ -205,6 +214,10 @@ a.logo {
   .el-input {
     width: 100%;
     min-width: 240px;
+    .el-form-item--default {
+      min-height: 32px;
+      height: auto;
+    }
   }
 
   .el-select,

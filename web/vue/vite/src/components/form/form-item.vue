@@ -35,6 +35,9 @@
     if (props.schema.hidden && (props.mode === 'create' || props.mode === 'update')) {
       return false;
     }
+    if (props.mode === 'query' && props.schema.input === 'upload') {
+      return false;
+    }
     return true;
   };
   const getDisabled = () => {

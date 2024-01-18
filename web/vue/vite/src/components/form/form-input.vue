@@ -12,7 +12,46 @@
         <template v-if="schema.multiple">{{
           options.filter((o) => model[prop].includes(o.value)).map((o) => o.label)
         }}</template>
-        <template v-else>{{ options.find((o) => o.value == model[prop])?.label ?? model[prop] }}</template>
+        <template v-else>{{ options.find((o) => o.value == model[prop])?.label }}</template>
+      </template>
+      <template v-else-if="schema.input === 'cascader'">
+        <div>
+          <template v-if="schema.multiple">
+            <div v-for="item in getCascaderDisplay" :key="item">{{ item }}</div>
+          </template>
+          <template v-else>{{ getCascaderDisplay }}</template>
+        </div>
+      </template>
+      <template v-else-if="schema.input === 'icon'">
+        <svg-icon :name="model[prop]" />
+      </template>
+      <template v-else-if="schema.input === 'upload'">
+        <template v-if="schema.multiple">
+          <template v-if="schema.isImage">
+            <el-image
+              v-for="item in model[prop]"
+              :key="item"
+              :src="item"
+              :preview-src-list="[item]"
+              :preview-teleported="true"
+              style="height: 1em"
+              class="mr-2"
+            />
+          </template>
+          <template v-else>
+            <el-link v-for="item in model[prop]" :key="item" class="mr-2">{{ item }}</el-link>
+          </template>
+        </template>
+        <template v-else>
+          <el-link v-if="!schema.isImage">{{ model[prop] }}</el-link>
+          <el-image
+            v-else
+            :src="model[prop]"
+            :preview-src-list="[model[prop]]"
+            :preview-teleported="true"
+            style="height: 1em"
+          />
+        </template>
       </template>
       <template v-else>
         <pre>{{ model[prop] }}</pre>
@@ -29,7 +68,7 @@
     <template v-if="getInput(schema) === 'color'">
       <el-color-picker v-model="model[prop]" />
     </template>
-    <template v-else-if="getInput(schema) === 'select' || getInput(schema) === 'tabs'">
+    <template v-else-if="getInput(schema) === 'select'">
       <el-select v-model="model[prop]" :placeholder="placeholder" :multiple="!!schema.multiple" :clearable="true">
         <template #prefix>
           <svg-icon
@@ -44,6 +83,17 @@
           </span>
         </el-option>
       </el-select>
+    </template>
+    <template v-else-if="getInput(schema) === 'cascader'">
+      <el-cascader
+        v-model="cascaderValues"
+        :options="options"
+        clearable
+        :multiple="!!schema.multiple"
+        :props="cascaderProps"
+        :placeholder="placeholder"
+        @change="onCascaderChange"
+      />
     </template>
     <template
       v-else-if="
@@ -69,7 +119,7 @@
         <el-option prop="true" :value="true" :label="$t('true')" />
         <el-option prop="false" :value="false" :label="$t('false')" />
       </el-select>
-      <el-checkbox v-else v-model="model[prop]" :label="schema.showLabel ? $t(placeholder) : ''" />
+      <el-checkbox v-else v-model="model[prop]" :label="schema.showLabel ? placeholder : ''" />
     </template>
     <template v-else-if="getInput(schema) === 'file'">
       <el-upload
@@ -98,6 +148,64 @@
         </template>
       </el-upload>
     </template>
+    <template v-else-if="schema.input === 'icon'">
+      <icon-select v-model="model[prop]" />
+    </template>
+    <template v-else-if="schema.input === 'upload'">
+      <el-upload
+        ref="upload"
+        v-model:file-list="fileList"
+        :accept="schema.accept"
+        :limit="limit"
+        :action="getAction()"
+        :multiple="!!schema.multiple"
+        :before-upload="beforeUpload"
+        :on-exceed="onExceed"
+        :on-success="onUploadSuccess"
+        :list-type="!schema.isImage ? 'text' : 'picture-card'"
+        :headers="getHeaders()"
+        class="w-full"
+      >
+        <template #trigger>
+          <el-icon>
+            <i class="i-ep-plus" />
+          </el-icon>
+        </template>
+        <template #tip>
+          <div class="el-upload__tip">
+            <div>
+              单个文件大小限制：{{ bytesFormat(size) }}，上传数量限制：{{ limit
+              }}<template v-if="schema.accept">，上传文件类型：{{ schema.accept }}</template>
+            </div>
+          </div>
+        </template>
+        <template #file="{ file }">
+          <template v-if="!schema.isImage">
+            <div class="el-upload-list__item-info">
+              <a class="el-upload-list__item-name">
+                <el-icon class="el-icon--document"><i class="i-ep-document" /></el-icon>
+                <span class="el-upload-list__item-file-name">{{ file.url }}</span>
+              </a>
+              <el-icon class="el-icon--close" @click="onRemove(file)"><i class="i-ep-close" /></el-icon>
+            </div>
+          </template>
+          <div v-else>
+            <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+            <span class="el-upload-list__item-actions">
+              <span class="el-upload-list__item-preview" @click="onPreview(file)">
+                <el-icon><i class="i-ep-zoom-in" /></el-icon>
+              </span>
+              <span class="el-upload-list__item-delete" @click="onRemove(file)">
+                <el-icon><i class="i-ep-delete" /></el-icon>
+              </span>
+            </span>
+          </div>
+        </template>
+      </el-upload>
+      <el-dialog v-model="preivewImageVisable">
+        <img w-full :src="previewImageUrl" alt="schema.title" />
+      </el-dialog>
+    </template>
     <template v-else>
       <el-input
         v-model="model[prop]"
@@ -116,13 +224,15 @@
 </template>
 
 <script setup>
-  import { dayjs, ElMessage, useFormItem } from 'element-plus';
-  import { computed, onMounted, reactive, ref, watch, inject } from 'vue';
+  import { dayjs, ElMessageBox, useFormItem } from 'element-plus';
+  import { computed, onMounted, reactive, ref, watch, watchEffect, inject } from 'vue';
   import { useI18n } from 'vue-i18n';
-
+  import { listToTree, findPath } from '@/utils/index.js';
   import SvgIcon from '@/components/icon/index.vue';
+  import IconSelect from '@/components/icon/icon-select.vue';
   import { bytesFormat, importFunction } from '@/utils/index.js';
-  import request from '@/utils/request.js';
+  import request, { getUrl } from '@/utils/request.js';
+  import { useTokenStore } from '@/store/index.js';
 
   const props = defineProps(['modelValue', 'schema', 'prop', 'isReadOnly', 'mode']);
   const emit = defineEmits(['update:modelValue']);
@@ -132,6 +242,8 @@
     emit('update:modelValue', value);
   });
   /* start */
+  const routeData = inject('routeData');
+  const tokenStore = useTokenStore();
   const { t } = useI18n();
   const placeholder = computed(() => {
     return t(props.schema.placeholder ?? props.schema.title ?? props.prop);
@@ -151,26 +263,59 @@
   /* end */
 
   // options
-  const selectProps = ref({});
-  const selectValues = ref([]);
   const options = ref([]);
+  const cascaderProps = ref({
+    multiple: !!props.schema.multiple,
+    checkStrictly: !!props.schema.checkStrictly,
+    emitPath: false,
+  });
+  const cascaderValues = ref([]);
+  watchEffect(() => {
+    if (props.mode !== 'details') {
+      if (props.schema.input === 'select') {
+      } else if (props.schema.input === 'cascader') {
+        if (model[props.prop]) {
+          if (props.schema.multiple) {
+            cascaderValues.value = props.modelValue[props.prop];
+          } else {
+            cascaderValues.value = props.modelValue[props.prop] ? [props.modelValue[props.prop]] : [];
+          }
+        } else {
+          cascaderValues.value = [];
+        }
+      }
+    }
+  });
 
-  // upload
-  const fileList = ref([]);
-  const limit = props.schema.multiple ? props.schema.limit ?? 5 : 1;
-  const size = props.schema.size ?? 1024 * 1024;
-  const fileTypes = props.schema.accept?.split(',').map((o) => o.toLowerCase()) ?? [];
+  const onCascaderChange = (values) => {
+    model[props.prop] = values;
+  };
+
+  const getCascaderDisplay = computed(() => {
+    if (props.schema.multiple) {
+      return model[props.prop].map((o) =>
+        findPath(options.value, (n) => n.value === o)
+          .map((i) => i.label)
+          .join(' / '),
+      );
+    }
+    return findPath(options.value, (n) => n.value === model[props.prop])
+      .map((o) => o.label)
+      .join(' / ');
+  });
+
+  // import files
   const { formItem } = useFormItem();
   const handleChange = async (uploadFile, uploadFiles) => {
     const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf('.'));
     const index = uploadFiles.findIndex((o) => o.uid !== uploadFile.uid);
     if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
-      ElMessage.error(`当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`);
+      ElMessageBox.alert(`当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`, '提示');
       uploadFiles.splice(index, 1);
       return false;
     }
     if (uploadFile.size > size) {
-      ElMessage.error(`当前文件大小 ${bytesFormat(uploadFile.size)} 已超过 ${bytesFormat(size)}`);
+      ElMessageBox.alert(`当前文件大小 ${bytesFormat(uploadFile.size)} 已超过 ${bytesFormat(size)}`, '提示');
       uploadFiles.splice(index, 1);
       return false;
     }
@@ -186,42 +331,114 @@
     }
   };
 
-  // watch
-  // watch(
-  //   () => model[props.prop],
-  //   async (value) => {
-  //     if (props.schema.watch) {
-  //       console.log(value);
-  //       if (props.schema.watch?.constructor === String) {
-  //         props.schema.watch = await importFunction(props.schema.watch);
-  //       }
-  //       if (props.schema.watch?.constructor === Function) {
-  //         props.schema.watch(model, value);
-  //       }
-  //     }
-  //   },
-  // );
-  const routeData = inject('routeData');
-  onMounted(async () => {
-    if (props.schema.url && !props.schema.options) {
-      let list = routeData.get(props.prop);
-      if (!list) {
-        try {
-          const url = `${props.schema.url}`;
-          const result = await request(props.schema.method ?? 'POST', url, { includeAll: true });
-          list = result.data.items.map((o) => ({
-            value: o[props.schema.value ?? 'id'],
-            label: o[props.schema.label ?? 'name'],
-          }));
-          routeData.set(props.prop, list);
-        } catch (error) {
-          console.log(error);
-        }
+  //upload
+  const upload = ref(null);
+  const preivewImageVisable = ref(false);
+  const previewImageUrl = ref(null);
+  const limit = computed(() => (props.schema.multiple ? props.schema.limit ?? 5 : 1));
+  const size = computed(() => props.schema.size ?? 1024 * 1024);
+  const fileTypes = props.schema.accept?.split(',') ?? [];
+  const fileList = ref([]);
+  watchEffect(() => {
+    if (model[props.prop]) {
+      if (props.schema.multiple) {
+        fileList.value = model[props.prop].map((o, i) => ({ name: `${props.prop}_${i}`, url: o }));
+      } else {
+        fileList.value = [{ name: props.prop, url: model[props.prop] }];
       }
-      options.value = list;
+    } else {
+      fileList.value = [];
     }
-    if (props.schema.options) {
-      options.value = props.schema.options;
+  });
+
+  const onUploadSuccess = (uploadFile, uploadFiles) => {
+    fileList.value.find((o) => o.name === uploadFiles.name).url = uploadFile.data;
+    if (props.schema.multiple) {
+      model[props.prop] = fileList.value.map((o) => o.url);
+    } else {
+      model[props.prop] = uploadFile.data;
+    }
+  };
+
+  const onRemove = (file) => {
+    upload.value.handleRemove(file);
+    if (props.schema.multiple) {
+      model[props.prop] = fileList.value.filter((o) => o.name !== file.name).map((o) => o.url);
+    } else {
+      model[props.prop] = null;
+    }
+  };
+
+  const beforeUpload = (file) => {
+    const ext = file.name.substr(file.name.lastIndexOf('.'));
+    if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
+      ElMessageBox.alert(`当前文件 ${file.name} 不是可选文件类型 ${props.schema.accept}`, '提示');
+      return false;
+    }
+    if (file.size > size.value) {
+      ElMessageBox.alert(`当前文件大小 ${bytesFormat(file.size)}，已超过 ${bytesFormat(size.value)}`, '提示');
+      return false;
+    }
+    return true;
+  };
+
+  const onPreview = (file) => {
+    previewImageUrl.value = file.url;
+    preivewImageVisable.value = true;
+  };
+
+  const onExceed = (files, uploadFiles) => {
+    ElMessage.warning(
+      `上传最大数量为 ${limit.value}, 本次选择了 ${files.length} 个文件, 总计 ${
+        files.length + uploadFiles.length
+      } 个文件`,
+    );
+  };
+
+  const getHeaders = () => {
+    const headers = props.schema.headers ?? {};
+    if (tokenStore.accessToken) {
+      Object.assign(headers, { Authorization: `Bearer ${tokenStore.accessToken}` });
+    }
+    return headers;
+  };
+  const getAction = () => {
+    return getUrl(props.schema.url);
+  };
+  //mounted
+  onMounted(async () => {
+    if (props.schema.input === 'select' || props.schema.input === 'cascader') {
+      if (props.schema.url && !props.schema.options) {
+        let list = routeData.get(props.prop);
+        if (!list) {
+          try {
+            const url = `${props.schema.url}`;
+            const result = await request(props.schema.method ?? 'POST', url, { includeAll: true });
+            if (props.schema.input === 'cascader') {
+              list = listToTree(
+                result.data.items.map((o) => ({
+                  id: o[props.schema.id ?? 'id'],
+                  parentId: o[props.schema.parentId ?? 'parentId'],
+                  value: o[props.schema.value ?? 'id'],
+                  label: o[props.schema.label ?? 'name'],
+                })),
+              );
+            } else if (props.schema.input === 'select') {
+              list = result.data.items.map((o) => ({
+                value: o[props.schema.value ?? 'id'],
+                label: o[props.schema.label ?? 'name'],
+              }));
+            }
+            routeData.set(props.prop, list);
+          } catch (error) {
+            console.log(error);
+          }
+        }
+        options.value = list;
+      }
+      if (props.schema.options) {
+        options.value = props.schema.options;
+      }
     }
   });
 </script>

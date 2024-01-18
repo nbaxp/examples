@@ -108,7 +108,7 @@ function listToTree(list, func = null, id = 'id', parentId = 'parentId', childre
 function treeToList(tree, children = 'children', list = []) {
   tree.forEach((o) => {
     list.push(o);
-    if (o.children?.length) {
+    if (o[children]?.length) {
       treeToList(o[children], list);
     }
   });
@@ -160,6 +160,21 @@ function reload() {
   location.href = `${location.protocol}//${location.host}${location.pathname}`;
 }
 
+function findPath(tree, predicate, path = []) {
+  if (!tree) return [];
+  for (let i = 0; i < tree.length; i += 1) {
+    const node = tree[i];
+    path.push(node);
+    if (predicate(node)) return path;
+    if (node.children) {
+      const findChildren = findPath(node.children, predicate, path);
+      if (findChildren.length) return findChildren;
+    }
+    path.pop();
+  }
+  return [];
+}
+
 export {
   bytesFormat,
   delay,
@@ -176,4 +191,5 @@ export {
   schemaToModel,
   treeToList,
   camelCase,
+  findPath,
 };

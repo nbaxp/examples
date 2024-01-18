@@ -23,6 +23,7 @@
   import { watchEffect } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
+  import { camelCase } from '@/utils/index.js';
 
   import { useAppStore } from '@/store/index.js';
 
@@ -37,7 +38,7 @@
   const route = useRoute();
   watchEffect(() => {
     if (route.meta.title) {
-      useTitle().value = i18n.t(route.meta?.title);
+      useTitle().value = i18n.t(camelCase(route.meta?.title));
     }
   });
 </script>

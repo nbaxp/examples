@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { useAppStore } from '@/store/index.js';
 import { listToTree } from '@/utils/index.js';
-import { defineAsyncComponent, provide } from 'vue';
+import { defineAsyncComponent, provide, markRaw } from 'vue';
 
 import docs from './docs.js';
 import { afterEach, beforeEach } from './guard.js';
@@ -12,14 +12,24 @@ const views = import.meta.glob('../views/**/*.vue');
 const layout = (name) => {
   return layouts[`../layout/${name}.vue`];
 };
-const view = (name) => {
-  return views[`../views/${name}.vue`];
+
+const view = (name, file) => {
+  return markRaw({
+    name,
+    components: {
+      AppPage: defineAsyncComponent(views[`../views/${file}.vue`]),
+    },
+    template: `<app-page />`,
+    setup() {
+      provide('routeData', new Map([['name', name]]));
+    },
+  });
 };
 
 const routes = [
   {
     path: '/login',
-    component: view('login'),
+    component: view('/login', 'login'),
     meta: {
       title: 'login',
       hideInMenu: true,
@@ -27,7 +37,7 @@ const routes = [
   },
   {
     path: '/403',
-    component: view('403'),
+    component: view('/403', '403'),
     meta: {
       title: '403',
       hideInMenu: true,
@@ -35,7 +45,7 @@ const routes = [
   },
   {
     path: '/redirect',
-    component: view('redirect'),
+    component: view('/redirect', 'redirect'),
     meta: {
       title: 'redirect',
       hideInMenu: true,
@@ -43,7 +53,7 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    component: view('404'),
+    component: view('/404', '404'),
     meta: {
       title: '404',
       hideInMenu: true,
@@ -68,16 +78,7 @@ const convert = (list, parent = null) => {
     if (o.redirect) {
       o.component = layout(file ?? 'index');
     } else if (file) {
-      o.component = {
-        name: o.name,
-        components: {
-          PageView: defineAsyncComponent(() => import(`../views/${file}.vue`)),
-        },
-        template: `<page-view></page-view>`,
-        setup() {
-          provide('routeData', new Map([['name', o.name]]));
-        },
-      };
+      o.component = view(o.name, file);
     }
     if (o.children?.length) {
       convert(o.children, o);
@@ -100,6 +101,7 @@ async function refreshRouter() {
     o.meta.apiMethod = o.apiMethod;
     o.meta.apiUrl = o.apiUrl;
     o.meta.command = o.command;
+    o.meta.hidden = o.hidden;
     o.meta.schema = o.schema;
     delete o.type;
     delete o.title;
@@ -110,6 +112,7 @@ async function refreshRouter() {
     delete o.apiMethod;
     delete o.apiUrl;
     delete o.command;
+    delete o.hidden;
     delete o.schema;
   });
   convert(tree);
