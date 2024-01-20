@@ -1,6 +1,6 @@
 <template>
   <el-form ref="formRef" v-loading="loading" :model="model" label-width="auto" :inline="inline" @keyup.enter="submit">
-    <el-form-item v-if="errorMessage" :label-width="0" style="margin-bottom: 0">
+    <el-form-item v-if="errorMessage" style="margin-bottom: 0">
       <el-text type="danger">{{ errorMessage }}</el-text>
     </el-form-item>
     <template v-if="schema && schema.properties">
@@ -16,7 +16,7 @@
       </template>
     </template>
     <slot></slot>
-    <el-form-item v-if="!hideButton" :label-width="0" style="margin-bottom: 0">
+    <el-form-item v-if="!hideButton" style="margin-bottom: 0">
       <slot name="submit">
         <el-button type="primary" :disabled="loading" :style="schema.submitStyle" @click="submit">
           {{ $t(schema.title ?? 'confirm') }}

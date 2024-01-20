@@ -1,4 +1,4 @@
-// import Schema from 'async-validator';
+import Schema from 'async-validator';
 
 import i18n from '@/locale/index.js';
 
@@ -65,8 +65,11 @@ const messages = {
 const validators = {
   compare(rule, value, callback, source, options) {
     const errors = [];
-    if (value && value !== rule.data[rule.compare]) {
-      const message = format(options.messages.compare, rule.title, rule.schema.properties[rule.compare].title);
+    if (value !== rule.data[rule.compare]) {
+      const message = i18n.global.t('compareAttribute', [
+        i18n.global.t(rule.title ?? rule.field),
+        i18n.global.t(rule.schema.properties[rule.compare].title ?? rule.compare),
+      ]);
       errors.push(new Error(message));
     }
     callback(errors);
@@ -81,24 +84,22 @@ const validators = {
   },
   remote(rule, value, callback, source, options) {
     const errors = [];
-    const message = format(options.messages.remote, rule.title);
     if (!value) {
       callback(errors);
     } else {
       const { url } = rule;
-      const method = rule.method ?? 'GET';
+      const method = rule.method ?? 'POST';
       const data = { [rule.field]: value };
-      request(method, url, data)
+      request(method, url, data, null, true)
         .then((result) => {
-          if (!result.ok) {
-            errors.push(new Error(2 + result.data));
-          } else {
-            errors.push(new Error(1 + result.message));
+          if (!result.ok || !result.data) {
+            const message = i18n.global.t(result.message ?? rule.message, i18n.global.t(rule.title ?? rule.field));
+            errors.push(new Error(message));
           }
           callback(errors);
         })
         .catch((o) => {
-          errors.push(o.response?.data?.message ?? message ?? o.message);
+          errors.push(o);
           callback(errors);
         });
     }
@@ -107,8 +108,8 @@ const validators = {
 
 //
 const getMessage = (key, ...args) => {
-  const current = i18n.global.locale.value;
-  const template = i18n.global.messages.value[current][key];
+  //const current = i18n.global.locale.value;
+  const template = i18n.global.t(key);
   const args2 = args.map((o) => i18n.global.t(o));
   return format(template, ...args2);
 };
@@ -156,8 +157,8 @@ const getRules = (parentSchema, prop, data) => {
   return rules;
 };
 
-// Object.assign(Schema.messages, messages);
-// Object.assign(Schema.validators, validators);
+Object.assign(Schema.messages, messages);
+Object.assign(Schema.validators, validators);
 
 function required() {
   return { required: true };

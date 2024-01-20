@@ -3,7 +3,7 @@
     <el-breadcrumb>
       <template v-for="item in $route.matched">
         <el-breadcrumb-item v-if="!item.meta?.hideInMenu" :key="item.path" :to="{ path: item.path }">
-          {{ $t(camelCase(getTitle(item))) }}
+          {{ $t(getTitle(item)) }}
         </el-breadcrumb-item>
       </template>
     </el-breadcrumb>

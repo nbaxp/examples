@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-  import { computed, nextTick, ref } from 'vue';
+  import { watchEffect, nextTick, ref } from 'vue';
   import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
   import { camelCase } from '@/utils/index.js';
   import { useTabsStore } from '../store/index.js';
@@ -54,10 +54,13 @@
   const itemRefs = ref([]);
   const currentRoute = useRoute();
   const router = useRouter();
-  const model = computed(() => currentRoute.fullPath);
+  const model = ref('');
 
-  onBeforeRouteUpdate((to) => {
-    model.value = to.fullPath;
+  // onBeforeRouteUpdate((to) => {
+  //   model.value = to.fullPath;
+  // });
+  watchEffect(() => {
+    model.value = currentRoute.fullPath;
   });
 
   const setRef = (index, el) => {

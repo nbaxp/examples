@@ -17,7 +17,8 @@
               "
             >
               <div style="text-align: center">
-                <div>扫码登录</div> <img v-if="qrcode" style="cursor: pointer" :src="qrcode" @click="getQrCode" />
+                <div>{{ $t('qrCodeLogin') }}</div>
+                <img v-if="qrcode" style="cursor: pointer" :src="qrcode" @click="getQrCode" />
               </div>
             </el-col>
             <el-col :span="14">

@@ -13,23 +13,28 @@ const layout = (name) => {
   return layouts[`../layout/${name}.vue`];
 };
 
-const view = (name, file) => {
+const view = (file, name = null) => {
   return markRaw({
-    name,
+    name: name ?? `/${file}`,
     components: {
       AppPage: defineAsyncComponent(views[`../views/${file}.vue`]),
     },
     template: `<app-page />`,
-    setup() {
-      provide('routeData', new Map([['name', name]]));
-    },
   });
 };
 
 const routes = [
   {
+    path: '/register',
+    component: view('register'),
+    meta: {
+      title: 'register',
+      hideInMenu: true,
+    },
+  },
+  {
     path: '/login',
-    component: view('/login', 'login'),
+    component: view('login'),
     meta: {
       title: 'login',
       hideInMenu: true,
@@ -37,7 +42,7 @@ const routes = [
   },
   {
     path: '/403',
-    component: view('/403', '403'),
+    component: view('403'),
     meta: {
       title: '403',
       hideInMenu: true,
@@ -45,7 +50,7 @@ const routes = [
   },
   {
     path: '/redirect',
-    component: view('/redirect', 'redirect'),
+    component: view('redirect'),
     meta: {
       title: 'redirect',
       hideInMenu: true,
@@ -53,7 +58,7 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    component: view('/404', '404'),
+    component: view('404'),
     meta: {
       title: '404',
       hideInMenu: true,
@@ -78,7 +83,7 @@ const convert = (list, parent = null) => {
     if (o.redirect) {
       o.component = layout(file ?? 'index');
     } else if (file) {
-      o.component = view(o.name, file);
+      o.component = view(file, o.name);
     }
     if (o.children?.length) {
       convert(o.children, o);

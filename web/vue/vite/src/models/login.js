@@ -4,7 +4,6 @@ export default function () {
       passwordLogin: {
         title: 'login',
         url: 'token/create',
-        method: 'POST',
         labelWidth: 0,
         submitStyle: 'width:100%',
         properties: {

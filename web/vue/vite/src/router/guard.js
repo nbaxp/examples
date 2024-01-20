@@ -25,7 +25,7 @@ const beforeEach = async (to, from, next) => {
     await refreshRouter();
     refresh = true;
   }
-  if (to.path !== '/login' && to.path !== '/403') {
+  if (to.path !== '/register' && to.path !== '/login' && to.path !== '/403') {
     if (isLogin && !userStore.userName) {
       // 加载用户信息
       await userStore.getUserInfo();
@@ -34,7 +34,7 @@ const beforeEach = async (to, from, next) => {
   // 认证和授权
   if (refresh) {
     next({ path: to.fullPath });
-  } else if (to.path !== '/login' && !isLogin) {
+  } else if (to.path !== '/register' && to.path !== '/login' && to.path !== '/403') {
     if (!isLogin) {
       next({ path: '/login', query: { redirect: to.fullPath } });
     } else if (!userStore.hasPermission(to.meta.permission)) {

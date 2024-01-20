@@ -19,7 +19,7 @@ export default defineStore('app', {
           this.locale = result.data;
           i18n.global.locale.value = this.locale.locale;
           Object.keys(this.locale.messages).forEach((key) => {
-            i18n.global.setLocaleMessage(key, this.locale.messages[key]);
+            i18n.global.mergeLocaleMessage(key, this.locale.messages[key]);
           });
         } else {
           throw new Error(response.statusText);

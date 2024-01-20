@@ -3,7 +3,7 @@
     <template v-if="schema.type === 'object'"></template>
     <template v-else-if="schema.type !== 'array' || schema.items?.type !== 'array'">
       <el-form-item
-        :label="parentSchema.labelWidth === 0 ? null : $t(schema.title ?? prop)"
+        :label="parentSchema.labelWidth === 0 ? '' : $t(schema.title ?? prop)"
         :prop="getProp(prop)"
         :rules="getDisabled() ? [] : getRules(parentSchema, prop, model)"
         :error="error"

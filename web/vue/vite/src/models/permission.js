@@ -13,26 +13,6 @@ const properties = {
     input: 'icon',
   },
   order: {},
-
-  // order: {
-  //   title: 'Display Number',
-  //   type: 'number',
-  //   width: 80,
-  // },
-  // isReadonly: {
-  //   title: 'Readonly',
-  //   type: 'boolean',
-  // },
-  // createdAt: {
-  //   title: 'Created Time',
-  //   input: 'datetime',
-  //   width: 150,
-  // },
-  // menus: {
-  //   title: 'Menu',
-  //   type: 'array',
-  //   items: [],
-  // },
 };
 
 const schema = {

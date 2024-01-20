@@ -6,9 +6,13 @@ const properties = {
   id: {
     hidden: true,
   },
-  userName: {},
+  userName: {
+    readonly: true,
+  },
+  password: {
+    input: 'password',
+  },
   avatar: {
-    type: 'string',
     input: 'upload',
     isImage: true,
     url: 'file/upload',

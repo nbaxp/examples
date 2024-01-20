@@ -25,7 +25,7 @@
               >
                 <template #default>
                   <svg-icon v-if="item.meta?.icon" :name="item.meta?.icon" />
-                  <span v-if="item.meta?.title">{{ $t(camelCase(item.meta?.title)) }}</span>
+                  <span v-if="item.meta?.title">{{ $t(item.meta?.title) }}</span>
                 </template>
               </el-button>
             </template>
@@ -126,7 +126,7 @@
 </template>
 <script lang="jsx" setup>
   import { ElMessage, ElMessageBox } from 'element-plus';
-  import { inject, onMounted, ref, unref, nextTick } from 'vue';
+  import { inject, provide, onMounted, ref, unref, nextTick } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
   import { camelCase } from '@/utils/index.js';
@@ -150,6 +150,7 @@
     },
   });
 
+  const routeData = inject('routeData');
   const { t } = useI18n();
   const route = useRoute();
   const appStore = useAppStore();
@@ -268,7 +269,7 @@
       loading.value = false;
     }
   };
-  const routeData = inject('routeData');
+
   const reload = async () => {
     routeData.clear();
     queryModel.value.pageIndex = 1;
@@ -549,7 +550,7 @@
               {rowButtons.map((o) => {
                 return (
                   <el-button type="primary" text={true} onClick={() => click(o, [prop.rowData])}>
-                    {t(camelCase(o.meta.title))}
+                    {t(o.meta.title)}
                   </el-button>
                 );
               })}
@@ -588,6 +589,7 @@
   });
 
   //
+  routeData.clear();
   columns.value = initColumns();
   originalColumns.value = [...columns.value];
 </script>

@@ -7,10 +7,11 @@
 <script setup>
   import en from 'element-plus/dist/locale/en.mjs';
   import zh from 'element-plus/dist/locale/zh-cn.mjs';
-  import { ref } from 'vue';
+  import { ref, provide } from 'vue';
 
   import { useAppStore } from '@/store/index.js';
 
+  provide('routeData', new Map());
   const options = ref({
     'zh-CN': zh,
     'en-US': en,

@@ -233,6 +233,7 @@
   import { bytesFormat, importFunction } from '@/utils/index.js';
   import request, { getUrl } from '@/utils/request.js';
   import { useTokenStore } from '@/store/index.js';
+  import AuthCode from '@/components/form/auth-code.vue';
 
   const props = defineProps(['modelValue', 'schema', 'prop', 'isReadOnly', 'mode']);
   const emit = defineEmits(['update:modelValue']);
@@ -253,6 +254,9 @@
       return true;
     }
     if (props.mode === 'update' && props.schema.readOnly) {
+      return true;
+    }
+    if (props.mode === 'update' && props.schema.readonly) {
       return true;
     }
     return false;

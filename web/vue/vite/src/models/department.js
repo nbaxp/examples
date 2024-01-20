@@ -7,7 +7,9 @@ const properties = {
     hidden: true,
   },
   name: {},
-  number: {},
+  number: {
+    readonly: true,
+  },
   parentId: {
     type: 'string',
     input: 'cascader',
