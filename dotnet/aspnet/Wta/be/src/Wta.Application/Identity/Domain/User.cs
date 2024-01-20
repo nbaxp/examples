@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Wta.Infrastructure.Domain;
 
 namespace Wta.Application.Identity.Domain;
@@ -6,7 +7,10 @@ namespace Wta.Application.Identity.Domain;
 public class User : Entity
 {
     public string? Name { get; set; }
+
+    [ReadOnly(true)]
     public string? UserName { get; set; }
+
     public string? Avatar { get; set; }
     public string? NormalizedUserName { get; set; }
     public string? Email { get; set; }

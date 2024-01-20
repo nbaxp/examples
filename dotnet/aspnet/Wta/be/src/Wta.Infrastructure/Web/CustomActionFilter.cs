@@ -8,8 +8,21 @@ using Wta.Infrastructure.Extensions;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomActionFilter : IActionFilter
+public class CustomActionFilter : ExceptionFilterAttribute, IActionFilter
 {
+    /// <summary>
+    /// An unhandled exception has occurred while executing the request
+    /// </summary>
+    /// <param name="context"></param>
+    public override void OnException(ExceptionContext context)
+    {
+        context.Result = new ObjectResult(context.Exception.Message)
+        {
+            StatusCode = 500,
+            Value = CustomApiResponse.Create(context.Exception?.StackTrace, 500, context.Exception?.Message)
+        };
+    }
+
     /// <summary>
     /// 200\400\500返回值规范化为CustomApiResponse
     /// </summary>

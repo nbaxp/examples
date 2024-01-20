@@ -24,7 +24,7 @@ public class TokenController : BaseController
     private readonly SigningCredentials _signingCredentials;
     private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
     private readonly JwtOptions _jwtOptions;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IEncryptionService _passwordHasher;
     private readonly IStringLocalizer _stringLocalizer;
     private readonly IRepository<User> _userRepository;
 
@@ -33,7 +33,7 @@ public class TokenController : BaseController
         SigningCredentials signingCredentials,
         JwtSecurityTokenHandler jwtSecurityTokenHandler,
         JwtOptions jwtOptions,
-        IPasswordHasher passwordHasher,
+        IEncryptionService passwordHasher,
         IStringLocalizer stringLocalizer,
         IRepository<User> userRepository)
     {

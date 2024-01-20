@@ -53,6 +53,8 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                     }
                     if (entityType.IsAssignableTo(typeof(BaseTreeEntity<>).MakeGenericType(entityType)))
                     {
+                        entityTypeBuilder.Property("Name").IsRequired();
+                        entityTypeBuilder.Property("Number").IsRequired();
                         entityTypeBuilder.HasOne("Parent").WithMany("Children").HasForeignKey("ParentId").OnDelete(DeleteBehavior.SetNull);
                     }
                 }

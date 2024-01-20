@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.Localization;
 using Wta.Application.Identity.Domain;
 using Wta.Infrastructure.Abstractions;
 using Wta.Infrastructure.Attributes;
@@ -15,7 +14,7 @@ using Wta.Shared;
 
 namespace Wta.Application.Identity.Data;
 
-public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider, IStringLocalizer stringLocalizer, IPasswordHasher passwordHasher) : IDbSeeder<IdentityDbContext>
+public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider, IEncryptionService passwordHasher) : IDbSeeder<IdentityDbContext>
 {
     public void Seed(IdentityDbContext context)
     {
@@ -39,15 +38,14 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
         //添加管理员用户
         var userName = "admin";
         var password = "123456";
-        var salt = passwordHasher.CreateSalt();
-        var passwordHash = passwordHasher.HashPassword(password, salt);
+        var passwordHash = passwordHasher.HashPassword(password, userName);
         var admin = new User
         {
             Name = "管理员",
             UserName = userName,
             Avatar = "api/upload/avatar.svg",
             NormalizedUserName = userName.ToUpperInvariant(),
-            SecurityStamp = salt,
+            SecurityStamp = userName,
             PasswordHash = passwordHash,
             IsReadOnly = true,
             UserRoles = new List<UserRole> {
@@ -61,7 +59,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
         context.Set<User>().Add(admin);
     }
 
-    private List<Department> InitDepartment(IdentityDbContext context)
+    private static List<Department> InitDepartment(IdentityDbContext context)
     {
         var list = new List<Department> {
             new Department{
@@ -110,7 +108,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 var resourcePermission = new Permission
                 {
                     Type = MenuType.Menu,
-                    Title = resourceType.Name,
+                    Title = resourceType.Name.ToLowerCamelCase(),
                     Path = resourceType.Name.ToSlugify(),
                     Component = "list",
                     Schema = $"{resourceType.Name.ToSlugify()}",
@@ -127,7 +125,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                     {
                         ParentId = resourcePermission.Id,
                         Type = MenuType.Button,
-                        Title = descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName,
+                        Title = (descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName).ToLowerCamelCase(),
                         Path = $"{descriptor.ControllerName}.{descriptor.ActionName}",
                         ApiUrl = descriptor.AttributeRouteInfo?.Template,
                         ApiMethod = (descriptor.ActionConstraints?.FirstOrDefault() as HttpMethodActionConstraint)?.HttpMethods.FirstOrDefault(),
@@ -147,7 +145,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                         groupPermission = new Permission
                         {
                             Type = MenuType.Group,
-                            Title = group.Name,
+                            Title = group.Name.ToLowerCamelCase(),
                             Path = group.Name.ToSlugify(),
                             Icon = group.Icon,
                             Order = group.Order

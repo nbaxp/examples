@@ -1,38 +1,47 @@
+using System.ComponentModel;
 using Mapster;
 
 namespace Wta.Infrastructure.Application;
 
 public class DefaultMapper<TEntity, TModel> : IMapper<TEntity, TModel>
 {
-    static DefaultMapper()
-    {
-        TypeAdapterConfig.GlobalSettings.Default.IgnoreMember((member, side) =>
-        {
-            return side == MemberSide.Destination && member.Name == "Id" && member.Type == typeof(Guid);
-        });
-    }
-
     public DefaultMapper()
     {
-        this.Config(TypeAdapterConfig<TEntity, TModel>.ForType(), TypeAdapterConfig<TModel, TEntity>.ForType());
+        var toModelConfig = TypeAdapterConfig<TEntity, TModel>.ForType();
+        var toEntityConfig = TypeAdapterConfig<TModel, TEntity>.ForType();
+        toEntityConfig.IgnoreMember((member, side) => side == MemberSide.Destination && member.Name == "Id");
+        toEntityConfig.IgnoreMember((member, side) => side == MemberSide.Destination && member.HasCustomAttribute<ReadOnlyAttribute>());
+        this.Config(toModelConfig, toEntityConfig);
     }
 
     protected virtual void Config(TypeAdapterSetter<TEntity, TModel> toModel, TypeAdapterSetter<TModel, TEntity> toEntity)
     {
     }
 
-    public TModel ToModel(TEntity entity)
+    public virtual TModel ToModel(TEntity entity)
     {
         return entity.Adapt<TModel>();
     }
 
-    public List<TModel> ToModelList(IQueryable<TEntity> entities)
+    public virtual List<TModel> ToModelList(IQueryable<TEntity> entities)
     {
         return entities.ProjectToType<TModel>().ToList();
     }
 
-    public TEntity FromModel(TEntity entity, TModel model)
+    public virtual TEntity FromModel(TEntity entity, TModel model)
     {
         return model.Adapt(entity);
+    }
+
+    public virtual TDestination ToObject<TSource, TDestination>(TSource source, Action<TypeAdapterSetter<TSource, TDestination>>? config = null)
+    {
+        config?.Invoke(TypeAdapterConfig<TSource, TDestination>.NewConfig());
+        return source.Adapt<TDestination>();
+    }
+
+    public virtual TDestination FromObject<TSource, TDestination>(TDestination source, TSource destination, Action<TypeAdapterSetter<TSource, TDestination>>? config = null)
+    {
+        config?.Invoke(TypeAdapterConfig<TSource, TDestination>.NewConfig());
+        return destination.Adapt(source);
     }
 }

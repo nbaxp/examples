@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace Wta.Infrastructure.Domain;
 
@@ -7,7 +6,6 @@ public abstract class BaseTreeEntity<T> : BaseEntity where T : BaseEntity
 {
     public List<T> Children { get; set; } = new List<T>();
 
-    [Required]
     public string Name { get; set; } = null!;
 
     [ReadOnly(true)]
