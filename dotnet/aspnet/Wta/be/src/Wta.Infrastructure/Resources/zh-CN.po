@@ -3,6 +3,8 @@
 #验证
 msgid "ErrorMessageRequired"
 msgstr "{0}不能为空"
+msgid "CompareAttribute"
+msgstr "{0}和{1}必须相同"
 
 #通用
 msgid "Application"

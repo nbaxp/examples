@@ -1,6 +1,6 @@
 namespace Wta.Application.Identity.Models;
 
-public class LoginRequestModel
+public class LoginRequestModel : CaptchaModel
 {
     [Required]
     public string? UserName { get; set; }

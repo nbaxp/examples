@@ -8,7 +8,6 @@ public class CustomDisplayMetadataProvider : IDisplayMetadataProvider
 {
     public void CreateDisplayMetadata(DisplayMetadataProviderContext context)
     {
-        var prefix = "ErrorMessage";
         var attributes = context.Attributes;
         var displayAttribute = attributes.OfType<DisplayAttribute>().FirstOrDefault();
         if (displayAttribute != null && string.IsNullOrEmpty(displayAttribute.Name))
@@ -22,11 +21,11 @@ public class CustomDisplayMetadataProvider : IDisplayMetadataProvider
             {
                 if (attribute is DataTypeAttribute data && attribute.ErrorMessage != null)
                 {
-                    attribute.ErrorMessage = $"{prefix}DataTypeAttribute{data.GetDataTypeName()}";
+                    attribute.ErrorMessage = $"DataTypeAttribute{data.GetDataTypeName()}";
                 }
                 else if (item is RequiredAttribute required)
                 {
-                    required.ErrorMessage = $"{prefix}{item.GetType().Name.TrimEnd("Attribute")}";
+                    required.ErrorMessage = $"{item.GetType().Name.TrimEnd("Attribute")}";
                 }
                 else
                 {

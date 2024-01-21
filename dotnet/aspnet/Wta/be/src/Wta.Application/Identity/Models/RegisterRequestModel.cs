@@ -39,7 +39,7 @@ public class RegisterRequestModel : IValidatableObject
         try
         {
         }
-        catch (Exception ex)
+        catch
         {
             throw;
         }
