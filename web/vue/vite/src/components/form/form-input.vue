@@ -206,6 +206,9 @@
         <img w-full :src="previewImageUrl" alt="schema.title" />
       </el-dialog>
     </template>
+    <template v-else-if="schema.input === 'image-captcha'">
+      <image-captcha v-model="model[prop]" :url="schema.url" :codeHash="schema.codeHash" @callback="updateCodeHash" />
+    </template>
     <template v-else>
       <el-input
         v-model="model[prop]"
@@ -233,7 +236,7 @@
   import { bytesFormat, importFunction } from '@/utils/index.js';
   import request, { getUrl } from '@/utils/request.js';
   import { useTokenStore } from '@/store/index.js';
-  import AuthCode from '@/components/form/auth-code.vue';
+  import ImageCaptcha from '@/components/form/input/image-captcha.vue';
 
   const props = defineProps(['modelValue', 'schema', 'prop', 'isReadOnly', 'mode']);
   const emit = defineEmits(['update:modelValue']);
@@ -408,6 +411,9 @@
   };
   const getAction = () => {
     return getUrl(props.schema.url);
+  };
+  const updateCodeHash = (data) => {
+    model[props.schema.codeHash ?? 'codeHash'] = data;
   };
   //mounted
   onMounted(async () => {

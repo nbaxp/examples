@@ -10,6 +10,7 @@ export default defineStore('user', {
     userName: null,
     name: null,
     avatar: null,
+    roles: [],
     permissions: [],
   }),
   actions: {
@@ -24,11 +25,11 @@ export default defineStore('user', {
         }
       }
     },
+    hasPermission(role) {
+      return !role || this.roles?.some((o) => o === role);
+    },
     hasPermission(permission) {
-      if (permission === '*') {
-        return true;
-      }
-      return this.permissions?.filter((o) => o === permission).length > 0;
+      return !permission || this.permissions?.some((o) => o === permission);
     },
   },
 });

@@ -24,6 +24,13 @@ export default function () {
               },
             ],
           },
+          code: {
+            input: 'image-captcha',
+            url: 'captcha/image',
+          },
+          codeHash: {
+            hidden: true,
+          },
           rememberMe: {
             type: 'boolean',
             showLabel: true,
