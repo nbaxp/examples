@@ -7,7 +7,7 @@ using Wta.Infrastructure.Interfaces;
 namespace Wta.Infrastructure.Services;
 
 [Service<IImpageCaptchaService>]
-public class ImpageCaptchaService : IImpageCaptchaService
+public class DefaultImpageCaptchaService : IImpageCaptchaService
 {
     public byte[] Create(string code)
     {

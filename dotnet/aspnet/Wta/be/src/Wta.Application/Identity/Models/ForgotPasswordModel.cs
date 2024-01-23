@@ -8,4 +8,7 @@ public class ForgotPasswordModel : CaptchaModel
 
     [Required]
     public string? Password { get; set; }
+
+    [Compare("Password")]
+    public string? ConfirmPassword { get; set; }
 }

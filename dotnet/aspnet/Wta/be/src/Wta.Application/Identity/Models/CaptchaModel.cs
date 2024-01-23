@@ -8,10 +8,13 @@ namespace Wta.Application.Identity.Models;
 public class CaptchaModel : IValidatableObject
 {
     [Required]
-    public string? Code { get; set; }
+    public string? AuthCode { get; set; }
 
     [Required, Hidden]
     public string? CodeHash { get; set; }
+
+    [Hidden]
+    public DateTime? Expires { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -22,11 +25,11 @@ public class CaptchaModel : IValidatableObject
         var code = values[1];
         if (DateTime.UtcNow > timeout)
         {
-            yield return new ValidationResult("CaptchaErrorTimeout", [nameof(Code)]);
+            yield return new ValidationResult("CaptchaErrorTimeout", [nameof(AuthCode)]);
         }
-        if (code != Code)
+        if (code != AuthCode)
         {
-            yield return new ValidationResult("CaptchaError", [nameof(Code)]);
+            yield return new ValidationResult("CaptchaError", [nameof(AuthCode)]);
         }
     }
 }

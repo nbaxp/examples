@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,9 +14,18 @@ using Wta.Infrastructure.Web;
 
 namespace Wta.Application.Identity.Controllers;
 
-public class UserController(ILogger<User> logger, IRepository<User> repository, IMapper<User, UserModel> mapper, IExportImportService exportImportService, IEncryptionService passwordHasher) : GenericController<User, UserModel>(logger, repository, mapper, exportImportService)
+[Service<IAuthService>(ServiceLifetime.Transient)]
+public class UserController(ILogger<User> logger, IRepository<User> repository, IMapper<User, UserModel> mapper, IExportImportService exportImportService, IHttpContextAccessor httpContextAccessor, IEncryptionService passwordHasher) : GenericController<User, UserModel>(logger, repository, mapper, exportImportService), IAuthService
 {
-    [Authorize, Hidden]
+    [Authorize, Ignore]
+    public bool HasPermission(string permission)
+    {
+        var userName = httpContextAccessor.HttpContext!.User.Identity!.Name;
+        return Repository.AsNoTracking()
+            .Any(o => o.UserName == userName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Path == permission)));
+    }
+
+    [Authorize, Ignore]
     public CustomApiResponse<UserInfoModel> Info()
     {
         var result = Repository
@@ -36,27 +46,64 @@ public class UserController(ILogger<User> logger, IRepository<User> repository, 
         });
     }
 
-    [AllowAnonymous, Hidden]
+    [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> ValidUserName([FromForm] string userName)
     {
         var normalizedUserName = userName.ToUpperInvariant();
         return Json(!Repository.AsNoTracking().Any(o => o.NormalizedUserName == normalizedUserName));
     }
 
-    [AllowAnonymous, Hidden]
-    public CustomApiResponse<bool> Register(RegisterRequestModel model)
+    [AllowAnonymous, Ignore]
+    public CustomApiResponse<bool> Register(EmailRegisterModel model)
     {
         if (ModelState.IsValid)
         {
-            var user = new User();
-            Mapper.FromObject(user, model);
-            user.NormalizedUserName = user.UserName!.ToUpperInvariant();
-            user.SecurityStamp = passwordHasher.CreateSalt();
-            user.PasswordHash = passwordHasher.HashPassword(model.Password!, user.SecurityStamp);
+            var values = passwordHasher.DecryptText(model.CodeHash!).Split(',');
+            if (values[2] == model.Email)
+            {
+                CreateUser(model, o => o.EmailConfirmed = true);
+                return Json(true);
+            }
+            ModelState.AddModelError(nameof(model.Email), "EmailError");
         }
         throw new BadRequestException();
     }
 
+    [AllowAnonymous, Ignore]
+    public CustomApiResponse<bool> SmsRegister(SmsRegisterModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var values = passwordHasher.DecryptText(model.CodeHash!).Split(',');
+            if (values[2] == model.PhoneNumber)
+            {
+                CreateUser(model, o => o.EmailConfirmed = true);
+                return Json(true);
+            }
+            ModelState.AddModelError(nameof(model.PhoneNumber), "PhoneNumberError");
+        }
+        throw new BadRequestException();
+    }
+
+    [AllowAnonymous, Ignore]
+    public CustomApiResponse<bool> ForgotPassword(ForgotPasswordModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var values = passwordHasher.DecryptText(model.CodeHash!).Split(',');
+            if (values[2] == model.EmailOrPhoneNumber)
+            {
+                var user = Repository.Query().FirstOrDefault(o => o.UserName == model.EmailOrPhoneNumber || o.PhoneNumber == model.EmailOrPhoneNumber)!;
+                user.PasswordHash = passwordHasher.HashPassword(model.Password!, user.SecurityStamp!);
+                Repository.SaveChanges();
+                return Json(true);
+            }
+            ModelState.AddModelError(nameof(model.EmailOrPhoneNumber), "EmailOrPhoneNumberError");
+        }
+        throw new BadRequestException();
+    }
+
+    [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> ResetPassword(ResetPasswordModel model)
     {
         if (ModelState.IsValid)
@@ -74,5 +121,17 @@ public class UserController(ILogger<User> logger, IRepository<User> repository, 
             }
         }
         throw new BadRequestException();
+    }
+
+    private void CreateUser(RegisterModelBase model, Action<User> action)
+    {
+        var user = new User();
+        Mapper.FromObject(user, model);
+        user.NormalizedUserName = user.UserName!.ToUpperInvariant();
+        user.SecurityStamp = passwordHasher.CreateSalt();
+        user.PasswordHash = passwordHasher.HashPassword(model.Password!, user.SecurityStamp);
+        action.Invoke(user);
+        Repository.Add(user);
+        Repository.SaveChanges();
     }
 }

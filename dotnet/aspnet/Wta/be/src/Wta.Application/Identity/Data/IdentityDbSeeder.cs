@@ -1,5 +1,4 @@
 using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -118,7 +117,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 // 按钮
                 actionDescriptors
                 .Select(o => (o as ControllerActionDescriptor)!)
-                .Where(o => o != null && o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType) && o.MethodInfo.GetCustomAttribute<ApiExplorerSettingsAttribute>()?.IgnoreApi != true)
+                .Where(o => o != null && o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType) && o.MethodInfo.GetCustomAttribute<IgnoreAttribute>() == null)
                 .ForEach(descriptor =>
                 {
                     list.Add(new Permission

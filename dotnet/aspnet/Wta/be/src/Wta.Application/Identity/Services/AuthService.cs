@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Wta.Application.Identity.Domain;
 using Wta.Infrastructure.Attributes;
@@ -5,9 +6,9 @@ using Wta.Infrastructure.Interfaces;
 
 namespace Wta.Application.Identity.Services;
 
-[Service<IAuthService>]
 public class AuthService(IRepository<User> repository, IHttpContextAccessor httpContextAccessor) : IAuthService
 {
+    [Authorize, Ignore]
     public bool HasPermission(string permission)
     {
         var userName = httpContextAccessor.HttpContext!.User.Identity!.Name;

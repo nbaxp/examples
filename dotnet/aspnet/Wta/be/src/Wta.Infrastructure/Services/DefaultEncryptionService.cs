@@ -7,7 +7,7 @@ using Wta.Infrastructure.Interfaces;
 namespace Wta.Infrastructure.Services;
 
 [Service<IEncryptionService>]
-public class EncryptionService(IConfiguration configuration) : IEncryptionService
+public class DefaultEncryptionService(IConfiguration configuration) : IEncryptionService
 {
     public string CreateSalt()
     {

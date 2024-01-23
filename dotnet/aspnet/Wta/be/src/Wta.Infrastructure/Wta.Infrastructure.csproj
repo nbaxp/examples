@@ -28,6 +28,7 @@
     <PackageReference Include="ClosedXML" />
     <PackageReference Include="DynamicExpresso.Core" />
     <PackageReference Include="EntityFramework.DynamicLinq" />
+    <PackageReference Include="MailKit" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
