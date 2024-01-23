@@ -207,7 +207,24 @@
       </el-dialog>
     </template>
     <template v-else-if="schema.input === 'image-captcha'">
-      <image-captcha v-model="model[prop]" :url="schema.url" :codeHash="schema.codeHash" @callback="updateCodeHash" />
+      <image-captcha
+        v-model="model[prop]"
+        :icon="schema.icon"
+        :url="schema.url"
+        :codeHash="schema.codeHash"
+        @callback="updateCodeHash"
+      />
+    </template>
+    <template v-else-if="schema.input === 'code-captcha'">
+      <code-captcha
+        v-model="model[prop]"
+        :icon="schema.icon"
+        :url="schema.url"
+        :codeHash="schema.codeHash"
+        @callback="updateCodeHash"
+        :query="model[schema.query]"
+        :regexp="schema.regexp"
+      />
     </template>
     <template v-else>
       <el-input
@@ -237,6 +254,7 @@
   import request, { getUrl } from '@/utils/request.js';
   import { useTokenStore } from '@/store/index.js';
   import ImageCaptcha from '@/components/form/input/image-captcha.vue';
+  import CodeCaptcha from '@/components/form/input/code-captcha.vue';
 
   const props = defineProps(['modelValue', 'schema', 'prop', 'isReadOnly', 'mode']);
   const emit = defineEmits(['update:modelValue']);

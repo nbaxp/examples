@@ -6,7 +6,7 @@
           <el-space><layout-logo /> <layout-locale /></el-space>
         </div>
         <el-card class="box-card">
-          <el-row :gutter="40" style="width: 600px; height: 400px">
+          <el-row :gutter="40" style="width: 600px">
             <el-col
               :span="10"
               style="

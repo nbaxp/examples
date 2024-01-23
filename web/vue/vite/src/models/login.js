@@ -24,9 +24,14 @@ export default function () {
               },
             ],
           },
-          code: {
+          authCode: {
             input: 'image-captcha',
             url: 'captcha/image',
+            rules: [
+              {
+                required: true,
+              },
+            ],
           },
           codeHash: {
             hidden: true,

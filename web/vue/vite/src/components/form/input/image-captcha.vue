@@ -1,6 +1,10 @@
 <template>
   <div style="display: inline-flex">
-    <el-input v-model="model" />
+    <el-input v-model="model">
+      <template #prefix>
+        <el-icon v-if="icon" class="el-input__icon"><svg-icon :name="icon" /></el-icon>
+      </template>
+    </el-input>
     <el-image
       :title="$t('clickRefresh')"
       :src="src"
@@ -12,9 +16,14 @@
 <script setup>
   import { ref, watch, onMounted } from 'vue';
   import request from '@/utils/request.js';
+  import SvgIcon from '@/components/icon/index.vue';
 
   const props = defineProps({
     modelValue: {
+      type: String,
+      default: '',
+    },
+    icon: {
       type: String,
       default: '',
     },
@@ -24,11 +33,11 @@
     },
     url: {
       type: String,
-      default: 'captcha/image',
+      default: '',
     },
-    code: {
+    authCode: {
       type: String,
-      default: 'code',
+      default: 'authCode',
     },
     codeHash: {
       type: String,
@@ -45,7 +54,7 @@
   const src = ref('');
   const load = async () => {
     const result = await request(props.method, props.url);
-    src.value = result.data[props.code];
+    src.value = result.data[props.authCode];
     emit('callback', result.data[props.codeHash]);
   };
 

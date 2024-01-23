@@ -33,6 +33,14 @@ const routes = [
     },
   },
   {
+    path: '/forgot-password',
+    component: view('forgot-password'),
+    meta: {
+      title: 'register',
+      hideInMenu: true,
+    },
+  },
+  {
     path: '/login',
     component: view('login'),
     meta: {

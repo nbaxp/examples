@@ -6,9 +6,16 @@
           <el-space><layout-logo /> <layout-locale /></el-space>
         </div>
         <el-card class="box-card">
-          <el-row :gutter="40" style="width: 400px; height: 310px">
+          <el-row :gutter="40" style="width: 400px">
             <el-col>
-              <app-form v-model="model" :schema="schema" @success="success" />
+              <el-tabs>
+                <el-tab-pane :label="$t('emailRegister')">
+                  <app-form v-model="emailModel" :schema="schema.properties.emailRegister" @success="success" />
+                </el-tab-pane>
+                <el-tab-pane :label="$t('smsRegister')">
+                  <app-form v-model="smsModel" :schema="schema.properties.smsRegister" @success="success" />
+                </el-tab-pane>
+              </el-tabs>
               <div style="display: flex; align-items: center; justify-content: space-between; height: 50px">
                 <router-link style to="/login">{{ $t('login') }}</router-link>
                 <router-link style to="/forgot-password">{{ $t('forgotPassword') }}</router-link>
@@ -34,10 +41,10 @@
   import { schemaToModel } from '@/utils/index.js';
 
   const schema = useSchema();
-  const model = ref(schemaToModel(schema));
+  const emailModel = ref(schemaToModel(schema.properties.emailRegister));
+  const smsModel = ref(schemaToModel(schema.properties.smsRegister));
   const router = useRouter();
   const success = (result) => {
-    //const redirect = router.currentRoute.value.query?.redirect ?? '/';
     router.push('/login');
   };
 </script>

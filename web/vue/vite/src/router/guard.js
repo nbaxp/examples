@@ -34,7 +34,7 @@ const beforeEach = async (to, from, next) => {
   // 认证和授权
   if (refresh) {
     next({ path: to.fullPath });
-  } else if (to.path !== '/register' && to.path !== '/login' && to.path !== '/403') {
+  } else if (to.path !== '/register' && to.path !== '/forgot-password' && to.path !== '/login' && to.path !== '/403') {
     if (!isLogin) {
       next({ path: '/login', query: { redirect: to.fullPath } });
     } else if (!userStore.hasPermission(to.meta.permission)) {
