@@ -37,7 +37,7 @@ const beforeEach = async (to, from, next) => {
   } else if (to.path !== '/register' && to.path !== '/forgot-password' && to.path !== '/login' && to.path !== '/403') {
     if (!isLogin) {
       next({ path: '/login', query: { redirect: to.fullPath } });
-    } else if (!userStore.hasPermission(to.meta.permission)) {
+    } else if (!userStore.hasPermission(to.meta.authorize)) {
       next({ path: '/403', query: { redirect: to.fullPath } });
     } else {
       next();

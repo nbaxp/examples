@@ -32,16 +32,13 @@
     if (props.schema.hidden) {
       return false;
     }
-    if (props.schema.hidden && (props.mode === 'create' || props.mode === 'update')) {
-      return false;
-    }
-    if (props.mode === 'query' && props.schema.input === 'upload') {
+    if (props.mode === 'query' && (props.schema.hideInQuery || props.schema.input === 'upload')) {
       return false;
     }
     return true;
   };
   const getDisabled = () => {
-    if (props.mode === 'details') {
+    if (props.mode === 'details' || props.mode === 'query') {
       return true;
     }
     if (props.mode === 'update' && props.schema.readOnly) {

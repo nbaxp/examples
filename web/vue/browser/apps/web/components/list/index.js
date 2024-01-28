@@ -1,17 +1,17 @@
-import html, { getProp } from "html";
-import request, { getUrl } from "../../utils/request.js";
-import { ref, reactive, onMounted, watch, nextTick } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useI18n } from "vue-i18n";
-import { listToTree, schemaToModel, importFunction, format } from "../../utils/index.js";
-import { camelCase, capitalize } from "lodash";
-import { ElMessage, ElMessageBox } from "element-plus";
-import AppForm from "~/components/form/index.js";
-import AppFormInput from "~/components/form/form-input.js";
-import SvgIcon from "~/components/icon/index.js";
+import html, { getProp } from 'html';
+import request, { getUrl } from '../../utils/request.js';
+import { ref, reactive, onMounted, watch, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { listToTree, schemaToModel, importFunction, format } from '../../utils/index.js';
+import { camelCase, capitalize } from 'lodash';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import AppForm from '@/components/form/index.js';
+import AppFormInput from '@/components/form/form-input.js';
+import SvgIcon from '@/components/icon/index.js';
 
 export default {
-  name: "AppList",
+  name: 'AppList',
   components: {
     AppForm,
     AppFormInput,
@@ -339,8 +339,8 @@ export default {
       width: 100%;
     }
   </style>`,
-  props: ["modelValue", "config", "querySchema", "query", "buttons"],
-  emits: ["command"],
+  props: ['modelValue', 'config', 'querySchema', 'query', 'buttons'],
+  emits: ['command'],
   setup(props, context) {
     const listScrollbarRef = ref(null);
     /*变量定义*/
@@ -354,7 +354,7 @@ export default {
       total: 0,
     });
     const treeProps = reactive({
-      children: "children",
+      children: 'children',
     });
     const tableKey = ref(false);
     const tableRef = ref(null);
@@ -388,40 +388,40 @@ export default {
     const importFormRef = ref(null);
     const editFormloading = ref(false);
     const editFormMode = ref(null);
-    const editFormTitle = ref("");
+    const editFormTitle = ref('');
     const editFormSchema = ref(null);
     const editFormModel = ref(null);
     //
-    config.import ??= { schema: { type: "object", properties: {} } };
+    config.import ??= { schema: { type: 'object', properties: {} } };
     config.import.schema.properties.files ??= {
-      title: "文件",
-      type: "array",
+      title: '文件',
+      type: 'array',
       multiple: true,
-      input: "file",
-      accept: ".xlsx",
+      input: 'file',
+      accept: '.xlsx',
       default: [],
       limit: 10,
       size: 100 * 1024 * 1024,
       rules: [
         {
           required: true,
-          trigger: "change",
+          trigger: 'change',
         },
       ],
     };
     const defaultImportModel = schemaToModel(config.import.schema);
     const importModel = ref(null);
     const versions = ref([]);
-    const onClick = async (method, confirMmessage = "确认操作吗？", reload = true) => {
+    const onClick = async (method, confirMmessage = '确认操作吗？', reload = true) => {
       try {
         if (confirMmessage) {
-          await ElMessageBox.confirm(confirMmessage, "提示", {
-            type: "warning",
+          await ElMessageBox.confirm(confirMmessage, '提示', {
+            type: 'warning',
           });
         }
         tableLoading.value = true;
         let result = null;
-        if (method.constructor.name == "AsyncFunction") {
+        if (method.constructor.name == 'AsyncFunction') {
           result = await method();
         } else {
           result = method();
@@ -431,10 +431,10 @@ export default {
           await load();
         }
       } catch (error) {
-        if (error === "cancel") {
+        if (error === 'cancel') {
           ElMessage({
-            type: "info",
-            message: "操作取消",
+            type: 'info',
+            message: '操作取消',
           });
         }
       } finally {
@@ -442,20 +442,20 @@ export default {
       }
     };
     const getSortModel = (model) => {
-      (model.sorting ?? "")
-        .split(",")
+      (model.sorting ?? '')
+        .split(',')
         .map((o) => o.trim())
         .filter((o) => o)
         .map((o) => ({
-          prop: camelCase(o.split(" ")[0]),
-          order: (o.split(" ").filter((o) => o)[1] ?? "asc") + "ending",
+          prop: camelCase(o.split(' ')[0]),
+          order: (o.split(' ').filter((o) => o)[1] ?? 'asc') + 'ending',
         }))
         .forEach((o) => sortColumns.value.set(o.prop, o.order));
     };
     const getColumns = (schema) => {
       Object.keys(schema.properties).forEach((propertyName) => {
         const property = schema.properties[propertyName];
-        if (!property.hideForList || (property.type !== "object" && property.type !== "array" && !property.hidden)) {
+        if (!property.hideForList || (property.type !== 'object' && property.type !== 'array' && !property.hidden)) {
           columns.value.push({ name: propertyName, title: property.title, checked: true });
         }
       });
@@ -472,15 +472,15 @@ export default {
         sortColumns.value.set(prop, order);
       }
       queryModel.value.sorting = Array.from(sortColumns.value)
-        .map((o) => capitalize(o[0]) + (o[1] === "ascending" ? "" : ` DESC`))
-        .join(",");
+        .map((o) => capitalize(o[0]) + (o[1] === 'ascending' ? '' : ` DESC`))
+        .join(',');
       await load();
     };
     const showColumn = (item, prop) => {
       return columns.value.some((o) => o.name === prop && o.checked);
     };
     const getFilters = (item, prop) => {
-      if (item.input === "select" && item.options) {
+      if (item.input === 'select' && item.options) {
         return item.options.map((o) => ({ text: o.label, value: o.value }));
       }
       return null;
@@ -525,21 +525,21 @@ export default {
     const click = async (item, rows) => {
       editFormloading.value = true;
       editFormMode.value = item.path ?? item;
-      if (item.path === "query") {
+      if (item.path === 'query') {
         //list
         await load();
-      } else if (item.path === "create" || item.path === "update") {
+      } else if (item.path === 'create' || item.path === 'update') {
         //create
-        if (item.path === "create") {
+        if (item.path === 'create') {
           editFormModel.value = schemaToModel(config.edit.schema);
         } else {
           const url = format(config.edit.detailsUrl, rows[0].id);
-          editFormModel.value = (await request(config.edit.detailsMethod ?? "POST", url)).data;
+          editFormModel.value = (await request(config.edit.detailsMethod ?? 'POST', url)).data;
           editFormModel.value.id = rows[0].id;
         }
         editFormTitle.value = `${t(item.path)}${config.edit.schema.title}`;
         dialogVisible.value = true;
-      } else if (item.path === "delete") {
+      } else if (item.path === 'delete') {
         if (!rows.length) {
           return;
         }
@@ -548,12 +548,12 @@ export default {
         if (item.meta.isTop) {
           // 批量删除
           try {
-            await ElMessageBox.confirm(format("确认删除选中的%s行数据吗？", rows.length), "提示", {
-              type: "warning",
+            await ElMessageBox.confirm(format('确认删除选中的%s行数据吗？', rows.length), '提示', {
+              type: 'warning',
             });
             tableLoading.value = true;
             const result = await request(
-              config.edit.deleteMethod ?? "POST",
+              config.edit.deleteMethod ?? 'POST',
               url,
               rows.map((o) => o.id)
             );
@@ -562,10 +562,10 @@ export default {
               await reload();
             }
           } catch (error) {
-            if (error === "cancel") {
+            if (error === 'cancel') {
               ElMessage({
-                type: "info",
-                message: "操作取消",
+                type: 'info',
+                message: '操作取消',
               });
             }
           } finally {
@@ -574,23 +574,23 @@ export default {
         } else {
           // 单个删除
           try {
-            await ElMessageBox.confirm(format("确认删除当前行数据吗？", rows[0]), "提示", {
-              type: "warning",
+            await ElMessageBox.confirm(format('确认删除当前行数据吗？', rows[0]), '提示', {
+              type: 'warning',
             });
-            await request(config.edit.deleteMethod ?? "POST", url);
+            await request(config.edit.deleteMethod ?? 'POST', url);
             await reload();
           } catch (error) {
-            if (error === "cancel") {
+            if (error === 'cancel') {
               ElMessage({
-                type: "info",
-                message: "操作取消",
+                type: 'info',
+                message: '操作取消',
               });
             }
           }
         }
         await load();
-      } else if (item.path === "export") {
-        if (item.meta.pattern === "paged") {
+      } else if (item.path === 'export') {
+        if (item.meta.pattern === 'paged') {
           const url = config.edit.exportUrl;
           const method = config.edit.exportMethod;
           const postData = buildQuery();
@@ -599,12 +599,12 @@ export default {
             if (!response.errors) {
               window.open(getUrl(`settleaccount/getblobfile/download/${response.data}`));
             }
-          }, "确认导出?");
-        } else if (item.meta.pattern === "file") {
-          window.open(getUrl(`settleaccount/getblobfile/download/${rows[0]["downFileName"]}`));
-        } else if ((item.meta.pattern = "row")) {
+          }, '确认导出?');
+        } else if (item.meta.pattern === 'file') {
+          window.open(getUrl(`settleaccount/getblobfile/download/${rows[0]['downFileName']}`));
+        } else if ((item.meta.pattern = 'row')) {
           const url = config.edit.exportUrl;
-          const method = config.edit.exportMethod ?? "POST";
+          const method = config.edit.exportMethod ?? 'POST';
           const postData = {
             [item.meta.key]: rows[0][item.meta.key],
           };
@@ -615,7 +615,7 @@ export default {
         } else {
           console.log(item);
         }
-      } else if (item.path === "import") {
+      } else if (item.path === 'import') {
         //import
         try {
           importModel.value = Object.assign({}, defaultImportModel);
@@ -627,27 +627,27 @@ export default {
         } finally {
           editFormloading.value = false;
         }
-      } else if (item === "filter") {
-        editFormTitle.value = t("自定义查询");
+      } else if (item === 'filter') {
+        editFormTitle.value = t('自定义查询');
         dialogVisible.value = true;
       } else {
-        context.emit("command", item, rows, load, showList);
+        context.emit('command', item, rows, load, showList);
       }
       editFormloading.value = false;
     };
     const submit = async () => {
-      if (editFormMode.value === "create" || editFormMode.value === "update") {
+      if (editFormMode.value === 'create' || editFormMode.value === 'update') {
         try {
           const valid = await editFormRef.value.validate();
           if (valid) {
             await onClick(
               async () => {
                 let url =
-                  (editFormMode.value === "create" ? config.edit.createUrl : config.edit.updateUrl) ?? config.query.url;
-                if (editFormMode.value === "update") {
+                  (editFormMode.value === 'create' ? config.edit.createUrl : config.edit.updateUrl) ?? config.query.url;
+                if (editFormMode.value === 'update') {
                   url = format(url, editFormModel.value.id);
                 }
-                const method = editFormMode.value === "create" ? config.edit.createMethod : config.edit.updateMethod;
+                const method = editFormMode.value === 'create' ? config.edit.createMethod : config.edit.updateMethod;
                 const result = await request(method, url, editFormModel.value);
                 if (!result.errors) {
                   dialogVisible.value = false;
@@ -664,10 +664,10 @@ export default {
         } finally {
           editFormloading.value = false;
         }
-      } else if (editFormMode.value === "details") {
+      } else if (editFormMode.value === 'details') {
         dialogVisible.value = false;
         editFormMode.value = null;
-      } else if (editFormMode.value === "import") {
+      } else if (editFormMode.value === 'import') {
         try {
           const valid = await importFormRef.value.validate();
           if (valid) {
@@ -676,22 +676,22 @@ export default {
             const formData = new FormData();
             //
             if (route.meta.businessType) {
-              formData.append("businessType", route.meta.businessType);
+              formData.append('businessType', route.meta.businessType);
             }
             Object.keys(importModel.value).forEach((propertyName) => {
               if (importModel.value[propertyName]) {
                 const schema = config.import.schema.properties[propertyName];
                 const value = importModel.value[propertyName];
-                if (schema?.type === "array") {
+                if (schema?.type === 'array') {
                   importModel.value[propertyName].forEach((item) => {
-                    formData.append(propertyName, schema.input === "file" ? item.raw : item);
+                    formData.append(propertyName, schema.input === 'file' ? item.raw : item);
                   });
                 } else {
-                  formData.append(propertyName, schema.input === "file" ? value.raw : value);
+                  formData.append(propertyName, schema.input === 'file' ? value.raw : value);
                 }
               }
             });
-            const result = await request("POST", url, formData);
+            const result = await request('POST', url, formData);
             if (!result.errors) {
               editFormloading.value = false;
               dialogVisible.value = false;
@@ -705,7 +705,7 @@ export default {
         } finally {
           editFormloading.value = false;
         }
-      } else if (editFormMode.value === "filter") {
+      } else if (editFormMode.value === 'filter') {
         await load();
         dialogVisible.value = false;
       }
@@ -727,7 +727,7 @@ export default {
     };
     const download = (url, filename) => {
       const downloadUrl = window.URL.createObjectURL(url);
-      let link = document.createElement("a");
+      let link = document.createElement('a');
       link.href = downloadUrl;
       link.download = filename;
       link.click();
@@ -736,70 +736,70 @@ export default {
     const getButtonDisabled = async (src, row) => {
       if (src) {
         const method = await importFunction(src);
-        return src.startsWith("async") ? await method(row) : method(row);
+        return src.startsWith('async') ? await method(row) : method(row);
       }
       return false;
     };
     const pushfilterList = () => {
       filterList.value.push({
-        logic: "and",
-        column: "",
-        action: "equal",
+        logic: 'and',
+        column: '',
+        action: 'equal',
         value: null,
       });
     };
     const operators = [
       {
-        value: "equal",
-        label: "等于",
+        value: 'equal',
+        label: '等于',
       },
       {
-        value: "notEqual",
-        label: "不等于",
+        value: 'notEqual',
+        label: '不等于',
       },
       {
-        value: "biggerThan",
-        label: "大于",
+        value: 'biggerThan',
+        label: '大于',
       },
       {
-        value: "smallThan",
-        label: "小于",
+        value: 'smallThan',
+        label: '小于',
       },
       {
-        value: "biggerThanOrEqual",
-        label: "大于等于",
+        value: 'biggerThanOrEqual',
+        label: '大于等于',
       },
       {
-        value: "smallThanOrEqual",
-        label: "小于等于",
+        value: 'smallThanOrEqual',
+        label: '小于等于',
       },
       {
-        value: "like",
-        label: "类似于",
+        value: 'like',
+        label: '类似于',
       },
       {
-        value: "notLike",
-        label: "不类似于",
+        value: 'notLike',
+        label: '不类似于',
       },
       {
-        value: "in",
-        label: "包含于",
+        value: 'in',
+        label: '包含于',
       },
       {
-        value: "notIn",
-        label: "不包含于",
+        value: 'notIn',
+        label: '不包含于',
       },
     ];
     const getOperators = (schema) => {
-      const values = ["equal", "notEqual"];
-      if (schema.type === "string") {
-        values.push("like", "notLike");
-        if (schema.input && ["year", "month", "date", "datetime"].includes(schema.input)) {
-          values.push("biggerThan", "smallThan", "biggerThanOrEqual", "smallThanOrEqual");
+      const values = ['equal', 'notEqual'];
+      if (schema.type === 'string') {
+        values.push('like', 'notLike');
+        if (schema.input && ['year', 'month', 'date', 'datetime'].includes(schema.input)) {
+          values.push('biggerThan', 'smallThan', 'biggerThanOrEqual', 'smallThanOrEqual');
         }
-      } else if (schema.type === "boolean") {
+      } else if (schema.type === 'boolean') {
       } else {
-        values.push("biggerThan", "smallThan", "biggerThanOrEqual", "smallThanOrEqual");
+        values.push('biggerThan', 'smallThan', 'biggerThanOrEqual', 'smallThanOrEqual');
       }
       return operators.filter((o) => values.includes(o.value));
     };
@@ -813,27 +813,27 @@ export default {
       if (subListQuery.value.query) {
         Object.keys(subListQuery.value.query).forEach((o) => {
           postData.filters.push({
-            logic: "and",
+            logic: 'and',
             column: o,
-            action: "equal",
+            action: 'equal',
             value: subListQuery.value.query[o],
           });
         });
       }
       //添加子表filter查询
-      if (route.meta.businessType && route.meta.path !== "/jis-bbac/settlement/bbac_can_sa_service") {
+      if (route.meta.businessType && route.meta.path !== '/jis-bbac/settlement/bbac_can_sa_service') {
         postData.filters.push({
-          logic: "and",
-          column: "businessType",
-          action: "equal",
+          logic: 'and',
+          column: 'businessType',
+          action: 'equal',
           value: route.meta.businessType,
         });
       }
       if (postData.items) {
-        delete postData["items"];
+        delete postData['items'];
       }
       if (postData.query?.id) {
-        delete postData.query["id"];
+        delete postData.query['id'];
       }
       return postData;
     }

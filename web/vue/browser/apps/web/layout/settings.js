@@ -1,10 +1,10 @@
-import html from "utils";
-import { ref, watchEffect } from "vue";
-import schema from "../models/settings.js";
-import useAppStore from "../store/app.js";
-import AppForm from "../components/form/index.js";
-import { useClipboard, useMediaQuery } from "~/lib/@vueuse/core/index.js";
-import { ElMessage } from "element-plus";
+import html from 'utils';
+import { ref, watchEffect } from 'vue';
+import schema from '../models/settings.js';
+import useAppStore from '../store/app.js';
+import AppForm from '../components/form/index.js';
+import { useClipboard, useMediaQuery } from '@/lib/@vueuse/core/index.js';
+import { ElMessage } from 'element-plus';
 
 export default {
   components: { AppForm },
@@ -29,8 +29,8 @@ export default {
         const text = JSON.stringify(appStore.$state, null, 2);
         await copy(text);
         ElMessage({
-          message: "config/settings.json",
-          type: "success",
+          message: 'config/settings.json',
+          type: 'success',
         });
       } catch (error) {
         console.log(error);
@@ -40,21 +40,21 @@ export default {
       await formRef.value.reset();
     };
     watchEffect(() => {
-      document.documentElement.classList[appStore.useDarkNav ? "add" : "remove"]("dark-nav");
+      document.documentElement.classList[appStore.useDarkNav ? 'add' : 'remove']('dark-nav');
     });
     watchEffect(() => {
-      document.documentElement.style.setProperty("--el-color-primary", appStore.color);
+      document.documentElement.style.setProperty('--el-color-primary', appStore.color);
     });
     watchEffect(() => {
-      const darkClass = "dark";
+      const darkClass = 'dark';
       const toDark = () => document.documentElement.classList.add(darkClass);
       const toLight = () => document.documentElement.classList.remove(darkClass);
-      const isDarkNow = useMediaQuery("(prefers-color-scheme: dark)");
-      if (appStore.mode === "auto") {
+      const isDarkNow = useMediaQuery('(prefers-color-scheme: dark)');
+      if (appStore.mode === 'auto') {
         isDarkNow.value ? toDark() : toLight();
-      } else if (appStore.mode === "dark") {
+      } else if (appStore.mode === 'dark') {
         toDark();
-      } else if (appStore.mode === "light") {
+      } else if (appStore.mode === 'light') {
         toLight();
       }
     });

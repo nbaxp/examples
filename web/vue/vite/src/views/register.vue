@@ -8,14 +8,7 @@
         <el-card class="box-card">
           <el-row :gutter="40" style="width: 400px">
             <el-col>
-              <el-tabs>
-                <el-tab-pane :label="$t('emailRegister')">
-                  <app-form v-model="emailModel" :schema="schema.properties.emailRegister" @success="success" />
-                </el-tab-pane>
-                <el-tab-pane :label="$t('smsRegister')">
-                  <app-form v-model="smsModel" :schema="schema.properties.smsRegister" @success="success" />
-                </el-tab-pane>
-              </el-tabs>
+              <app-form v-model="model" :schema="schema" @success="success" />
               <div style="display: flex; align-items: center; justify-content: space-between; height: 50px">
                 <router-link style to="/login">{{ $t('login') }}</router-link>
                 <router-link style to="/forgot-password">{{ $t('forgotPassword') }}</router-link>
@@ -41,8 +34,7 @@
   import { schemaToModel } from '@/utils/index.js';
 
   const schema = useSchema();
-  const emailModel = ref(schemaToModel(schema.properties.emailRegister));
-  const smsModel = ref(schemaToModel(schema.properties.smsRegister));
+  const model = ref(schemaToModel(schema));
   const router = useRouter();
   const success = (result) => {
     router.push('/login');

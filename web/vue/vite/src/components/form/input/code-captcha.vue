@@ -7,13 +7,12 @@
     </el-input>
     <el-button
       :title="$t('clickRefresh')"
-      :src="src"
       @click="onClick"
       style="max-height: 30px; margin-left: 10px"
       :disabled="disabled"
     >
       <template v-if="!loading">{{ $t('sendAuthCode') }}</template>
-      <template v-else>{{ $t('timeout', [seconds]) }} {{ seconds }}</template>
+      <template v-else>{{ $t('resend', [seconds]) }}</template>
     </el-button>
   </div>
 </template>
@@ -76,23 +75,26 @@
   const loading = ref(false);
   const seconds = ref(props.timeout);
   const disabled = computed(() => {
-    return new RegExp(props.regexp).test(props.query) === false && !loading.value;
+    return new RegExp(props.regexp).test(props.query) === false || loading.value;
   });
 
   const onClick = async () => {
     if (!loading.value) {
-      const result = await request(props.method, props.url, props.query);
-      emit('callback', result.data[props.codeHash]);
-      const expires = new Date(result.data.expires);
-      seconds.value = props.timeout;
       loading.value = true;
-      let now = new Date();
-      while (now < expires) {
-        await delay(200);
-        seconds.value = parseInt((expires - now) / 1000);
-        now = new Date();
+      try {
+        const result = await request(props.method, props.url, props.query);
+        emit('callback', result.data[props.codeHash]);
+        const expires = new Date(result.data.expires);
+        seconds.value = props.timeout;
+        let now = new Date();
+        while (now < expires) {
+          await delay(500);
+          seconds.value = parseInt((expires - now) / 1000);
+          now = new Date();
+        }
+      } finally {
+        loading.value = false;
       }
-      loading.value = false;
     }
   };
 </script>

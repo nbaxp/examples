@@ -1,15 +1,14 @@
-import html from "utils";
-import { ref } from "vue";
-import { useAppStore, useTokenStore, useUserStore } from "~/store/index.js";
-import { useDark, useFullscreen, useToggle } from "@vueuse/core";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
-import { treeToList } from "~/utils/index.js";
-import SvgIcon from "~/components/icon/index.js";
-import LayoutLogo from "./logo.js";
-import LayoutLocale from "./locale.js";
-import LayoutSettings from "./settings.js";
+import html from 'utils';
+import { ref } from 'vue';
+import { useAppStore, useTokenStore, useUserStore } from '@/store/index.js';
+import { useDark, useFullscreen, useToggle } from '@vueuse/core';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import SvgIcon from '@/components/icon/index.js';
+import LayoutLogo from './logo.js';
+import LayoutLocale from './locale.js';
+import LayoutSettings from './settings.js';
 
 export default {
   components: {
@@ -47,9 +46,9 @@ export default {
           >
             <el-option
               v-for="item in searchOptions"
-              :key="item.meta.path"
-              :value="item.meta.path"
-              :label="item.meta.fullName"
+              :key="item.path"
+              :value="item.path"
+              :label="item.meta.title"
               @click="searchChange(item)"
             />
           </el-select>
@@ -88,7 +87,6 @@ export default {
           <el-link type="info" v-else>
             <router-link to="/register"> {{$t('register')}}</router-link>
           </el-link>
-
           <layout-locale />
           <layout-settings />
         </el-space>
@@ -104,7 +102,7 @@ export default {
     //
     const searchRef = ref(null);
     const searchLoading = ref(false);
-    const searchModel = ref("");
+    const searchModel = ref('');
     const searchOptions = ref([]);
     const showSearch = ref(false);
     const hideSearch = () => {
@@ -120,10 +118,9 @@ export default {
       if (query) {
         try {
           searchLoading.value = true;
-          const menus = treeToList(router.getRoutes().find((o) => o.path === "/").children);
-          searchOptions.value = menus
-            .filter((o) => !o.children || o.children.length === 0)
-            .filter((o) => o.meta.fullName.indexOf(query) > -1);
+          searchOptions.value = router
+            .getRoutes()
+            .filter((o) => !o.meta?.hideInMenu && !o.children?.length && o.meta?.title.indexOf(query) >= 0);
         } finally {
           searchLoading.value = false;
         }
@@ -131,8 +128,8 @@ export default {
     };
     const searchChange = (route) => {
       if (!route.meta?.isExternal) {
-        router.push(route.meta.path);
-        searchModel.value = "";
+        router.push(route.path);
+        searchModel.value = '';
         searchOptions.value = [];
         showSearch.value = false;
       } else {
@@ -147,13 +144,13 @@ export default {
     const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(document.documentElement);
     const confirmLogout = async () => {
       try {
-        await ElMessageBox.confirm(i18n.t("confirmLogout"), i18n.t("tip"), { type: "warning" });
+        await ElMessageBox.confirm(i18n.t('confirmLogout'), i18n.t('tip'), { type: 'warning' });
         await tokenStore.logout();
       } catch (error) {
-        if (error === "cancel") {
+        if (error === 'cancel') {
           ElMessage({
-            type: "info",
-            message: i18n.t("cancel"),
+            type: 'info',
+            message: i18n.t('cancel'),
           });
         }
       }

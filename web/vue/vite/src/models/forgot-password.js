@@ -6,7 +6,21 @@ export default function () {
     labelWidth: 0,
     submitStyle: 'width:100%',
     properties: {
-      emailOrPhoneNumber: {},
+      emailOrPhoneNumber: {
+        rules: [
+          {
+            required: true,
+          },
+          {
+            pattern: emailOrPhoneNumberRegex,
+          },
+          {
+            validator: 'remote',
+            url: 'user/has-email-or-phone-number',
+            message: '{0} not exist',
+          },
+        ],
+      },
       authCode: {
         title: 'authCode',
         icon: 'auth',
@@ -15,9 +29,11 @@ export default function () {
         timeout: 120,
         query: 'emailOrPhoneNumber',
         regexp: emailOrPhoneNumberRegex,
-        rules: {
-          required: true,
-        },
+        rules: [
+          {
+            required: true,
+          },
+        ],
       },
       password: {
         input: 'password',

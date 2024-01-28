@@ -1,27 +1,27 @@
-import qs from "~/lib/qs/shim.js";
-import { useTokenStore } from "../store/index.js";
-import { getFileNameFromContentDisposition } from "utils";
-import settings from "~/config/settings.js";
-import useLocale from "~/locale/index.js";
-import useRouter from "~/router/index.js";
+import qs from '@/lib/qs/shim.js';
+import { useTokenStore } from '../store/index.js';
+import { getFileNameFromContentDisposition } from 'utils';
+import settings from '@/config/settings.js';
+import useLocale from '@/locale/index.js';
+import useRouter from '@/router/index.js';
 
 const messages = new Map([
-  [200, "操作成功"],
-  [201, "已创建"],
-  [204, "无返回值"],
-  [301, "永久重定向"],
-  [302, "临时重定向"],
-  [400, "请求参数错误"],
-  [401, "未登录"],
-  [403, "权限不足"],
-  [415, "不支持的内容类型"],
-  [500, "服务器异常"],
-  [503, "服务不可用"],
+  [200, '操作成功'],
+  [201, '已创建'],
+  [204, '无返回值'],
+  [301, '永久重定向'],
+  [302, '临时重定向'],
+  [400, '请求参数错误'],
+  [401, '未登录'],
+  [403, '权限不足'],
+  [415, '不支持的内容类型'],
+  [500, '服务器异常'],
+  [503, '服务不可用'],
 ]);
 
 /***/
 function getUrl(url) {
-  if (url.startsWith("http")) {
+  if (url.startsWith('http')) {
     return url;
   }
   let result = settings.baseURL;
@@ -33,9 +33,9 @@ async function getOptions(method, url, data, customOptions, isUrlEncoded) {
   const i18n = await useLocale();
   //设置默认值
   let options = {
-    method: method ?? "POST",
+    method: method ?? 'POST',
     headers: {
-      "Accept-Language": i18n.global.locale.value,
+      'Accept-Language': i18n.global.locale.value,
     },
   };
   //合并自定义配置
@@ -47,7 +47,7 @@ async function getOptions(method, url, data, customOptions, isUrlEncoded) {
   if (tokenStore.accessToken) {
     options.headers.Authorization = `Bearer ${tokenStore.accessToken}`;
   }
-  if (options.method === "GET") {
+  if (options.method === 'GET') {
     //GET 拼接URL参数
     if (data) {
       if (data instanceof String) {
@@ -58,15 +58,16 @@ async function getOptions(method, url, data, customOptions, isUrlEncoded) {
     }
   } else if (data instanceof FormData) {
     //上传参数
+    options.headers['Content-Type'] = 'application/json';
     options.body = data;
   } else {
     if (isUrlEncoded) {
       //urlencoded
-      options.headers["Content-Type"] = "application/x-www-form-urlencoded";
+      options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
       options.body = qs.stringify(data);
     } else {
       //json
-      options.headers["Content-Type"] = "application/json";
+      options.headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(data);
     }
   }
@@ -97,21 +98,21 @@ async function getResult(response) {
     //401未登录
     result = { code: response.status, message: messages.get(response.status) ?? response.statusText };
     const router = await useRouter();
-    router.push({ path: "/login", query: { redirect: router.currentRoute.value.fullPath } });
+    router.push({ path: '/login', query: { redirect: router.currentRoute.value.fullPath } });
   } else if (response.status === 403) {
     //403权限不足
     result = { code: response.status, message: messages.get(response.status) ?? response.statusText };
     const router = await useRouter();
-    router.push({ path: "/403", query: { redirect: router.currentRoute.value.fullPath } });
+    router.push({ path: '/403', query: { redirect: router.currentRoute.value.fullPath } });
   } else if (response.status === 500) {
     //500服务端错误
     result = await getJsonResult(response);
   } else {
-    const contentType = response.headers.get("Content-Type");
-    if (contentType?.indexOf("application/json") > -1) {
+    const contentType = response.headers.get('Content-Type');
+    if (contentType?.indexOf('application/json') > -1) {
       result = await getJsonResult(response);
     } else {
-      const contentDisposition = response.headers.get("Content-Disposition");
+      const contentDisposition = response.headers.get('Content-Disposition');
       if (contentDisposition) {
         result = {
           code: response.status,

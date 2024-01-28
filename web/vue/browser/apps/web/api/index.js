@@ -1,6 +1,6 @@
-import { getUrl } from "~/utils/request.js";
-import useMarkdown from "~/views/md.js";
-import { log } from "utils";
+import { getUrl } from '@/utils/request.js';
+import useMarkdown from '@/views/md.js';
+import { log } from 'utils';
 
 const convert = (list) => {
   list.forEach((o) => {
@@ -19,8 +19,8 @@ const convert = (list) => {
 };
 
 async function getMenuInfo() {
-  log("fetch menus");
-  const response = await fetch(getUrl("menu"), { method: "POST" });
+  log('fetch menus');
+  const response = await fetch(getUrl('menu'), { method: 'POST' });
   const result = await response.json();
   //转换格式开始
   convert(result);

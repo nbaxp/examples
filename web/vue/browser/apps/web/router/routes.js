@@ -82,6 +82,7 @@ export default [
       {
         path: "html",
         component: "web/html",
+        isMarkdown: true,
         meta: {
           title: "HTML",
         },
@@ -131,7 +132,7 @@ export default [
             meta: {
               title: "Fetch 网络请求",
             },
-          }
+          },
         ],
       },
     ],
@@ -148,6 +149,13 @@ export default [
         isMarkdown: true,
         meta: {
           title: "Vue 基础",
+        },
+      },
+      {
+        path: "echarts",
+        component: "vue/echarts",
+        meta: {
+          title: "Vue ECharts",
         },
       },
       {

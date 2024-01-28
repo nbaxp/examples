@@ -1,102 +1,78 @@
-import { emailRegex, phoneNumberRegex } from '@/utils/constants.js';
+import { emailOrPhoneNumberRegex } from '@/utils/constants.js';
 
 export default function () {
-  const properties = {
-    userName: {
-      icon: 'user',
-      rules: [
-        {
-          required: true,
-        },
-        {
-          validator: 'remote',
-          url: 'user/valid-user-name',
-          message: '{0} has already used',
-        },
-      ],
-    },
-    password: {
-      input: 'password',
-      icon: 'password',
-      rules: [
-        {
-          required: true,
-        },
-      ],
-    },
-    confirmPassword: {
-      input: 'password',
-      icon: 'password',
-      rules: [
-        {
-          validator: 'compare',
-          compare: 'password',
-        },
-      ],
-    },
-    codeHash: {
-      hidden: true,
-    },
-  };
+  const properties = {};
   return {
+    url: 'user/register',
+    labelWidth: 0,
+    submitStyle: 'width:100%',
     properties: {
-      emailRegister: {
-        url: 'user/register',
-        labelWidth: 0,
-        submitStyle: 'width:100%',
-        properties: {
-          ...properties,
-          email: {
-            icon: 'mail',
-            rules: [
-              { required: true },
-              {
-                type: 'email',
-              },
-            ],
+      userName: {
+        icon: 'user',
+        rules: [
+          {
+            required: true,
           },
-          authCode: {
-            title: 'emailCode',
-            icon: 'auth',
-            input: 'code-captcha',
-            url: 'captcha/code',
-            timeout: 120,
-            query: 'email',
-            regexp: emailRegex,
-            rules: {
-              required: true,
-            },
+          {
+            pattern: '[a-zA-Z0-9-_]{4,64}',
           },
-        },
+          {
+            validator: 'remote',
+            url: 'user/no-user',
+            message: '{0} has already used',
+          },
+        ],
       },
-      smsRegister: {
-        url: 'user/register',
-        labelWidth: 0,
-        submitStyle: 'width:100%',
-        properties: {
-          ...properties,
-          phoneNumber: {
-            icon: 'mail',
-            rules: [
-              { required: true },
-              {
-                pattern: phoneNumberRegex,
-              },
-            ],
+      password: {
+        input: 'password',
+        icon: 'password',
+        rules: [
+          {
+            required: true,
           },
-          authCode: {
-            title: 'smsCode',
-            icon: 'auth',
-            input: 'code-captcha',
-            url: 'captcha/code',
-            timeout: 120,
-            query: 'phoneNumber',
-            regexp: phoneNumberRegex,
-            rules: {
-              required: true,
-            },
+        ],
+      },
+      confirmPassword: {
+        input: 'password',
+        icon: 'password',
+        rules: [
+          {
+            validator: 'compare',
+            compare: 'password',
           },
-        },
+        ],
+      },
+      emailOrPhoneNumber: {
+        rules: [
+          {
+            required: true,
+          },
+          {
+            pattern: emailOrPhoneNumberRegex,
+          },
+          {
+            validator: 'remote',
+            url: 'user/no-email-or-phone-number',
+            message: '{0} exist',
+          },
+        ],
+      },
+      authCode: {
+        title: 'authCode',
+        icon: 'auth',
+        input: 'code-captcha',
+        url: 'captcha/code',
+        timeout: 120,
+        query: 'emailOrPhoneNumber',
+        regexp: emailOrPhoneNumberRegex,
+        rules: [
+          {
+            required: true,
+          },
+        ],
+      },
+      codeHash: {
+        hidden: true,
       },
     },
   };

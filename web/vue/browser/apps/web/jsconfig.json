@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./*"]
-    },
-    "target": "ES6"
+      "@/*": ["./*"]
+    }
   },
-  "exclude": ["node_modules", "files", "btsecsummary", "secsummary"]
+  "include": ["**/*.js"],
+  "exclude": ["node_modules", "dist"]
 }

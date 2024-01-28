@@ -1,7 +1,7 @@
 import { nextTick, ref } from 'vue';
-import VCharts from 'vue-echarts';
+import VChart from 'vue-echarts';
 
-const template = `<VCharts
+const template = `<v-chart
   v-if="renderChart"
   :option="options"
   :autoresize="autoresize"
@@ -10,7 +10,7 @@ const template = `<VCharts
 
 export default {
   template,
-  components: { VCharts },
+  components: { VChart },
   props: {
     options: {
       default: {},

@@ -1,9 +1,9 @@
-import html from "utils";
-import { ElConfigProvider } from "element-plus";
-import zh from "~/lib/element-plus/locale/zh-cn.min.js";
-import en from "~/lib/element-plus/locale/en.min.js";
-import { ref } from "vue";
-import useAppStore from "~/store/app.js";
+import html from 'utils';
+import { ElConfigProvider } from 'element-plus';
+import zh from '@/lib/element-plus/locale/zh-cn.min.js';
+import en from '@/lib/element-plus/locale/en.min.js';
+import { ref } from 'vue';
+import { useAppStore } from '@/store/index.js';
 
 export default {
   components: { ElConfigProvider },
@@ -14,8 +14,8 @@ export default {
   `,
   setup() {
     const options = ref({
-      "zh-CN": zh,
-      "en-US": en,
+      'zh-CN': zh,
+      'en-US': en,
     });
     const appStore = useAppStore();
     return {

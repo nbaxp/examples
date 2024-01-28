@@ -1,12 +1,12 @@
-import html from "utils";
-import { reactive, watch } from "vue";
-import { useRouter } from "vue-router";
-import { useAppStore, useTabsStore } from "~/store/index.js";
-import { ElMessageBox } from "element-plus";
-import SvgIcon from "~/components/icon/index.js";
+import html from 'utils';
+import { reactive, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAppStore, useTabsStore } from '@/store/index.js';
+import { ElMessageBox } from 'element-plus';
+import SvgIcon from '@/components/icon/index.js';
 
 export default {
-  name: "menuItem",
+  name: 'menuItem',
   components: { SvgIcon },
   template: html`<template v-if="!modelValue.meta?.hideInMenu">
     <el-sub-menu :index="path" v-if="modelValue.children&&modelValue.children.some(o=>!o.meta?.hideInMenu)">
@@ -42,7 +42,7 @@ export default {
     watch(
       model,
       (value) => {
-        context.emit("update:modelValue", value);
+        context.emit('update:modelValue', value);
       },
       { deep: true }
     );
@@ -50,7 +50,7 @@ export default {
     const path = `${props.parent}/${props.modelValue.path}`;
     const click = (route) => {
       if (!route.meta?.isExternal) {
-        if (tabsStore.routes.length >= (appStore.maxTabs ?? 10)) {
+        if (appStore.useTabs && tabsStore.routes.length >= (appStore.maxTabs ?? 10)) {
           ElMessageBox.alert(`页签达到最大限制${appStore.maxTabs ?? 10},请关闭不再使用的页签`, `提示`);
         } else {
           router.push(path);

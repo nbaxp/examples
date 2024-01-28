@@ -1,6 +1,7 @@
 import useQuery from './query.js';
 import useExport from './export.js';
 import useImport from './import.js';
+import { emailRegex, phoneNumberRegex } from '@/utils/constants.js';
 
 const properties = {
   id: {
@@ -8,9 +9,25 @@ const properties = {
   },
   userName: {
     readonly: true,
+    rules: [{ required: true }],
   },
   password: {
     input: 'password',
+    hideInList: true,
+  },
+  email: {
+    roles: [
+      {
+        pattern: emailRegex,
+      },
+    ],
+  },
+  phoneNumber: {
+    roles: [
+      {
+        pattern: phoneNumberRegex,
+      },
+    ],
   },
   avatar: {
     input: 'upload',
@@ -29,6 +46,7 @@ const properties = {
     multiple: true,
     url: 'role/search',
     hideInList: true,
+    hideInQuery:true
   },
 };
 
@@ -44,7 +62,15 @@ const schema = {
     },
     create: {
       title: 'create',
-      properties,
+      properties: Object.assign({}, properties, {
+        password: {
+          rules: [
+            {
+              required: true,
+            },
+          ],
+        },
+      }),
     },
     update: {
       title: 'update',

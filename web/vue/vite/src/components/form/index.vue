@@ -16,7 +16,7 @@
       </template>
     </template>
     <slot></slot>
-    <el-form-item v-if="!hideButton" style="margin-bottom: 0">
+    <el-form-item v-if="!hideButton" label=" " style="margin-bottom: 0">
       <slot name="submit">
         <el-button type="primary" :disabled="loading" :style="schema.submitStyle" @click="submit">
           {{ $t(schema.title ?? 'confirm') }}

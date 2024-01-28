@@ -1,10 +1,10 @@
-import html from "utils";
-import { ref, reactive, watch, onMounted } from "vue";
-import { dayjs } from "element-plus";
-import request from "~/utils/request.js";
-import { importFunction, bytesFormat } from "~/utils/index.js";
-import { ElMessage, useFormItem } from "element-plus";
-import SvgIcon from "~/components/icon/index.js";
+import html from 'utils';
+import { ref, reactive, watch, onMounted } from 'vue';
+import { dayjs } from 'element-plus';
+import request from '@/utils/request.js';
+import { importFunction, bytesFormat } from '@/utils/index.js';
+import { ElMessage, useFormItem } from 'element-plus';
+import SvgIcon from '@/components/icon/index.js';
 
 export default {
   components: { SvgIcon },
@@ -134,19 +134,19 @@ export default {
       height: 24px;
     }
   </style>`,
-  props: ["modelValue", "schema", "prop", "isReadOnly", "mode"],
-  emit: ["update:modelValue"],
+  props: ['modelValue', 'schema', 'prop', 'isReadOnly', 'mode'],
+  emit: ['update:modelValue'],
   setup(props, context) {
     const model = reactive(props.modelValue);
     watch(model, (value) => {
-      context.emit("update:modelValue", value);
+      context.emit('update:modelValue', value);
     });
     /*start*/
     const getDisabled = () => {
-      if (props.mode === "details") {
+      if (props.mode === 'details') {
         return true;
       }
-      if (props.mode === "update" && props.schema.readOnly) {
+      if (props.mode === 'update' && props.schema.readOnly) {
         return true;
       }
       return false;
@@ -165,10 +165,10 @@ export default {
     const fileList = ref([]);
     const limit = props.schema.multiple ? props.schema.limit ?? 5 : 1;
     const size = props.schema.size ?? 1024 * 1024;
-    const fileTypes = props.schema.accept?.split(",").map((o) => o.toLowerCase()) ?? [];
+    const fileTypes = props.schema.accept?.split(',').map((o) => o.toLowerCase()) ?? [];
     const { formItem } = useFormItem();
     const handleChange = async (uploadFile, uploadFiles) => {
-      const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf("."));
+      const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf('.'));
       const index = uploadFiles.findIndex((o) => o.uid !== uploadFile.uid);
       if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
         ElMessage.error(`当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`);
@@ -213,7 +213,7 @@ export default {
       } else if (props.schema.url) {
         try {
           const url = `${props.schema.url}`;
-          const result = await request(props.schema.method ?? "POST", url);
+          const result = await request(props.schema.method ?? 'POST', url);
           options.value = result.data?.items.map((o) => ({
             value: o[props.schema.value],
             label: o[props.schema.label],

@@ -6,9 +6,8 @@ const properties = {
   id: {
     hidden: true,
   },
-  path: {
-    width: 300,
-  },
+  number: {},
+  name: {},
   icon: {
     input: 'icon',
   },
@@ -20,7 +19,7 @@ const schema = {
     query: useQuery(properties, true, 'order'),
     list: {
       isTree: true,
-      key: 'path',
+      key: 'number',
       properties,
     },
     details: {

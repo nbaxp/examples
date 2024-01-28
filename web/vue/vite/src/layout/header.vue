@@ -57,7 +57,7 @@
             <el-icon v-else class="el-icon--left">
               <i class="i-ep-user" />
             </el-icon>
-            <span>{{ userStore.name }}</span>
+            <span>{{ userStore.name ?? userStore.userName }}</span>
             <el-icon class="el-icon--right">
               <b class="i-ep-arrow-down" />
             </el-icon>

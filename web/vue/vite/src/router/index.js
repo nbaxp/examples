@@ -36,7 +36,7 @@ const routes = [
     path: '/forgot-password',
     component: view('forgot-password'),
     meta: {
-      title: 'register',
+      title: 'forgotPassword',
       hideInMenu: true,
     },
   },
@@ -97,38 +97,41 @@ const convert = (list, parent = null) => {
       convert(o.children, o);
     }
   });
+  return list;
 };
 
 async function refreshRouter() {
   const appStore = useAppStore();
   await appStore.getMenus();
-  const tree = listToTree(appStore.menus, (o) => {
-    o.meta ??= {};
-    o.meta.type = o.type;
-    o.meta.noCache = o.noCache;
-    o.meta.title = o.title;
-    o.meta.icon = o.icon;
-    o.meta.order = o.order;
-    o.meta.buttonType = o.buttonType;
-    o.meta.buttonClass = o.buttonClass;
-    o.meta.apiMethod = o.apiMethod;
-    o.meta.apiUrl = o.apiUrl;
-    o.meta.command = o.command;
-    o.meta.hidden = o.hidden;
-    o.meta.schema = o.schema;
-    delete o.type;
-    delete o.title;
-    delete o.icon;
-    delete o.order;
-    delete o.buttonType;
-    delete o.buttonClass;
-    delete o.apiMethod;
-    delete o.apiUrl;
-    delete o.command;
-    delete o.hidden;
-    delete o.schema;
-  });
-  convert(tree);
+  const tree = convert(
+    listToTree(
+      appStore.menus.map((o) => {
+        return {
+          id: o.id,
+          parentId: o.parentId,
+          path: o.number,
+          redirect: o.redirect,
+          component: o.component,
+          meta: {
+            type: o.type,
+            buttonType: o.buttonType,
+            title: o.name,
+            icon: o.icon,
+            classList: o.classList,
+            order: o.order,
+            noCache: o.noCache,
+            permission: o.number,
+            authorize: o.authorize,
+            method: o.method,
+            url: o.url,
+            command: o.command,
+            hidden: o.hidden,
+            schema: o.schema,
+          },
+        };
+      }),
+    ),
+  );
   const route = router.getRoutes().find((o) => o.name === 'layout');
   if (route) {
     router.removeRoute(route.name);

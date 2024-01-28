@@ -24,7 +24,13 @@
             <el-col :span="14">
               <el-tabs>
                 <el-tab-pane :label="$t('passwordLogin')">
-                  <app-form v-model="passwordModel" :schema="config.properties.passwordLogin" @success="success" />
+                  <app-form
+                    ref="passwordForm"
+                    v-model="passwordModel"
+                    :schema="config.properties.passwordLogin"
+                    @success="success"
+                    @error="error"
+                  />
                 </el-tab-pane>
                 <el-tab-pane :label="$t('smsLogin')">
                   <app-form v-model="smsModel" :schema="config.properties.smsLogin" @success="success" />
@@ -68,6 +74,7 @@
   import { schemaToModel } from '@/utils/index.js';
 
   const config = ref(useModel());
+  const passwordForm = ref(null);
   const qrcode = ref(null);
   const passwordModel = ref(schemaToModel(config.value.properties.passwordLogin));
   const smsModel = ref(schemaToModel(config.value.properties.smsLogin));
@@ -78,6 +85,9 @@
     // await useUserStore().getUserInfo();
     const redirect = router.currentRoute.value.query?.redirect ?? '/';
     router.push(redirect);
+  };
+  const error = () => {
+    console.log(passwordForm.value);
   };
   const getQrCode = async () => {
     const result = await QRCode.toDataURL(new Date().toString());

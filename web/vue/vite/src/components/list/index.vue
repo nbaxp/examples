@@ -242,8 +242,8 @@
     loading.value = true;
     try {
       const data = buildQuery();
-      const method = buttons.value.find((button) => button.meta?.command === 'search')?.meta?.apiMethod ?? 'POST';
-      const url = buttons.value.find((button) => button.meta?.command === 'search')?.meta?.apiUrl;
+      const method = buttons.value.find((button) => button.meta?.command === 'search')?.meta?.method ?? 'POST';
+      const url = buttons.value.find((button) => button.meta?.command === 'search')?.meta?.url;
 
       const result = await request(method, url, data);
       if (result.ok) {
@@ -314,8 +314,8 @@
     if (command === 'import-template') {
       loading.value = true;
       try {
-        const method = button.meta?.apiMethod ?? 'POST';
-        const url = button.meta?.apiUrl;
+        const method = button.meta?.method ?? 'POST';
+        const url = button.meta?.url;
         const result = await request(method, url);
         if (result.ok) {
           dialogVisible.value = false;
@@ -345,8 +345,8 @@
           cancelButtonText: t('cancel'),
           type: 'warning',
         });
-        const method = button.meta?.apiMethod ?? 'POST';
-        const url = button.meta?.apiUrl;
+        const method = button.meta?.method ?? 'POST';
+        const url = button.meta?.url;
         const result = await request(method, url, data);
         if (result.ok) {
           await reload();
@@ -372,13 +372,13 @@
     ) {
       const schema = props.config.properties[command];
       schema.action = command;
-      schema.method = button.meta?.apiMethod;
-      schema.url = button.meta?.apiUrl;
+      schema.method = button.meta?.method;
+      schema.url = button.meta?.url;
       dialogSchema.value = schema;
       if (command === 'details' || command === 'update') {
         const detailsButton = buttons.value.find((button) => button.meta?.command === 'details');
-        const method = detailsButton?.meta?.apiMethod ?? 'POST';
-        const url = detailsButton?.meta?.apiUrl;
+        const method = detailsButton?.meta?.method ?? 'POST';
+        const url = detailsButton?.meta?.url;
         const data = rows[0].id;
         try {
           loading.value = true;

@@ -19,23 +19,20 @@ export default {
     <el-header><layout-header /></el-header>
     <el-container>
       <el-aside width="auto">
-        <el-scrollbar><layout-menu /></el-scrollbar>
+        <layout-menu />
       </el-aside>
       <el-container class="is-vertical main backtop">
         <layout-tabs v-if="appStore.useTabs" />
         <el-main>
           <layout-breadcrumb v-if="appStore.showBreadcrumb" />
-          <router-view
-            v-if="!tabsStore.isRefreshing"
-            v-slot="{ Component, route }"
-            class="router-view"
-            :style="minHeight"
-          >
-            <component :is="Component" v-if="route.meta?.ignoreCache" :key="$route.fullPath" />
-            <keep-alive :include="tabsStore.routes.map(o=>o.path)">
-              <component :is="Component" v-if="!route.meta?.ignoreCache" :key="route.fullPath" />
-            </keep-alive>
-          </router-view>
+          <div class="router-view" :style="style">
+            <router-view v-if="!tabsStore.isRefreshing" v-slot="{ Component, route }">
+              <component :is="Component" v-if="route.meta?.ignoreCache" :key="$route.fullPath" />
+              <keep-alive :include="tabsStore.routes.map(o=>o.path)">
+                <component :is="Component" v-if="!route.meta?.ignoreCache" :key="$route.fullPath" />
+              </keep-alive>
+            </router-view>
+          </div>
           <el-footer v-if="appStore.showCopyright">
             <layout-footer />
           </el-footer>
@@ -50,7 +47,7 @@ export default {
     const path = computed(() => useRoute().matched[0].path);
     const items = computed(() => useRoute().matched[0].children);
 
-    const minHeight = computed(() => {
+    const style = computed(() => {
       let height = 0;
       if (appStore.showBreadcrumb) {
         height += 40;
@@ -66,7 +63,7 @@ export default {
       tabsStore,
       path,
       items,
-      minHeight,
+      style,
     };
   },
 };

@@ -1,13 +1,13 @@
-import html from "utils";
-import { ref, reactive, watch } from "vue";
-import request from "~/utils/request.js";
-import AppFormItem from "./form-item.js";
+import html from 'utils';
+import { ref, reactive, watch } from 'vue';
+import request from '@/utils/request.js';
+import AppFormItem from './form-item.js';
 
 export default {
   components: {
     AppFormItem,
   },
-  name: "AppForm",
+  name: 'AppForm',
   template: html`<div v-loading="loading">
     <el-form ref="formRef" :model="model" label-width="auto" :inline="inline" @keyup.enter.native="submit">
       <el-form-item v-if="errorMessage" :label-width="0" style="margin-bottom:0;">
@@ -36,13 +36,13 @@ export default {
       </el-form-item>
     </el-form>
   </div>`,
-  props: ["modelValue", "inline", "schema", "action", "hideButton", "showReset", "isQueryForm", "mode"],
-  emits: ["update:modelValue", "success", "error"],
+  props: ['modelValue', 'inline', 'schema', 'action', 'hideButton', 'showReset', 'isQueryForm', 'mode'],
+  emits: ['update:modelValue', 'success', 'error'],
   setup(props, context) {
     // init
     const model = reactive(props.modelValue);
     watch(model, (value) => {
-      context.emit("update:modelValue", value);
+      context.emit('update:modelValue', value);
     });
     // ref
     const formRef = ref(null);
@@ -65,14 +65,14 @@ export default {
         if (valid) {
           loading.value = true;
           const url = props.schema.url;
-          const method = props.schema.method ?? "POST";
+          const method = props.schema.method ?? 'POST';
           errorMessage.value = null;
           const result = await request(method, url, model);
           if (!result.error && (parseInt(result.code / 100) === 2 || result.code === 0)) {
-            context.emit("success", result.data);
+            context.emit('success', result.data);
           } else {
             errorMessage.value = result.message;
-            context.emit("error", result.data);
+            context.emit('error', result.data);
           }
         }
       } catch (error) {

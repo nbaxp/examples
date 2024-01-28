@@ -1,5 +1,5 @@
-import html from "utils";
-import Md from "~/components/markdown/index.js";
+import html from 'utils';
+import Md from '@/components/markdown/index.js';
 
 export default function (name) {
   return {

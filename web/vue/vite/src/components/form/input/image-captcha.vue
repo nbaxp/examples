@@ -10,7 +10,10 @@
       :src="src"
       @click="onClick"
       style="cursor: pointer; max-height: 30px; margin-left: 10px"
-    />
+    >
+      <template #placeholder><span></span> </template>
+      <template #error> <span></span></template>
+    </el-image>
   </div>
 </template>
 <script setup>
