@@ -1,79 +1,87 @@
+using Wta.Application.Identity.Attributes;
 using Wta.Infrastructure.Domain;
 
 namespace Wta.Application.Identity.Domain;
 
-[IdentityGroup, Display(Order = 3)]
-public class Permission : Entity
+/// <summary>
+/// name=>meta.title,number=>meta.path
+/// </summary>
+[SystemManagement, Display(Order = 3)]
+public class Permission : BaseTreeEntity<Permission>, IOrderedEntity
 {
     /// <summary>
-    /// 类型：group\menu\button(Vue Router Meta Type)
+    /// Vue Router Meta
+    /// "Anonymous"
+    /// "Authenticated"
+    /// Roles:"['role1','role2']"
+    /// "Permission"
+    /// </summary>
+    public string Authorize { get; set; } = default!;
+
+    /// <summary>
+    /// Vue Router Meta,group\menu\button)
     /// </summary>
     public MenuType Type { get; set; }
 
     /// <summary>
-    /// 权限或菜单编号(group和menu 对应 Vue Router Path，buton 对应权限标识)
-    /// </summary>
-    public string? Path { get; set; }
-
-    /// <summary>
-    /// Vue Router Redirect
+    /// Vue Router
     /// </summary>
     public string? Redirect { get; set; }
 
     /// <summary>
-    /// 前端组件(Vue Router Component)
+    /// Vue Router
     /// </summary>
     public string? Component { get; set; }
 
     /// <summary>
-    /// 是否隐藏菜单或按钮
+    /// Vue Router Meta,是否隐藏菜单或按钮
     /// </summary>
     public bool Hidden { get; set; }
 
     /// <summary>
-    /// 不缓存
+    /// Vue Router Meta
     /// </summary>
     public bool NoCache { get; set; }
 
     /// <summary>
-    /// Vue Router Meta Title
-    /// </summary>
-    public string? Title { get; set; }
-
-    /// <summary>
-    /// Vue Router Meta Icon
+    /// Vue Router Meta
     /// </summary>
     public string? Icon { get; set; }
 
     /// <summary>
-    /// 按钮类型：table、row
+    /// Vue Router Meta,按钮类型：table、row
     /// </summary>
-    public ButtonType ButtonType { get; set; }
+    public ButtonType? ButtonType { get; set; }
 
     /// <summary>
-    /// 按钮 html class
+    /// Vue Router Meta,按钮 html class
     /// </summary>
-    public string? ButtonClass { get; set; }
+    public string? ClassList { get; set; }
 
     /// <summary>
-    /// 请求方法
+    /// Vue Router Meta,请求方法
     /// </summary>
-    public string? ApiMethod { get; set; }
+    public string? Method { get; set; }
 
+    /// <summary>
+    /// Vue Router Meta,请求地址
+    /// </summary>
+    public string? Url { get; set; }
+
+    /// <summary>
+    /// Vue Router Meta
+    /// </summary>
     public string? Command { get; set; }
 
+    /// <summary>
+    /// Vue Router Meta
+    /// </summary>
     public string? Schema { get; set; }
 
     /// <summary>
-    /// 请求地址
+    /// Vue Router Meta
     /// </summary>
-    public string? ApiUrl { get; set; }
-
-    public Guid? ParentId { get; set; }
-
-    public Permission? Parent { get; set; }
-
-    public List<Permission> Children { get; set; } = new List<Permission>();
+    public int Order { get; set; }
 
     /// <summary>
     /// 角色权限

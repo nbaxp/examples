@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq.Dynamic.Core;
 using System.Reflection;
 using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.Models;
 
 namespace Wta.Infrastructure.Extensions;
@@ -16,7 +15,8 @@ public static class IQueryableExtensions
         return query;
     }
 
-    public static IQueryable<TEntity> Where<TEntity, TModel>(this IQueryable<TEntity> query, TModel model)
+    public static IQueryable<TEntity> WhereByModel<TEntity, TModel>(this IQueryable<TEntity> query, TModel model)
+        where TModel : class
     {
         var properties = model!.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty)
             .Where(o => o.PropertyType.IsValueType || o.PropertyType == typeof(string))

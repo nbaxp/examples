@@ -13,6 +13,6 @@ public class AuthService(IRepository<User> repository, IHttpContextAccessor http
     {
         var userName = httpContextAccessor.HttpContext!.User.Identity!.Name;
         return repository.AsNoTracking()
-            .Any(o => o.UserName == userName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Path == permission)));
+            .Any(o => o.UserName == userName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Number == permission)));
     }
 }

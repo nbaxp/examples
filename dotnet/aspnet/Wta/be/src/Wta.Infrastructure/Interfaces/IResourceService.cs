@@ -1,6 +1,6 @@
 using Wta.Infrastructure.Domain;
 
-namespace Wta.Infrastructure.Abstractions;
+namespace Wta.Infrastructure.Interfaces;
 
 public interface IResourceService
 {

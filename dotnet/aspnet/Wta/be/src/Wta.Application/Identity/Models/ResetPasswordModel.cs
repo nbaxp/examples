@@ -4,14 +4,14 @@ public class ResetPasswordModel
 {
     [Required]
     [DataType(DataType.Password)]
-    public string? OldPassword { get; set; }
+    public string? CurrentPassword { get; set; }
 
     [Required]
     [DataType(DataType.Password)]
-    [StringLength(24, MinimumLength = 8)]
-    public string? Password { get; set; }
+    [StringLength(24, MinimumLength = 6)]
+    public string? NewPassword { get; set; }
 
-    [Compare(nameof(Password))]
+    [Compare(nameof(NewPassword))]
     [DataType(DataType.Password)]
-    public string? ConfirmPassword { get; set; }
+    public string? ConfirmNewPassword { get; set; }
 }

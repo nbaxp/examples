@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Wta.Application.Identity.Domain;
-using Wta.Infrastructure.Abstractions;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Data;
 using Wta.Infrastructure.Domain;
@@ -82,18 +81,38 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
 
     private List<Permission> InitPermission(IdentityDbContext context)
     {
-        var order = 0;
+        var order = 1;
         var list = new List<Permission>
         {
             new Permission
             {
                 Type = MenuType.Menu,
-                Path = "home",
+                Authorize="Authenticated",
+                Number = "home",
                 Component = "home",
-                Title = "home",
+                Name = "home",
                 Icon = "home",
                 NoCache = true,
-                Order = -1
+                Order = 1
+            },
+            new Permission
+            {
+                Type = MenuType.Group,
+                Authorize="Authenticated",
+                Number = "user-center",
+                Name = "userCenter",
+                Icon = "user",
+                Order = 2,
+                Children = new List<Permission> {
+                    new Permission {
+                        Type = MenuType.Menu,
+                        Authorize="Authenticated",
+                        Number = "reset-asswrod",
+                        Component = "reset-password",
+                        Name = "resetPassword",
+                        Order = 1
+                    }
+                }
             }
         };
         var actionDescriptors = actionProvider.ActionDescriptors.Items;
@@ -107,8 +126,9 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 var resourcePermission = new Permission
                 {
                     Type = MenuType.Menu,
-                    Title = resourceType.Name.ToLowerCamelCase(),
-                    Path = resourceType.Name.ToSlugify(),
+                    Authorize = "Authenticated",
+                    Name = resourceType.Name.ToLowerCamelCase(),
+                    Number = resourceType.Name.ToSlugify()!,
                     Component = "list",
                     Schema = $"{resourceType.Name.ToSlugify()}",
                     Order = resourceType.GetCustomAttribute<DisplayAttribute>()?.Order ?? order++
@@ -120,14 +140,16 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 .Where(o => o != null && o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType) && o.MethodInfo.GetCustomAttribute<IgnoreAttribute>() == null)
                 .ForEach(descriptor =>
                 {
+                    var number = $"{descriptor.ControllerName}.{descriptor.ActionName}";
                     list.Add(new Permission
                     {
                         ParentId = resourcePermission.Id,
                         Type = MenuType.Button,
-                        Title = (descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName).ToLowerCamelCase(),
-                        Path = $"{descriptor.ControllerName}.{descriptor.ActionName}",
-                        ApiUrl = descriptor.AttributeRouteInfo?.Template,
-                        ApiMethod = (descriptor.ActionConstraints?.FirstOrDefault() as HttpMethodActionConstraint)?.HttpMethods.FirstOrDefault(),
+                        Authorize = number,
+                        Name = (descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName).ToLowerCamelCase(),
+                        Number = number,
+                        Url = descriptor.AttributeRouteInfo?.Template,
+                        Method = (descriptor.ActionConstraints?.FirstOrDefault() as HttpMethodActionConstraint)?.HttpMethods.FirstOrDefault(),
                         Command = descriptor.ActionName.ToSlugify(),
                         ButtonType = descriptor.MethodInfo.GetCustomAttribute<ButtonAttribute>()?.Type ?? ButtonType.Table,
                         Hidden = descriptor.MethodInfo.GetCustomAttribute<HiddenAttribute>() == null ? false : true,
@@ -138,14 +160,15 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 var groupAttribute = resourceType.GetCustomAttributes().FirstOrDefault(o => o.GetType().IsAssignableTo(typeof(GroupAttribute)));
                 if (groupAttribute != null && groupAttribute is GroupAttribute group)
                 {
-                    var groupPermission = list.FirstOrDefault(o => o.Path == group.Name.ToSlugify());
+                    var groupPermission = list.FirstOrDefault(o => o.Number == group.Name.ToSlugify());
                     if (groupPermission == null)
                     {
                         groupPermission = new Permission
                         {
                             Type = MenuType.Group,
-                            Title = group.Name.ToLowerCamelCase(),
-                            Path = group.Name.ToSlugify(),
+                            Authorize = "Anonymous",
+                            Name = group.Name.ToLowerCamelCase(),
+                            Number = group.Name.ToSlugify()!,
                             Icon = group.Icon,
                             Order = group.Order
                         };

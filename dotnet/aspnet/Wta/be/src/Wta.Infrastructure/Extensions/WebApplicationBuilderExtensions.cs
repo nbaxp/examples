@@ -29,7 +29,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OrchardCore.Localization;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Wta.Infrastructure.Application;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Common;
 using Wta.Infrastructure.Configuration;
@@ -38,6 +37,7 @@ using Wta.Infrastructure.Data;
 using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.Interfaces;
 using Wta.Infrastructure.Resources;
+using Wta.Infrastructure.Services;
 using Wta.Infrastructure.Web;
 using Wta.Shared;
 using Wta.Shared.Data;
@@ -68,12 +68,29 @@ public static class WebApplicationBuilderExtensions
         contentTypeProvider.Mappings.Add(".apk", "application/vnd.android.package-archive");
         contentTypeProvider.Mappings.Add(".ipa", "application/vnd.iphone");
         builder.Services.AddSingleton(contentTypeProvider);
-        builder.Services.AddSingleton(typeof(IMapper<,>), typeof(DefaultMapper<,>));
         builder.AddDefaultLocalization();
         builder.AddDefaultMvc();
         builder.AddDefaultSwager();
         builder.AddDefaultAuth();
         builder.AddDefaultDbContext();
+        builder.AddObjectMapper();
+    }
+
+    public static void AddObjectMapper(this WebApplicationBuilder builder)
+    {
+        WebApp.Instance.Assemblies
+            .SelectMany(o => o.GetTypes())
+            .Where(o => !o.IsAbstract && o.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IMapperConfig<,>)))
+            .ForEach(type =>
+            {
+                var config = Activator.CreateInstance(type);
+                type.GetInterfaces().Where(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(IMapperConfig<,>))
+                .ForEach(o =>
+                {
+                    var builderType = typeof(MapperConfigBuilder<,>).MakeGenericType(o.GetGenericArguments());
+                    builder.Services.AddTransient(o, type);
+                });
+            });
     }
 
     /// <summary>
@@ -270,6 +287,7 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddMvc(options =>
         {
             options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+            options.ModelBinderProviders.Insert(0, new CustomModelBinderProvider());
             options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
             options.ModelMetadataDetailsProviders.Insert(0, new CustomDisplayMetadataProvider());
             options.ModelMetadataDetailsProviders.Add(new CustomValidationMetadataProvider());
@@ -294,6 +312,7 @@ public static class WebApplicationBuilderExtensions
             options.JsonSerializerOptions.WriteIndented = builder.Environment.IsDevelopment() ? true : false;
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             options.JsonSerializerOptions.Converters.Add(new CustomJsonNullableGuidConverter());
+            options.JsonSerializerOptions.Converters.Insert(0, new CustomJsonTrimConverter());
         })
         .ConfigureApiBehaviorOptions(options =>
         {

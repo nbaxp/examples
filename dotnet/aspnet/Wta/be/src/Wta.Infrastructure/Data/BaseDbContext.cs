@@ -1,5 +1,9 @@
+using System.ComponentModel;
+using System.Reflection;
+using ClosedXML;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -42,9 +46,9 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         {
             entityTypes.ForEach(entityType =>
             {
+                var entityTypeBuilder = modelBuilder.Entity(entityType);
                 if (entityType.IsAssignableTo(typeof(BaseEntity)))
                 {
-                    var entityTypeBuilder = modelBuilder.Entity(entityType);
                     entityTypeBuilder.HasKey(nameof(BaseEntity.Id));
                     entityTypeBuilder.Property(nameof(BaseEntity.Id)).ValueGeneratedNever();
                     if (entityType.IsAssignableTo(typeof(IConcurrencyStampEntity)))
@@ -58,6 +62,11 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                         entityTypeBuilder.HasOne("Parent").WithMany("Children").HasForeignKey("ParentId").OnDelete(DeleteBehavior.SetNull);
                     }
                 }
+                var properties = entityType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
+                //配置只读字段（不可编辑）
+                properties.Where(o => o.GetAttributes<ReadOnlyAttribute>().Any())
+                .Select(o => o.Name)
+                .ForEach(o => entityTypeBuilder.Property(o).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore));
             });
         }
         //自定义配置

@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -6,8 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Wta.Application;
 using Wta.Application.Identity.Domain;
-using Wta.Infrastructure.Abstractions;
-using Wta.Infrastructure.Application;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Domain;
 using Wta.Infrastructure.Exceptions;
@@ -20,42 +20,43 @@ using Wta.Shared;
 namespace Wta.Infrastructure.Controllers;
 
 [GenericControllerNameConvention]
-public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IRepository<TEntity> repository, IMapper<TEntity, TModel> mapper, IExportImportService exportImportService) : BaseController, IResourceService<TEntity>
+public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
+    IRepository<TEntity> repository,
+    IExportImportService exportImportService) : BaseController, IResourceService<TEntity>
     where TEntity : BaseEntity
     where TModel : class
 {
     public ILogger<TEntity> Logger { get; } = logger;
     public IRepository<TEntity> Repository { get; } = repository;
-    public IMapper<TEntity, TModel> Mapper { get; } = mapper;
 
     [Display(Order = -5)]
-    public CustomApiResponse<QueryModel<TModel>> Search(QueryModel<TModel> model)
+    public virtual CustomApiResponse<QueryModel<TModel>> Search(QueryModel<TModel> model)
     {
-        var query = this.Where(model);
+        var query = Where(model);
         model.TotalCount = query.Count();
-        query = this.OrderBy(query, model.OrderBy);
+        query = OrderBy(query, model.OrderBy);
         if (!model.IncludeAll)
         {
-            query = this.SkipTake(query, model.PageIndex, model.PageSize);
+            query = SkipTake(query, model.PageIndex, model.PageSize);
         }
         else
         {
             model.PageSize = model.TotalCount;
         }
-        model.Items = Mapper.ToModelList(query);
+        model.Items = query.ToModelList<TEntity, TModel>();
         return Json(model);
     }
 
     [Display(Order = -2)]
-    public FileContentResult Export(ExportModel<TModel> model)
+    public virtual FileContentResult Export(ExportModel<TModel> model)
     {
-        var query = this.Where(model);
-        query = this.OrderBy(query, model.OrderBy);
+        var query = Where(model);
+        query = OrderBy(query, model.OrderBy);
         if (!model.IncludeAll)
         {
-            query = this.SkipTake(query, model.PageIndex, model.PageSize);
+            query = SkipTake(query, model.PageIndex, model.PageSize);
         }
-        var items = Mapper.ToModelList(query);
+        var items = query.ToModelList<TEntity, TModel>();
         var contentType = WebApp.Instance.WebApplication.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
         var result = new FileContentResult(exportImportService.Export(items), contentType);
         result.FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx";
@@ -63,9 +64,10 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
     }
 
     [Button(Type = ButtonType.Row)]
-    public CustomApiResponse<TModel> Details([FromBody] Guid id)
+    public virtual CustomApiResponse<TModel> Details([FromBody] Guid id)
     {
-        var model = Mapper.ToModelList(Repository.AsNoTracking().Where(o => o.Id == id)).FirstOrDefault();
+        var query = Repository.AsNoTracking().Where(o => o.Id == id);
+        var model = query.ToModel<TEntity, TModel>();
         if (model == null)
         {
             throw new ProblemException("Not Found");
@@ -74,21 +76,22 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
     }
 
     [Display(Order = -4)]
-    public CustomApiResponse<bool> Create(TModel model)
+    public virtual CustomApiResponse<bool> Create(TModel model)
     {
         if (!ModelState.IsValid)
         {
             throw new BadRequestException();
         }
         var entity = Activator.CreateInstance<TEntity>();
-        Mapper.FromModel(entity, model);
+        entity.FromModel(model);
+        ToEntity(entity, model, true);
         Repository.Add(entity);
         Repository.SaveChanges();
         return Json(true);
     }
 
     [Display(Order = -3), Hidden]
-    public FileContentResult ImportTemplate()
+    public virtual FileContentResult ImportTemplate()
     {
         var contentType = WebApp.Instance.WebApplication.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
         var result = new FileContentResult(exportImportService.GetImportTemplate<TModel>(), contentType);
@@ -97,7 +100,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
     }
 
     [Display(Order = -3)]
-    public CustomApiResponse<bool> Import(ImportModel<TModel> model)
+    public virtual CustomApiResponse<bool> Import(ImportModel<TModel> model)
     {
         foreach (var file in model.Files)
         {
@@ -106,7 +109,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
             var models = exportImportService.Import<TModel>(ms.ToArray());
             foreach (var item in models)
             {
-                this.Create(item);
+                Create(item);
             }
         }
         return Json(true);
@@ -114,13 +117,13 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
 
     [Display(Order = -1)]
     [Button(Type = ButtonType.Row)]
-    public CustomApiResponse<bool> Update([FromBody] TModel model)
+    public virtual CustomApiResponse<bool> Update([FromBody] TModel model)
     {
         if (!ModelState.IsValid)
         {
             throw new BadRequestException();
         }
-        var id = (Guid)(typeof(TModel).GetProperty("Id")!.GetValue(model)!);
+        var id = (Guid)typeof(TModel).GetProperty("Id")!.GetValue(model)!;
         var entity = Repository.Query().FirstOrDefault(o => o.Id == id);
         if (entity == null)
         {
@@ -130,13 +133,14 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         {
             //防止循环依赖
         }
-        Mapper.FromModel(entity, model);
+        entity.FromModel(model, o => o.IgnoreAttribute(typeof(ReadOnlyAttribute)));
+        ToEntity(entity, model);
         Repository.SaveChanges();
         return Json(true);
     }
 
     [Display(Order = -1)]
-    public CustomApiResponse<bool> Delete([FromBody] Guid[] items)
+    public virtual CustomApiResponse<bool> Delete([FromBody] Guid[] items)
     {
         foreach (var id in items)
         {
@@ -161,7 +165,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
         var query = Repository.AsNoTracking();
         if (model.Query != null)
         {
-            query = query.Where(model.Query);
+            query = query.WhereByModel(model.Query);
         }
         if (model.Filters.Any())
         {
@@ -186,5 +190,9 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger, IReposi
     protected IQueryable<TEntity> SkipTake(IQueryable<TEntity> query, int pageIndex, int pageSize)
     {
         return query.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+    }
+
+    protected virtual void ToEntity(TEntity entity, TModel model, bool isCreate = false)
+    {
     }
 }

@@ -8,7 +8,6 @@
     <None Remove="Resources\carlito.ttf" />
     <None Remove="Resources\en-US.po" />
     <None Remove="Resources\zh-CN.po" />
-    <None Remove="wwwroot\favicon.ico" />
   </ItemGroup>
 
   <ItemGroup>

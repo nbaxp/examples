@@ -15,7 +15,12 @@ public class PermissionModel : IBaseModel<Permission>
     /// <summary>
     /// 权限或菜单编号(group和menu 对应 Vue Router Path，buton 对应权限标识)
     /// </summary>
-    public string? Path { get; set; }
+    public string? Number { get; set; }
+
+    /// <summary>
+    /// Vue Router Meta Title
+    /// </summary>
+    public string? Name { get; set; }
 
     /// <summary>
     /// Vue Router Redirect
@@ -36,11 +41,6 @@ public class PermissionModel : IBaseModel<Permission>
     /// 不缓存
     /// </summary>
     public bool? NoCache { get; set; }
-
-    /// <summary>
-    /// Vue Router Meta Title
-    /// </summary>
-    public string? Title { get; set; }
 
     /// <summary>
     /// Vue Router Meta Icon
