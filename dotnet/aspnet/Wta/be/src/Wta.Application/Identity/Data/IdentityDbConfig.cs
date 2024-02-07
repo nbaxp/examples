@@ -18,7 +18,6 @@ public class IdentityDbConfig : IDbConfig<IdentityDbContext>,
     {
         builder.Property(o => o.Name).IsRequired();
         builder.Property(o => o.Number).IsRequired();
-        builder.Property(o => o.UserName).IsRequired();
         builder.HasIndex(o => o.Number).IsUnique();
     }
 

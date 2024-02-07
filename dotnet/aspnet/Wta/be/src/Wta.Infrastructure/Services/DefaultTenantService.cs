@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Http;
-using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Interfaces;
 
 namespace Wta.Infrastructure.Services;
 
-[Service<ITenantService>(ServiceLifetime.Scoped)]
+//[Service<ITenantService>(ServiceLifetime.Scoped)]
 public class DefaultTenantService : ITenantService
 {
     private readonly IHttpContextAccessor? _httpContextAccessor;

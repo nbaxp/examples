@@ -1,4 +1,5 @@
 using System.Globalization;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Serilog;
 using Wta.Infrastructure.Extensions;

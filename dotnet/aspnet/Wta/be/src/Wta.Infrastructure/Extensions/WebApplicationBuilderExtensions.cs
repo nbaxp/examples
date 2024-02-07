@@ -6,6 +6,8 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
+using Autofac;
+using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -45,7 +47,10 @@ public static class WebApplicationBuilderExtensions
     public static void ConfigureServices(this WebApplicationBuilder builder)
     {
         //使用 Autofac 取代内置的依赖注入框架
-        builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+        builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory(containerBuilder =>
+        {
+            containerBuilder.RegisterModule(new ConfigurationModule(builder.Configuration));
+        }));
         // 添加默认服务
         builder.AddDefaultServices();
         // 添加默认配置

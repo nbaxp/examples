@@ -23,6 +23,7 @@
   
   <ItemGroup>
     <PackageReference Include="Autofac" />
+    <PackageReference Include="Autofac.Configuration" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" />
     <PackageReference Include="ClosedXML" />
     <PackageReference Include="DynamicExpresso.Core" />
