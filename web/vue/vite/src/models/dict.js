@@ -6,25 +6,35 @@ const properties = {
   id: {
     hidden: true,
   },
-  name: {},
-  number: {},
-  permissions: {
-    type: 'array',
+  name: {
+    rules: [
+      {
+        required: true,
+      },
+    ],
+  },
+  number: {
+    readonly: true,
+    rules: [
+      {
+        required: true,
+      },
+    ],
+  },
+  parentId: {
+    type: 'string',
     input: 'cascader',
-    multiple: true,
     checkStrictly: true,
-    label: 'path',
-    url: 'permission/search',
-    label: 'name',
+    url: 'dict/search',
     hideInList: true,
-    hideInQuery: true,
   },
 };
 
 const schema = {
   properties: {
-    query: useQuery(properties),
+    query: useQuery(properties, true),
     list: {
+      isTree: true,
       properties,
     },
     details: {

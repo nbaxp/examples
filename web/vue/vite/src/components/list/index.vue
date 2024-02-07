@@ -93,7 +93,15 @@
         <el-button type="primary" @click="resetColumns">{{ $t('reset') }}</el-button>
       </template>
     </el-drawer>
-    <el-dialog v-if="dialogVisible" v-model="dialogVisible" align-center append-to-body lock-scroll destroy-on-close>
+    <el-dialog
+      v-if="dialogVisible"
+      v-model="dialogVisible"
+      :close-on-click-modal="false"
+      align-center
+      append-to-body
+      lock-scroll
+      destroy-on-close
+    >
       <template #header>{{ $t(dialogSchema.title) }}</template>
       <el-button
         link

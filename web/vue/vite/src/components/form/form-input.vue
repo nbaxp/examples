@@ -202,7 +202,7 @@
           </div>
         </template>
       </el-upload>
-      <el-dialog v-model="preivewImageVisable">
+      <el-dialog v-model="preivewImageVisable" :close-on-click-modal="false">
         <img w-full :src="previewImageUrl" alt="schema.title" />
       </el-dialog>
     </template>
@@ -255,6 +255,7 @@
   import { useTokenStore } from '@/store/index.js';
   import ImageCaptcha from '@/components/form/input/image-captcha.vue';
   import CodeCaptcha from '@/components/form/input/code-captcha.vue';
+  import { orderBy } from 'lodash-es';
 
   const props = defineProps(['modelValue', 'schema', 'prop', 'isReadOnly', 'mode']);
   const emit = defineEmits(['update:modelValue']);
@@ -318,11 +319,13 @@
 
   const getCascaderDisplay = computed(() => {
     if (props.schema.multiple) {
-      return model[props.prop].map((o) =>
-        findPath(options.value, (n) => n.value === o)
-          .map((i) => i.label)
-          .join(' / '),
-      );
+      return model[props.prop]
+        .map((o) =>
+          findPath(options.value, (n) => n.value === o)
+            .map((i) => i.label)
+            .join(' / '),
+        )
+        .sort();
     }
     return findPath(options.value, (n) => n.value === model[props.prop])
       .map((o) => o.label)
@@ -440,21 +443,23 @@
         let list = routeData.get(props.prop);
         if (!list) {
           try {
+            const method = props.schema.method ?? 'POST';
             const url = `${props.schema.url}`;
-            const result = await request(props.schema.method ?? 'POST', url, { includeAll: true });
+            const data = { includeAll: true };
+            const result = await request(method, url, data);
             if (props.schema.input === 'cascader') {
               list = listToTree(
                 result.data.items.map((o) => ({
                   id: o[props.schema.id ?? 'id'],
                   parentId: o[props.schema.parentId ?? 'parentId'],
                   value: o[props.schema.value ?? 'id'],
-                  label: o[props.schema.label ?? 'name'],
+                  label: t(o[props.schema.label ?? 'name']),
                 })),
               );
             } else if (props.schema.input === 'select') {
               list = result.data.items.map((o) => ({
                 value: o[props.schema.value ?? 'id'],
-                label: o[props.schema.label ?? 'name'],
+                label: t(o[props.schema.label ?? 'name']),
               }));
             }
             routeData.set(props.prop, list);

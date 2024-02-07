@@ -42,7 +42,7 @@
   const userStore = useUserStore();
 
   const hasPermission = computed(() => {
-    return userStore.hasPermission(props.node.meta?.authorize);
+    return !!userStore.permissions.find((o) => o === props.node.meta.permission);
   });
 
   const path = computed(() => {

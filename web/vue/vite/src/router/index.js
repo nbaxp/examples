@@ -141,7 +141,11 @@ async function refreshRouter() {
     path: '/',
     redirect: '/home',
     component: layout('index'),
-    meta: { title: 'home', icon: 'home' },
+    meta: {
+      title: 'home',
+      icon: 'home',
+      order: 1,
+    },
     children: tree,
   });
 }

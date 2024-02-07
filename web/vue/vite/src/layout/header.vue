@@ -6,8 +6,8 @@
         <i v-if="appStore.settings.isMenuCollapse" class="i-uiw-menu-unfold" />
         <i v-else class="i-uiw-menu-fold" />
       </el-icon>
-      <el-menu mode="horizontal" :default-active="$route.matched[0].path" :ellipsis="false" router>
-        <template v-for="route in $router.getRoutes().filter((o) => !o.meta?.hideInMenu && o.redirect)">
+      <el-menu mode="horizontal" :default-active="$route.matched[0].path" :ellipsis="false">
+        <template v-for="route in routes">
           <el-menu-item
             v-if="!route.meta?.hideInMenu"
             :key="route.path"
@@ -87,10 +87,11 @@
 <script setup>
   import { useFullscreen } from '@vueuse/core';
   import { ElMessage, ElMessageBox } from 'element-plus';
-  import { ref } from 'vue';
+  import { ref, computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
   import { camelCase } from '@/utils/index.js';
+  import { orderBy } from 'lodash-es';
 
   import SvgIcon from '@/components/icon/index.vue';
   import { useAppStore, useTokenStore, useUserStore, useTabsStore } from '@/store/index.js';
@@ -106,6 +107,15 @@
   const tokenStore = useTokenStore();
   const userStore = useUserStore();
   //
+  const routes = computed(() =>
+    orderBy(
+      router
+        .getRoutes()
+        .filter((o) => o.path.startsWith('/') && o.redirect)
+        .map((o) => ({ ...o, order: o.meta.order ?? 0 })),
+      ['order'],
+    ),
+  );
   const searchRef = ref(null);
   const searchLoading = ref(false);
   const searchModel = ref('');
@@ -165,8 +175,10 @@
 
   const click = (route, event) => {
     if (route.path.startsWith('http')) {
-      event.preventDefault();
       window.open(props.node.path);
+    } else {
+      const path = tabsStore.routes.findLast((o) => o.matched[0].path === route.path)?.path ?? route.path;
+      router.push(path);
     }
   };
 </script>

@@ -134,9 +134,9 @@ const getRules = (parentSchema, prop, data) => {
     }
     if (!rule.message) {
       if (rule.required) {
-        rule.message = getMessage('errorMessageRequired', prop);
+        rule.message = getMessage('required', prop);
       } else if (rule.type === 'email') {
-        rule.message = getMessage('dataTypeAttribute_EmailAddress', prop);
+        rule.message = getMessage('emailAddress', prop);
       } else if (rule.pattern) {
         rule.message = format(messages.pattern.mismatch, property.title);
       } else if (property.type === 'string' || property.type === 'number' || property.type === 'array') {

@@ -42,7 +42,7 @@ const getOptions = async (method, url, data, customOptions, isUrlEncoded) => {
   }
   // 添加Token
   const tokenStore = useTokenStore();
-  if (tokenStore.accessToken) {
+  if (await tokenStore.isLogin()) {
     options.headers.Authorization = `Bearer ${tokenStore.accessToken}`;
   }
   if (options.method === 'GET') {

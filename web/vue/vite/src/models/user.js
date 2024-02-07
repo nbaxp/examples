@@ -46,7 +46,7 @@ const properties = {
     multiple: true,
     url: 'role/search',
     hideInList: true,
-    hideInQuery:true
+    hideInQuery: true,
   },
 };
 
