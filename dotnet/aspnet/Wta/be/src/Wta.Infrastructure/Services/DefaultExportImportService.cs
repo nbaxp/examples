@@ -27,7 +27,7 @@ public class DefaultExportImportService() : IExportImportService
         var ws = workbook.Worksheets.Add(name);
         var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty).ToList();
         var rowIndex = 1;
-        setHeader(ws, properties, rowIndex);
+        SetHeader(ws, properties, rowIndex);
         foreach (var item in list)
         {
             rowIndex++;
@@ -51,7 +51,7 @@ public class DefaultExportImportService() : IExportImportService
         var ws = workbook.Worksheets.Add(name);
         var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty).ToList();
         var rowIndex = 1;
-        setHeader(ws, properties, rowIndex);
+        SetHeader(ws, properties, rowIndex);
         SetStyle(ws);
         return GetResult(workbook);
     }
@@ -126,7 +126,7 @@ public class DefaultExportImportService() : IExportImportService
         }
     }
 
-    private static void setHeader(IXLWorksheet ws, List<PropertyInfo> properties, int rowIndex)
+    private static void SetHeader(IXLWorksheet ws, List<PropertyInfo> properties, int rowIndex)
     {
         for (var i = 0; i < properties.Count; i++)
         {

@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Wta.Application.Identity.Domain;
 using Wta.Shared.Data;
@@ -6,6 +5,8 @@ using Wta.Shared.Data;
 namespace Wta.Application.Identity.Data;
 
 public class IdentityDbConfig : IDbConfig<IdentityDbContext>,
+    IEntityTypeConfiguration<Tenant>,
+    IEntityTypeConfiguration<Dict>,
     IEntityTypeConfiguration<Department>,
     IEntityTypeConfiguration<User>,
     IEntityTypeConfiguration<Role>,
@@ -13,6 +14,18 @@ public class IdentityDbConfig : IDbConfig<IdentityDbContext>,
     IEntityTypeConfiguration<UserRole>,
     IEntityTypeConfiguration<RolePermission>
 {
+    public void Configure(EntityTypeBuilder<Tenant> builder)
+    {
+        builder.Property(o => o.Name).IsRequired();
+        builder.Property(o => o.Number).IsRequired();
+        builder.Property(o => o.UserName).IsRequired();
+        builder.HasIndex(o => o.Number).IsUnique();
+    }
+
+    public void Configure(EntityTypeBuilder<Dict> builder)
+    {
+    }
+
     public void Configure(EntityTypeBuilder<Department> builder)
     {
     }
@@ -20,12 +33,12 @@ public class IdentityDbConfig : IDbConfig<IdentityDbContext>,
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasOne(o => o.Department).WithMany(o => o.Users).HasForeignKey(o => o.DepartmentId).OnDelete(DeleteBehavior.SetNull);
-        builder.HasIndex(x => x.NormalizedUserName).IsUnique();
+        builder.HasIndex(o => new { o.TenantId, o.NormalizedUserName }).IsUnique();
     }
 
     public void Configure(EntityTypeBuilder<Role> builder)
     {
-        builder.HasIndex(o => o.Number).IsUnique();
+        builder.HasIndex(o => new { o.TenantId, o.Number }).IsUnique();
     }
 
     public void Configure(EntityTypeBuilder<UserRole> builder)

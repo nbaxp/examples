@@ -1,8 +1,5 @@
 using System.Globalization;
-using System.Reflection;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Serilog;
 using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.Models;
@@ -19,12 +16,12 @@ public class WebApp
 
     public WebApplicationBuilder WebApplicationBuilder { get; }
 
-    public WebApplication WebApplication { get; private set; } = null!;
+    public WebApplication WebApplication { get; private set; } = default!;
 
     /// <summary>
     /// WebApp实例
     /// </summary>
-    public static WebApp Instance { get; private set; } = null!;
+    public static WebApp Instance { get; private set; } = default!;
 
     /// <summary>
     /// 数据上下文和实体映射字典

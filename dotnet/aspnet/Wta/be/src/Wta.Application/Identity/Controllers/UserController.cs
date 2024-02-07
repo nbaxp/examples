@@ -1,9 +1,6 @@
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Wta.Application.Identity.Domain;
 using Wta.Application.Identity.Models;
 using Wta.Infrastructure.Attributes;
@@ -17,29 +14,35 @@ namespace Wta.Application.Identity.Controllers;
 
 [Service<IAuthService>(ServiceLifetime.Transient)]
 public class UserController(ILogger<User> logger,
+    IStringLocalizer stringLocalizer,
     IRepository<User> repository,
     IExportImportService exportImportService,
     IHttpContextAccessor httpContextAccessor,
-    IEncryptionService encryptionService) : GenericController<User, UserModel>(logger, repository, exportImportService), IAuthService
+    ITenantService tenantService,
+    IEncryptionService encryptionService) : GenericController<User, UserModel>(logger, stringLocalizer, repository, exportImportService), IAuthService
 {
     [Authorize, Ignore]
     public bool HasPermission(string permission)
     {
-        var userName = httpContextAccessor.HttpContext!.User.Identity!.Name;
+        Repository.DisableTenantFilter();
+        var normalizedUserName = httpContextAccessor.HttpContext?.User.Identity?.Name?.ToUpperInvariant()!;
         return Repository.AsNoTracking()
-            .Any(o => o.UserName == userName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Number == permission)));
+            .Any(o => o.NormalizedUserName == normalizedUserName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Number == permission)));
     }
 
     [Authorize, Ignore]
     public CustomApiResponse<UserInfoModel> Info()
     {
+        var tenantId = tenantService.TenantId;
+        Repository.DisableTenantFilter();
+        var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
         var result = Repository
            .AsNoTracking()
            .Include(o => o.UserRoles)
            .ThenInclude(o => o.Role)
            .ThenInclude(o => o!.RolePermissions)
            .ThenInclude(o => o.Permission)
-           .FirstOrDefault(o => o.UserName == User.Identity!.Name)!;
+           .FirstOrDefault(o => o.NormalizedUserName == normalizedUserName && o.TenantId == tenantId)!;
 
         return Json(new UserInfoModel
         {
@@ -61,7 +64,7 @@ public class UserController(ILogger<User> logger,
             {
                 var user = new User();
                 user.FromModel(model);
-                user.NormalizedUserName = user.UserName!.ToUpperInvariant();
+                user.NormalizedUserName = user.UserName.ToUpperInvariant();
                 user.SecurityStamp = encryptionService.CreateSalt();
                 user.PasswordHash = encryptionService.HashPassword(model.Password!, user.SecurityStamp);
                 var isEmail = Regex.IsMatch(model.EmailOrPhoneNumber, @"\w+@\w+\.\w+");
@@ -112,7 +115,8 @@ public class UserController(ILogger<User> logger,
     {
         if (ModelState.IsValid)
         {
-            var user = Repository.Query().FirstOrDefault(o => o.UserName == User.Identity!.Name)!;
+            var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
+            var user = Repository.Query().FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
             if (user != null)
             {
                 if (user.PasswordHash != encryptionService.HashPassword(model.CurrentPassword!, user.SecurityStamp!))
@@ -137,6 +141,7 @@ public class UserController(ILogger<User> logger,
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> HasUser([FromForm] string userName)
     {
+        this.Repository.DisableTenantFilter();
         var normalizedUserName = userName.ToUpperInvariant();
         return Json(Repository.AsNoTracking().Any(o => o.NormalizedUserName == normalizedUserName));
     }
@@ -144,6 +149,7 @@ public class UserController(ILogger<User> logger,
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> NoUser([FromForm] string userName)
     {
+        this.Repository.DisableTenantFilter();
         var normalizedUserName = userName.ToUpperInvariant();
         return Json(!Repository.AsNoTracking().Any(o => o.NormalizedUserName == normalizedUserName));
     }
@@ -151,17 +157,34 @@ public class UserController(ILogger<User> logger,
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> HasEmailOrPhoneNumber([FromForm] string emailOrPhoneNumber)
     {
+        this.Repository.DisableTenantFilter();
         return Json(HasEmailOrPhoneNumberInternal(emailOrPhoneNumber));
     }
 
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> NoEmailOrPhoneNumber([FromForm] string emailOrPhoneNumber)
     {
+        this.Repository.DisableTenantFilter();
         return Json(!HasEmailOrPhoneNumberInternal(emailOrPhoneNumber));
+    }
+
+    [AllowAnonymous, Ignore]
+    public CustomApiResponse<bool> NoEmail([FromForm] string email)
+    {
+        this.Repository.DisableTenantFilter();
+        return Json(!HasEmailOrPhoneNumberInternal(email));
+    }
+
+    [AllowAnonymous, Ignore]
+    public CustomApiResponse<bool> NoPhoneNumber([FromForm] string phoneNumber)
+    {
+        this.Repository.DisableTenantFilter();
+        return Json(!HasEmailOrPhoneNumberInternal(phoneNumber));
     }
 
     private bool HasEmailOrPhoneNumberInternal(string emailOrPhoneNumber)
     {
+        this.Repository.DisableTenantFilter();
         var normalizedEmailOrPhoneNumber = emailOrPhoneNumber.ToUpperInvariant();
         var isEmail = Regex.IsMatch(emailOrPhoneNumber, @"\w+@\w+\.\w+");
         var query = Repository.AsNoTracking();
@@ -171,6 +194,12 @@ public class UserController(ILogger<User> logger,
 
     protected override void ToEntity(User entity, UserModel model, bool isCreate = false)
     {
+        if (isCreate && string.IsNullOrEmpty(model.Password))
+        {
+            var key = nameof(model.Password);
+            ModelState.AddModelError(key, StringLocalizer.GetString("Required", StringLocalizer.GetString(key)));
+            throw new BadRequestException();
+        }
         if (!string.IsNullOrEmpty(entity.UserName))
         {
             entity.NormalizedUserName = entity.UserName.ToUpperInvariant();

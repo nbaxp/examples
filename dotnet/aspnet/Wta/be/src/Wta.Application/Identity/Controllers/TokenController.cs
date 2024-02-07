@@ -2,10 +2,7 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Wta.Application.Identity.Domain;
 using Wta.Application.Identity.Models;
@@ -53,9 +50,10 @@ public class TokenController : BaseController
     {
         if (ModelState.IsValid)
         {
-            var additionalClaims = new List<Claim>();
+            _userRepository.DisableTenantFilter();
             var userQuery = _userRepository.Query();
-            var user = userQuery.FirstOrDefault(o => o.UserName == model.UserName);
+            var normalizedUserName = model.UserName?.ToUpperInvariant()!;
+            var user = userQuery.FirstOrDefault(o => o.NormalizedUserName == normalizedUserName && o.TenantId == model.TenantId);
             if (user != null)
             {
                 if (user.LockoutEnd.HasValue)
@@ -101,8 +99,13 @@ public class TokenController : BaseController
                 throw new ProblemException(_stringLocalizer.GetString("用户名或密码错误"));
             }
             //
+            var additionalClaims = new List<Claim>();
+            if (user.TenantId.HasValue)
+            {
+                additionalClaims.Add(new Claim("TenantId", user.TenantId.ToString()!));
+            }
             var roles = _userRepository.AsNoTracking()
-                .Where(o => o.UserName == model.UserName)
+                .Where(o => o.NormalizedUserName == normalizedUserName)
                 .SelectMany(o => o.UserRoles)
                 .Select(o => o.Role!.Number)
                 .ToList()

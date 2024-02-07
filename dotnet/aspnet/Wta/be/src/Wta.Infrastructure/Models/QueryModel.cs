@@ -4,11 +4,6 @@ namespace Wta.Infrastructure.Models;
 
 public class QueryModel<TModel>
 {
-    public QueryModel()
-    {
-        this.Query = Activator.CreateInstance<TModel>();
-    }
-
     [DefaultValue(1)]
     public int PageIndex { get; set; } = 1;
 

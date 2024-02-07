@@ -1,5 +1,4 @@
 using System.Globalization;
-using Microsoft.Extensions.Localization;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Interfaces;
 using Wta.Shared;

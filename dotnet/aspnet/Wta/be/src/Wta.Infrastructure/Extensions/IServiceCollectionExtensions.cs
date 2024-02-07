@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Wta.Infrastructure.Extensions;
 
@@ -9,5 +8,16 @@ public static class IServiceCollectionExtensions
     {
         typeof(EntityFrameworkServiceCollectionExtensions)
             .InvokeExtensionMethod("AddDbContext", [dbContextType], null!, serviceCollection, optionsAction, contextLifetime, optionsLifetime);
+    }
+
+    public static IServiceCollection Clone(this IServiceCollection serviceCollection)
+    {
+        IServiceCollection clone = new ServiceCollection();
+        foreach (ServiceDescriptor service in serviceCollection)
+        {
+            clone.Add(service);
+        }
+
+        return clone;
     }
 }

@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Wta.Infrastructure.Extensions;
 
@@ -19,19 +18,19 @@ public class CustomDisplayMetadataProvider : IDisplayMetadataProvider
         {
             if (item is ValidationAttribute attribute)
             {
-                if (attribute is DataTypeAttribute data && attribute.ErrorMessage != null)
+                if (string.IsNullOrEmpty(attribute.ErrorMessage))
                 {
-                    attribute.ErrorMessage = $"DataTypeAttribute{data.GetDataTypeName()}";
-                }
-                else if (item is RequiredAttribute required)
-                {
-                    required.ErrorMessage = $"{item.GetType().Name.TrimEnd("Attribute")}";
-                }
-                else
-                {
-                    if (attribute.ErrorMessage == null)
+                    if (attribute is DataTypeAttribute data && attribute.ErrorMessage != null)
                     {
-                        attribute.ErrorMessage = attribute.GetType().Name;
+                        attribute.ErrorMessage = data.GetDataTypeName();
+                    }
+                    else if (item is RequiredAttribute required)
+                    {
+                        required.ErrorMessage = "Required";
+                    }
+                    else
+                    {
+                        attribute.ErrorMessage = attribute.GetType().Name.TrimEnd("Attribute");
                         if (item is StringLengthAttribute stringLengthAttribute)
                         {
                             if (stringLengthAttribute.MinimumLength != 0)

@@ -15,5 +15,5 @@ public class UserModel
 
     public string? Avatar { get; set; }
     public Guid? DepartmentId { get; set; }
-    public List<Guid> Roles { get; set; } = new List<Guid>();
+    public List<Guid> Roles { get; set; } = [];
 }

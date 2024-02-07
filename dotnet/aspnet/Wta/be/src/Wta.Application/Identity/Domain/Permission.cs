@@ -6,8 +6,8 @@ namespace Wta.Application.Identity.Domain;
 /// <summary>
 /// name=>meta.title,number=>meta.path
 /// </summary>
-[SystemManagement, Display(Order = 3)]
-public class Permission : BaseTreeEntity<Permission>, IOrderedEntity
+[SystemManagement, Display(Order = 4)]
+public class Permission : BaseTreeEntity<Permission>
 {
     /// <summary>
     /// Vue Router Meta
@@ -79,12 +79,7 @@ public class Permission : BaseTreeEntity<Permission>, IOrderedEntity
     public string? Schema { get; set; }
 
     /// <summary>
-    /// Vue Router Meta
-    /// </summary>
-    public int Order { get; set; }
-
-    /// <summary>
     /// 角色权限
     /// </summary>
-    public List<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+    public List<RolePermission> RolePermissions { get; set; } = [];
 }

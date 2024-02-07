@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Wta.Application.Identity.Domain;
 using Wta.Infrastructure.Controllers;

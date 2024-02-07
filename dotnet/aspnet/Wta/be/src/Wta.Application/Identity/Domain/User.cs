@@ -1,10 +1,9 @@
-using System.ComponentModel;
 using Wta.Application.Identity.Attributes;
 using Wta.Infrastructure.Domain;
 
 namespace Wta.Application.Identity.Domain;
 
-[SystemManagement, Display(Order = 1)]
+[SystemManagement, Display(Order = 5)]
 public class User : Entity
 {
     public string? Name { get; set; }
@@ -28,5 +27,5 @@ public class User : Entity
     public bool IsReadOnly { get; set; }
     public Guid? DepartmentId { get; set; }
     public Department? Department { get; set; }
-    public List<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public List<UserRole> UserRoles { get; set; } = [];
 }

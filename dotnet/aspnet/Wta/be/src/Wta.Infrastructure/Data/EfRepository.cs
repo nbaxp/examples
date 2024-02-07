@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Wta.Infrastructure.Domain;
 using Wta.Infrastructure.Interfaces;
 using Wta.Shared;
@@ -41,6 +39,16 @@ public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEn
     public void CommitTransaction()
     {
         Context.Database.CommitTransaction();
+    }
+
+    public void DisableSoftDeleteFilter()
+    {
+        this.Context.GetType().GetProperty("DisableSoftDeleteFilter")?.SetValue(this.Context, true);
+    }
+
+    public void DisableTenantFilter()
+    {
+        this.Context.GetType().GetProperty("DisableTenantFilter")?.SetValue(this.Context, true);
     }
 
     public IQueryable<TEntity> Query()

@@ -19,7 +19,7 @@ public class DefaultImpageCaptchaService : IImpageCaptchaService
         var canvas = surface.Canvas;
         canvas.Clear(SKColor.Parse("#efefef"));
 
-        for (int i = 0; i < code.Length; i++)
+        for (var i = 0; i < code.Length; i++)
         {
             var fontSize = RandomNumberGenerator.GetInt32(15, 30);
             using var font = new SKFont(typeface, fontSize);

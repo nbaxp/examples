@@ -1,7 +1,7 @@
 #msgid大驼峰格式，前端为小驼峰格式
 
 #验证
-msgid "ErrorMessageRequired"
+msgid "Required"
 msgstr "{0}不能为空"
 
 #通用

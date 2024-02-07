@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -12,82 +11,93 @@ using Wta.Shared;
 
 namespace Wta.Application.Identity.Data;
 
-public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider, IEncryptionService passwordHasher) : IDbSeeder<IdentityDbContext>
+public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider, IEncryptionService encryptionService, ITenantService tenantService) : IDbSeeder<IdentityDbContext>
 {
-    public void Seed(IdentityDbContext context)
+    public void Seed(DbContext context)
     {
         //添加部门
-        var departments = InitDepartment(context);
+        InitDepartment(context);
         //添加权限
-        var permissions = InitPermission(context);
-        //添加管理员角色
-        var adminRole = new Role
-        {
-            Name = "管理员",
-            Number = "admin",
-            RolePermissions = permissions.Select(o => new RolePermission
-            {
-                Permission = o,
-                IsReadOnly = true
-            }
-            ).ToList()
-        };
-        context.Set<Role>().Add(adminRole);
-        //添加管理员用户
+        InitPermission(context);
+        //添加角色
+        InitRole(context);
+        //添加用户
+        InitUser(context);
+    }
+
+    private void InitUser(DbContext context)
+    {
         var userName = "admin";
         var password = "123456";
-        var passwordHash = passwordHasher.HashPassword(password, userName);
-        var admin = new User
+        //if (tenantService.TenantId.HasValue)
+        //{
+        //    userName = tenantService.UserName!;
+        //}
+        var salt = encryptionService.CreateSalt();
+        var passwordHash = encryptionService.HashPassword(password, salt);
+
+        context.Set<User>().Add(new User
         {
             Name = "管理员",
             UserName = userName,
             Avatar = "api/upload/avatar.svg",
             NormalizedUserName = userName.ToUpperInvariant(),
-            SecurityStamp = userName,
+            SecurityStamp = salt,
             PasswordHash = passwordHash,
             IsReadOnly = true,
             UserRoles = new List<UserRole> {
                 new UserRole
                 {
-                    Role = adminRole,
+                    Role = context.Set<Role>().FirstOrDefault(o=>o.Number=="admin"),
                     IsReadOnly = true
                 }
             }
-        };
-        context.Set<User>().Add(admin);
+        });
+        context.SaveChanges();
     }
 
-    private static List<Department> InitDepartment(IdentityDbContext context)
+    private void InitRole(DbContext context)
     {
-        var list = new List<Department> {
-            new Department{
-                Name="机构",
-                Number="Organ",
-                Children=new List<Department>{
+        //var permisions = tenantService.TenantId.HasValue ? tenantService.Permissions : context.Set<Permission>().Select(o => o.Id).ToList();
+        var permisions = context.Set<Permission>().Select(o => o.Id).ToList();
+        context.Set<Role>().Add(new Role
+        {
+            Name = "管理员",
+            Number = "admin",
+            RolePermissions = permisions!.Select(o => new RolePermission
+            {
+                PermissionId = o,
+                IsReadOnly = true
+            }).ToList()
+        });
+        context.SaveChanges();
+    }
+
+    private static void InitDepartment(DbContext context)
+    {
+        context.Set<Department>().Add(new Department
+        {
+            Name = "机构",
+            Number = "Organ",
+            Children = [
                     new Department
                     {
-                        Name="技术部",
-                        Number="Technology"
+                        Name = "技术部",
+                        Number = "Technology"
                     }
-                }
-            }
-        };
-        foreach (var item in list)
-        {
-            context.Set<Department>().Add(item);
-        }
-        return list;
+                ]
+        }.UpdateNode());
+        context.SaveChanges();
     }
 
-    private List<Permission> InitPermission(IdentityDbContext context)
+    private void InitPermission(DbContext context)
     {
-        var order = 1;
         var list = new List<Permission>
         {
             new Permission
             {
                 Type = MenuType.Menu,
-                Authorize="Authenticated",
+                Authorize = "Anonymous",
                 Number = "home",
                 Component = "home",
                 Name = "home",
@@ -98,29 +108,35 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
             new Permission
             {
                 Type = MenuType.Group,
-                Authorize="Authenticated",
+                Authorize = "Authenticated",
                 Number = "user-center",
                 Name = "userCenter",
                 Icon = "user",
                 Order = 2,
-                Children = new List<Permission> {
-                    new Permission {
+                Children = [
+                    new Permission
+                    {
                         Type = MenuType.Menu,
-                        Authorize="Authenticated",
+                        Authorize = "Authenticated",
                         Number = "reset-asswrod",
                         Component = "reset-password",
                         Name = "resetPassword",
                         Order = 1
                     }
-                }
+                ]
             }
         };
+        var order = 1;
         var actionDescriptors = actionProvider.ActionDescriptors.Items;
         WebApp.Instance.Assemblies
             .SelectMany(o => o.GetTypes())
             .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(IResource)))
             .ForEach(resourceType =>
             {
+                if (tenantService.TenantId.HasValue && resourceType == typeof(Tenant))
+                {
+                    return;
+                }
                 // 菜单
                 var resourceServiceType = typeof(IResourceService<>).MakeGenericType(resourceType);
                 var resourcePermission = new Permission
@@ -133,17 +149,15 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                     Schema = $"{resourceType.Name.ToSlugify()}",
                     Order = resourceType.GetCustomAttribute<DisplayAttribute>()?.Order ?? order++
                 };
-                list.Add(resourcePermission);
                 // 按钮
                 actionDescriptors
                 .Select(o => (o as ControllerActionDescriptor)!)
-                .Where(o => o != null && o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType) && o.MethodInfo.GetCustomAttribute<IgnoreAttribute>() == null)
+                .Where(o => o != null && o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType) && !o.MethodInfo.GetCustomAttributes<IgnoreAttribute>().Any())
                 .ForEach(descriptor =>
                 {
                     var number = $"{descriptor.ControllerName}.{descriptor.ActionName}";
-                    list.Add(new Permission
+                    resourcePermission.Children.Add(new Permission
                     {
-                        ParentId = resourcePermission.Id,
                         Type = MenuType.Button,
                         Authorize = number,
                         Name = (descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName).ToLowerCamelCase(),
@@ -174,10 +188,18 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                         };
                         list.Add(groupPermission);
                     }
-                    resourcePermission.ParentId = groupPermission.Id;
+                    groupPermission.Children.Add(resourcePermission);
+                }
+                else
+                {
+                    list.Add(resourcePermission);
                 }
             });
-        context.Set<Permission>().AddRange(list);
-        return list;
+        list.ForEach(o =>
+        {
+            o.UpdateNode();
+            context.Set<Permission>().Add(o);
+        });
+        context.SaveChanges();
     }
 }

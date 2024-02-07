@@ -1,12 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
 using Wta.Application.Identity.Models;
 using Wta.Infrastructure.Controllers;
 using Wta.Infrastructure.Interfaces;
@@ -73,7 +68,7 @@ public class CaptchaController(ILogger<CaptchaController> logger,
     private string GetCode(int count)
     {
         var code = "";
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             code += RandomNumberGenerator.GetInt32(10);
         }

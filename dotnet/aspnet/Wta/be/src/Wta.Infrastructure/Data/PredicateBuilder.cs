@@ -64,7 +64,7 @@ public static class PredicateBuilder
         return Expression.Lambda<T>(merge(first.Body, secondBody), first.Parameters);
     }
 
-    private class ParameterRebinder : ExpressionVisitor
+    private sealed class ParameterRebinder : ExpressionVisitor
     {
         private readonly Dictionary<ParameterExpression, ParameterExpression> map;
 

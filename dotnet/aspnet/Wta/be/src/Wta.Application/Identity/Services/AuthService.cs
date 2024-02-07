@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Wta.Application.Identity.Domain;
 using Wta.Infrastructure.Attributes;
@@ -11,8 +10,8 @@ public class AuthService(IRepository<User> repository, IHttpContextAccessor http
     [Authorize, Ignore]
     public bool HasPermission(string permission)
     {
-        var userName = httpContextAccessor.HttpContext!.User.Identity!.Name;
+        var normalizedUserName = httpContextAccessor.HttpContext?.User.Identity?.Name?.ToUpperInvariant()!;
         return repository.AsNoTracking()
-            .Any(o => o.UserName == userName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Number == permission)));
+            .Any(o => o.NormalizedUserName == normalizedUserName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Number == permission)));
     }
 }

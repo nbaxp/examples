@@ -10,7 +10,7 @@ public class CustomJsonNullableGuidConverter : JsonConverter<Guid?>
         if (reader.TokenType == JsonTokenType.String)
         {
             var stringValue = reader.GetString()?.Trim();
-            if (!string.IsNullOrEmpty(stringValue) && Guid.TryParse(stringValue, out Guid value))
+            if (!string.IsNullOrEmpty(stringValue) && Guid.TryParse(stringValue, out var value))
             {
                 return value;
             }

@@ -1,5 +1,4 @@
 using Mapster;
-using Microsoft.Extensions.DependencyInjection;
 using Wta.Infrastructure.Interfaces;
 using Wta.Infrastructure.Services;
 using Wta.Shared;

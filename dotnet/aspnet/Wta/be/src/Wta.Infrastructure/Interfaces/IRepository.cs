@@ -21,4 +21,8 @@ public interface IRepository<TEntity> where TEntity : BaseEntity
     int SaveChanges();
 
     Task<int> SaveChangesAsync();
+
+    void DisableSoftDeleteFilter();
+
+    void DisableTenantFilter();
 }

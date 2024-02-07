@@ -1,8 +1,6 @@
 using System.Globalization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Wta.Application.Identity.Models;
 using Wta.Infrastructure.Controllers;

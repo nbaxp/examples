@@ -1,19 +1,21 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Wta.Infrastructure.Domain;
 
-public abstract class BaseTreeEntity<T> : BaseEntity where T : BaseEntity
+public abstract class BaseTreeEntity<T> : BaseEntity, IOrderedEntity where T : BaseEntity
 {
-    public List<T> Children { get; set; } = new List<T>();
-
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = default!;
 
     [ReadOnly(true)]
-    public string Number { get; set; } = null!;
+    [RegularExpression(@"\w+")]
+    public string Number { get; set; } = default!;
 
-    public T? Parent { get; set; }
+    public int Order { get; set; }
+    public string Path { get; set; } = default!;
 
     public Guid? ParentId { get; set; }
 
-    public string? InternalPath { get; set; }
+    public T? Parent { get; set; }
+    public List<T> Children { get; set; } = [];
 }

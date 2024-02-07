@@ -1,15 +1,9 @@
-using System.ComponentModel;
-using System.Reflection;
-using ClosedXML;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Wta.Infrastructure.Data;
 using Wta.Infrastructure.Domain;
-using Wta.Infrastructure.Extensions;
+using Wta.Infrastructure.Interfaces;
 
 namespace Wta.Shared.Data;
 
@@ -17,16 +11,19 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
 {
     public static readonly ILoggerFactory DefaultLoggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
 
-    public string? _tenantId;
+    private readonly Guid? _tenantId;
 
     public IServiceProvider ServiceProvider { get; }
     public IDbContextManager DbContextManager { get; }
+    public bool DisableSoftDeleteFilter { get; set; }
+    public bool DisableTenantFilter { get; set; }
 
     public BaseDbContext(DbContextOptions<TDbContext> options, IServiceProvider serviceProvider) : base(options)
     {
         ServiceProvider = serviceProvider;
         DbContextManager = ServiceProvider.GetRequiredService<IDbContextManager>();
         DbContextManager.Add(this);
+        this._tenantId = serviceProvider.GetService<ITenantService>()?.TenantId;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -49,6 +46,8 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                 var entityTypeBuilder = modelBuilder.Entity(entityType);
                 if (entityType.IsAssignableTo(typeof(BaseEntity)))
                 {
+                    //软删除、租户过滤
+                    this.GetType().GetMethod(nameof(this.CreateQueryFilter))?.MakeGenericMethod(entityType).Invoke(this, new object[] { modelBuilder });
                     entityTypeBuilder.HasKey(nameof(BaseEntity.Id));
                     entityTypeBuilder.Property(nameof(BaseEntity.Id)).ValueGeneratedNever();
                     if (entityType.IsAssignableTo(typeof(IConcurrencyStampEntity)))
@@ -59,12 +58,13 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                     {
                         entityTypeBuilder.Property("Name").IsRequired();
                         entityTypeBuilder.Property("Number").IsRequired();
+                        entityTypeBuilder.HasIndex("TenantId", "Number").IsUnique();
                         entityTypeBuilder.HasOne("Parent").WithMany("Children").HasForeignKey("ParentId").OnDelete(DeleteBehavior.SetNull);
                     }
                 }
                 var properties = entityType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
                 //配置只读字段（不可编辑）
-                properties.Where(o => o.GetAttributes<ReadOnlyAttribute>().Any())
+                properties.Where(o => o.GetCustomAttributes<ReadOnlyAttribute>().Any())
                 .Select(o => o.Name)
                 .ForEach(o => entityTypeBuilder.Property(o).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore));
             });
@@ -108,48 +108,47 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         //var now = DateTime.UtcNow;
         foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
         {
-            var entity = item.Entity;
             if (item.State == EntityState.Deleted)
             {
-                var isReadOnly = entity.GetType().GetProperty("IsReadOnly")?.GetValue(entity) as bool?;
+                var isReadOnly = item.Entity.GetType().GetProperty("IsReadOnly")?.GetValue(item.Entity) as bool?;
                 if (isReadOnly.HasValue && isReadOnly.Value)
                 {
                     item.State = EntityState.Unchanged;
                 }
             }
-            // 设置审计属性和租户
-            //if (item.Entity is BaseEntity entity)
-            //{
-            //    Debug.WriteLine($"{entity.Id},{entity.GetPropertyValue<BaseEntity, string>("Number")}");
-            //    if (item.State == EntityState.Added)
-            //    {
-            //        entity.CreatedOn = now;
-            //        entity.CreatedBy = userName ?? "super";
-            //        entity.TenantId = tenant;
-            //        entity.IsDisabled ??= false;
-            //        entity.IsReadonly ??= false;
-            //    }
-            //    else if (item.State == EntityState.Modified)
-            //    {
-            //        entity.UpdatedOn = now;
-            //        entity.UpdatedBy = userName;
-            //    }
-            //    else if (item.State == EntityState.Deleted)
-            //    {
-            //        if (entity is ISoftDeleteEntity)
-            //        {
-            //            item.State = EntityState.Modified;
-            //            entity.IsDeleted = true;
-            //            entity.DeletedOn = now;
-            //            entity.DeletedBy = userName;
-            //        }
-            //        else if (entity.IsReadonly.HasValue && entity.IsReadonly.Value)
-            //        {
-            //            throw new Exception("内置数据无法删除");
-            //        }
-            //    }
-            //    entity.ConcurrencyStamp = Guid.NewGuid().ToString();
-            //}
+            //设置审计属性和租户
+            if (item.Entity is BaseEntity entity)
+            {
+                //    Debug.WriteLine($"{entity.Id},{entity.GetPropertyValue<BaseEntity, string>("Number")}");
+                if (item.State == EntityState.Added)
+                {
+                    //entity.CreatedOn = now;
+                    //entity.CreatedBy = userName ?? "super";
+                    //entity.IsDisabled ??= false;
+                    //entity.IsReadonly ??= false;
+                    entity.TenantId = _tenantId;
+                }
+                //    else if (item.State == EntityState.Modified)
+                //    {
+                //        entity.UpdatedOn = now;
+                //        entity.UpdatedBy = userName;
+                //    }
+                //    else if (item.State == EntityState.Deleted)
+                //    {
+                //        if (entity is ISoftDeleteEntity)
+                //        {
+                //            item.State = EntityState.Modified;
+                //            entity.IsDeleted = true;
+                //            entity.DeletedOn = now;
+                //            entity.DeletedBy = userName;
+                //        }
+                //        else if (entity.IsReadonly.HasValue && entity.IsReadonly.Value)
+                //        {
+                //            throw new Exception("内置数据无法删除");
+                //        }
+                //    }
+                //    entity.ConcurrencyStamp = Guid.NewGuid().ToString();
+            }
         }
     }
 
@@ -158,5 +157,12 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         ChangeTracker.DetectChanges();
         var entries = ChangeTracker.Entries().ToList();
         return entries;
+    }
+
+    public void CreateQueryFilter<TEntity>(ModelBuilder builder) where TEntity : BaseEntity
+    {
+        builder.Entity<TEntity>().HasQueryFilter(o =>
+        (this.DisableSoftDeleteFilter == true || !o.IsDeleted) &&
+        (this.DisableTenantFilter == true || o.TenantId == this._tenantId));
     }
 }

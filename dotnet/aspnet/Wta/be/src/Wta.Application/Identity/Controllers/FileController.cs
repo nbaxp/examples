@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Wta.Infrastructure.Controllers;

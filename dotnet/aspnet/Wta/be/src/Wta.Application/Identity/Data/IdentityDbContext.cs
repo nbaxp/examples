@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Wta.Shared.Data;
 
 namespace Wta.Application.Identity.Data;
