@@ -12,6 +12,10 @@ const properties = {
     input: 'icon',
   },
   order: {},
+  disabled: {
+    type: 'boolean',
+  },
+  parentId: {},
 };
 
 const schema = {

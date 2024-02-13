@@ -28,18 +28,6 @@ export default function () {
         },
       ],
     },
-    userName: {
-      readonly: true,
-      icon: 'user',
-      rules: [
-        {
-          required: true,
-        },
-        {
-          pattern: '[a-zA-Z0-9-_]{4,64}',
-        },
-      ],
-    },
     disabled: {
       type: 'boolean',
     },
@@ -51,6 +39,7 @@ export default function () {
       label: 'path',
       url: 'permission/search',
       label: 'name',
+      value: 'number',
       hideInList: true,
       hideInQuery: true,
     },

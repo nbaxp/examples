@@ -292,7 +292,7 @@
   const options = ref([]);
   const cascaderProps = ref({
     multiple: !!props.schema.multiple,
-    checkStrictly: !!props.schema.checkStrictly,
+    checkStrictly: props.schema.checkStrictly,
     emitPath: false,
   });
   const cascaderValues = ref([]);
@@ -454,12 +454,14 @@
                   parentId: o[props.schema.parentId ?? 'parentId'],
                   value: o[props.schema.value ?? 'id'],
                   label: t(o[props.schema.label ?? 'name']),
+                  disabled: !!o[props.schema.disabled ?? 'disabled'],
                 })),
               );
             } else if (props.schema.input === 'select') {
               list = result.data.items.map((o) => ({
                 value: o[props.schema.value ?? 'id'],
                 label: t(o[props.schema.label ?? 'name']),
+                disabled: !!o[props.schema.disabled ?? 'disabled'],
               }));
             }
             routeData.set(props.prop, list);

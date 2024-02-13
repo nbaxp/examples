@@ -13,7 +13,7 @@ import router from '@/router/index.js';
 import store from '@/store/index.js';
 import { delay } from '@/utils/index.js';
 
-await delay(3 * 1000);
+//await delay(3 * 1000);
 //useMock();
 const app = createApp(App);
 app.use(store);

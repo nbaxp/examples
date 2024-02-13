@@ -42,7 +42,7 @@
   onMounted(async () => {
     let mdText = tplRef.value.querySelector('.source pre')?.innerText;
     if (props.name) {
-      const components = import.meta.glob('../../assets/docs/**/*.md', { as: 'raw' });
+      const components = import.meta.glob('../../assets/docs/**/*.md?raw');
       mdText = await components[`../../assets/docs/${props.name}.md`]();
     }
     const _ = new Cherry({
