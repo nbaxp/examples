@@ -15,6 +15,8 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
 {
     public void Seed(DbContext context)
     {
+        //添加字典
+        InitDict(context);
         //添加部门
         InitDepartment(context);
         //添加权限
@@ -25,20 +27,44 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
         InitUser(context);
     }
 
+    private void InitDict(DbContext context)
+    {
+        context.Set<Dict>().Add(new Dict
+        {
+            Id = context.NewGuid(),
+            Name = "语言",
+            Number = "language",
+            Children = new List<Dict>
+            {
+                new Dict
+                {
+                    Id= context.NewGuid(),
+                    Name="简体中文",
+                    Number="zh-CN"
+                },
+                new Dict
+                {
+                    Id= context.NewGuid(),
+                    Name="English",
+                    Number="en-US"
+                }
+            }
+        }.UpdateNode());
+    }
+
     private void InitUser(DbContext context)
     {
         var userName = "admin";
         var password = "123456";
-        //if (tenantService.TenantId.HasValue)
-        //{
-        //    userName = tenantService.UserName!;
-        //}
         var salt = encryptionService.CreateSalt();
         var passwordHash = encryptionService.HashPassword(password, salt);
 
+        var userId = context.NewGuid();
+
         context.Set<User>().Add(new User
         {
-            Name = "管理员",
+            Id = userId,
+            Name = tenantService.TenantId.HasValue ? "租户管理员" : "管理员",
             UserName = userName,
             Avatar = "api/upload/avatar.svg",
             NormalizedUserName = userName.ToUpperInvariant(),
@@ -48,7 +74,8 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
             UserRoles = new List<UserRole> {
                 new UserRole
                 {
-                    Role = context.Set<Role>().FirstOrDefault(o=>o.Number=="admin"),
+                    UserId=userId,
+                    RoleId = context.Set<Role>().First(o=>o.Number=="admin").Id,
                     IsReadOnly = true
                 }
             }
@@ -58,15 +85,20 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
 
     private void InitRole(DbContext context)
     {
-        //var permisions = tenantService.TenantId.HasValue ? tenantService.Permissions : context.Set<Permission>().Select(o => o.Id).ToList();
-        var permisions = context.Set<Permission>().Select(o => o.Id).ToList();
+        var permisions = context.Set<Permission>().ToList();
+        if (tenantService.TenantId.HasValue)
+        {
+            permisions.Where(o => !o.Disabled && !tenantService.Permissions.Contains(o.Number)).ForEach(o => o.Disabled = true);
+            permisions = permisions.Where(o => tenantService.Permissions.Contains(o.Number)).ToList();
+        }
         context.Set<Role>().Add(new Role
         {
-            Name = "管理员",
+            Id = context.NewGuid(),
+            Name = tenantService.TenantId.HasValue ? "租户管理员" : "管理员",
             Number = "admin",
             RolePermissions = permisions!.Select(o => new RolePermission
             {
-                PermissionId = o,
+                PermissionId = o.Id,
                 IsReadOnly = true
             }).ToList()
         });
@@ -77,11 +109,13 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
     {
         context.Set<Department>().Add(new Department
         {
+            Id = context.NewGuid(),
             Name = "机构",
             Number = "Organ",
             Children = [
                     new Department
                     {
+                        Id = context.NewGuid(),
                         Name = "技术部",
                         Number = "Technology"
                     }
@@ -96,6 +130,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
         {
             new Permission
             {
+                Id = context.NewGuid(),
                 Type = MenuType.Menu,
                 Authorize = "Anonymous",
                 Number = "home",
@@ -107,6 +142,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
             },
             new Permission
             {
+                Id = context.NewGuid(),
                 Type = MenuType.Group,
                 Authorize = "Authenticated",
                 Number = "user-center",
@@ -116,6 +152,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 Children = [
                     new Permission
                     {
+                        Id = context.NewGuid(),
                         Type = MenuType.Menu,
                         Authorize = "Authenticated",
                         Number = "reset-asswrod",
@@ -141,6 +178,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                 var resourceServiceType = typeof(IResourceService<>).MakeGenericType(resourceType);
                 var resourcePermission = new Permission
                 {
+                    Id = context.NewGuid(),
                     Type = MenuType.Menu,
                     Authorize = "Authenticated",
                     Name = resourceType.Name.ToLowerCamelCase(),
@@ -158,6 +196,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                     var number = $"{descriptor.ControllerName}.{descriptor.ActionName}";
                     resourcePermission.Children.Add(new Permission
                     {
+                        Id = context.NewGuid(),
                         Type = MenuType.Button,
                         Authorize = number,
                         Name = (descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName).ToLowerCamelCase(),
@@ -179,6 +218,7 @@ public class IdentityDbSeeder(IActionDescriptorCollectionProvider actionProvider
                     {
                         groupPermission = new Permission
                         {
+                            Id = context.NewGuid(),
                             Type = MenuType.Group,
                             Authorize = "Anonymous",
                             Name = group.Name.ToLowerCamelCase(),

@@ -18,13 +18,11 @@ public class UserController(ILogger<User> logger,
     IRepository<User> repository,
     IExportImportService exportImportService,
     IHttpContextAccessor httpContextAccessor,
-    ITenantService tenantService,
     IEncryptionService encryptionService) : GenericController<User, UserModel>(logger, stringLocalizer, repository, exportImportService), IAuthService
 {
     [Authorize, Ignore]
     public bool HasPermission(string permission)
     {
-        Repository.DisableTenantFilter();
         var normalizedUserName = httpContextAccessor.HttpContext?.User.Identity?.Name?.ToUpperInvariant()!;
         return Repository.AsNoTracking()
             .Any(o => o.NormalizedUserName == normalizedUserName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Number == permission)));
@@ -33,8 +31,6 @@ public class UserController(ILogger<User> logger,
     [Authorize, Ignore]
     public CustomApiResponse<UserInfoModel> Info()
     {
-        var tenantId = tenantService.TenantId;
-        Repository.DisableTenantFilter();
         var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
         var result = Repository
            .AsNoTracking()
@@ -42,7 +38,7 @@ public class UserController(ILogger<User> logger,
            .ThenInclude(o => o.Role)
            .ThenInclude(o => o!.RolePermissions)
            .ThenInclude(o => o.Permission)
-           .FirstOrDefault(o => o.NormalizedUserName == normalizedUserName && o.TenantId == tenantId)!;
+           .FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
 
         return Json(new UserInfoModel
         {
@@ -141,7 +137,6 @@ public class UserController(ILogger<User> logger,
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> HasUser([FromForm] string userName)
     {
-        this.Repository.DisableTenantFilter();
         var normalizedUserName = userName.ToUpperInvariant();
         return Json(Repository.AsNoTracking().Any(o => o.NormalizedUserName == normalizedUserName));
     }
@@ -149,7 +144,6 @@ public class UserController(ILogger<User> logger,
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> NoUser([FromForm] string userName)
     {
-        this.Repository.DisableTenantFilter();
         var normalizedUserName = userName.ToUpperInvariant();
         return Json(!Repository.AsNoTracking().Any(o => o.NormalizedUserName == normalizedUserName));
     }
@@ -157,34 +151,29 @@ public class UserController(ILogger<User> logger,
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> HasEmailOrPhoneNumber([FromForm] string emailOrPhoneNumber)
     {
-        this.Repository.DisableTenantFilter();
         return Json(HasEmailOrPhoneNumberInternal(emailOrPhoneNumber));
     }
 
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> NoEmailOrPhoneNumber([FromForm] string emailOrPhoneNumber)
     {
-        this.Repository.DisableTenantFilter();
         return Json(!HasEmailOrPhoneNumberInternal(emailOrPhoneNumber));
     }
 
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> NoEmail([FromForm] string email)
     {
-        this.Repository.DisableTenantFilter();
         return Json(!HasEmailOrPhoneNumberInternal(email));
     }
 
     [AllowAnonymous, Ignore]
     public CustomApiResponse<bool> NoPhoneNumber([FromForm] string phoneNumber)
     {
-        this.Repository.DisableTenantFilter();
         return Json(!HasEmailOrPhoneNumberInternal(phoneNumber));
     }
 
     private bool HasEmailOrPhoneNumberInternal(string emailOrPhoneNumber)
     {
-        this.Repository.DisableTenantFilter();
         var normalizedEmailOrPhoneNumber = emailOrPhoneNumber.ToUpperInvariant();
         var isEmail = Regex.IsMatch(emailOrPhoneNumber, @"\w+@\w+\.\w+");
         var query = Repository.AsNoTracking();

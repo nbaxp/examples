@@ -1,4 +1,5 @@
 using Wta.Infrastructure.Domain;
+using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.Interfaces;
 using Wta.Shared;
 
@@ -49,6 +50,11 @@ public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEn
     public void DisableTenantFilter()
     {
         this.Context.GetType().GetProperty("DisableTenantFilter")?.SetValue(this.Context, true);
+    }
+
+    public Guid NewGuid()
+    {
+        return Context.NewGuid();
     }
 
     public IQueryable<TEntity> Query()

@@ -4,6 +4,8 @@ namespace Wta.Infrastructure.Interfaces;
 
 public interface IRepository<TEntity> where TEntity : BaseEntity
 {
+    Guid NewGuid();
+
     void Add(TEntity entity);
 
     void AddRange(IEnumerable<TEntity> entities);

@@ -150,7 +150,18 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                     item.State = EntityState.Unchanged;
                 }
             }
-            //设置审计属性和租户
+            //设置租户
+            if (item.Entity is ITenantEntity tenantEntity)
+            {
+                if (item.State == EntityState.Added)
+                {
+                    if (_tenantId.HasValue)
+                    {
+                        tenantEntity.TenantId = _tenantId;
+                    }
+                }
+            }
+            //设置审计属性户
             if (item.Entity is BaseEntity entity)
             {
                 //第一次删除为伪删除

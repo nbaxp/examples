@@ -79,6 +79,11 @@ public class Permission : BaseTreeEntity<Permission>
     public string? Schema { get; set; }
 
     /// <summary>
+    /// 禁用，不可赋予角色
+    /// </summary>
+    public bool Disabled { get; set; }
+
+    /// <summary>
     /// 角色权限
     /// </summary>
     public List<RolePermission> RolePermissions { get; set; } = [];

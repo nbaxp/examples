@@ -31,4 +31,6 @@ public class DefaultTenantService : ITenantService
             _tenantId = value;
         }
     }
+
+    public List<string> Permissions { get; set; } = new List<string>();
 }

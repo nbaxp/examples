@@ -65,12 +65,30 @@ public static class WebApplicationBuilderExtensions
         contentTypeProvider.Mappings.Add(".apk", "application/vnd.android.package-archive");
         contentTypeProvider.Mappings.Add(".ipa", "application/vnd.iphone");
         builder.Services.AddSingleton(contentTypeProvider);
+        builder.AddCache();
         builder.AddDefaultLocalization();
         builder.AddDefaultMvc();
         builder.AddDefaultSwager();
         builder.AddDefaultAuth();
         builder.AddDefaultDbContext();
         builder.AddObjectMapper();
+    }
+
+    public static void AddCache(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddMemoryCache();
+        if (builder.Configuration.GetValue("App:UseRedis", false))
+        {
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration.GetConnectionString("Redis");
+                options.InstanceName = "Default";
+            });
+        }
+        else
+        {
+            builder.Services.AddDistributedMemoryCache();
+        }
     }
 
     public static void AddObjectMapper(this WebApplicationBuilder builder)

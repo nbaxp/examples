@@ -18,6 +18,7 @@ public class TenantController(ILogger<Tenant> logger,
     IStringLocalizer stringLocalizer,
     IRepository<Tenant> repository,
     IRepository<Role> roleRepository,
+    IRepository<Permission> permissionRepository,
     IExportImportService exportImportService,
     ITenantService tenantService,
     IServiceProvider serviceProvider) : GenericController<Tenant, TenantModel>(logger, stringLocalizer, repository, exportImportService)
@@ -62,12 +63,12 @@ public class TenantController(ILogger<Tenant> logger,
         var entity = new Tenant().FromModel(model, o => o.Ignore(o => o.Id)).SetIdBy(o => o.Number);
         Repository.Add(entity);
         Repository.SaveChanges();
-        //切换为租户
-        tenantService.TenantId = entity.Id;
         //初始化租户
         using var scope = serviceProvider.CreateScope();
         //设置租户Id
-        scope.ServiceProvider.GetRequiredService<ITenantService>().TenantId = entity.Id;
+        var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
+        tenantService.TenantId = entity.Id;
+        tenantService.Permissions = model.Permissions;
         //设置租户种子数据
         WebApp.Instance.Assemblies
         .SelectMany(o => o.GetTypes())
@@ -96,10 +97,9 @@ public class TenantController(ILogger<Tenant> logger,
         roleRepository.DisableTenantFilter();
         var rolePermissions =
         model.Permissions = roleRepository.AsNoTracking()
-        .Include(o => o.RolePermissions)
         .Where(o => o.Number == "admin" && o.TenantId == id)
         .SelectMany(o => o.RolePermissions)
-        .Select(o => o.PermissionId)
+        .Select(o => o.Permission!.Number)
         .ToList();
         return Json(model);
     }
@@ -110,14 +110,25 @@ public class TenantController(ILogger<Tenant> logger,
         {
             throw new BadRequestException();
         }
+        tenantService.TenantId = model.Id;
         var entity = Repository.Query().First(o => o.Id == model.Id);
         entity.FromModel(model, o => o.Ignore(o => o.Id).IgnoreAttribute(typeof(ReadOnlyAttribute)));
+        permissionRepository.DisableTenantFilter();
+        var permissions = permissionRepository.Query().Where(o => o.TenantId == model.Id).ToList();
         roleRepository.DisableTenantFilter();
         var tenantRole = roleRepository.Query()
-            .Include(o => o.RolePermissions.Where(o => o.Role!.TenantId == entity.Id))
-            .First(o => o.Number == "admin" && o.TenantId == entity.Id);
-        tenantRole.RolePermissions.RemoveAll(o => !model.Permissions.Contains(o.PermissionId));
-        tenantRole.RolePermissions.AddRange(model.Permissions.Where(o => !tenantRole.RolePermissions.Any(p => p.PermissionId == o)).Select(o => new RolePermission { PermissionId = o }));
+            .Include(o => o.RolePermissions)
+            .First(o => o.Number == "admin" && o.TenantId == model.Id);
+        var oldPermissions = permissions.Where(o => tenantRole.RolePermissions.Any(p => p.PermissionId == o.Id));
+        var newPermissions = permissions.Where(o => model.Permissions.Any(p => o.Number == p));
+        tenantRole.RolePermissions.RemoveAll(o => !newPermissions.Any(p => p.Id == o.PermissionId));
+        var addList = newPermissions.Where(o => !tenantRole.RolePermissions.Any(p => p.PermissionId == o.Id)).Select(o => new RolePermission
+        {
+            RoleId = tenantRole.Id,
+            PermissionId = o.Id,
+            TenantId = model.Id
+        });
+        tenantRole.RolePermissions.AddRange(addList);
         Repository.SaveChanges();
         return Json(true);
     }

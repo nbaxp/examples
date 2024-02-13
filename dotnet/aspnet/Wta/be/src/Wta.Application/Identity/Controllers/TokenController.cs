@@ -48,9 +48,9 @@ public class TokenController : BaseController
     [AllowAnonymous]
     public CustomApiResponse<LoginResponseModel> Create(LoginRequestModel model)
     {
+        _userRepository.DisableTenantFilter();
         if (ModelState.IsValid)
         {
-            _userRepository.DisableTenantFilter();
             var userQuery = _userRepository.Query();
             var normalizedUserName = model.UserName?.ToUpperInvariant()!;
             var user = userQuery.FirstOrDefault(o => o.NormalizedUserName == normalizedUserName && o.TenantId == model.TenantId);

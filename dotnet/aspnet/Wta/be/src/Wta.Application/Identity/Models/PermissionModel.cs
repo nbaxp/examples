@@ -72,6 +72,7 @@ public class PermissionModel : IBaseModel<Permission>
     public string? ApiUrl { get; set; }
 
     public int? Order { get; set; }
+    public bool Disabled { get; set; }
 
     public Guid? ParentId { get; set; }
 }
