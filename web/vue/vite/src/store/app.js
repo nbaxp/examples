@@ -8,6 +8,7 @@ import { getUrl } from '@/utils/request.js';
 export default defineStore('app', {
   state: () => ({
     settings: { ...settings },
+    connection: null,
   }),
   actions: {
     async getLocale() {

@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Wta.Infrastructure.Hosting;
 using Wta.Shared;
 
 namespace Wta.Infrastructure.Extensions;
@@ -62,7 +63,7 @@ public static class TypeExtensions
     /// <returns></returns>
     public static string GetDisplayName(this Type type)
     {
-        var scope = WebApp.Instance.WebApplication.Services.CreateScope();
+        var scope = WtaApplication.Application.Services.CreateScope();
         var localizer = scope?.ServiceProvider.GetService<IStringLocalizer>();
         var key = type.GetCustomAttribute<DisplayAttribute>()?.Name ?? type.Name;
         return localizer?.GetString(key, type.FullName!) ?? key;
@@ -94,7 +95,7 @@ public static class TypeExtensions
 
     public static object GetMetadataForType(this Type modelType)
     {
-        using var scope = WebApp.Instance.WebApplication.Services.CreateScope();
+        using var scope = WtaApplication.Application.Services.CreateScope();
         var meta = scope.ServiceProvider.GetRequiredService<IModelMetadataProvider>().GetMetadataForType(modelType);
         return meta.GetSchema(scope.ServiceProvider);
     }

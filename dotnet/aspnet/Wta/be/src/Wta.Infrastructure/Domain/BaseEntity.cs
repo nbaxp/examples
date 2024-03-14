@@ -4,7 +4,7 @@ public abstract class BaseEntity : IResource, ITenantEntity
 {
     public BaseEntity()
     {
-        this.Id = Guid.NewGuid();
+        Id = Guid.NewGuid();
     }
 
     public Guid Id { get; set; }
@@ -14,5 +14,5 @@ public abstract class BaseEntity : IResource, ITenantEntity
     public string? UpdatedBy { get; set; }
 
     public bool IsDeleted { get; set; }
-    public Guid? TenantId { get; set; }
+    public string? TenantNumber { get; set; }
 }

@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Wta.Infrastructure.Extensions;
 
-public static class StringExtensions
+public static partial class StringExtensions
 {
     public static Guid ToGuid(this string input)
     {
@@ -25,7 +25,7 @@ public static class StringExtensions
 
     public static string ToMd5(this string input)
     {
-        return BitConverter.ToString(MD5.HashData(Encoding.ASCII.GetBytes(input))).Replace("-", "");
+        return Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(input)));
     }
 
     public static string? ToSlugify(this string value)
@@ -34,7 +34,7 @@ public static class StringExtensions
         {
             return null;
         }
-        return Regex.Replace(value, "([a-z])([A-Z])", "$1-$2").ToLower();
+        return SlugifyRegex().Replace(value, "$1-$2").ToLower();
     }
 
     public static string ToLowerCamelCase(this string name)
@@ -51,7 +51,7 @@ public static class StringExtensions
 
         var stringBuilder = new StringBuilder();
 
-        for (int index = 0; index < name.Length; index++)
+        for (var index = 0; index < name.Length; index++)
         {
             if (index != 0 && index + 1 < name.Length && !char.IsUpper(name[index + 1]))
             {
@@ -100,4 +100,7 @@ public static class StringExtensions
         }
         return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
     }
+
+    [GeneratedRegex("([a-z])([A-Z])")]
+    private static partial Regex SlugifyRegex();
 }

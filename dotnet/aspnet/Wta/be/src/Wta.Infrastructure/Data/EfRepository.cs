@@ -1,7 +1,7 @@
 using Wta.Infrastructure.Domain;
 using Wta.Infrastructure.Extensions;
+using Wta.Infrastructure.Hosting;
 using Wta.Infrastructure.Interfaces;
-using Wta.Shared;
 
 namespace Wta.Infrastructure.Data;
 
@@ -9,7 +9,7 @@ public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEn
 {
     public EfRepository(IServiceProvider serviceProvider)
     {
-        var dbContextType = WebApp.Instance.EntityDbContextDictionary[typeof(TEntity)];
+        var dbContextType = WtaApplication.EntityDbContextDictionary[typeof(TEntity)];
         Context = (serviceProvider.GetRequiredService(dbContextType) as DbContext)!;
         DbSet = Context.Set<TEntity>();
     }
@@ -44,12 +44,12 @@ public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEn
 
     public void DisableSoftDeleteFilter()
     {
-        this.Context.GetType().GetProperty("DisableSoftDeleteFilter")?.SetValue(this.Context, true);
+        Context.GetType().GetProperty("DisableSoftDeleteFilter")?.SetValue(Context, true);
     }
 
     public void DisableTenantFilter()
     {
-        this.Context.GetType().GetProperty("DisableTenantFilter")?.SetValue(this.Context, true);
+        Context.GetType().GetProperty("DisableTenantFilter")?.SetValue(Context, true);
     }
 
     public Guid NewGuid()

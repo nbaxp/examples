@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Reflection;
 using ClosedXML.Excel;
 using ClosedXML.Graphics;
 using Wta.Infrastructure.Attributes;
@@ -13,10 +12,8 @@ public class DefaultExportImportService() : IExportImportService
 {
     static DefaultExportImportService()
     {
-        using (var fallbackFontStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Wta.Infrastructure.Resources.carlito.ttf"))
-        {
-            LoadOptions.DefaultGraphicEngine = DefaultGraphicEngine.CreateOnlyWithFonts(fallbackFontStream);
-        }
+        using var fallbackFontStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Wta.Infrastructure.Resources.carlito.ttf");
+        LoadOptions.DefaultGraphicEngine = DefaultGraphicEngine.CreateOnlyWithFonts(fallbackFontStream);
     }
 
     public byte[] Export<TModel>(List<TModel> list)

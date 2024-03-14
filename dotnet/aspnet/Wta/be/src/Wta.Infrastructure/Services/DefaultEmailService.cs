@@ -2,7 +2,7 @@ using MailKit.Net.Smtp;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using Wta.Application.Identity.Options;
+using Wta.Application.Default.Options;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Interfaces;
 

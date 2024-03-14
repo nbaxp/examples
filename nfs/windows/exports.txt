@@ -1,0 +1,2 @@
+D:\github\examples\nfs\windows\temp\folder1 > /folder1
+D:\github\examples\nfs\windows\temp\folder2 > /folder2

@@ -1,0 +1,112 @@
+version: "3.8"
+
+services:
+  openssh-server: # 模拟服务器，用于提供 drone 使用 scp 插件进行文件部署
+    image: linuxserver/openssh-server:version-9.6_p1-r0
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - USER_NAME=usr
+      - USER_PASSWORD=pwd
+      - PASSWORD_ACCESS=true
+    ports:
+      - 2222:2222
+    volumes:
+      - ./apps/nginx/html:/config/html
+  docker-dind: # 模拟服务器上的 docker
+    image: docker:25.0.4-dind
+    privileged: true
+    ports:
+      - 8080:80
+    volumes:
+      - ./demo/docker-compose.yml:/app/docker-compose.yml
+    command: ["--insecure-registry=host.docker.internal:8082"]
+  nginx: # 模拟服务器上的 nginx
+    image: nginx:1.24.0
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./apps/nginx/conf.d:/etc/nginx/conf.d
+      - ./apps/nginx/cert:/etc/nginx/cert
+      - ./apps/nginx/html:/usr/share/nginx/html
+  portainer:
+    image: portainer/portainer-ce:2.19.4
+    restart: always
+    ports:
+      - 19000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - /data/portainer:/data
+  minio:
+    image: minio/minio:RELEASE.2024-03-10T02-53-48Z
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=aA123456!
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/minio:/data
+    command: server --console-address ":9001" /data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  gitea:
+    image: gitea/gitea:1.21.7
+    restart: always
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/gitea:/data
+    ports:
+      - 3000:3000
+      - 2200:22
+  drone:
+    image: drone/drone:2.22.0
+    restart: always
+    privileged: true
+    environment:
+      - DRONE_GITEA_SERVER=${DRONE_GITEA_SERVER}
+      - DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}
+      - DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
+      - DRONE_SERVER_PROTO=${DRONE_SERVER_PROTO}
+      - DRONE_GIT_ALWAYS_AUTH=true
+      - DRONE_USER_CREATE=username:wanggang,admin:true
+    ports:
+      - 3800:80
+    volumes:
+      - ./data/drone:/data
+  drone-runner-docker:
+    image: drone/drone-runner-docker:1.8.3
+    restart: always
+    environment:
+      - DRONE_RPC_PROTO=${DRONE_SERVER_PROTO}
+      - DRONE_RPC_HOST=${DRONE_SERVER_HOST}
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_NAME=drone-runner-docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - drone
+  nexus3:
+    image: sonatype/nexus3:3.66.0
+    restart: always
+    container_name: nexus3
+    privileged: true
+    ports:
+      - 8081:8081
+      - 8082:8082
+    volumes:
+      - ./data/nexus3:/nexus-data

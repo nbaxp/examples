@@ -24,7 +24,6 @@ export default {
       meta: {
         title: '目录结构',
         icon: 'files',
-        permission: '*',
       },
     },
     {

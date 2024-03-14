@@ -12,7 +12,7 @@ const properties = {
     type: 'array',
     input: 'cascader',
     multiple: true,
-    checkStrictly: true,
+    //checkStrictly: true,
     label: 'path',
     url: 'permission/search',
     label: 'name',

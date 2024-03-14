@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Cache" content="no-cache" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <base href="/" />
+    <style>
+        @keyframes loading-rotate {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        #loading {
+            display: none;
+            animation: loading-rotate 2s linear infinite;
+        }
+
+            #loading.loading {
+                display: block;
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                margin: auto;
+                width: 50px;
+                height: 50px;
+                color: #409eff;
+            }
+    </style>
+    <link rel="stylesheet" href="./main.css" />
+    <title></title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <i id="loading" class="loading">
+        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+            <path fill="currentColor"
+                  d="M512 64a32 32 0 0 1 32 32v192a32 32 0 0 1-64 0V96a32 32 0 0 1 32-32zm0 640a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V736a32 32 0 0 1 32-32zm448-192a32 32 0 0 1-32 32H736a32 32 0 1 1 0-64h192a32 32 0 0 1 32 32zm-640 0a32 32 0 0 1-32 32H96a32 32 0 0 1 0-64h192a32 32 0 0 1 32 32zM195.2 195.2a32 32 0 0 1 45.248 0L376.32 331.008a32 32 0 0 1-45.248 45.248L195.2 240.448a32 32 0 0 1 0-45.248zm452.544 452.544a32 32 0 0 1 45.248 0L828.8 783.552a32 32 0 0 1-45.248 45.248L647.744 692.992a32 32 0 0 1 0-45.248zM828.8 195.264a32 32 0 0 1 0 45.184L692.992 376.32a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0zm-452.544 452.48a32 32 0 0 1 0 45.248L240.448 828.8a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0z">
+            </path>
+        </svg>
+    </i>
+    <script type="importmap">
+        {
+          "imports": {
+            "html":"./utils/index.js",
+            "detect-it":"./lib/detect-it/detect-it.esm.js",
+            "lodash":"./lib/lodash/lodash.esm.js",
+            "vue": "./lib/vue/vue.esm-browser.js",
+            "vue-router": "./lib/vue-router/vue-router.esm-browser.js",
+            "vue-i18n":"./lib/vue-i18n/vue-i18n.esm-browser.prod.js",
+            "pinia": "./lib/pinia/pinia.esm-browser.js",
+            "pubsub-js": "./lib/pubsub-js/pubsub.esm.js",
+            "linq": "./lib/linq/linq.min.js",
+            "@microsoft/signalr": "./lib/@microsoft/signalr/signalr.esm.js",
+            "@vueuse/shared": "./lib/@vueuse/shared/index.mjs",
+            "@vueuse/core": "./lib/@vueuse/core/index.mjs",
+            "async-validator": "./lib/async-validator/index.min.js",
+            "element-plus": "./lib/element-plus/index.full.min.mjs",
+            "@element-plus/icons-vue":"./lib/@element-plus/icons-vue/index.js",
+            "nprogress": "./lib/nprogress/nprogress.vite-esm.js",
+            "echarts/core": "./lib/echarts/echarts.esm.min.js",
+            "vue-echarts": "./lib/vue-echarts/index.esm.min.js",
+            "xe-echarts": "./lib/vue-echarts/index.esm.min.js",
+            "resize-detector": "./lib/resize-detector/index.js",
+            "@vue/devtools-api": "./lib/@vue/devtools-api/shim.js",
+            "vue-demi": "./lib/vue-demi/shim.js"
+          }
+        }
+    </script>
+    <script>
+    window.process = { env: { NODE_ENV: 'production' } };
+    </script>
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>

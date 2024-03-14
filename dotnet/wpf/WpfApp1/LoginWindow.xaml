@@ -1,0 +1,60 @@
+﻿<Window x:Class="WpfApp1.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="登录" Height="200" Width="300" ResizeMode="NoResize" WindowStyle="ToolWindow" WindowStartupLocation="CenterScreen" Topmost="True">
+    <Window.Resources>
+        <local:LoginModel x:Key="model" />
+        <ControlTemplate x:Key="ValidationTemplate">
+            <DockPanel>
+                <StackPanel Orientation="Vertical">
+                    <AdornedElementPlaceholder>
+                        <Border BorderBrush="Red" BorderThickness="1" />
+                    </AdornedElementPlaceholder>
+                    <Label Content="{Binding [0].ErrorContent}" Foreground="Red" />
+                </StackPanel>
+            </DockPanel>
+        </ControlTemplate>
+    </Window.Resources>
+    <Grid Validation.Error="Grid_Error">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Content="用户名" HorizontalAlignment="Right"  VerticalAlignment="Center" />
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="UserName" Validation.ErrorTemplate="{StaticResource ValidationTemplate}"
+             HorizontalAlignment="Left"  TextWrapping="Wrap"  VerticalAlignment="Center" Width="120">
+            <TextBox.Text>
+                <Binding Source="{StaticResource model}" Path="UserName" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True" >
+                    <Binding.ValidationRules>
+                        <local:RequiredRule ValidatesOnTargetUpdated="True" />
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
+        <Label Grid.Row="1" Grid.Column="0" Content="密码" HorizontalAlignment="Right"  VerticalAlignment="Center" />
+        <PasswordBox Grid.Row="1" Grid.Column="1" x:Name="Password" Validation.ErrorTemplate="{StaticResource ValidationTemplate}" HorizontalAlignment="Left"  VerticalAlignment="Center" Width="120" >
+            <local:Secure.Password>
+                <Binding Source="{StaticResource model}" Path="Password" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True"  >
+                    <Binding.ValidationRules>
+                        <local:RequiredRule ValidatesOnTargetUpdated="True" />
+                    </Binding.ValidationRules>
+                </Binding>
+            </local:Secure.Password>
+        </PasswordBox>
+        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+            <CheckBox x:Name="RememberMe" IsChecked="{Binding Source={StaticResource model}, Path=RememberMe}" VerticalAlignment="Center" />
+            <Label Content="记住我" HorizontalAlignment="Left"  VerticalAlignment="Center" />
+        </StackPanel>
+        <Button Grid.Row="3" Grid.Column="1" Content="登录" Width="50" Height="25" HorizontalAlignment="Left" Click="Button_Click" />
+    </Grid>
+</Window>

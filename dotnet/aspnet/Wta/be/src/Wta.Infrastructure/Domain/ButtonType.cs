@@ -1,4 +1,4 @@
-namespace Wta.Application.Identity.Domain;
+namespace Wta.Application.Default.Domain;
 
 public enum ButtonType
 {

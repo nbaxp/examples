@@ -9,14 +9,14 @@ public class CustomJwtBearerPostConfigureOptions : JwtBearerPostConfigureOptions
 
     public CustomJwtBearerPostConfigureOptions(CustomJwtSecurityTokenHandler customJwtSecurityTokenHandler)
     {
-        this._customJwtSecurityTokenHandler = customJwtSecurityTokenHandler;
+        _customJwtSecurityTokenHandler = customJwtSecurityTokenHandler;
     }
 
     [Obsolete]
     public new void PostConfigure(string? name, JwtBearerOptions options)
     {
         options.SecurityTokenValidators.Clear();
-        options.SecurityTokenValidators.Add(this._customJwtSecurityTokenHandler);
+        options.SecurityTokenValidators.Add(_customJwtSecurityTokenHandler);
         base.PostConfigure(name, options);
     }
 }

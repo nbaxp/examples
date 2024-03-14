@@ -6,19 +6,16 @@
 
   <ItemGroup>
     <None Remove="Resources\carlito.ttf" />
-    <None Remove="Resources\en-US.po" />
-    <None Remove="Resources\zh-CN.po" />
+    <None Remove="wwwroot\favicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\carlito.ttf" />
-    <EmbeddedResource Include="Resources\en-US.po" />
-    <EmbeddedResource Include="Resources\zh-CN.po" />
+    <EmbeddedResource Include="wwwroot\**"></EmbeddedResource>
   </ItemGroup>
  
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <EmbeddedResource Include="wwwroot\**"></EmbeddedResource>
   </ItemGroup>
   
   <ItemGroup>
@@ -32,22 +29,29 @@
     <PackageReference Include="Mapster" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.ResourceMonitoring" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
+    <PackageReference Include="Minio" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     <PackageReference Include="Oracle.EntityFrameworkCore" />
     <PackageReference Include="OrchardCore.Localization.Core" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Extensions.Hosting" />
     <PackageReference Include="Serilog.Sinks.Async" />
+    <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Serilog.Sinks.File" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
   </ItemGroup>
 

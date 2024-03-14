@@ -1,6 +1,3 @@
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-
 namespace Wta.Infrastructure.Domain;
 
 public abstract class BaseTreeEntity<T> : BaseEntity, IOrderedEntity where T : BaseEntity

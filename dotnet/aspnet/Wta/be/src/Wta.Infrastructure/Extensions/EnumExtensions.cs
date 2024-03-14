@@ -1,8 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Localization;
-using Wta.Shared;
+using Wta.Infrastructure.Hosting;
 
 namespace Wta.Infrastructure.Extensions;
 
@@ -19,7 +15,7 @@ public static class EnumExtensions
     {
         var type = enumValue.GetType();
         var field = type.GetField(enumValue.ToString())!;
-        var scope = WebApp.Instance.WebApplication.Services.CreateScope();
+        var scope = WtaApplication.Application.Services.CreateScope();
         var localizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer>();
         var key = field.GetCustomAttribute<DisplayAttribute>()?.Name ?? field.Name;
         return localizer.GetString(key);

@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 
 namespace Wta.Infrastructure.Web;
@@ -6,8 +5,12 @@ namespace Wta.Infrastructure.Web;
 /// <summary>
 /// 修复.net嵌入式资源路径问题
 /// </summary>
-public class CustomFileProvider : EmbeddedFileProvider, IFileProvider
+public class CustomFileProvider : EmbeddedFileProvider
 {
+    public CustomFileProvider(Assembly assembly) : base(assembly)
+    {
+    }
+
     public CustomFileProvider(Assembly assembly, string? baseNamespace) : base(assembly, baseNamespace)
     {
     }

@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Wta.Infrastructure.Configuration;
 using Wta.Infrastructure.Exceptions;
@@ -18,7 +17,6 @@ public class CustomClaimsPrincipal(IServiceProvider serviceProvider, ClaimsPrinc
         var authService = scope.ServiceProvider.GetService<IAuthService>();
         var config = scope.ServiceProvider.GetRequiredService<IOptions<AuthServerOptions>>().Value;
         var url = config.Url;
-        var userName = this.Identity?.Name;
         if (authService != null)
         {
             return authService.HasPermission(role);

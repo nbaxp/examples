@@ -5,9 +5,9 @@ public class GroupAttribute : Attribute
 {
     public GroupAttribute(string name, int order = 0, string? icon = null)
     {
-        this.Name = name;
-        this.Order = order;
-        this.Icon = icon ?? "folder";
+        Name = name;
+        Order = order;
+        Icon = icon ?? "folder";
     }
 
     public string Name { get; set; }

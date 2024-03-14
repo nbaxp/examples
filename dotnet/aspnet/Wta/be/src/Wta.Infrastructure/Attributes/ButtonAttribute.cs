@@ -1,4 +1,4 @@
-using Wta.Application.Identity.Domain;
+using Wta.Application.Default.Domain;
 
 namespace Wta.Application;
 

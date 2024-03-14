@@ -10,7 +10,7 @@ public class CustomModelMetadata : DefaultModelMetadata
 
     public CustomModelMetadata(IStringLocalizer stringLocalizer, IModelMetadataProvider provider, ICompositeMetadataDetailsProvider detailsProvider, DefaultMetadataDetails details, DefaultModelBindingMessageProvider modelBindingMessageProvider) : base(provider, detailsProvider, details, modelBindingMessageProvider)
     {
-        this._stringLocalizer = stringLocalizer;
+        _stringLocalizer = stringLocalizer;
     }
 
     public override string? DisplayName
@@ -20,7 +20,7 @@ public class CustomModelMetadata : DefaultModelMetadata
             var name = base.DisplayName;
             if (string.IsNullOrEmpty(name))
             {
-                name = this.ContainerType == null ? this.ModelType?.Name : this.PropertyName;
+                name = ContainerType == null ? ModelType?.Name : PropertyName;
             }
             return _stringLocalizer.GetString(name!);
         }

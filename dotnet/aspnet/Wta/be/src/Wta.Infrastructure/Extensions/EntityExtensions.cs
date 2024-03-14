@@ -7,7 +7,7 @@ public static class EntityExtensions
     public static TEntity SetIdBy<TEntity>(this TEntity entity, Func<TEntity, object> expression)
        where TEntity : BaseEntity
     {
-        entity.Id = $"{entity.TenantId},{expression.Invoke(entity)}".ToGuid();
+        entity.Id = $"{entity.TenantNumber},{expression.Invoke(entity)}".ToGuid();
         return entity;
     }
 

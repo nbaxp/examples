@@ -6,6 +6,6 @@ public class ProblemException : Exception
 
     public ProblemException(string message, Exception? innerException = null, int code = 500) : base(message)
     {
-        this.Code = code;
+        Code = code;
     }
 }

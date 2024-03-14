@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2151.40" />
+    <PackageReference Include="WebView2.Runtime.X64" Version="119.0.2151.44" />
+  </ItemGroup>
+  
+  <ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <EmbeddedResource Include="wwwroot\**"></EmbeddedResource>
+	</ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="wwwroot\locale\index.js" />
+    <None Remove="wwwroot\models\login.js" />
+    <None Remove="wwwroot\store\app.js" />
+    <None Remove="wwwroot\store\index.js" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="wwwroot\views\" />
+  </ItemGroup>
+
+</Project>

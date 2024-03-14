@@ -1,0 +1,9 @@
+{
+  "editor.formatOnSave": true,
+  "liveServer.settings.port": 9527,
+  "explorer.excludeGitIgnore": true,
+  "search.followSymlinks": false,
+  "search.exclude": {
+    "lib/**": true
+  }
+}

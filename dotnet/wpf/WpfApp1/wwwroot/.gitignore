@@ -1,0 +1,4 @@
+files/
+btsecsummary/
+secsummary/
+influxdb/data/**

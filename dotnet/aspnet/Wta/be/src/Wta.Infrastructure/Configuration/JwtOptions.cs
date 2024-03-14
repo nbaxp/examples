@@ -9,5 +9,5 @@ public class JwtOptions
     public int MaxFailedAccessAttempts { get; set; } = 5;
     public TimeSpan AccessTokenExpires { get; set; } = TimeSpan.FromMinutes(10);
     public TimeSpan RefreshTokenExpires { get; set; } = TimeSpan.FromHours(24);
-    public TimeSpan DefaultLockout { get; set; } = TimeSpan.FromHours(5);
+    public TimeSpan DefaultLockout { get; set; } = TimeSpan.FromMinutes(10);
 }

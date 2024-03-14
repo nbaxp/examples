@@ -1,8 +1,7 @@
-using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Wta.Infrastructure.Domain;
-using Wta.Shared;
+using Wta.Infrastructure.Hosting;
 
 namespace Wta.Infrastructure.Controllers;
 
@@ -10,7 +9,7 @@ public class GenericControllerFeatureProvider : IApplicationFeatureProvider<Cont
 {
     public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature)
     {
-        var typeInfos = WebApp.Instance.Assemblies!
+        var typeInfos = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(BaseEntity)))
             .Select(o => o.GetTypeInfo())
@@ -20,7 +19,7 @@ public class GenericControllerFeatureProvider : IApplicationFeatureProvider<Cont
             var entityType = entityTypeInfo.AsType();
             if (!feature.Controllers.Any(o => o.Name == $"{entityType.Name}Controller"))
             {
-                var modelType = WebApp.Instance.EntityModelDictionary.GetValueOrDefault(entityType) ?? entityType;
+                var modelType = WtaApplication.EntityModels.GetValueOrDefault(entityType) ?? entityType;
                 var controllerType = typeof(GenericController<,>).MakeGenericType(entityType, modelType);
                 feature.Controllers.Add(controllerType.GetTypeInfo());
             }

@@ -1,3 +1,5 @@
 appsettings.Development.json
-wwwroot/api/upload
-!wwwwroot/api/upload/avatar.svg
+appsettings.Production.json
+logs/
+upload/
+!upload/avatar.svg

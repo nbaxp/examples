@@ -17,7 +17,7 @@ public class CustomSwaggerGenOptions : IConfigureOptions<SwaggerGenOptions>
 
     public void Configure(SwaggerGenOptions options)
     {
-        foreach (var description in this.provider.ApiDescriptionGroups.Items)
+        foreach (var description in provider.ApiDescriptionGroups.Items)
         {
             options.SwaggerDoc(description.GroupName, new OpenApiInfo { Title = description.GroupName });
         }

@@ -168,6 +168,10 @@ a.logo {
 
 .el-dialog {
   max-height: 100%;
+  padding: 0!important;
+  .el-dialog__body{
+    padding: 20px;
+  }
 }
 
 .el-dialog__header,
@@ -264,10 +268,10 @@ a.logo {
     display: none;
   }
 
-  .el-icon {
+  /* .el-icon {
     margin-right: 15px;
     margin-left: -25px;
-  }
+  } */
 }
 
 /*站内导航*/

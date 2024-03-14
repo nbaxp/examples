@@ -1,0 +1,17 @@
+# 过滤目录
+bin/
+obj/
+.vs/
+node_modules/
+dist/
+
+# 过滤扩展名
+*.bak
+*.db
+*.db-shm
+*.db-wal
+*.suo
+*.user
+
+# 过滤特定文件
+appsettings.Development.json

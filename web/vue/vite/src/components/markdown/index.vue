@@ -39,11 +39,13 @@
     }
   };
 
+  const components = import.meta.glob('../../assets/docs/**/*.md', { query: '?raw' });
+
   onMounted(async () => {
     let mdText = tplRef.value.querySelector('.source pre')?.innerText;
     if (props.name) {
-      const components = import.meta.glob('../../assets/docs/**/*.md?raw');
-      mdText = await components[`../../assets/docs/${props.name}.md`]();
+      console.log(components);
+      mdText = (await (await components[`../../assets/docs/${props.name}.md`])()).default;
     }
     const _ = new Cherry({
       el: tplRef.value.querySelector('.markdown-body'),

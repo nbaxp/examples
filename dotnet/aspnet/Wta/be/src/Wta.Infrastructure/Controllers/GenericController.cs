@@ -1,12 +1,12 @@
-using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Wta.Application;
-using Wta.Application.Identity.Domain;
+using Wta.Application.Default.Domain;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Domain;
 using Wta.Infrastructure.Exceptions;
 using Wta.Infrastructure.Extensions;
+using Wta.Infrastructure.Hosting;
 using Wta.Infrastructure.Interfaces;
 using Wta.Infrastructure.Models;
 using Wta.Infrastructure.Web;
@@ -18,6 +18,7 @@ namespace Wta.Infrastructure.Controllers;
 public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     IStringLocalizer stringLocalizer,
     IRepository<TEntity> repository,
+    IEventPublisher eventPublisher,
     IExportImportService exportImportService) : BaseController, IResourceService<TEntity>
     where TEntity : BaseEntity
     where TModel : class
@@ -25,6 +26,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     public ILogger<TEntity> Logger { get; } = logger;
     public IStringLocalizer StringLocalizer = stringLocalizer;
     public IRepository<TEntity> Repository { get; } = repository;
+    public IEventPublisher EventPublisher = eventPublisher;
 
     [Display(Order = 1)]
     public virtual CustomApiResponse<QueryModel<TModel>> Search(QueryModel<TModel> model)
@@ -40,8 +42,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             model.PageSize = model.TotalCount;
         }
-        model.Items = query.ToModelList<TEntity, TModel>();
-        model.Items.ForEach(this.ToModel);
+        model.Items = query.ToList().Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
         return Json(model);
     }
 
@@ -49,22 +50,19 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     [Button(Type = ButtonType.Row)]
     public virtual CustomApiResponse<TModel> Details([FromBody] Guid id)
     {
-        var query = Repository.AsNoTracking().Where(o => o.Id == id);
-        var model = query.ToModel<TEntity, TModel>();
-        if (model == null)
-        {
-            throw new ProblemException("NotFound");
-        }
-        this.ToModel(model);
+        var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id) ?? throw new ProblemException("NotFound");
+        var model = entity.ToModel<TEntity, TModel>(ToModel);
         return Json(model);
     }
 
     [Display(Order = 3), Hidden]
     public virtual FileContentResult ImportTemplate()
     {
-        var contentType = WebApp.Instance.WebApplication.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
-        var result = new FileContentResult(exportImportService.GetImportTemplate<TModel>(), contentType);
-        result.FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx";
+        var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
+        var result = new FileContentResult(exportImportService.GetImportTemplate<TModel>(), contentType)
+        {
+            FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx"
+        };
         return result;
     }
 
@@ -93,11 +91,12 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             query = SkipTake(query, model.PageIndex, model.PageSize);
         }
-        var items = query.ToModelList<TEntity, TModel>();
-        items.ForEach(this.ToModel);
-        var contentType = WebApp.Instance.WebApplication.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
-        var result = new FileContentResult(exportImportService.Export(items), contentType);
-        result.FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx";
+        var items = query.ToList().Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
+        var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
+        var result = new FileContentResult(exportImportService.Export(items), contentType)
+        {
+            FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx"
+        };
         return result;
     }
 
@@ -109,14 +108,14 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             throw new BadRequestException();
         }
         var entity = Activator.CreateInstance<TEntity>();
-        entity.FromModel(model, o => o.Ignore(o => o.Id));
+        entity.FromModel(model, ToEntity, true);
         if (entity is BaseTreeEntity<TEntity> node)
         {
             node.Parent = node.ParentId.HasValue ? Repository.Query().FirstOrDefault(o => o.Id == node.ParentId.Value) : null;
             node.UpdateNode();
         }
-        ToEntity(entity, model, true);
         Repository.Add(entity);
+        EventPublisher.Publish(new EntityCreatedEvent<TEntity>(entity));
         Repository.SaveChanges();
         return Json(true);
     }
@@ -131,9 +130,9 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         }
         var id = (Guid)typeof(TModel).GetProperty("Id")!.GetValue(model)!;
         var entity = Repository.Query().First(o => o.Id == id);
+        entity.FromModel(model, ToEntity);
         if (entity is BaseTreeEntity<TEntity> node)
         {
-            node.FromModel(model, o => o.Ignore(o => o.Id).IgnoreAttribute(typeof(ReadOnlyAttribute)));
             var parentId = typeof(TModel).GetProperty(nameof(node.ParentId))?.GetValue(model) as Guid?;
             if (node.ParentId != null)
             {
@@ -164,11 +163,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             children.ToTree();
             children.Where(o => o.ParentId == node.Id).ForEach(o => o.UpdateNode());
         }
-        else
-        {
-            entity.FromModel(model, o => o.IgnoreAttribute(typeof(ReadOnlyAttribute)));
-        }
-        ToEntity(entity, model);
+        //EventPublisher.Publish(new EntityUpdatedEvent<TEntity>(entity));
         Repository.SaveChanges();
         return Json(true);
     }
@@ -194,6 +189,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
                         o.UpdateNode();
                     });
                 }
+                EventPublisher.Publish(new EntityDeletedEvent<TEntity>(entity));
                 Repository.SaveChanges();
             }
         }
@@ -208,8 +204,9 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             var result = Repository.AsNoTracking().Cast<BaseTreeEntity<TEntity>>()
                 .Where(o => suffix.StartsWith(o.Path))
-                .ToModelList<BaseTreeEntity<TEntity>, TModel>();
-            //result.ForEach(this.ToModel);
+                .ToList()
+                .Cast<TEntity>()
+                .Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
             return result;
         }
         throw new ProblemException("NotFound");
@@ -223,8 +220,9 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             var result = Repository.AsNoTracking().Cast<BaseTreeEntity<TEntity>>()
                 .Where(o => o.Path.StartsWith(prefix))
-                .ToModelList<BaseTreeEntity<TEntity>, TModel>();
-            //result.ForEach(this.ToModel);
+                .ToList()
+                .Cast<TEntity>()
+                .Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
             return result;
         }
         throw new ProblemException("NotFound");
@@ -273,11 +271,11 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return query.Skip((pageIndex - 1) * pageSize).Take(pageSize);
     }
 
-    protected virtual void ToModel(TModel model)
+    protected virtual void ToModel(TEntity entity, TModel model)
     {
     }
 
-    protected virtual void ToEntity(TEntity entity, TModel model, bool isCreate = false)
+    protected virtual void ToEntity(TEntity entity, TModel model, bool isCreate)
     {
     }
 }

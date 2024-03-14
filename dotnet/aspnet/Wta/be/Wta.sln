@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决�
 		Directory.Packages.props = Directory.Packages.props
 		docker-compose.override.yml = docker-compose.override.yml
 		docker-compose.yml = docker-compose.yml
+		Nuget.config = Nuget.config
 		..\docs\README.md = ..\docs\README.md
 	EndProjectSection
 EndProject

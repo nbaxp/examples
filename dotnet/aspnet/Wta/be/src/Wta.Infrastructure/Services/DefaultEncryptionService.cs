@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Interfaces;
 
@@ -52,7 +51,7 @@ public class DefaultEncryptionService(IConfiguration configuration) : IEncryptio
 
     private SymmetricAlgorithm GetEncryptionAlgorithm()
     {
-        var encryptionKey = configuration.GetValue<string>("EncryptionKey");
+        var encryptionKey = configuration.GetValue<string>("EncryptionKey", "0123456789abcdef0123456789abcdef");
 
         if (string.IsNullOrEmpty(encryptionKey))
         {

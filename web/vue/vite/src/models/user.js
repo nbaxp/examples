@@ -38,6 +38,7 @@ const properties = {
   departmentId: {
     input: 'cascader',
     url: 'department/search',
+    checkStrictly: true,
   },
   roles: {
     type: 'array',

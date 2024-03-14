@@ -7,10 +7,11 @@ export default function () {
         labelWidth: 0,
         submitStyle: 'width:100%',
         properties: {
-          tenantId: {
+          tenantNumber: {
             //hidden: true,
             input: 'select',
             url: 'tenant/search',
+            value: 'number',
           },
           userName: {
             icon: 'user',

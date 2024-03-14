@@ -1,34 +1,27 @@
 using Microsoft.AspNetCore.Http;
+using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Interfaces;
 
 namespace Wta.Infrastructure.Services;
 
-//[Service<ITenantService>(ServiceLifetime.Scoped)]
-public class DefaultTenantService : ITenantService
+[Service<ITenantService>(ServiceLifetime.Scoped)]
+public class DefaultTenantService(IHttpContextAccessor httpContextAccessor) : ITenantService
 {
-    private readonly IHttpContextAccessor? _httpContextAccessor;
-    private Guid? _tenantId;
+    private string? _tenantNumber;
 
-    public DefaultTenantService(IHttpContextAccessor httpContextAccessor)
-    {
-        this._httpContextAccessor = httpContextAccessor;
-    }
-
-    public Guid? TenantId
+    public string? TenantNumber
     {
         get
         {
-            if (_tenantId.HasValue)
+            if (_tenantNumber != null)
             {
-                return _tenantId;
+                return _tenantNumber;
             }
-            var tenantIdValue = _httpContextAccessor!.HttpContext?.User.Claims.FirstOrDefault(o => o.Type == "TenantId")?.Value;
-            Guid? tenantId = string.IsNullOrEmpty(tenantIdValue) ? null : Guid.Parse(tenantIdValue);
-            return tenantId;
+            return httpContextAccessor!.HttpContext?.User.Claims.FirstOrDefault(o => o.Type == "TenantNumber")?.Value;
         }
         set
         {
-            _tenantId = value;
+            _tenantNumber = value;
         }
     }
 

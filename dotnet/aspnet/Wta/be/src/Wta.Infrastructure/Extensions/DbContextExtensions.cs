@@ -1,3 +1,4 @@
+using Wta.Infrastructure.Hosting;
 using Wta.Infrastructure.Interfaces;
 using Wta.Shared;
 
@@ -17,7 +18,7 @@ public static class DbContextExtensions
         {
             type = "SequentialAsBinary ";
         }
-        var sequentialGuid = WebApp.Instance.WebApplication.Services.GetRequiredService<ISequentialGuid>();
+        var sequentialGuid = WtaApplication.Application.Services.GetRequiredService<ISequentialGuid>();
         return sequentialGuid.Create(type);
     }
 }

@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.3.0
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment: 
+      - MYSQL_ROOT_PASSWORD=aA123456!
+    ports:
+      - 3306:3306
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/mysql:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+  postgres:
+    image: postgres:16.2
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=aA123456!
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./logs/postgres:/var/log/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-CU11-ubuntu-22.04
+    restart: always
+    user: root
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=aA123456!
+      - MSSQL_PID=Developer
+    ports:
+      - 1433:1433
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/sqlserver:/var/opt/mssql/data
+      - ./logs/sqlserver:/var/opt/mssql/log
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P aA123456! -Q 'select 0'||exit 1",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+  oracle:
+    image: container-registry.oracle.com/database/free:23.3.0.0
+    # restart: always
+    shm_size: 2g
+    environment:
+      - ORACLE_CHARACTERSET=AL32UTF8
+      - ORACLE_PWD=aA123456
+    ports:
+      - 1521:1521
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/oracle:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD-SHELL", "sqlplus -s /nolog"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s

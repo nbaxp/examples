@@ -70,7 +70,7 @@
   import LayoutLocale from '@/layout/locale.vue';
   import LayoutLogo from '@/layout/logo.vue';
   import useModel from '@/models/login.js';
-  import { useTokenStore } from '@/store/index.js';
+  import { useAppStore, useTokenStore } from '@/store/index.js';
   import { schemaToModel } from '@/utils/index.js';
 
   const config = ref(useModel());
@@ -79,10 +79,12 @@
   const passwordModel = ref(schemaToModel(config.value.properties.passwordLogin));
   const smsModel = ref(schemaToModel(config.value.properties.smsLogin));
   const router = useRouter();
+  const appStore = useAppStore();
   const tokenStore = useTokenStore();
-  const success = (result) => {
+  const success = async (result) => {
     tokenStore.setToken(result.data.access_token, result.data.refresh_token);
     // await useUserStore().getUserInfo();
+    await appStore.connection?.invoke('Login');
     const redirect = router.currentRoute.value.query?.redirect ?? '/';
     router.push(redirect);
   };

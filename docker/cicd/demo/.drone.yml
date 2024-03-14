@@ -1,0 +1,64 @@
+---
+kind: pipeline
+type: docker
+name: demo
+
+platform:
+  arch: amd64
+  os: linux
+
+steps:
+  - name: build
+    image: node:20.11.1
+    privileged: true
+    commands:
+      - npm i
+      - npm run build
+      - 'git --no-pager log --date=format:"%Y-%m-%d %H:%M:%S" --pretty=format:"%h - %ad %cn: %s %b" --invert-grep --grep="CI SKIP" --grep="drone" >./dist/log.txt'
+      - echo "${DRONE_BUILD_NUMBER}-${DRONE_COMMIT_AUTHOR}-${DRONE_REPO_BRANCH}-${DRONE_COMMIT_SHA:0:8}\n">./dist/version.txt
+      - echo ${DRONE_COMMIT_MESSAGE}>>./dist/version.txt
+
+  - name: publish-s3
+    image: plugins/s3
+    settings:
+      endpoint: http://host.docker.internal:9000
+      path_style: true
+      bucket: default
+      access_key: admin
+      secret_key: aA123456!
+      source: dist/**/*
+      strip_prefix: dist/
+      target: /demo/${DRONE_BUILD_NUMBER}-${DRONE_COMMIT_AUTHOR}-${DRONE_REPO_BRANCH}-${DRONE_COMMIT_SHA:0:8}
+
+  - name: publish-scp
+    image: appleboy/drone-scp
+    privileged: true
+    settings:
+      host: host.docker.internal
+      username: usr
+      password: pwd
+      port: 2222
+      overwrite: true
+      target: /config/html
+      source: dist
+      strip_components: 1
+
+  - name: publish-docker
+    image: plugins/docker
+    settings:
+      registry: host.docker.internal:8082
+      repo: host.docker.internal:8082/demo
+      insecure: true
+      username: admin
+      password: aA123456!
+      tags:
+        - latest
+        - ${DRONE_BUILD_NUMBER}-${DRONE_COMMIT_AUTHOR}-${DRONE_REPO_BRANCH}-${DRONE_COMMIT_SHA:0:8}
+
+  - name: notify-email
+    image: drillster/drone-email
+    settings:
+      host: smtp.ym.163.com
+      username: admin@nbaxp.com
+      password: aA123456!
+      from: admin@nbaxp.com

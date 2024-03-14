@@ -7,8 +7,8 @@ public class OperatorTypeAttribute : Attribute
 {
     public OperatorTypeAttribute(OperatorType operatorType, string? propertyName = null)
     {
-        this.OperatorType = operatorType;
-        this.PropertyName = propertyName;
+        OperatorType = operatorType;
+        PropertyName = propertyName;
     }
 
     public OperatorType OperatorType { get; }

@@ -1,6 +1,6 @@
 using Wta.Infrastructure.Attributes;
 
-namespace Wta.Application.Identity.Options;
+namespace Wta.Application.Default.Options;
 
 [Options]
 public class EmailOptions

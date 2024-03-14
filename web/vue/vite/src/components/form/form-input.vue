@@ -89,7 +89,6 @@
         v-model="cascaderValues"
         :options="options"
         clearable
-        :multiple="!!schema.multiple"
         :props="cascaderProps"
         :placeholder="placeholder"
         @change="onCascaderChange"
@@ -163,7 +162,7 @@
         :on-exceed="onExceed"
         :on-success="onUploadSuccess"
         :list-type="!schema.isImage ? 'text' : 'picture-card'"
-        :headers="getHeaders()"
+        :http-request="uploadFile"
         class="w-full"
       >
         <template #trigger>
@@ -292,7 +291,7 @@
   const options = ref([]);
   const cascaderProps = ref({
     multiple: !!props.schema.multiple,
-    checkStrictly: props.schema.checkStrictly,
+    checkStrictly: !!props.schema.checkStrictly,
     emitPath: false,
   });
   const cascaderValues = ref([]);
@@ -304,7 +303,9 @@
           if (props.schema.multiple) {
             cascaderValues.value = props.modelValue[props.prop];
           } else {
-            cascaderValues.value = props.modelValue[props.prop] ? [props.modelValue[props.prop]] : [];
+            cascaderValues.value = props.modelValue[props.prop]
+              ? findPath(options.value, (n) => n.value === model[props.prop]).map((o) => o.value)
+              : [];
           }
         } else {
           cascaderValues.value = [];
@@ -315,6 +316,7 @@
 
   const onCascaderChange = (values) => {
     model[props.prop] = values;
+    console.log(cascaderValues.value);
   };
 
   const getCascaderDisplay = computed(() => {
@@ -368,14 +370,16 @@
   const fileTypes = props.schema.accept?.split(',') ?? [];
   const fileList = ref([]);
   watchEffect(() => {
-    if (model[props.prop]) {
-      if (props.schema.multiple) {
-        fileList.value = model[props.prop].map((o, i) => ({ name: `${props.prop}_${i}`, url: o }));
+    if (props.schema.input === 'upload') {
+      if (model[props.prop]) {
+        if (props.schema.multiple) {
+          fileList.value = model[props.prop].map((o, i) => ({ name: `${props.prop}_${i}`, url: o }));
+        } else {
+          fileList.value = [{ name: props.prop, url: model[props.prop] }];
+        }
       } else {
-        fileList.value = [{ name: props.prop, url: model[props.prop] }];
+        fileList.value = [];
       }
-    } else {
-      fileList.value = [];
     }
   });
 
@@ -397,7 +401,7 @@
     }
   };
 
-  const beforeUpload = (file) => {
+  const beforeUpload = async (file) => {
     const ext = file.name.substr(file.name.lastIndexOf('.'));
     if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
       ElMessageBox.alert(`当前文件 ${file.name} 不是可选文件类型 ${props.schema.accept}`, '提示');
@@ -408,6 +412,21 @@
       return false;
     }
     return true;
+  };
+
+  const uploadFile = async (option) => {
+    const formData = new FormData();
+    if (option.data) {
+      for (const [key, value] of Object.entries(option.data)) {
+        if (isArray(value) && value.length) formData.append(key, ...value);
+        else formData.append(key, value);
+      }
+    }
+    formData.append(option.filename, option.file, option.file.name);
+    const result = await request(option.method, option.action, formData);
+    if (result.ok) {
+      option.onSuccess(result);
+    }
   };
 
   const onPreview = (file) => {
@@ -423,13 +442,6 @@
     );
   };
 
-  const getHeaders = () => {
-    const headers = props.schema.headers ?? {};
-    if (tokenStore.accessToken) {
-      Object.assign(headers, { Authorization: `Bearer ${tokenStore.accessToken}` });
-    }
-    return headers;
-  };
   const getAction = () => {
     return getUrl(props.schema.url);
   };
@@ -439,6 +451,7 @@
   //mounted
   onMounted(async () => {
     if (props.schema.input === 'select' || props.schema.input === 'cascader') {
+      //选择
       if (props.schema.url && !props.schema.options) {
         let list = routeData.get(props.prop);
         if (!list) {

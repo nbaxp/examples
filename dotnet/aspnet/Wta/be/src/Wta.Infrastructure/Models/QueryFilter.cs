@@ -16,13 +16,13 @@ public class QueryFilter
 
     public Expression<Func<T, bool>>? ToExpression<T>()
     {
-        var propertyType = typeof(T).GetProperty(this.Property, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)?.PropertyType!;//属性类型
+        var propertyType = typeof(T).GetProperty(Property, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)?.PropertyType!;//属性类型
         if (Value != null && propertyType != null)
         {
             var parameter = Expression.Parameter(typeof(T), "p");//参数
-            var property = Expression.PropertyOrField(parameter, this.Property);//字段或属性
-            var valueType = this.Operator == "in" ? typeof(List<>).MakeGenericType(propertyType) : propertyType;
-            var constant = this.Operator == "in" ? Expression.Constant(JsonSerializer.Deserialize(this.Value?.ToString()!, valueType), valueType) : Expression.Constant(this.Value!.ToString().GetValue(propertyType), valueType); //常量
+            var property = Expression.PropertyOrField(parameter, Property);//字段或属性
+            var valueType = Operator == "in" ? typeof(List<>).MakeGenericType(propertyType) : propertyType;
+            var constant = Operator == "in" ? Expression.Constant(JsonSerializer.Deserialize(Value?.ToString()!, valueType), valueType) : Expression.Constant(Value!.ToString().GetValue(propertyType), valueType); //常量
             //比较运算
             if (Operator == "=")
             {

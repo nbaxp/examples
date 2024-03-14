@@ -6,6 +6,6 @@ public class BadRequestException : Exception
 
     public BadRequestException(string? message = null, int code = 400) : base(message)
     {
-        this.Code = code;
+        Code = code;
     }
 }

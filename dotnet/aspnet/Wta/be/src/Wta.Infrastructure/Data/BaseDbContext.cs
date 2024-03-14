@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Wta.Infrastructure.Data;
 using Wta.Infrastructure.Domain;
 using Wta.Infrastructure.Extensions;
+using Wta.Infrastructure.Hosting;
 using Wta.Infrastructure.Interfaces;
 
 namespace Wta.Shared.Data;
@@ -13,7 +14,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
 {
     public static readonly ILoggerFactory DefaultLoggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
 
-    private readonly Guid? _tenantId;
+    private readonly string? _tenantNumber;
 
     public IServiceProvider ServiceProvider { get; }
     public IDbContextManager DbContextManager { get; }
@@ -25,7 +26,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         ServiceProvider = serviceProvider;
         DbContextManager = ServiceProvider.GetRequiredService<IDbContextManager>();
         DbContextManager.Add(this);
-        this._tenantId = serviceProvider.GetService<ITenantService>()?.TenantId;
+        _tenantNumber = serviceProvider.GetService<ITenantService>()?.TenantNumber;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -41,7 +42,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //通用配置
-        if (WebApp.Instance.DbContextEntityDictionary.TryGetValue(GetType(), out var entityTypes))
+        if (WtaApplication.DbContextEntityDictionary.TryGetValue(GetType(), out var entityTypes))
         {
             entityTypes.ForEach(entityType =>
             {
@@ -50,7 +51,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                 if (entityType.IsAssignableTo(typeof(BaseEntity)))
                 {
                     //配置软删除、多租户的全局过滤器
-                    this.GetType().GetMethod(nameof(this.CreateQueryFilter))?.MakeGenericMethod(entityType).Invoke(this, new object[] { modelBuilder });
+                    GetType().GetMethod(nameof(this.CreateQueryFilter))?.MakeGenericMethod(entityType).Invoke(this, [modelBuilder]);
                     //配置实体Id
                     modlerBuilder.HasKey(nameof(BaseEntity.Id));
                     modlerBuilder.Property(nameof(BaseEntity.Id)).ValueGeneratedNever();
@@ -64,7 +65,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                     {
                         modlerBuilder.Property("Name").IsRequired();
                         modlerBuilder.Property("Number").IsRequired();
-                        modlerBuilder.HasIndex("TenantId", "Number").IsUnique();
+                        modlerBuilder.HasIndex("TenantNumber", "Number").IsUnique();
                         modlerBuilder.HasOne("Parent").WithMany("Children").HasForeignKey("ParentId").OnDelete(DeleteBehavior.SetNull);
                     }
                 }
@@ -155,9 +156,9 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
             {
                 if (item.State == EntityState.Added)
                 {
-                    if (_tenantId.HasValue)
+                    if (_tenantNumber != null)
                     {
-                        tenantEntity.TenantId = _tenantId;
+                        tenantEntity.TenantNumber = _tenantNumber;
                     }
                 }
             }
@@ -199,13 +200,24 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
     {
         ChangeTracker.DetectChanges();
         var entries = ChangeTracker.Entries().ToList();
+        var eventPublisher = ServiceProvider.GetRequiredService<IEventPublisher>();
+        var method = eventPublisher.GetType().GetMethod(nameof(eventPublisher.Publish))!;
+        entries.ForEach(o =>
+        {
+            if (o.State == EntityState.Modified)
+            {
+                var type = typeof(EntityUpdatedEvent<>).MakeGenericType(o.Entity.GetType());
+                var @event = Activator.CreateInstance(type, o.Entity);
+                method.MakeGenericMethod(type).Invoke(eventPublisher, [@event]);
+            }
+        });
         return entries;
     }
 
     public void CreateQueryFilter<TEntity>(ModelBuilder builder) where TEntity : BaseEntity
     {
         builder.Entity<TEntity>().HasQueryFilter(o =>
-        (this.DisableSoftDeleteFilter == true || !o.IsDeleted) &&
-        (this.DisableTenantFilter == true || o.TenantId == this._tenantId));
+        (DisableSoftDeleteFilter == true || !o.IsDeleted) &&
+        (DisableTenantFilter == true || o.TenantNumber == _tenantNumber));
     }
 }

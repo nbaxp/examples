@@ -1,0 +1,1 @@
+WinNFSd.exe -pathFile D:\github\examples\nfs\windows\exports.txt
