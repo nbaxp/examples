@@ -4,6 +4,7 @@ obj/
 .vs/
 node_modules/
 dist/
+logs/
 
 # 过滤扩展名
 *.bak
@@ -14,4 +15,4 @@ dist/
 *.user
 
 # 过滤特定文件
-appsettings.Development.json
+# appsettings.Development.json

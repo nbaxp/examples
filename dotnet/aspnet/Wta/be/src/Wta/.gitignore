@@ -1,5 +1,4 @@
 appsettings.Development.json
 appsettings.Production.json
-logs/
-upload/
+upload/*
 !upload/avatar.svg
