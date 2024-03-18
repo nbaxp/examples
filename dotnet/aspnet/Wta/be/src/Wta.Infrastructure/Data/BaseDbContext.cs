@@ -2,13 +2,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Wta.Infrastructure.Data;
-using Wta.Infrastructure.Domain;
+using Wta.Infrastructure.Application.Domain;
+using Wta.Infrastructure.Event;
 using Wta.Infrastructure.Extensions;
-using Wta.Infrastructure.Hosting;
-using Wta.Infrastructure.Interfaces;
+using Wta.Infrastructure.Tenant;
 
-namespace Wta.Shared.Data;
+namespace Wta.Infrastructure.Data;
 
 public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : DbContext
 {
@@ -42,7 +41,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //通用配置
-        if (WtaApplication.DbContextEntityDictionary.TryGetValue(GetType(), out var entityTypes))
+        if (WtaApplication.DbContextEntities.TryGetValue(GetType(), out var entityTypes))
         {
             entityTypes.ForEach(entityType =>
             {
@@ -94,7 +93,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                         if (prop.PropertyType.IsNullableType())
                         {
                             modlerBuilder.Property<DateTime?>(prop.Name).HasConversion(v =>
-                            v.HasValue ? (v.Value.Kind == DateTimeKind.Utc ? v : v.Value.ToUniversalTime()) : null,
+                            v.HasValue ? v.Value.Kind == DateTimeKind.Utc ? v : v.Value.ToUniversalTime() : null,
                             v => v == null ? null : DateTime.SpecifyKind(v.Value, DateTimeKind.Utc));
                         }
                         else
@@ -105,21 +104,15 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                         }
                     }
                 });
-            });
-        }
-        //自定义配置
-        var dbConfigType = typeof(IDbConfig<>).MakeGenericType(typeof(TDbContext));
-        ServiceProvider.GetServices(dbConfigType).ForEach(config =>
-        {
-            config!.GetType().GetInterfaces()
-                .Where(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
-                .ForEach(item =>
+                //自定义配置
+                var dbConfigType = typeof(IEntityTypeConfiguration<>).MakeGenericType(entityType);
+                ServiceProvider.GetServices(dbConfigType).ForEach(config =>
                 {
-                    var entityType = item.GetGenericArguments()[0];
                     var method = modelBuilder.GetType().GetMethod(nameof(modelBuilder.ApplyConfiguration))?.MakeGenericMethod(entityType);
                     method?.Invoke(modelBuilder, [config]);
                 });
-        });
+            });
+        }
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)

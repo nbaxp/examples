@@ -1,7 +1,5 @@
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Wta.Infrastructure.Hosting;
-using Wta.Shared;
 
 namespace Wta.Infrastructure.Extensions;
 

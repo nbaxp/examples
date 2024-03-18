@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Wta.Application.Default.Domain;
 using Wta.Application.Default.Models;
-using Wta.Infrastructure.Configuration;
-using Wta.Infrastructure.Controllers;
 using Wta.Infrastructure.Exceptions;
-using Wta.Infrastructure.Interfaces;
 using Wta.Infrastructure.Web;
+using Wta.Infrastructure.Application.Configuration;
+using Wta.Infrastructure.Data;
+using Wta.Infrastructure.Security;
+using Wta.Infrastructure.Controllers;
 
 namespace Wta.Application.Default.Controllers;
 

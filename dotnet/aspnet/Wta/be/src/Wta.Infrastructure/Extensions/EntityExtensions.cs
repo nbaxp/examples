@@ -1,4 +1,4 @@
-using Wta.Infrastructure.Domain;
+using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Extensions;
 

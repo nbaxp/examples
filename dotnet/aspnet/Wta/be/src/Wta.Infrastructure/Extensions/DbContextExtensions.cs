@@ -1,6 +1,4 @@
-using Wta.Infrastructure.Hosting;
-using Wta.Infrastructure.Interfaces;
-using Wta.Shared;
+using Wta.Infrastructure.SequentialGuid;
 
 namespace Wta.Infrastructure.Extensions;
 

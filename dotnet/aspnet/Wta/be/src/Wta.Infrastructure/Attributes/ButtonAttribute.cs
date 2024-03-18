@@ -1,6 +1,6 @@
-using Wta.Application.Default.Domain;
+using Wta.Infrastructure.Application.Domain;
 
-namespace Wta.Application;
+namespace Wta.Infrastructure.Attributes;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class ButtonAttribute : Attribute

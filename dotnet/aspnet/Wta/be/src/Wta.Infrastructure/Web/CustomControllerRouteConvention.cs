@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Wta.Shared;
+using Wta.Infrastructure.Extensions;
 
 namespace Wta.Infrastructure.Controllers;
 

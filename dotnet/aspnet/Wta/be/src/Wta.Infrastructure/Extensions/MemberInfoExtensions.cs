@@ -1,5 +1,4 @@
 using Swashbuckle.AspNetCore.Annotations;
-using Wta.Infrastructure.Hosting;
 
 namespace Wta.Infrastructure.Extensions;
 

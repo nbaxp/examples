@@ -1,8 +1,7 @@
 using System.Globalization;
+using Wta.Infrastructure;
 using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Hosting;
-using Wta.Infrastructure.Interfaces;
-using Wta.Shared;
+using Wta.Infrastructure.Security;
 
 namespace Wta.Application.Default.Models;
 

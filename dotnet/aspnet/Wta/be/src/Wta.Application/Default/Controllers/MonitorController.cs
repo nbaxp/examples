@@ -3,16 +3,15 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
+using Wta.Infrastructure.Application.HostedServices;
+using Wta.Infrastructure.Application.Models;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Controllers;
-using Wta.Infrastructure.Interfaces;
-using Wta.Infrastructure.Models;
-using Wta.Infrastructure.Services;
 
 namespace Wta.Application.Default.Controllers;
 
 [View("monitor")]
-public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : BaseController, IResourceService<MonitorModel>
+public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : BaseController
 {
     [AllowAnonymous]
     [HttpGet]

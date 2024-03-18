@@ -1,6 +1,6 @@
 using Wta.Application.Default.Domain;
+using Wta.Infrastructure.Application.Models;
 using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Models;
 
 namespace Wta.Application.Default.Models;
 

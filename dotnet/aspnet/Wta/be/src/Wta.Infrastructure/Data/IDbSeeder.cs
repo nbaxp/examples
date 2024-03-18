@@ -2,5 +2,5 @@ namespace Wta.Infrastructure.Data;
 
 public interface IDbSeeder<TContext> where TContext : DbContext
 {
-    void Seed(DbContext context);
+    void Seed(TContext context);
 }

@@ -3,8 +3,11 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Wta.Application.Default.Models;
+using Wta.Infrastructure.Captcha;
 using Wta.Infrastructure.Controllers;
-using Wta.Infrastructure.Interfaces;
+using Wta.Infrastructure.Email;
+using Wta.Infrastructure.Security;
+using Wta.Infrastructure.Sms;
 using Wta.Infrastructure.Web;
 
 namespace Wta.Application.Default.Controllers;

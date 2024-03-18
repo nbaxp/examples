@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Wta.Application.Default.Domain;
+using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Interfaces;
+using Wta.Infrastructure.Auth;
+using Wta.Infrastructure.Data;
 
 namespace Wta.Application.Default.Services;
 

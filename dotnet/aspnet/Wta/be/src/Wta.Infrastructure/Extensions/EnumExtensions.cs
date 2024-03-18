@@ -1,5 +1,3 @@
-using Wta.Infrastructure.Hosting;
-
 namespace Wta.Infrastructure.Extensions;
 
 public static class EnumExtensions

@@ -1,7 +1,5 @@
-using Wta.Infrastructure.Domain;
+using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Extensions;
-using Wta.Infrastructure.Hosting;
-using Wta.Infrastructure.Interfaces;
 
 namespace Wta.Infrastructure.Data;
 
@@ -9,7 +7,7 @@ public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEn
 {
     public EfRepository(IServiceProvider serviceProvider)
     {
-        var dbContextType = WtaApplication.EntityDbContextDictionary[typeof(TEntity)];
+        var dbContextType = WtaApplication.EntityDbContext[typeof(TEntity)];
         Context = (serviceProvider.GetRequiredService(dbContextType) as DbContext)!;
         DbSet = Context.Set<TEntity>();
     }

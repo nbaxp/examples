@@ -1,4 +1,4 @@
-using Wta.Infrastructure.Models;
+using Wta.Infrastructure.Application.Models;
 
 namespace Wta.Infrastructure.Attributes;
 

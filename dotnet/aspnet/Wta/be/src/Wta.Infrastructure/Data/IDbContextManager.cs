@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace Wta.Infrastructure.Data;
 
 public interface IDbContextManager

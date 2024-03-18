@@ -1,11 +1,10 @@
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Wta.Infrastructure.Configuration;
+using Wta.Infrastructure.Application.Configuration;
+using Wta.Infrastructure.Auth;
 using Wta.Infrastructure.Exceptions;
-using Wta.Infrastructure.Interfaces;
 
 namespace Wta.Infrastructure.Web;
 

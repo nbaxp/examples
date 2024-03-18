@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Wta.Infrastructure.Domain;
-using Wta.Infrastructure.Hosting;
+using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Controllers;
 
@@ -19,7 +18,7 @@ public class GenericControllerFeatureProvider : IApplicationFeatureProvider<Cont
             var entityType = entityTypeInfo.AsType();
             if (!feature.Controllers.Any(o => o.Name == $"{entityType.Name}Controller"))
             {
-                var modelType = WtaApplication.EntityModels.GetValueOrDefault(entityType) ?? entityType;
+                var modelType = WtaApplication.EntityModel.GetValueOrDefault(entityType) ?? entityType;
                 var controllerType = typeof(GenericController<,>).MakeGenericType(entityType, modelType);
                 feature.Controllers.Add(controllerType.GetTypeInfo());
             }
