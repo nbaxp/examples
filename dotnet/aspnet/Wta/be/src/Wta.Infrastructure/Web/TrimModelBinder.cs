@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomTrimModelBinder : IModelBinder
+public class TrimModelBinder : IModelBinder
 {
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
@@ -18,20 +18,5 @@ public class CustomTrimModelBinder : IModelBinder
 
         bindingContext.Result = ModelBindingResult.Success(valueProviderResult.FirstValue?.Trim());
         return Task.CompletedTask;
-    }
-}
-
-public class CustomModelBinderProvider : IModelBinderProvider
-{
-    public IModelBinder? GetBinder(ModelBinderProviderContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context);
-
-        if (context.Metadata.ModelType == typeof(string) && context.BindingInfo.BindingSource != BindingSource.Body)
-        {
-            return new CustomTrimModelBinder();
-        }
-
-        return null;
     }
 }

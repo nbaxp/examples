@@ -11,7 +11,7 @@ public class MenuController(IRepository<Permission> menuRepository) : BaseContro
     [Route("/api/menu")]
     [HttpPost]
     [AllowAnonymous]
-    public CustomApiResponse<object> Menu()
+    public ApiResult<object> Menu()
     {
         var result = menuRepository.AsNoTracking().OrderBy(o => o.Order).ToList();
         return Json(result as object);

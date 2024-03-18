@@ -1,4 +1,3 @@
-using Wta.Application.Default;
 using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Application.Default.Domain;

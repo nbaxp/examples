@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 namespace Wta.Infrastructure.Application.Models;
 
 public class QueryModel<TModel>

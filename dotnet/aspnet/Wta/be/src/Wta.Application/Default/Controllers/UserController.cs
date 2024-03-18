@@ -3,17 +3,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Wta.Application.Default.Domain;
 using Wta.Application.Default.Models;
-using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Exceptions;
-using Wta.Infrastructure.Auth;
-using Wta.Infrastructure.Web;
-using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.Application.Domain;
+using Wta.Infrastructure.Attributes;
+using Wta.Infrastructure.Auth;
+using Wta.Infrastructure.Controllers;
 using Wta.Infrastructure.Data;
 using Wta.Infrastructure.Event;
-using Wta.Infrastructure.Security;
+using Wta.Infrastructure.Exceptions;
+using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.ImportExport;
-using Wta.Infrastructure.Controllers;
+using Wta.Infrastructure.Security;
+using Wta.Infrastructure.Web;
 
 namespace Wta.Application.Default.Controllers;
 
@@ -35,7 +35,7 @@ public class UserController(ILogger<User> logger,
     }
 
     [Authorize, Ignore]
-    public CustomApiResponse<UserInfoModel> Info()
+    public ApiResult<UserInfoModel> Info()
     {
         var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
         var result = Repository
@@ -57,7 +57,7 @@ public class UserController(ILogger<User> logger,
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> Register(RegisterModel model)
+    public ApiResult<bool> Register(RegisterModel model)
     {
         if (ModelState.IsValid)
         {
@@ -91,7 +91,7 @@ public class UserController(ILogger<User> logger,
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> ForgotPassword(ForgotPasswordModel model)
+    public ApiResult<bool> ForgotPassword(ForgotPasswordModel model)
     {
         if (ModelState.IsValid)
         {
@@ -113,7 +113,7 @@ public class UserController(ILogger<User> logger,
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> ResetPassword(ResetPasswordModel model)
+    public ApiResult<bool> ResetPassword(ResetPasswordModel model)
     {
         if (ModelState.IsValid)
         {
@@ -141,39 +141,39 @@ public class UserController(ILogger<User> logger,
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> HasUser([FromForm] string userName)
+    public ApiResult<bool> HasUser([FromForm] string userName)
     {
         var normalizedUserName = userName.ToUpperInvariant();
         return Json(Repository.AsNoTracking().Any(o => o.NormalizedUserName == normalizedUserName));
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> NoUser([FromForm] string userName)
+    public ApiResult<bool> NoUser([FromForm] string userName)
     {
         var normalizedUserName = userName.ToUpperInvariant();
         return Json(!Repository.AsNoTracking().Any(o => o.NormalizedUserName == normalizedUserName));
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> HasEmailOrPhoneNumber([FromForm] string emailOrPhoneNumber)
+    public ApiResult<bool> HasEmailOrPhoneNumber([FromForm] string emailOrPhoneNumber)
     {
         return Json(HasEmailOrPhoneNumberInternal(emailOrPhoneNumber));
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> NoEmailOrPhoneNumber([FromForm] string emailOrPhoneNumber)
+    public ApiResult<bool> NoEmailOrPhoneNumber([FromForm] string emailOrPhoneNumber)
     {
         return Json(!HasEmailOrPhoneNumberInternal(emailOrPhoneNumber));
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> NoEmail([FromForm] string email)
+    public ApiResult<bool> NoEmail([FromForm] string email)
     {
         return Json(!HasEmailOrPhoneNumberInternal(email));
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> NoPhoneNumber([FromForm] string phoneNumber)
+    public ApiResult<bool> NoPhoneNumber([FromForm] string phoneNumber)
     {
         return Json(!HasEmailOrPhoneNumberInternal(phoneNumber));
     }

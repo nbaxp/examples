@@ -2,17 +2,17 @@ using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Wta.Application.Default.Domain;
 using Wta.Application.Default.Models;
-using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Exceptions;
-using Wta.Infrastructure.Web;
-using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure;
 using Wta.Infrastructure.Application.Models;
-using Wta.Infrastructure.Data;
-using Wta.Infrastructure.Tenant;
-using Wta.Infrastructure.Event;
-using Wta.Infrastructure.ImportExport;
+using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Controllers;
+using Wta.Infrastructure.Data;
+using Wta.Infrastructure.Event;
+using Wta.Infrastructure.Exceptions;
+using Wta.Infrastructure.Extensions;
+using Wta.Infrastructure.ImportExport;
+using Wta.Infrastructure.Tenant;
+using Wta.Infrastructure.Web;
 
 namespace Wta.Application.Default.Controllers;
 
@@ -32,7 +32,7 @@ public class TenantController(ILogger<Tenant> logger,
     }
 
     [Ignore]
-    public override CustomApiResponse<bool> Import(ImportModel<TenantModel> model)
+    public override ApiResult<bool> Import(ImportModel<TenantModel> model)
     {
         return base.Import(model);
     }
@@ -44,18 +44,18 @@ public class TenantController(ILogger<Tenant> logger,
     }
 
     [Ignore]
-    public override CustomApiResponse<bool> Delete([FromBody] Guid[] items)
+    public override ApiResult<bool> Delete([FromBody] Guid[] items)
     {
         return base.Delete(items);
     }
 
     [AllowAnonymous]
-    public override CustomApiResponse<QueryModel<TenantModel>> Search(QueryModel<TenantModel> model)
+    public override ApiResult<QueryModel<TenantModel>> Search(QueryModel<TenantModel> model)
     {
         return base.Search(model);
     }
 
-    public override CustomApiResponse<bool> Create(TenantModel model)
+    public override ApiResult<bool> Create(TenantModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -88,7 +88,7 @@ public class TenantController(ILogger<Tenant> logger,
         return Json(true);
     }
 
-    public override CustomApiResponse<TenantModel> Details([FromBody] Guid id)
+    public override ApiResult<TenantModel> Details([FromBody] Guid id)
     {
         var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id);
         if (entity == null)
@@ -108,7 +108,7 @@ public class TenantController(ILogger<Tenant> logger,
         return Json(model);
     }
 
-    public override CustomApiResponse<bool> Update([FromBody] TenantModel model)
+    public override ApiResult<bool> Update([FromBody] TenantModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -129,7 +129,6 @@ public class TenantController(ILogger<Tenant> logger,
         {
             RoleId = tenantRole.Id,
             PermissionId = o.Id,
-            TenantNumber = entity.Number
         });
         tenantRole.RolePermissions.AddRange(addList);
         permissions.Where(o => !o.Disabled && !model.Permissions.Any(p => o.Number == p)).ForEach(o => o.Disabled = true);
@@ -139,13 +138,13 @@ public class TenantController(ILogger<Tenant> logger,
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> NoName([FromForm] string name)
+    public ApiResult<bool> NoName([FromForm] string name)
     {
         return Json(!Repository.AsNoTracking().Any(o => o.Name == name));
     }
 
     [AllowAnonymous, Ignore]
-    public CustomApiResponse<bool> NoNumber([FromForm] string number)
+    public ApiResult<bool> NoNumber([FromForm] string number)
     {
         return Json(!Repository.AsNoTracking().Any(o => o.Number == number));
     }

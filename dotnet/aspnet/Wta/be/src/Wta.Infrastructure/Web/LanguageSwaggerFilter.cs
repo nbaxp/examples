@@ -6,7 +6,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomSwaggerFilter(IOptions<RequestLocalizationOptions> options) : IOperationFilter, ISchemaFilter
+public class LanguageSwaggerFilter(IOptions<RequestLocalizationOptions> options) : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
@@ -28,9 +28,5 @@ public class CustomSwaggerFilter(IOptions<RequestLocalizationOptions> options) :
                 Default = defaultValue,
             }
         });
-    }
-
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
-    {
     }
 }

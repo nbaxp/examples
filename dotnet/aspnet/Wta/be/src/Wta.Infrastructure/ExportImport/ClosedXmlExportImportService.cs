@@ -7,9 +7,9 @@ using Wta.Infrastructure.Extensions;
 namespace Wta.Infrastructure.ImportExport;
 
 [Service<IExportImportService>]
-public class DefaultExportImportService() : IExportImportService
+public class ClosedXMLExportImportService() : IExportImportService
 {
-    static DefaultExportImportService()
+    static ClosedXMLExportImportService()
     {
         using var fallbackFontStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Wta.Infrastructure.Resources.carlito.ttf");
         LoadOptions.DefaultGraphicEngine = DefaultGraphicEngine.CreateOnlyWithFonts(fallbackFontStream);

@@ -8,7 +8,7 @@ using Wta.Infrastructure.Exceptions;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomClaimsPrincipal(IServiceProvider serviceProvider, ClaimsPrincipal claimsPrincipal) : ClaimsPrincipal(claimsPrincipal)
+public class AuthClaimsPrincipal(IServiceProvider serviceProvider, ClaimsPrincipal claimsPrincipal) : ClaimsPrincipal(claimsPrincipal)
 {
     public override bool IsInRole(string role)
     {
@@ -36,7 +36,7 @@ public class CustomClaimsPrincipal(IServiceProvider serviceProvider, ClaimsPrinc
             var response = client.PostAsync(requestUrl, JsonContent.Create(role)).Result;
             if (response.IsSuccessStatusCode)
             {
-                var apiResponse = JsonSerializer.Deserialize<CustomApiResponse<bool>>(response.Content.ReadAsStringAsync().Result);
+                var apiResponse = JsonSerializer.Deserialize<ApiResult<bool>>(response.Content.ReadAsStringAsync().Result);
                 return apiResponse!.Data;
             }
             return false;

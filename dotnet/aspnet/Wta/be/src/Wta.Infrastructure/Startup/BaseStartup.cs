@@ -50,9 +50,9 @@ public abstract class BaseStartup : IStartup
     public virtual void AddAuth(WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<JsonWebTokenHandler>();
-        builder.Services.AddSingleton<CustomJwtSecurityTokenHandler>();
-        builder.Services.AddSingleton<JwtSecurityTokenHandler, CustomJwtSecurityTokenHandler>();
-        builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, CustomJwtBearerPostConfigureOptions>();
+        builder.Services.AddSingleton<AuthJwtSecurityTokenHandler>();
+        builder.Services.AddSingleton<JwtSecurityTokenHandler, AuthJwtSecurityTokenHandler>();
+        builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, AuthJwtBearerPostConfigureOptions>();
         var jwtOptions = new JwtOptions();
         builder.Configuration.GetSection("Jwt").Bind(jwtOptions);
         builder.Services.AddSingleton(jwtOptions);
@@ -313,7 +313,7 @@ public abstract class BaseStartup : IStartup
     /// <param name="builder"></param>
     public virtual void AddLocalEventBus(WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IEventPublisher, DefaultEventPublisher>();
+        builder.Services.AddScoped<IEventPublisher, LocalEventPublisher>();
         WtaApplication.Assemblies
             .SelectMany(o => o.GetTypes())
             .Where(t => t.GetInterfaces().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(IEventHander<>)))
@@ -332,7 +332,7 @@ public abstract class BaseStartup : IStartup
     /// <param name="builder"></param>
     public virtual void AddLocalization(WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<IModelMetadataProvider, CustomModelMetaDataProvider>();
+        builder.Services.AddSingleton<IModelMetadataProvider, DisplayModelMetaDataProvider>();
         builder.Services.AddTransient<IStringLocalizer>(o => o.GetRequiredService<IStringLocalizer<Resource>>());
         builder.Services.Configure<RequestLocalizationOptions>(options =>
         {
@@ -349,7 +349,7 @@ public abstract class BaseStartup : IStartup
         builder.Services.AddLocalization();
         builder.Services.AddPortableObjectLocalization(options => options.ResourcesPath = "Resources")
             .AddDataAnnotationsPortableObjectLocalization();
-        builder.Services.Replace(ServiceDescriptor.Singleton<ILocalizationFileLocationProvider, CustomLocalizationFileLocationProvider>());
+        builder.Services.Replace(ServiceDescriptor.Singleton<ILocalizationFileLocationProvider, LocalizationFileLocationProvider>());
     }
 
     /// <summary>
@@ -371,13 +371,13 @@ public abstract class BaseStartup : IStartup
         builder.Services.AddMvc(options =>
         {
             options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
-            options.ModelBinderProviders.Insert(0, new CustomModelBinderProvider());
+            options.ModelBinderProviders.Insert(0, new TrimModelBinderProvider());
             options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
-            options.ModelMetadataDetailsProviders.Insert(0, new CustomDisplayMetadataProvider());
-            options.ModelMetadataDetailsProviders.Add(new CustomValidationMetadataProvider());
+            options.ModelMetadataDetailsProviders.Insert(0, new AutoErrorMessageMetadataProvider());
+            options.ModelMetadataDetailsProviders.Add(new RequiredValidationMetadataProvider());
             options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
-            options.Conventions.Add(new CustomControllerRouteConvention());
-            options.Filters.Add<CustomActionFilter>();
+            options.Conventions.Add(new AutoControllerRouteConvention());
+            options.Filters.Add<AuthActionFilter>();
         }).AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
         .AddDataAnnotationsLocalization(options =>
         {
@@ -395,8 +395,8 @@ public abstract class BaseStartup : IStartup
             options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
             options.JsonSerializerOptions.WriteIndented = builder.Environment.IsDevelopment();
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-            options.JsonSerializerOptions.Converters.Add(new CustomJsonNullableGuidConverter());
-            options.JsonSerializerOptions.Converters.Insert(0, new CustomJsonTrimConverter());
+            options.JsonSerializerOptions.Converters.Add(new JsonNullableGuidConverter());
+            options.JsonSerializerOptions.Converters.Insert(0, new TrimJsonConverter());
         })
         .ConfigureApiBehaviorOptions(options =>
         {
@@ -413,11 +413,10 @@ public abstract class BaseStartup : IStartup
     public virtual void AddOpenApi(WebApplicationBuilder builder)
     {
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, CustomSwaggerGenOptions>();
+        builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, GroupSwaggerGenOptions>();
         builder.Services.AddSwaggerGen(options =>
         {
-            options.SchemaFilter<CustomSwaggerFilter>();
-            options.OperationFilter<CustomSwaggerFilter>();
+            options.OperationFilter<LanguageSwaggerFilter>();
             options.DocInclusionPredicate((name, apiDescription) =>
             {
                 return name == apiDescription.GroupName;
@@ -534,7 +533,7 @@ public abstract class BaseStartup : IStartup
 
     public virtual IFileProvider GetFileProvider(WebApplicationBuilder builder)
     {
-        var providers = WtaApplication.Assemblies.Select(o => new CustomFileProvider(o)).ToArray()
+        var providers = WtaApplication.Assemblies.Select(o => new FixedEmbeddedFileProvider(o)).ToArray()
             .Append(builder.Environment.ContentRootFileProvider)
             .Append(new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "wwwroot"))
             .Append(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));

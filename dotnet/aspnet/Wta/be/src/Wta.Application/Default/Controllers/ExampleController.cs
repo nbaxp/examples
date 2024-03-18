@@ -12,7 +12,7 @@ public class ExampleController : BaseController
     }
 
     [Authorize(Roles = "admin")]
-    public CustomApiResponse<string> Test2()
+    public ApiResult<string> Test2()
     {
         return Json("OK");
     }

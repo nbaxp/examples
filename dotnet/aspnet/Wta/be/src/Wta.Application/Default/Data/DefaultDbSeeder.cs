@@ -29,7 +29,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
         InitUser(context);
     }
 
-    private void InitDict(DbContext context)
+    private static void InitDict(DbContext context)
     {
         context.Set<Dict>().Add(new Dict
         {

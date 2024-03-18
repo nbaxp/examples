@@ -83,10 +83,10 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                         modlerBuilder.Property(prop.Name).IsRequired();
                     }
                     //配置枚举存储为字符串
-                    //if (prop.PropertyType.GetUnderlyingType().IsEnum)
-                    //{
-                    //    modlerBuilder.Property(prop.Name).HasConversion<string>();
-                    //}
+                    if (prop.PropertyType.GetUnderlyingType().IsEnum)
+                    {
+                        modlerBuilder.Property(prop.Name).HasConversion<string>();
+                    }
                     //配置日期存取时为UTC时间
                     if (prop.PropertyType.GetUnderlyingType() == typeof(DateTime))
                     {

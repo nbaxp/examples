@@ -7,7 +7,7 @@ using Wta.Infrastructure.Attributes;
 namespace Wta.Infrastructure.Sms;
 
 [Service<ISmsService>]
-public class DefaultSmsService(IHttpClientFactory httpClientFactory, IOptions<SmsOptions> options) : ISmsService
+public class NetEasySmsService(IHttpClientFactory httpClientFactory, IOptions<SmsOptions> options) : ISmsService
 {
     public void Send(string phoneNumber, out string code)
     {

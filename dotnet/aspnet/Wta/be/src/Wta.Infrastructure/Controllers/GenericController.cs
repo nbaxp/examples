@@ -1,16 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Exceptions;
-using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Application.Models;
+using Wta.Infrastructure.Attributes;
+using Wta.Infrastructure.Auth;
 using Wta.Infrastructure.Data;
 using Wta.Infrastructure.Event;
+using Wta.Infrastructure.Exceptions;
+using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.ImportExport;
 using Wta.Infrastructure.Web;
-using Wta.Infrastructure.Controllers;
-using Wta.Infrastructure.Auth;
 
 namespace Wta.Infrastructure.Controllers;
 
@@ -29,7 +28,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     public IEventPublisher EventPublisher = eventPublisher;
 
     [Display(Order = 1)]
-    public virtual CustomApiResponse<QueryModel<TModel>> Search(QueryModel<TModel> model)
+    public virtual ApiResult<QueryModel<TModel>> Search(QueryModel<TModel> model)
     {
         var query = Where(model);
         model.TotalCount = query.Count();
@@ -48,7 +47,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
 
     [Display(Order = 2)]
     [Button(Type = ButtonType.Row)]
-    public virtual CustomApiResponse<TModel> Details([FromBody] Guid id)
+    public virtual ApiResult<TModel> Details([FromBody] Guid id)
     {
         var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id) ?? throw new ProblemException("NotFound");
         var model = entity.ToModel<TEntity, TModel>(ToModel);
@@ -67,7 +66,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     }
 
     [Display(Order = 4)]
-    public virtual CustomApiResponse<bool> Import(ImportModel<TModel> model)
+    public virtual ApiResult<bool> Import(ImportModel<TModel> model)
     {
         foreach (var file in model.Files)
         {
@@ -101,7 +100,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     }
 
     [Display(Order = 6)]
-    public virtual CustomApiResponse<bool> Create(TModel model)
+    public virtual ApiResult<bool> Create(TModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -122,7 +121,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
 
     [Display(Order = 7)]
     [Button(Type = ButtonType.Row)]
-    public virtual CustomApiResponse<bool> Update([FromBody] TModel model)
+    public virtual ApiResult<bool> Update([FromBody] TModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -169,7 +168,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     }
 
     [Display(Order = 8)]
-    public virtual CustomApiResponse<bool> Delete([FromBody] Guid[] items)
+    public virtual ApiResult<bool> Delete([FromBody] Guid[] items)
     {
         foreach (var id in items)
         {

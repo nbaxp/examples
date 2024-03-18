@@ -5,13 +5,13 @@ namespace Wta.Infrastructure.Web;
 /// <summary>
 /// 修复.net嵌入式资源路径问题
 /// </summary>
-public class CustomFileProvider : EmbeddedFileProvider
+public class FixedEmbeddedFileProvider : EmbeddedFileProvider
 {
-    public CustomFileProvider(Assembly assembly) : base(assembly)
+    public FixedEmbeddedFileProvider(Assembly assembly) : base(assembly)
     {
     }
 
-    public CustomFileProvider(Assembly assembly, string? baseNamespace) : base(assembly, baseNamespace)
+    public FixedEmbeddedFileProvider(Assembly assembly, string? baseNamespace) : base(assembly, baseNamespace)
     {
     }
 

@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomJwtSecurityTokenHandler(IServiceProvider serviceProvider) : JwtSecurityTokenHandler
+public class AuthJwtSecurityTokenHandler(IServiceProvider serviceProvider) : JwtSecurityTokenHandler
 {
     public override ClaimsPrincipal ValidateToken(string token, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
     {
@@ -14,7 +14,7 @@ public class CustomJwtSecurityTokenHandler(IServiceProvider serviceProvider) : J
         if (validationResult.IsValid)
         {
             validatedToken = validationResult.SecurityToken;
-            return new CustomClaimsPrincipal(serviceProvider, new ClaimsPrincipal(validationResult.ClaimsIdentity));
+            return new AuthClaimsPrincipal(serviceProvider, new ClaimsPrincipal(validationResult.ClaimsIdentity));
         }
         throw validationResult.Exception;
     }

@@ -7,7 +7,7 @@ using Wta.Infrastructure.Attributes;
 namespace Wta.Infrastructure.Email;
 
 [Service<IEmailService>]
-public class DefaultEmailService(IStringLocalizer stringLocalizer, IOptions<EmailOptions> options) : IEmailService
+public class MimeKitEmailService(IStringLocalizer stringLocalizer, IOptions<EmailOptions> options) : IEmailService
 {
     public void Send(string subject, string body, string toName, string toAddress)
     {

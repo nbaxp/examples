@@ -1,9 +1,8 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomJsonTrimConverter : JsonConverter<string>
+public class TrimJsonConverter : JsonConverter<string>
 {
     public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

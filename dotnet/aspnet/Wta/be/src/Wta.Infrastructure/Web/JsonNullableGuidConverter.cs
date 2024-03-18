@@ -1,9 +1,8 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomJsonNullableGuidConverter : JsonConverter<Guid?>
+public class JsonNullableGuidConverter : JsonConverter<Guid?>
 {
     public override Guid? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

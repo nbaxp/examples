@@ -7,21 +7,8 @@ using Wta.Infrastructure.Extensions;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomActionFilter : ExceptionFilterAttribute, IActionFilter
+public class AuthActionFilter : IActionFilter
 {
-    /// <summary>
-    /// An unhandled exception has occurred while executing the request
-    /// </summary>
-    /// <param name="context"></param>
-    public override void OnException(ExceptionContext context)
-    {
-        context.Result = new ObjectResult(context.Exception.Message)
-        {
-            StatusCode = 500,
-            Value = CustomApiResponse.Create(context.Exception?.StackTrace, 500, context.Exception?.Message)
-        };
-    }
-
     /// <summary>
     /// 200\400\500返回值规范化为CustomApiResponse
     /// </summary>
@@ -35,7 +22,7 @@ public class CustomActionFilter : ExceptionFilterAttribute, IActionFilter
                 context.Result = new ObjectResult(context.Exception.Message)
                 {
                     StatusCode = 400,
-                    Value = CustomApiResponse.Create(context.ModelState.ToErrors(), badRequestException.Code, context.Exception?.Message)
+                    Value = ApiResult.Create(context.ModelState.ToErrors(), badRequestException.Code, context.Exception?.Message)
                 };
             }
             else if (context.Exception is ProblemException problemException)
@@ -43,7 +30,7 @@ public class CustomActionFilter : ExceptionFilterAttribute, IActionFilter
                 context.Result = new ObjectResult(context.Exception.Message)
                 {
                     StatusCode = 500,
-                    Value = CustomApiResponse.Create(context.Exception?.StackTrace, problemException.Code, context.Exception?.Message)
+                    Value = ApiResult.Create(context.Exception?.StackTrace, problemException.Code, context.Exception?.Message)
                 };
             }
             else
@@ -51,7 +38,7 @@ public class CustomActionFilter : ExceptionFilterAttribute, IActionFilter
                 context.Result = new ObjectResult(context.Exception.Message)
                 {
                     StatusCode = 500,
-                    Value = CustomApiResponse.Create(context.Exception?.StackTrace, 500, context.Exception?.Message)
+                    Value = ApiResult.Create(context.Exception?.StackTrace, 500, context.Exception?.Message)
                 };
             }
             context.ExceptionHandled = true;
@@ -60,7 +47,7 @@ public class CustomActionFilter : ExceptionFilterAttribute, IActionFilter
         {
             if (context.Result is ObjectResult result && result.Value is ProblemDetails problemDetails)
             {
-                result.Value = CustomApiResponse.Create(problemDetails.Extensions, 500, problemDetails.Detail);
+                result.Value = ApiResult.Create(problemDetails.Extensions, 500, problemDetails.Detail);
             }
             else
             {
@@ -71,9 +58,9 @@ public class CustomActionFilter : ExceptionFilterAttribute, IActionFilter
                 else if (context.Result is ObjectResult objectResult)
                 {
                     if (!objectResult.Value!.GetType().IsGenericType ||
-                        objectResult.Value.GetType().GetGenericTypeDefinition() != typeof(CustomApiResponse<>))
+                        objectResult.Value.GetType().GetGenericTypeDefinition() != typeof(ApiResult<>))
                     {
-                        context.Result = new JsonResult(CustomApiResponse.Create(objectResult.Value));
+                        context.Result = new JsonResult(ApiResult.Create(objectResult.Value));
                     }
                 }
                 else
@@ -82,7 +69,7 @@ public class CustomActionFilter : ExceptionFilterAttribute, IActionFilter
                 }
                 if (context.Result is BadRequestObjectResult badRequestObjectResult)
                 {
-                    badRequestObjectResult.Value = CustomApiResponse.Create(context.ModelState.ToErrors(), 400);
+                    badRequestObjectResult.Value = ApiResult.Create(context.ModelState.ToErrors(), 400);
                 }
             }
         }

@@ -4,7 +4,7 @@ using Wta.Infrastructure.Attributes;
 namespace Wta.Infrastructure.Tenant;
 
 [Service<ITenantService>(ServiceLifetime.Scoped)]
-public class DefaultTenantService(IHttpContextAccessor httpContextAccessor) : ITenantService
+public class ClaimTenantService(IHttpContextAccessor httpContextAccessor) : ITenantService
 {
     private string? _tenantNumber;
 

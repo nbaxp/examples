@@ -3,7 +3,7 @@ using Wta.Infrastructure.Attributes;
 namespace Wta.Infrastructure.Event;
 
 [Service<IEventPublisher>(ServiceLifetime.Singleton)]
-public class DefaultEventPublisher(IServiceProvider serviceProvider) : IEventPublisher
+public class LocalEventPublisher(IServiceProvider serviceProvider) : IEventPublisher
 {
     public async Task Publish<T>(T data)
     {

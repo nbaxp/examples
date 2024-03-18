@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomValidationMetadataProvider : IValidationMetadataProvider
+public class RequiredValidationMetadataProvider : IValidationMetadataProvider
 {
     public void CreateValidationMetadata(ValidationMetadataProviderContext context)
     {

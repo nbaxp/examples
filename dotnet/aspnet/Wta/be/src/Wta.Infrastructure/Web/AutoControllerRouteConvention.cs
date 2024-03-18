@@ -7,7 +7,7 @@ using Wta.Infrastructure.Extensions;
 
 namespace Wta.Infrastructure.Controllers;
 
-public class CustomControllerRouteConvention : IControllerModelConvention
+public class AutoControllerRouteConvention : IControllerModelConvention
 {
     public void Apply(ControllerModel controller)
     {
@@ -26,7 +26,7 @@ public class CustomControllerRouteConvention : IControllerModelConvention
             {
                 var match = Regex.Match(action.ActionName, "^(Get|Post|Put|Delete|Patch|Head|Options)", RegexOptions.IgnoreCase);
                 var method = match.Success ? match.Groups[1].Value.ToUpperInvariant() : "POST";
-                (action.Attributes as List<object>)?.Add(new Web.HttpMethodDefaultAttribute(new List<string> { method }));
+                (action.Attributes as List<object>)?.Add(new Web.DefaultHttpMethodAttribute(new List<string> { method }));
                 action.Selectors.First().ActionConstraints.Add(new HttpMethodActionConstraint(new List<string> { method }));
             }
         });

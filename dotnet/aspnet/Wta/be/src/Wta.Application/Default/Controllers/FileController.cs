@@ -15,7 +15,7 @@ public class FileController(IFileService fileService) : BaseController
     }
 
     [Authorize]
-    public CustomApiResponse<string> Upload(IFormFile file)
+    public ApiResult<string> Upload(IFormFile file)
     {
         return Json($"api/file/{fileService.Upload(file)}");
     }

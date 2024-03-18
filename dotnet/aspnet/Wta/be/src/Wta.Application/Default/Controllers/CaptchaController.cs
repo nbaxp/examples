@@ -24,7 +24,7 @@ public class CaptchaController(ILogger<CaptchaController> logger,
 {
     [AllowAnonymous]
     [ResponseCache(NoStore = true)]
-    public CustomApiResponse<CaptchaModel> Image()
+    public ApiResult<CaptchaModel> Image()
     {
         var timeout = GetTimeout(configuration);
         var expires = DateTime.UtcNow.Add(timeout);
@@ -39,7 +39,7 @@ public class CaptchaController(ILogger<CaptchaController> logger,
 
     [AllowAnonymous]
     [ResponseCache(NoStore = true)]
-    public CustomApiResponse<CaptchaModel> Code([FromBody] string emailorPhone)
+    public ApiResult<CaptchaModel> Code([FromBody] string emailorPhone)
     {
         var timeout = GetTimeout(configuration);
         var expires = DateTime.UtcNow.Add(timeout);

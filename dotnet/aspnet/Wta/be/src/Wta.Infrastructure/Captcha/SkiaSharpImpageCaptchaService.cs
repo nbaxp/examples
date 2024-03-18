@@ -5,7 +5,7 @@ using Wta.Infrastructure.Attributes;
 namespace Wta.Infrastructure.Captcha;
 
 [Service<IImpageCaptchaService>]
-public class DefaultImpageCaptchaService : IImpageCaptchaService
+public class SkiaSharpImpageCaptchaService : IImpageCaptchaService
 {
     public byte[] Create(string code)
     {

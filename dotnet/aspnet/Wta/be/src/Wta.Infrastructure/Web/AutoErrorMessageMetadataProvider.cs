@@ -3,7 +3,7 @@ using Wta.Infrastructure.Extensions;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomDisplayMetadataProvider : IDisplayMetadataProvider
+public class AutoErrorMessageMetadataProvider : IDisplayMetadataProvider
 {
     public void CreateDisplayMetadata(DisplayMetadataProviderContext context)
     {

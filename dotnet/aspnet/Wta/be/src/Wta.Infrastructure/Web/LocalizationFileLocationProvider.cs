@@ -4,7 +4,7 @@ using OrchardCore.Localization;
 
 namespace Wta.Infrastructure.Web;
 
-public class CustomLocalizationFileLocationProvider(IFileProvider fileProvider, IOptions<LocalizationOptions> localizationOptions) : ILocalizationFileLocationProvider
+public class LocalizationFileLocationProvider(IFileProvider fileProvider, IOptions<LocalizationOptions> localizationOptions) : ILocalizationFileLocationProvider
 {
     private readonly string _subpath = localizationOptions.Value.ResourcesPath;
 

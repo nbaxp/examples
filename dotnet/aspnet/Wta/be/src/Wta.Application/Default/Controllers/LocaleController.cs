@@ -22,7 +22,7 @@ public class LocaleController : BaseController
 
     [HttpPost]
     [AllowAnonymous]
-    public CustomApiResponse<LocaleResponseModel> Index()
+    public ApiResult<LocaleResponseModel> Index()
     {
         var result = new LocaleResponseModel
         {
