@@ -1,8 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
-
 namespace Wta.Infrastructure.Web;
 
 public class AuthJwtSecurityTokenHandler(IServiceProvider serviceProvider) : JwtSecurityTokenHandler

@@ -8,6 +8,7 @@ export default function () {
       hidden: true,
     },
     name: {
+      title: '名称',
       rules: [
         {
           required: true,
@@ -18,6 +19,7 @@ export default function () {
       ],
     },
     number: {
+      title: '编号',
       readonly: true,
       rules: [
         {
@@ -29,9 +31,11 @@ export default function () {
       ],
     },
     disabled: {
+      title: '禁用',
       type: 'boolean',
     },
     permissions: {
+      title: '权限',
       type: 'array',
       input: 'cascader',
       multiple: true,

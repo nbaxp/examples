@@ -7,6 +7,7 @@ const properties = {
     hidden: true,
   },
   name: {
+    title: '名称',
     rules: [
       {
         required: true,
@@ -14,6 +15,7 @@ const properties = {
     ],
   },
   number: {
+    title: '编号',
     readonly: true,
     rules: [
       {
@@ -22,6 +24,7 @@ const properties = {
     ],
   },
   parentId: {
+    title: '上级',
     type: 'string',
     input: 'cascader',
     checkStrictly: true,

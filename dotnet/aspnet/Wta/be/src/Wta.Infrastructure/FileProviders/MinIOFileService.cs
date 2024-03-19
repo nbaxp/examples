@@ -1,8 +1,6 @@
-using System.Globalization;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
 using Minio;
 using Minio.DataModel.Args;
 

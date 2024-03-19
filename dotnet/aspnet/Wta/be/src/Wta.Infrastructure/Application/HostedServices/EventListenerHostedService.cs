@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.Tracing;
-using Wta.Infrastructure.Attributes;
 
 namespace Wta.Infrastructure.Application.HostedServices;
 

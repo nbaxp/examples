@@ -1,9 +1,7 @@
-using Wta.Application.Default.Domain;
-using Wta.Infrastructure.Application.Models;
-
 namespace Wta.Application.Default.Models;
 
-public class DictModel : IBaseModel<Dict>
+[DependsOn<Dict>]
+public class DictModel
 {
     public Guid? Id { get; set; }
     public Guid? ParentId { get; set; }

@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace Wta.Infrastructure.Web;
 
 public class TrimJsonConverter : JsonConverter<string>

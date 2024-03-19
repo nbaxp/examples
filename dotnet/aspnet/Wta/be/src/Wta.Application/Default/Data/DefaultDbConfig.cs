@@ -1,7 +1,3 @@
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Wta.Application.Default.Domain;
-using Wta.Infrastructure.Attributes;
-
 namespace Wta.Application.Default.Data;
 
 [DependsOn<DefaultDbContext>]
@@ -23,10 +19,12 @@ public class DefaultDbConfig : IEntityTypeConfiguration<Tenant>,
 
     public void Configure(EntityTypeBuilder<Dict> builder)
     {
+        //builder.HasIndex(o => new { o.TenantNumber, o.Number }).IsUnique();
     }
 
     public void Configure(EntityTypeBuilder<Department> builder)
     {
+        //builder.HasIndex(o => new { o.TenantNumber, o.Number }).IsUnique();
     }
 
     public void Configure(EntityTypeBuilder<User> builder)
@@ -51,6 +49,7 @@ public class DefaultDbConfig : IEntityTypeConfiguration<Tenant>,
 
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
+        //builder.HasIndex(o => new { o.TenantNumber, o.ParentId, o.Number }).IsUnique();
     }
 
     public void Configure(EntityTypeBuilder<RolePermission> builder)

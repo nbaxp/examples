@@ -67,12 +67,12 @@
               <el-dropdown-item>
                 <router-link to="/account">
                   <el-icon> <b class="i-ep-user" /> </el-icon>
-                  <span>{{ $t('userCenter') }}</span>
+                  <span>{{ $t('用户中心') }}</span>
                 </router-link>
               </el-dropdown-item>
               <el-dropdown-item divided @click="confirmLogout">
                 <el-icon> <b class="i-ep-switch-button" /> </el-icon>
-                <span>{{ $t('logout') }}</span>
+                <span>{{ $t('注销') }}</span>
               </el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -160,7 +160,7 @@
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(document.documentElement);
   const confirmLogout = async () => {
     try {
-      await ElMessageBox.confirm(t('confirmLogout'), t('tip'), { type: 'warning' });
+      await ElMessageBox.confirm(t('确认退出'), t('警告'), { type: 'warning' });
       await tokenStore.logout();
     } catch (error) {
       if (error === 'cancel') {

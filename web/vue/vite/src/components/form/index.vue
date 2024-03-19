@@ -19,9 +19,9 @@
     <el-form-item v-if="!hideButton" style="margin-bottom: 0">
       <slot name="submit">
         <el-button type="primary" :disabled="loading" :style="schema.submitStyle" @click="submit">
-          {{ $t(schema.title ?? 'confirm') }}
+          {{ $t(schema.title ?? '确定') }}
         </el-button>
-        <el-button v-if="showReset" :disabled="loading" @click="reset"> {{ $t('reset') }} </el-button>
+        <el-button v-if="showReset" :disabled="loading" @click="reset"> {{ $t('重置') }} </el-button>
       </slot>
     </el-form-item>
   </el-form>

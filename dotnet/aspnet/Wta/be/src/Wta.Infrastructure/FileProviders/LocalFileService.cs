@@ -1,10 +1,7 @@
-using System.Globalization;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
-using Wta.Infrastructure.Attributes;
 
 namespace Wta.Infrastructure.FileProviders;
 

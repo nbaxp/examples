@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
-
 namespace Wta.Infrastructure.Web;
 
 public class AuthJwtBearerPostConfigureOptions(AuthJwtSecurityTokenHandler authJwtSecurityTokenHandler) : JwtBearerPostConfigureOptions, IPostConfigureOptions<JwtBearerOptions>

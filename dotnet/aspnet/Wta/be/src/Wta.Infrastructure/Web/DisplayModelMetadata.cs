@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
-
 namespace Wta.Infrastructure.Web;
 
 public class DisplayModelMetadata(IStringLocalizer stringLocalizer, IModelMetadataProvider provider, ICompositeMetadataDetailsProvider detailsProvider, DefaultMetadataDetails details, DefaultModelBindingMessageProvider modelBindingMessageProvider) : DefaultModelMetadata(provider, detailsProvider, details, modelBindingMessageProvider)

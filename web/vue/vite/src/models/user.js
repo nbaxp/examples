@@ -8,6 +8,7 @@ const properties = {
     hidden: true,
   },
   userName: {
+    title: '用户名',
     readonly: true,
     rules: [{ required: true }],
   },
@@ -16,6 +17,7 @@ const properties = {
     hideInList: true,
   },
   email: {
+    title: '邮箱',
     roles: [
       {
         pattern: emailRegex,
@@ -23,6 +25,7 @@ const properties = {
     ],
   },
   phoneNumber: {
+    title: '手机号',
     roles: [
       {
         pattern: phoneNumberRegex,
@@ -30,17 +33,20 @@ const properties = {
     ],
   },
   avatar: {
+    title: '头像',
     input: 'upload',
     isImage: true,
     url: 'file/upload',
     accept: '.svg,.png',
   },
   departmentId: {
+    title: '部门',
     input: 'cascader',
     url: 'department/search',
     checkStrictly: true,
   },
   roles: {
+    title: '角色',
     type: 'array',
     input: 'select',
     multiple: true,

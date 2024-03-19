@@ -6,8 +6,8 @@ const properties = {
   id: {
     hidden: true,
   },
-  name: {},
-  number: {},
+  name: { title: '名称' },
+  number: { title: '编号' },
   permissions: {
     type: 'array',
     input: 'cascader',

@@ -3,8 +3,8 @@ export default function () {
     url: 'user/reset-password',
     properties: {
       currentPassword: {
+        title: '当前密码',
         input: 'password',
-        icon: 'password',
         rules: [
           {
             required: true,
@@ -12,8 +12,8 @@ export default function () {
         ],
       },
       newPassword: {
+        title: '新密码',
         input: 'password',
-        icon: 'password',
         rules: [
           {
             required: true,
@@ -21,8 +21,8 @@ export default function () {
         ],
       },
       confirmNewPassword: {
+        title: '确认新密码',
         input: 'password',
-        icon: 'password',
         rules: [
           {
             validator: 'compare',

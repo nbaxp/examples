@@ -1,7 +1,4 @@
-using Microsoft.AspNetCore.Builder;
-using Wta.Infrastructure.Application.Models;
-using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Extensions;
+using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Startup;
 
 public static class WtaApplication
@@ -55,12 +52,12 @@ public static class WtaApplication
             });
         // 缓存实体和模型关系
         Assemblies.SelectMany(o => o.GetTypes())
-            .Where(o => !o.IsAbstract && o.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IBaseModel<>)))
+            .Where(o => o.IsClass &&
+            !o.IsAbstract &&
+            o.GetCustomAttributes(typeof(DependsOnAttribute<>)).Any(o => o.GetType().GenericTypeArguments.First().IsAssignableTo(typeof(IResource))))
             .ForEach(item =>
             {
-                var entityType = item.GetInterfaces()
-                .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IBaseModel<>))!
-                .GenericTypeArguments[0];
+                var entityType = item.GetCustomAttribute(typeof(DependsOnAttribute<>))?.GetType().GenericTypeArguments.First()!;
                 EntityModel.Add(entityType, item);
             });
     }

@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace Wta.Application.Default.Models;
 
 public class LoginResponseModel

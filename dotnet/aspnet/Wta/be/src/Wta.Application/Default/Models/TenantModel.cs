@@ -1,9 +1,7 @@
-using Wta.Application.Default.Domain;
-using Wta.Infrastructure.Application.Models;
-
 namespace Wta.Application.Default.Models;
 
-public class TenantModel : IBaseModel<Tenant>
+[DependsOn<Tenant>]
+public class TenantModel
 {
     public Guid? Id { get; set; }
 

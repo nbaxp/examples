@@ -2,13 +2,13 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using Wta.Infrastructure.Application.Domain;
 
-namespace Wta.Infrastructure.Application.Models;
+namespace Wta.Infrastructure.Application.Domain;
 
-public class MonitorModel : IResource
+[System, Display(Name = "监控", Order = 0)]
+public class Monitor : IResource
 {
-    public MonitorModel()
+    public Monitor()
     {
         var addresses = Dns.GetHostAddresses(Dns.GetHostName())
                     .Where(o => o.AddressFamily == AddressFamily.InterNetwork)
@@ -160,6 +160,7 @@ public class MonitorModel : IResource
     /// 已发生的异常数
     /// </summary>
     public int ExceptionCount { get; set; }
+
     public int TotalRequests { get; set; }
     public int CurrentRequests { get; set; }
     public int BytesReceived { get; set; }

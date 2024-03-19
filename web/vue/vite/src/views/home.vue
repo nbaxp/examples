@@ -1,4 +1,5 @@
 <template>
+  <div>{{ $t('中文') }}</div>
   <el-row><md name="home" /></el-row>
   <el-row><editor v-model="model" upload-url="file/upload" /> </el-row>
   <el-row><chart :options="options" width="400px" height="200px" /></el-row>

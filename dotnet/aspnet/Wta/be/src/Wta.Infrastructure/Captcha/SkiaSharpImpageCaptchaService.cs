@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using SkiaSharp;
-using Wta.Infrastructure.Attributes;
 
 namespace Wta.Infrastructure.Captcha;
 

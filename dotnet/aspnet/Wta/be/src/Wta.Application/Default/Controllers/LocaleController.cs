@@ -1,11 +1,3 @@
-using System.Globalization;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Wta.Application.Default.Models;
-using Wta.Infrastructure.Controllers;
-using Wta.Infrastructure.Web;
-
 namespace Wta.Application.Default.Controllers;
 
 [Route("api/locale")]

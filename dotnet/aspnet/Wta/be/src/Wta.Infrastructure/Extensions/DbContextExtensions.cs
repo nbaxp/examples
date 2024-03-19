@@ -10,11 +10,11 @@ public static class DbContextExtensions
         var providerName = dbContext.Database.ProviderName!.ToLowerInvariant();
         if (providerName == "sqlserver")
         {
-            type = "SequentialAtEnd ";
+            type = "SequentialAtEnd";
         }
         else if (providerName == "oracle")
         {
-            type = "SequentialAsBinary ";
+            type = "SequentialAsBinary";
         }
         var sequentialGuid = WtaApplication.Application.Services.GetRequiredService<ISequentialGuid>();
         return sequentialGuid.Create(type);

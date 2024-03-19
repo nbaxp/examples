@@ -1,8 +1,5 @@
 using MailKit.Net.Smtp;
-using Microsoft.Extensions.Options;
 using MimeKit;
-using Wta.Infrastructure.Application.Configuration;
-using Wta.Infrastructure.Attributes;
 
 namespace Wta.Infrastructure.Email;
 

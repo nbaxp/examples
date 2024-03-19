@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore.Storage;
-using Wta.Infrastructure.Attributes;
 
 namespace Wta.Infrastructure.Data;
 

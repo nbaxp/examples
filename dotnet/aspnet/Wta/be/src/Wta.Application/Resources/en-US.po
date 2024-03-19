@@ -81,3 +81,11 @@ msgid "PhoneNumber"
 msgstr "Phone Number"
 msgid "VerifyCode"
 msgstr "Verify Code"
+
+
+#
+msgid "应用程序"
+msgstr "Application"
+
+msgid "版权所有 © {0}"
+msgstr "Copyright © {0}"

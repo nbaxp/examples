@@ -1,4 +1,4 @@
-﻿using Wta.Application.Default;
+using Wta.Application.Default;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Startup;
 

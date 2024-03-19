@@ -6,16 +6,20 @@ const properties = {
   id: {
     hidden: true,
   },
-  number: {},
-  name: {},
+  name: { title: '名称' },
+  number: { title: '编号' },
   icon: {
+    name: { title: '图标' },
     input: 'icon',
   },
-  order: {},
+  order: { title: '序号' },
   disabled: {
+    title: '禁用',
     type: 'boolean',
   },
-  parentId: {},
+  parentId: {
+    title: '上级',
+  },
 };
 
 const schema = {
@@ -23,7 +27,7 @@ const schema = {
     query: useQuery(properties, true, 'order'),
     list: {
       isTree: true,
-      key: 'number',
+      key: 'name',
       properties,
     },
     details: {

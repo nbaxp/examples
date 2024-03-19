@@ -1,6 +1,3 @@
-using Wta.Infrastructure.Controllers;
-using Wta.Infrastructure.Web;
-
 namespace Wta.Application.Default.Controllers;
 
 public class ExampleController : BaseController

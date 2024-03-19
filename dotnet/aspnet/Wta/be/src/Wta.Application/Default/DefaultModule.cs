@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Builder;
 using Wta.Infrastructure.Startup;
 
 namespace Wta.Application.Default;

@@ -4,22 +4,22 @@
       <el-card class="box-card">
         <template #header>
           <div class="card-header">
-            <span> {{ t('host') }}</span>
+            <span> {{ t('主机') }}</span>
           </div>
         </template>
         <el-descriptions border>
-          <el-descriptions-item :label="t('serverTime')"
+          <el-descriptions-item :label="t('服务器时间')"
             >{{ dayjs(model.serverTime).format('YYYY-MM-DD HH:mm:ss') }}
           </el-descriptions-item>
-          <el-descriptions-item :label="t('cpuCount')">{{ model.cpuCount }} </el-descriptions-item>
-          <el-descriptions-item :label="t('memoryTotal')">{{ bytesFormat(model.memoryTotal) }} </el-descriptions-item>
-          <el-descriptions-item :label="t('osArchitecture')">{{ model.osArchitecture }} </el-descriptions-item>
-          <el-descriptions-item :label="t('osDescription')">{{ model.osDescription }} </el-descriptions-item>
-          <el-descriptions-item :label="t('hostName')">{{ model.hostName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('runtimeIdentifier')">{{ model.runtimeIdentifier }} </el-descriptions-item>
-          <el-descriptions-item :label="t('userName')">{{ model.userName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('processCount')">{{ model.processCount }} </el-descriptions-item>
-          <el-descriptions-item :label="t('hostAddresses')">{{ model.hostAddresses }} </el-descriptions-item>
+          <el-descriptions-item :label="t('CPU总数')">{{ model.cpuCount }} </el-descriptions-item>
+          <el-descriptions-item :label="t('内存合计')">{{ bytesFormat(model.memoryTotal) }} </el-descriptions-item>
+          <el-descriptions-item :label="t('OS架构')">{{ model.osArchitecture }} </el-descriptions-item>
+          <el-descriptions-item :label="t('OS简介')">{{ model.osDescription }} </el-descriptions-item>
+          <el-descriptions-item :label="t('主机名称')">{{ model.hostName }} </el-descriptions-item>
+          <el-descriptions-item :label="t('运行时标识')">{{ model.runtimeIdentifier }} </el-descriptions-item>
+          <el-descriptions-item :label="t('用户名')">{{ model.userName }} </el-descriptions-item>
+          <el-descriptions-item :label="t('进程数')">{{ model.processCount }} </el-descriptions-item>
+          <el-descriptions-item :label="t('主机地址')">{{ model.hostAddresses }} </el-descriptions-item>
         </el-descriptions>
       </el-card>
     </el-col>
@@ -41,23 +41,23 @@
       <el-card class="box-card">
         <template #header>
           <div class="card-header">
-            <span> {{ t('process') }}</span>
+            <span> {{ t('进程') }}</span>
           </div>
         </template>
         <el-descriptions border :column="3">
-          <el-descriptions-item :label="t('processArchitecture')">
+          <el-descriptions-item :label="t('进程架构')">
             {{ model.processArchitecture }}
           </el-descriptions-item>
-          <el-descriptions-item :label="t('processId')">{{ model.processId }} </el-descriptions-item>
-          <el-descriptions-item :label="t('processName')">{{ model.processName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('processArguments')">{{ model.processArguments }} </el-descriptions-item>
-          <el-descriptions-item :label="t('processHandleCount')">{{ model.processHandleCount }} </el-descriptions-item>
-          <el-descriptions-item :label="t('processFileName')">{{ model.processFileName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('driveName')">{{ model.driveName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('drivieTotalSize')"
+          <el-descriptions-item :label="t('进程Id')">{{ model.processId }} </el-descriptions-item>
+          <el-descriptions-item :label="t('进程名称')">{{ model.processName }} </el-descriptions-item>
+          <el-descriptions-item :label="t('进程参数')">{{ model.processArguments }} </el-descriptions-item>
+          <el-descriptions-item :label="t('句柄数量')">{{ model.processHandleCount }} </el-descriptions-item>
+          <el-descriptions-item :label="t('进程文件')">{{ model.processFileName }} </el-descriptions-item>
+          <el-descriptions-item :label="t('驱动器名称')">{{ model.driveName }} </el-descriptions-item>
+          <el-descriptions-item :label="t('驱动器大小')"
             >{{ bytesFormat(model.drivieTotalSize) }}
           </el-descriptions-item>
-          <el-descriptions-item :label="t('driveAvailableFreeSpace')">
+          <el-descriptions-item :label="t('剩余空间')">
             {{ bytesFormat(model.driveAvailableFreeSpace) }}
           </el-descriptions-item>
         </el-descriptions>
@@ -69,17 +69,20 @@
       <el-card class="box-card">
         <template #header>
           <div class="card-header">
-            <span> {{ t('framework') }}</span>
+            <span> {{ t('Framework') }}</span>
           </div>
         </template>
         <el-descriptions border :column="3">
-          <el-descriptions-item :label="t('framework')">{{ model.framework }} </el-descriptions-item>
-          <el-descriptions-item :label="t('exceptionCount')">{{ model.exceptionCount }} </el-descriptions-item>
-          <el-descriptions-item :label="t('totalRequests')">{{ model.totalRequests }} </el-descriptions-item>
-          <el-descriptions-item :label="t('bytesReceived')">
+          <el-descriptions-item :label="t('版本')">{{ model.framework }} </el-descriptions-item>
+          <el-descriptions-item :label="t('异常数量')">{{ model.exceptionCount }} </el-descriptions-item>
+          <el-descriptions-item :label="t('请求总数')">{{ model.totalRequests }} </el-descriptions-item>
+          <el-descriptions-item :label="t('接收数据')">
             {{ bytesFormat(model.bytesReceived) }}
           </el-descriptions-item>
-          <el-descriptions-item :label="t('bytesSent')">{{ bytesFormat(model.bytesSent) }} </el-descriptions-item>
+          <el-descriptions-item :label="t('发送数据')">{{ bytesFormat(model.bytesSent) }} </el-descriptions-item>
+          <el-descriptions-item :label="t('请求总数')">
+            {{ persentFormat(model.totalRequests) }}
+          </el-descriptions-item>
         </el-descriptions>
       </el-card>
     </el-col>

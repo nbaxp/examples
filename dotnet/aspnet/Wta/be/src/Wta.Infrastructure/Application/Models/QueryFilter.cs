@@ -1,6 +1,4 @@
 using System.Linq.Expressions;
-using Wta.Infrastructure.Data;
-using Wta.Infrastructure.Extensions;
 
 namespace Wta.Infrastructure.Application.Models;
 

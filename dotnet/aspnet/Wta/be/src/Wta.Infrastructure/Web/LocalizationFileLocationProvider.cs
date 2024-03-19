@@ -1,5 +1,3 @@
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
 using OrchardCore.Localization;
 
 namespace Wta.Infrastructure.Web;

@@ -7,6 +7,7 @@ export default function () {
     submitStyle: 'width:100%',
     properties: {
       emailOrPhoneNumber: {
+        title: '邮箱或手机号码',
         rules: [
           {
             required: true,
@@ -22,8 +23,7 @@ export default function () {
         ],
       },
       authCode: {
-        title: 'authCode',
-        icon: 'auth',
+        title: '验证码',
         input: 'code-captcha',
         url: 'captcha/code',
         timeout: 120,
@@ -36,8 +36,8 @@ export default function () {
         ],
       },
       password: {
+        title: '密码',
         input: 'password',
-        icon: 'password',
         rules: [
           {
             required: true,
@@ -45,8 +45,8 @@ export default function () {
         ],
       },
       confirmPassword: {
+        title: '确认密码',
         input: 'password',
-        icon: 'password',
         rules: [
           {
             validator: 'compare',

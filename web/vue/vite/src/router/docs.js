@@ -13,7 +13,7 @@ export default {
   redirect: '/docs/folder',
   component: Layout,
   meta: {
-    title: 'docs',
+    title: '文档',
     icon: 'help',
     order: 1000,
   },

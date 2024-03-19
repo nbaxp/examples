@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Builder;
-
 namespace Wta.Infrastructure.Startup;
 
 public interface IStartup

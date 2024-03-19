@@ -17,13 +17,13 @@
               "
             >
               <div style="text-align: center">
-                <div>{{ $t('qrCodeLogin') }}</div>
+                <div>{{ $t('扫码登录') }}</div>
                 <img v-if="qrcode" style="cursor: pointer" :src="qrcode" @click="getQrCode" />
               </div>
             </el-col>
             <el-col :span="14">
               <el-tabs>
-                <el-tab-pane :label="$t('passwordLogin')">
+                <el-tab-pane :label="$t('密码登录')">
                   <app-form
                     ref="passwordForm"
                     v-model="passwordModel"
@@ -32,15 +32,15 @@
                     @error="error"
                   />
                 </el-tab-pane>
-                <el-tab-pane :label="$t('smsLogin')">
+                <el-tab-pane :label="$t('短信登录')">
                   <app-form v-model="smsModel" :schema="config.properties.smsLogin" @success="success" />
                 </el-tab-pane>
               </el-tabs>
               <div style="display: flex; align-items: center; justify-content: space-between; height: 50px">
-                <router-link style to="/register">{{ $t('register') }}</router-link>
-                <router-link style to="/forgot-password">{{ $t('forgotPassword') }}</router-link>
+                <router-link style to="/register">{{ $t('注册') }}</router-link>
+                <router-link style to="/forgot-password">{{ $t('忘记密码') }}</router-link>
               </div>
-              <el-divider>{{ $t('externalLogin') }}</el-divider>
+              <el-divider>{{ $t('其他登录') }}</el-divider>
               <el-space :size="24" style="display: flex; align-items: center; justify-content: center">
                 <svg-icon
                   v-for="item in config.properties.externalLogin"

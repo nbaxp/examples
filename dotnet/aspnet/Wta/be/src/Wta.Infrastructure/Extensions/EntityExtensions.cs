@@ -38,7 +38,6 @@ public static class EntityExtensions
 
     public static T UpdateNode<T>(this BaseTreeEntity<T> entity) where T : BaseEntity
     {
-        //entity.Id = $"{entity.TenantId},{entity.Number}".ToGuid();
         entity.Path = $"{(entity.Parent as BaseTreeEntity<T>)?.Path}/{entity.Number}";
         if (entity.Children.Any())
         {

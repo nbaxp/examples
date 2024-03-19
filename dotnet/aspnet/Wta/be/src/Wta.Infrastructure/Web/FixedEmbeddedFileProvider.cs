@@ -1,5 +1,3 @@
-using Microsoft.Extensions.FileProviders;
-
 namespace Wta.Infrastructure.Web;
 
 /// <summary>

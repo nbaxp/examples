@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
 using Wta.Infrastructure.Application.Events;
-using Wta.Infrastructure.Event;
-using Wta.Infrastructure.SignalR;
 
 namespace Wta.Infrastructure.Application.EventHandlers;
 

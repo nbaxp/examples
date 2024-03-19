@@ -29,9 +29,9 @@
                 </template>
               </el-button>
             </template>
-            <el-button type="primary" style="float: right" @click="print">{{ $t('print') }}</el-button>
-            <el-button type="primary" style="float: right" @click="drawerVisible = true">{{ $t('filter') }}</el-button>
-            <el-button type="primary" style="float: right" @click="reset">{{ $t('reset') }}</el-button>
+            <el-button type="primary" style="float: right" @click="print">{{ $t('打印') }}</el-button>
+            <el-button type="primary" style="float: right" @click="drawerVisible = true">{{ $t('过滤') }}</el-button>
+            <el-button type="primary" style="float: right" @click="reset">{{ $t('重置') }}</el-button>
           </div>
           <div style="flex: 1; overflow: auto">
             <el-auto-resizer>
@@ -66,7 +66,7 @@
         </div>
       </el-card>
     </template>
-    <el-drawer v-model="drawerVisible" :title="$t('filter')" size="auto" destroy-on-close>
+    <el-drawer v-model="drawerVisible" :title="$t('过滤')" size="auto" destroy-on-close>
       <template v-for="(item, i) in columns" :key="item">
         <div
           v-if="item.title"
@@ -85,12 +85,12 @@
       </template>
       <template #footer>
         <el-button type="primary" @click="selectAll">
-          {{ $t('selectAll') }}
+          {{ $t('全选') }}
         </el-button>
         <el-button type="primary" @click="invertSelect">
-          {{ $t('invertSelect') }}
+          {{ $t('反选') }}
         </el-button>
-        <el-button type="primary" @click="resetColumns">{{ $t('reset') }}</el-button>
+        <el-button type="primary" @click="resetColumns">{{ $t('重置') }}</el-button>
       </template>
     </el-drawer>
     <el-dialog
@@ -110,7 +110,7 @@
         type="primary"
         @click="click(buttons.find((o) => o.meta?.command === 'import-template'))"
       >
-        {{ $t('importTemplate') }}
+        {{ $t('模板') }}
       </el-button>
       <app-form
         ref="dialogFormRef"
@@ -490,7 +490,7 @@
       {
         key: 'rowNumber',
         dataKey: 'rowNumber',
-        title: t('rowNumber'),
+        title: t('行号'),
         fixed: 'left',
         width: 44,
         hidden: false,
@@ -551,7 +551,7 @@
         key: 'operations',
         width,
         fixed: 'right',
-        title: t('operations'),
+        title: t('操作'),
         cellRenderer: (prop) => {
           return (
             <>

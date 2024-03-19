@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Wta.Infrastructure.Web;
 
 namespace Wta.Infrastructure.Controllers;
 

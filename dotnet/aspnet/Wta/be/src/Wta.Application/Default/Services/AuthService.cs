@@ -1,10 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using Wta.Application.Default.Domain;
-using Wta.Infrastructure.Application.Domain;
-using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Auth;
-using Wta.Infrastructure.Data;
-
 namespace Wta.Application.Default.Services;
 
 public class AuthService(IRepository<User> repository, IHttpContextAccessor httpContextAccessor) : IAuthService

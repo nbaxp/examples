@@ -44,7 +44,7 @@
                 <span>{{ item.meta.title }}</span>
               </el-button>
             </template>
-            <el-button v-if="config.query.hasFilter" @click="click('filter', selectedRows)">
+            <el-button v-if="config.query.hasFilter" @click="click('过滤', selectedRows)">
               <el-icon><ep-filter /></el-icon>
               <span>{{ $t('筛选') }}</span>
             </el-button>
@@ -168,7 +168,7 @@
   </div>
   <el-drawer v-model="filterDrawer" :close-on-click-modal="false" destroy-on-close @close="tableRef.doLayout()">
     <template #header>
-      <span class="el-dialog__title"> {{ $t('filter') }} </span>
+      <span class="el-dialog__title"> {{ $t('过滤') }} </span>
     </template>
     <el-scrollbar>
       <el-row>
@@ -176,12 +176,12 @@
           <el-form inline>
             <el-form-item>
               <el-button type="primary" @click="columns.forEach((o) => (o.checked = true))">
-                {{ $t('selectAll') }}
+                {{ $t('全选') }}
               </el-button>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="columns.forEach((o) => (o.checked = !o.checked))">
-                {{ $t('selectInverse') }}
+                {{ $t('反选') }}
               </el-button>
             </el-form-item>
             <el-form-item v-for="item in columns">

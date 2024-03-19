@@ -10,8 +10,8 @@
             <el-col>
               <app-form v-model="model" :schema="schema" @success="success" />
               <div style="display: flex; align-items: center; justify-content: space-between; height: 50px">
-                <router-link style to="/login">{{ $t('login') }}</router-link>
-                <router-link style to="/register">{{ $t('register') }}</router-link>
+                <router-link style to="/login">{{ $t('登录') }}</router-link>
+                <router-link style to="/register">{{ $t('注册') }}</router-link>
               </div>
             </el-col>
           </el-row>

@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Wta.Infrastructure.Application.Domain;
-using Wta.Infrastructure.Event;
-using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.Tenant;
 
 namespace Wta.Infrastructure.Data;
@@ -62,10 +60,10 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                     //配置树形结构实体
                     if (entityType.IsAssignableTo(typeof(BaseTreeEntity<>).MakeGenericType(entityType)))
                     {
-                        modlerBuilder.Property("Name").IsRequired();
-                        modlerBuilder.Property("Number").IsRequired();
-                        modlerBuilder.HasIndex("TenantNumber", "Number").IsUnique();
-                        modlerBuilder.HasOne("Parent").WithMany("Children").HasForeignKey("ParentId").OnDelete(DeleteBehavior.SetNull);
+                        modlerBuilder.Property(nameof(BaseTreeEntity<BaseEntity>.Name)).IsRequired();
+                        modlerBuilder.Property(nameof(BaseTreeEntity<BaseEntity>.Number)).IsRequired();
+                        modlerBuilder.HasIndex(nameof(BaseTreeEntity<BaseEntity>.TenantNumber), nameof(BaseTreeEntity<BaseEntity>.Number)).IsUnique();
+                        modlerBuilder.HasOne(nameof(BaseTreeEntity<BaseEntity>.Parent)).WithMany(nameof(BaseTreeEntity<BaseEntity>.Children)).HasForeignKey(nameof(BaseTreeEntity<BaseEntity>.ParentId)).OnDelete(DeleteBehavior.SetNull);
                     }
                 }
                 //配置属性

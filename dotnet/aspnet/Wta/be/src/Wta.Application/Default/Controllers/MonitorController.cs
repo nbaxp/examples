@@ -1,18 +1,11 @@
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using Microsoft.AspNetCore.Mvc;
-using Wta.Infrastructure.Application.HostedServices;
-using Wta.Infrastructure.Application.Models;
-using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Controllers;
+using Monitor = Wta.Infrastructure.Application.Domain.Monitor;
 
 namespace Wta.Application.Default.Controllers;
 
 [View("monitor")]
-public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : BaseController
+public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : BaseController, IResourceService<Monitor>
 {
+    [Ignore]
     [AllowAnonymous]
     [HttpGet]
     public async Task Index()
@@ -27,7 +20,7 @@ public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : Ba
             .ToArray();
             var memoryTotal = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes;
             var drive = DriveInfo.GetDrives().FirstOrDefault(o => o.RootDirectory.FullName == Directory.GetDirectoryRoot(Path.GetPathRoot(Environment.ProcessPath!)!))!;
-            var line = new MonitorModel
+            var line = new Infrastructure.Application.Domain.Monitor
             {
                 OSArchitecture = RuntimeInformation.OSArchitecture.ToString(),
                 OSDescription = RuntimeInformation.OSDescription,

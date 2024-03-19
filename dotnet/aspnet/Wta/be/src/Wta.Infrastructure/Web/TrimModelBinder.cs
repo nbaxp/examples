@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-
 namespace Wta.Infrastructure.Web;
 
 public class TrimModelBinder : IModelBinder

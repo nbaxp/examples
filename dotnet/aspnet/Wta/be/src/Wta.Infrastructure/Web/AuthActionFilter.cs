@@ -1,9 +1,7 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Wta.Infrastructure.Exceptions;
-using Wta.Infrastructure.Extensions;
 
 namespace Wta.Infrastructure.Web;
 

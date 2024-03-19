@@ -1,15 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
 using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Application.Models;
-using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Auth;
-using Wta.Infrastructure.Data;
-using Wta.Infrastructure.Event;
 using Wta.Infrastructure.Exceptions;
-using Wta.Infrastructure.Extensions;
 using Wta.Infrastructure.ImportExport;
-using Wta.Infrastructure.Web;
 
 namespace Wta.Infrastructure.Controllers;
 
@@ -27,7 +21,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     public IRepository<TEntity> Repository { get; } = repository;
     public IEventPublisher EventPublisher = eventPublisher;
 
-    [Display(Order = 1)]
+    [Display(Name = "查询", Order = 1)]
     public virtual ApiResult<QueryModel<TModel>> Search(QueryModel<TModel> model)
     {
         var query = Where(model);
@@ -45,7 +39,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(model);
     }
 
-    [Display(Order = 2)]
+    [Display(Name = "详情", Order = 2)]
     [Button(Type = ButtonType.Row)]
     public virtual ApiResult<TModel> Details([FromBody] Guid id)
     {
@@ -54,7 +48,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(model);
     }
 
-    [Display(Order = 3), Hidden]
+    [Display(Name = "导入模板", Order = 3), Hidden]
     public virtual FileContentResult ImportTemplate()
     {
         var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
@@ -65,7 +59,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return result;
     }
 
-    [Display(Order = 4)]
+    [Display(Name = "导入", Order = 4)]
     public virtual ApiResult<bool> Import(ImportModel<TModel> model)
     {
         foreach (var file in model.Files)
@@ -81,7 +75,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(true);
     }
 
-    [Display(Order = 5)]
+    [Display(Name = "导出", Order = 5)]
     public virtual FileContentResult Export(ExportModel<TModel> model)
     {
         var query = Where(model);
@@ -99,7 +93,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return result;
     }
 
-    [Display(Order = 6)]
+    [Display(Name = "新建", Order = 6)]
     public virtual ApiResult<bool> Create(TModel model)
     {
         if (!ModelState.IsValid)
@@ -119,7 +113,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(true);
     }
 
-    [Display(Order = 7)]
+    [Display(Name = "更新", Order = 7)]
     [Button(Type = ButtonType.Row)]
     public virtual ApiResult<bool> Update([FromBody] TModel model)
     {
@@ -167,7 +161,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(true);
     }
 
-    [Display(Order = 8)]
+    [Display(Name = "删除", Order = 8)]
     public virtual ApiResult<bool> Delete([FromBody] Guid[] items)
     {
         foreach (var id in items)

@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-
 namespace Wta.Infrastructure.Extensions;
 
 public static class ModelStateDictionaryExtensions

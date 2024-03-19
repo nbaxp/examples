@@ -1,10 +1,10 @@
 <template>
   <i class="i-ep-setting cursor-pointer" @click="show = !show" />
-  <el-drawer v-model="show" :title="$t('pageSettings')" append-to-body destroy-on-close size="auto">
+  <el-drawer v-model="show" :title="$t('设置')" append-to-body destroy-on-close size="auto">
     <app-form ref="formRef" v-model="appStore.settings" :schema="schema" :hide-button="true" />
     <template #footer>
-      <el-button type="primary" @click="copySettings">{{ $t('copy') }}</el-button>
-      <el-button type="primary" @click="reset">{{ $t('reset') }}</el-button>
+      <el-button type="primary" @click="copySettings">{{ $t('复制') }}</el-button>
+      <el-button type="primary" @click="reset">{{ $t('重置') }}</el-button>
     </template>
   </el-drawer>
 </template>

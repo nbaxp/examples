@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-
 namespace Wta.Application.Default.Models;
 
 public class RegisterModel : CaptchaModel

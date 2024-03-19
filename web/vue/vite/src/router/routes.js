@@ -104,7 +104,7 @@ export default [
               {
                 type: 'button',
                 meta: {
-                  title: 'import',
+                  title: '导入',
                   action: 'import',
                   method: 'POST',
                   url: 'role',
@@ -113,7 +113,7 @@ export default [
               {
                 type: 'button',
                 meta: {
-                  title: 'export',
+                  title: '导出',
                   action: 'export',
                   method: 'POST',
                   url: 'role',

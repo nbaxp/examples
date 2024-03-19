@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
-
 namespace Wta.Infrastructure.Web;
 
 public class RequiredValidationMetadataProvider : IValidationMetadataProvider

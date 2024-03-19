@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Http;
-using Wta.Infrastructure.Attributes;
 
 namespace Wta.Infrastructure.Tenant;
 

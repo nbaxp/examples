@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using Wta.Infrastructure.Attributes;
 
 namespace Wta.Infrastructure.Security;
 

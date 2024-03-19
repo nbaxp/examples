@@ -1,8 +1,4 @@
-using System.Globalization;
 using System.Security.Cryptography;
-using Microsoft.Extensions.Options;
-using Wta.Infrastructure.Application.Configuration;
-using Wta.Infrastructure.Attributes;
 
 namespace Wta.Infrastructure.Sms;
 

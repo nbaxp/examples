@@ -28,7 +28,7 @@ const routes = [
     path: '/register',
     component: view('register'),
     meta: {
-      title: 'register',
+      title: '注册',
       hideInMenu: true,
     },
   },
@@ -36,7 +36,7 @@ const routes = [
     path: '/forgot-password',
     component: view('forgot-password'),
     meta: {
-      title: 'forgotPassword',
+      title: '忘记密码',
       hideInMenu: true,
     },
   },
@@ -44,7 +44,7 @@ const routes = [
     path: '/login',
     component: view('login'),
     meta: {
-      title: 'login',
+      title: '登录',
       hideInMenu: true,
     },
   },
@@ -52,7 +52,7 @@ const routes = [
     path: '/403',
     component: view('403'),
     meta: {
-      title: '403',
+      title: '权限不足',
       hideInMenu: true,
     },
   },
@@ -60,7 +60,7 @@ const routes = [
     path: '/redirect',
     component: view('redirect'),
     meta: {
-      title: 'redirect',
+      title: '跳转',
       hideInMenu: true,
     },
   },
@@ -68,7 +68,7 @@ const routes = [
     path: '/:pathMatch(.*)*',
     component: view('404'),
     meta: {
-      title: '404',
+      title: '未找到',
       hideInMenu: true,
     },
   },
@@ -109,7 +109,7 @@ async function refreshRouter() {
         return {
           id: o.id,
           parentId: o.parentId,
-          path: o.number,
+          path: o.routerPath,
           redirect: o.redirect,
           component: o.component,
           meta: {
@@ -142,7 +142,7 @@ async function refreshRouter() {
     redirect: '/home',
     component: layout('index'),
     meta: {
-      title: 'home',
+      title: '首页',
       icon: 'home',
       order: 1,
     },

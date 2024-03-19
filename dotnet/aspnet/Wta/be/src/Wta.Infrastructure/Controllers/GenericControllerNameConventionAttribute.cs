@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
-
 namespace Wta.Infrastructure.Controllers;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]

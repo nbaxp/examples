@@ -1,8 +1,5 @@
 using System.Net.Http.Json;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using Wta.Infrastructure.Application.Configuration;
 using Wta.Infrastructure.Auth;
 using Wta.Infrastructure.Exceptions;
 

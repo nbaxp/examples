@@ -1,18 +1,5 @@
 using Mapster;
-using Microsoft.AspNetCore.Mvc;
-using Wta.Application.Default.Domain;
-using Wta.Application.Default.Models;
-using Wta.Infrastructure;
 using Wta.Infrastructure.Application.Models;
-using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Controllers;
-using Wta.Infrastructure.Data;
-using Wta.Infrastructure.Event;
-using Wta.Infrastructure.Exceptions;
-using Wta.Infrastructure.Extensions;
-using Wta.Infrastructure.ImportExport;
-using Wta.Infrastructure.Tenant;
-using Wta.Infrastructure.Web;
 
 namespace Wta.Application.Default.Controllers;
 

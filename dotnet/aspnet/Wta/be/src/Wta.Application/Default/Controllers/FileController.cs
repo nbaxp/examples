@@ -1,8 +1,4 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Wta.Infrastructure.Controllers;
 using Wta.Infrastructure.FileProviders;
-using Wta.Infrastructure.Web;
 
 namespace Wta.Application.Default.Controllers;
 

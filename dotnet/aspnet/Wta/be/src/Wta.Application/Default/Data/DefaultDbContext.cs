@@ -1,6 +1,3 @@
-using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Data;
-
 namespace Wta.Application.Default.Data;
 
 [DependsOn<DefaultModule>]

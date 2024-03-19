@@ -1,9 +1,7 @@
-using Wta.Application.Default.Domain;
-using Wta.Infrastructure.Application.Models;
-
 namespace Wta.Application.Default.Models;
 
-public class DepartmentModel : IBaseModel<Department>
+[DependsOn<Department>]
+public class DepartmentModel
 {
     public Guid? Id { get; set; }
     public Guid? ParentId { get; set; }

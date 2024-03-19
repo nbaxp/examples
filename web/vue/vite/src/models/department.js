@@ -6,11 +6,15 @@ const properties = {
   id: {
     hidden: true,
   },
-  name: {},
+  name: {
+    title: '名称',
+  },
   number: {
+    title: '编号',
     readonly: true,
   },
   parentId: {
+    title: '上级',
     type: 'string',
     input: 'cascader',
     checkStrictly: true,

@@ -20,20 +20,20 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="refresh(index)">
-                  <el-icon><i class="i-ep-refresh" /></el-icon><span>{{ $t('refresh') }}</span>
+                  <el-icon><i class="i-ep-refresh" /></el-icon><span>{{ $t('刷新') }}</span>
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="index === 0" @click="removeLeft(index)">
-                  <el-icon><i class="i-ep-back" /></el-icon><span>{{ $t('closeLeft') }}</span>
+                  <el-icon><i class="i-ep-back" /></el-icon><span>{{ $t('关闭左侧') }}</span>
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="index === tabsStore.routes.length - 1" @click="removeRight(index)">
-                  <el-icon><i class="i-ep-right" /></el-icon><span>{{ $t('closeRight') }}</span>
+                  <el-icon><i class="i-ep-right" /></el-icon><span>{{ $t('关闭右侧') }}</span>
                 </el-dropdown-item>
                 <el-dropdown-item
                   :disabled="index === 0 && index === tabsStore.routes.length - 1"
                   @click="removeOthers(index)"
                 >
                   <el-icon><i class="i-ep-switch" /></el-icon>
-                  <span>{{ $t('closeOther') }}</span>
+                  <span>{{ $t('关闭其他') }}</span>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>

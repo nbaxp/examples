@@ -1,6 +1,6 @@
 <template>
   <div style="display: inline-flex; width: 100%">
-    <el-input v-model="model" style="min-width: 50%" :placeholder="$t('请输入验证码')">
+    <el-input v-model="model" style="min-width: 50%" :placeholder="$t('验证码')">
       <template #prefix>
         <el-icon v-if="icon" class="el-input__icon"><svg-icon :name="icon" /></el-icon>
       </template>
@@ -11,7 +11,7 @@
       style="max-height: 30px; margin-left: 10px"
       :disabled="disabled"
     >
-      <template v-if="!loading">{{ $t('sendAuthCode') }}</template>
+      <template v-if="!loading">{{ $t('发送验证码') }}</template>
       <template v-else>{{ $t('resend', [seconds]) }}</template>
     </el-button>
   </div>

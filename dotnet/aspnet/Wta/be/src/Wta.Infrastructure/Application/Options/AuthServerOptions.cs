@@ -1,5 +1,3 @@
-using Wta.Infrastructure.Attributes;
-
 namespace Wta.Infrastructure.Application.Configuration;
 
 [Options]

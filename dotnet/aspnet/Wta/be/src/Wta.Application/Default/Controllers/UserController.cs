@@ -1,20 +1,3 @@
-using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Wta.Application.Default.Domain;
-using Wta.Application.Default.Models;
-using Wta.Infrastructure.Application.Domain;
-using Wta.Infrastructure.Attributes;
-using Wta.Infrastructure.Auth;
-using Wta.Infrastructure.Controllers;
-using Wta.Infrastructure.Data;
-using Wta.Infrastructure.Event;
-using Wta.Infrastructure.Exceptions;
-using Wta.Infrastructure.Extensions;
-using Wta.Infrastructure.ImportExport;
-using Wta.Infrastructure.Security;
-using Wta.Infrastructure.Web;
-
 namespace Wta.Application.Default.Controllers;
 
 [Service<IAuthService>(ServiceLifetime.Transient)]

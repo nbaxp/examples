@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Wta.Infrastructure.Extensions;
 

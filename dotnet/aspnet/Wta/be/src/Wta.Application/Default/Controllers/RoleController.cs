@@ -1,10 +1,3 @@
-using Wta.Application.Default.Domain;
-using Wta.Application.Default.Models;
-using Wta.Infrastructure.Controllers;
-using Wta.Infrastructure.Data;
-using Wta.Infrastructure.Event;
-using Wta.Infrastructure.ImportExport;
-
 namespace Wta.Application.Default.Controllers;
 
 public class RoleController(ILogger<Role> logger, IStringLocalizer stringLocalizer, IRepository<Role> repository, IEventPublisher eventPublisher, IExportImportService exportImportService) : GenericController<Role, RoleModel>(logger, stringLocalizer, repository, eventPublisher, exportImportService)

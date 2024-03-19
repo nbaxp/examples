@@ -1,13 +1,14 @@
 export default function () {
   return {
     type: 'object',
-    title: 'import',
+    title: '导入',
     properties: {
       update: {
+        title: '更新已存在',
         type: 'boolean',
       },
       files: {
-        title: 'Files',
+        title: '文件',
         type: 'array',
         multiple: true,
         input: 'file',

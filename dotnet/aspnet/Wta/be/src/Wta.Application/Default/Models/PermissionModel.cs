@@ -1,10 +1,7 @@
-using Wta.Application.Default.Domain;
-using Wta.Infrastructure.Application.Domain;
-using Wta.Infrastructure.Application.Models;
-
 namespace Wta.Application.Default.Models;
 
-public class PermissionModel : IBaseModel<Permission>
+[DependsOn<Permission>]
+public class PermissionModel
 {
     public Guid? Id { get; set; }
 

@@ -1,10 +1,7 @@
-using Wta.Application.Default.Domain;
-using Wta.Infrastructure.Application.Models;
-using Wta.Infrastructure.Attributes;
-
 namespace Wta.Application.Default.Models;
 
-public class RoleModel : IBaseModel<Role>
+[DependsOn<Role>]
+public class RoleModel
 {
     [NotDefault]
     public Guid? Id { get; set; }
