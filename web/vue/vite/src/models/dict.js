@@ -41,15 +41,15 @@ const schema = {
       properties,
     },
     details: {
-      title: 'details',
+      title: '详情',
       properties,
     },
     create: {
-      title: 'create',
+      title: '新建',
       properties,
     },
     update: {
-      title: 'update',
+      title: '更新',
       properties,
     },
     export: useExport(),

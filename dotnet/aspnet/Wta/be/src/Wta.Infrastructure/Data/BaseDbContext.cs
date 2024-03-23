@@ -18,12 +18,12 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
     public bool DisableSoftDeleteFilter { get; set; }
     public bool DisableTenantFilter { get; set; }
 
-    public BaseDbContext(DbContextOptions<TDbContext> options, IServiceProvider serviceProvider) : base(options)
+    public BaseDbContext(DbContextOptions<TDbContext> options) : base(options)
     {
-        ServiceProvider = serviceProvider;
+        ServiceProvider = WtaApplication.Application.Services;
         DbContextManager = ServiceProvider.GetRequiredService<IDbContextManager>();
         DbContextManager.Add(this);
-        _tenantNumber = serviceProvider.GetService<ITenantService>()?.TenantNumber;
+        _tenantNumber = ServiceProvider.GetService<ITenantService>()?.TenantNumber;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -142,20 +142,17 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                     item.State = EntityState.Unchanged;
                 }
             }
-            //设置租户
-            if (item.Entity is ITenantEntity tenantEntity)
+            //设置审计属性户
+            if (item.Entity is BaseEntity entity)
             {
+                //设置租户
                 if (item.State == EntityState.Added)
                 {
                     if (_tenantNumber != null)
                     {
-                        tenantEntity.TenantNumber = _tenantNumber;
+                        entity.TenantNumber = _tenantNumber;
                     }
                 }
-            }
-            //设置审计属性户
-            if (item.Entity is BaseEntity entity)
-            {
                 //第一次删除为伪删除
                 if (item.State == EntityState.Deleted)
                 {

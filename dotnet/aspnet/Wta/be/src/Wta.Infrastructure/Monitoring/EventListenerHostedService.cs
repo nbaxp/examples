@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.Tracing;
 
-namespace Wta.Infrastructure.Application.HostedServices;
+namespace Wta.Infrastructure.Monitoring;
 
 /// <summary>
 /// https://learn.microsoft.com/en-us/dotnet/core/diagnostics/available-counters

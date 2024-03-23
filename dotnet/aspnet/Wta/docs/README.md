@@ -1,4 +1,4 @@
-﻿# Web Template Asp.NET
+﻿# WTA: Web template for asp.net
 
 ## 服务决策：
 
@@ -110,3 +110,10 @@ Application --> IResouceService
 ### 实体和模型
 
 实体字段引用类型采用可空引用类型，值类型采用可空值类型，使用IsRequired控制数据库是否可空
+
+```sehll
+# https://learn.microsoft.com/zh-cn/ef/core/cli/dotnet
+dotnet tool update --global dotnet-ef
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet ef migrations add init -c DefaultDbContext
+```

@@ -63,11 +63,11 @@ const schema = {
       properties,
     },
     details: {
-      title: 'details',
+      title: '详情',
       properties,
     },
     create: {
-      title: 'create',
+      title: '新建',
       properties: Object.assign({}, properties, {
         password: {
           rules: [
@@ -79,7 +79,7 @@ const schema = {
       }),
     },
     update: {
-      title: 'update',
+      title: '更新',
       properties,
     },
     export: useExport(),

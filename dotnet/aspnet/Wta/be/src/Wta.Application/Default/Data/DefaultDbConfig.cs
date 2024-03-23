@@ -1,7 +1,10 @@
+using Wta.Infrastructure.Scheduling;
+
 namespace Wta.Application.Default.Data;
 
 [DependsOn<DefaultDbContext>]
 public class DefaultDbConfig : IEntityTypeConfiguration<Tenant>,
+    IEntityTypeConfiguration<Job>,
     IEntityTypeConfiguration<Dict>,
     IEntityTypeConfiguration<Department>,
     IEntityTypeConfiguration<User>,
@@ -16,15 +19,16 @@ public class DefaultDbConfig : IEntityTypeConfiguration<Tenant>,
         builder.Property(o => o.Number).IsRequired();
         builder.HasIndex(o => o.Number).IsUnique();
     }
+    public void Configure(EntityTypeBuilder<Job> builder)
+    {
 
+    }
     public void Configure(EntityTypeBuilder<Dict> builder)
     {
-        //builder.HasIndex(o => new { o.TenantNumber, o.Number }).IsUnique();
     }
 
     public void Configure(EntityTypeBuilder<Department> builder)
     {
-        //builder.HasIndex(o => new { o.TenantNumber, o.Number }).IsUnique();
     }
 
     public void Configure(EntityTypeBuilder<User> builder)
@@ -49,7 +53,6 @@ public class DefaultDbConfig : IEntityTypeConfiguration<Tenant>,
 
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
-        //builder.HasIndex(o => new { o.TenantNumber, o.ParentId, o.Number }).IsUnique();
     }
 
     public void Configure(EntityTypeBuilder<RolePermission> builder)
@@ -58,4 +61,5 @@ public class DefaultDbConfig : IEntityTypeConfiguration<Tenant>,
         builder.HasOne(o => o.Role).WithMany(o => o.RolePermissions).HasForeignKey(o => o.RoleId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(o => o.Permission).WithMany(o => o.RolePermissions).HasForeignKey(o => o.PermissionId).OnDelete(DeleteBehavior.Cascade);
     }
+
 }

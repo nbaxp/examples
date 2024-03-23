@@ -1,3 +1,5 @@
+using Wta.Infrastructure;
+
 namespace Wta.Application.Default.Models;
 
 public class CaptchaModel : IValidatableObject

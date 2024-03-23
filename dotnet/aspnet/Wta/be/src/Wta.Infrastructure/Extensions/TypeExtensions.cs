@@ -5,6 +5,61 @@ namespace Wta.Infrastructure.Extensions;
 public static class TypeExtensions
 {
     /// <summary>
+    /// 获取类型名称
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public static string GetTypeName(this Type type)
+    {
+        string typeName;
+
+        if (type.IsGenericType)
+        {
+            var genericTypes = string.Join(",", type.GetGenericArguments().Select(t => t.Name).ToArray());
+            typeName = $"{type.Name.Remove(type.Name.IndexOf('`'))}<{genericTypes}>";
+        }
+        else
+        {
+            typeName = type.Name;
+        }
+
+        return typeName;
+    }
+
+    /// <summary>
+    /// 获取方法签名
+    /// </summary>
+    /// <param name="methodInfo"></param>
+    /// <returns></returns>
+    public static string GetMethodName(this MethodInfo methodInfo)
+    {
+        var result = $"{methodInfo.Name}";
+        if (methodInfo.IsGenericMethod)
+        {
+            result += $"<{string.Join(',', methodInfo.GetGenericArguments().Select(o => o.GetTypeName()))}>";
+        }
+        result += $"({string.Join(',', methodInfo.GetParameters().Select(o => o.ParameterType.GetTypeName()))})";
+        return result;
+    }
+
+    /// <summary>
+    /// 根据方法签名调用方法
+    /// eg:typeof(EntityFrameworkServiceCollectionExtensions).MethodInvoke(
+    /// "AddDbContext<TContext>(IServiceCollection,Action<DbContextOptionsBuilder>,ServiceLifetime,ServiceLifetime)",
+    ///  [builder.Services, action, ServiceLifetime.Scoped, ServiceLifetime.Scoped],
+    ///  [dbContextType]);
+    /// </summary>
+    public static object? MethodInvoke(this Type type, string method, object?[]? parameters = null, Type[]? genericTypeArguments = null, object? instance = null)
+    {
+        var methodInfo = type.GetMethods().First(o => o.GetMethodName() == method);
+        if (methodInfo.IsGenericMethod)
+        {
+            methodInfo = methodInfo.MakeGenericMethod(genericTypeArguments ?? methodInfo.GetGenericArguments());
+        }
+        return methodInfo?.Invoke(instance, parameters);
+    }
+
+    /// <summary>
     /// 获取全部基类
     /// </summary>
     /// <param name="type"></param>
@@ -64,18 +119,6 @@ public static class TypeExtensions
         var localizer = scope?.ServiceProvider.GetService<IStringLocalizer>();
         var key = type.GetCustomAttribute<DisplayAttribute>()?.Name ?? type.Name;
         return localizer?.GetString(key, type.FullName!) ?? key;
-    }
-
-    public static void InvokeMethod(this Type type, string name, object? instance, Type[]? typeArguments, Type[]? parameterTypes, params object[] parameters)
-    {
-        parameterTypes ??= parameters.Select(o => o.GetType()).ToArray();
-        var method = type.GetMethods()
-            .FirstOrDefault(o => o.Name == name && o.GetParameters().Select(o => o.ParameterType).SequenceEqual(parameterTypes));
-        if (method != null && typeArguments != null)
-        {
-            method = method.MakeGenericMethod(typeArguments);
-        }
-        method?.MakeGenericMethod().Invoke(instance, parameters);
     }
 
     public static void InvokeExtensionMethod(this Type type, string name, Type[]? typeArguments, Type[] parameterTypes, params object[] parameters)

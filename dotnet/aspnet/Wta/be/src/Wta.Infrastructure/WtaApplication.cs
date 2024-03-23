@@ -1,6 +1,8 @@
 using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Startup;
 
+namespace Wta.Infrastructure;
+
 public static class WtaApplication
 {
     public static WebApplication Application { get; private set; } = default!;

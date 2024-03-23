@@ -5,7 +5,7 @@ using Wta.Infrastructure.Exceptions;
 
 namespace Wta.Infrastructure.Web;
 
-public class AuthActionFilter : IActionFilter
+public class AuthActionFilter(IConfiguration configuration) : IActionFilter
 {
     /// <summary>
     /// 200\400\500返回值规范化为CustomApiResponse
@@ -79,6 +79,10 @@ public class AuthActionFilter : IActionFilter
     /// <param name="context"></param>
     public void OnActionExecuting(ActionExecutingContext context)
     {
+        if (configuration.GetValue("SkipAuth", false))
+        {
+            return;
+        }
         var requireAuth = false;
         var descriptor = (context.ActionDescriptor as ControllerActionDescriptor)!;
         var controllerData = descriptor.ControllerTypeInfo.CustomAttributes;

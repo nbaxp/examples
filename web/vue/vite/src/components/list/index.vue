@@ -125,7 +125,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button type="primary" @click="dialogConfirm(dialogSchema.action)">
-            {{ $t('confirm') }}
+            {{ $t('确定') }}
           </el-button>
         </span>
       </template>

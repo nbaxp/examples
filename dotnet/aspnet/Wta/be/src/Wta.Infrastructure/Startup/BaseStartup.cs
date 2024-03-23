@@ -147,7 +147,7 @@ public abstract class BaseStartup : IStartup
             .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t == typeof(DbContext)))
             .ForEach(dbContextType =>
             {
-                void optionsAction(DbContextOptionsBuilder optionsBuilder)
+                Action<DbContextOptionsBuilder> action = optionsBuilder =>
                 {
                     var connectionStringName = dbContextType.GetCustomAttribute<ConnectionStringAttribute>()?.ConnectionString ?? dbContextType.Name.TrimEnd("DbContext");
                     var connectionString = builder.Configuration.GetConnectionString(connectionStringName) ??
@@ -176,9 +176,12 @@ public abstract class BaseStartup : IStartup
                     {
                         optionsBuilder.UseSqlite(connectionString);
                     }
-                }
-                var optionsType = typeof(DbContextOptions<>).MakeGenericType(dbContextType);
-                builder.Services.AddDbContext(dbContextType, optionsAction);
+                };
+                typeof(EntityFrameworkServiceCollectionExtensions)
+                .GetMethods()
+                .First(o => o.Name == nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext) && o.IsGenericMethod && o.GetGenericArguments().Length == 1 && o.GetParameters().Length == 4)
+                .MakeGenericMethod(dbContextType)
+                .Invoke(null, [builder.Services, action, ServiceLifetime.Scoped, ServiceLifetime.Scoped]);
             });
     }
 
@@ -211,10 +214,10 @@ public abstract class BaseStartup : IStartup
                     if (attribute.ServiceType.IsAssignableTo(typeof(IHostedService)))
                     {
                         builder.Services.AddSingleton(type);
-                        var method = typeof(ServiceCollectionHostedServiceExtensions)
-                        .GetMethod(nameof(ServiceCollectionHostedServiceExtensions.AddHostedService),
-                        [typeof(IServiceCollection)]);
-                        method?.MakeGenericMethod(type).Invoke(null, [builder.Services]);
+                        typeof(WebApplicationBuilderExtensions)
+                        .GetMethods()
+                        .First(o => o.Name == nameof(WebApplicationBuilderExtensions.AddHostedServiceFromServiceProvider))
+                        .MakeGenericMethod(type).Invoke(null, [builder]);
                     }
                     else
                     {
@@ -239,7 +242,7 @@ public abstract class BaseStartup : IStartup
     /// 添加依赖注入
     /// </summary>
     /// <param name="builder"></param>
-    public virtual void AddDIContainer(WebApplicationBuilder builder)
+    public virtual void AddServiceProviderFactory(WebApplicationBuilder builder)
     {
         builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory(containerBuilder =>
         {
@@ -453,6 +456,49 @@ public abstract class BaseStartup : IStartup
         }
     }
 
+    public virtual void AddDistributedLock(WebApplicationBuilder builder)
+    {
+        //builder.Services.AddSingleton<IDistributedLockProvider>(o=>new RedisDistributedLock());
+    }
+
+    public virtual void AddScheduler(WebApplicationBuilder builder)
+    {
+        //builder.Services.AddScheduler();
+    }
+
+    public virtual void UseScheduler(WebApplication webApplication)
+    {
+        //webApplication.Services.UseScheduler(o =>
+        //{
+        //    webApplication.Services.GetServices<IScheduledTask>().ForEach(t =>
+        //    {
+        //        try
+        //        {
+        //            o.Schedule(async () =>
+        //            {
+        //                var connectionString = webApplication.Configuration.GetConnectionString("redis")!;
+        //                var connection = await ConnectionMultiplexer.ConnectAsync(connectionString).ConfigureAwait(false);
+        //                var redisLock = new RedisDistributedLock(t.GetType().FullName, connection.GetDatabase());
+        //                using var handle = await redisLock.TryAcquireAsync().ConfigureAwait(false);
+        //                if (handle != null)
+        //                {
+        //                    Console.WriteLine("已获取分布式加锁，开始执行");
+        //                    await t.ExecuteAsync().ConfigureAwait(false);
+        //                }
+        //                else
+        //                {
+        //                    Console.WriteLine("未获取分布式加锁成功，跳过执行");
+        //                }
+        //            }).Cron(t.Cron);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            webApplication.Logger.LogError(ex.ToString());
+        //        }
+        //    });
+        //});
+    }
+
     /// <summary>
     /// 2.配置应用程序
     /// https://learn.microsoft.com/zh-cn/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0&tabs=aspnetcore2x#middleware-order
@@ -471,6 +517,7 @@ public abstract class BaseStartup : IStartup
         UseCORS(webApplication);
         UseLocalization(webApplication);
         UseDbContext(webApplication);
+        UseScheduler(webApplication);
     }
 
     /// <summary>
@@ -480,7 +527,7 @@ public abstract class BaseStartup : IStartup
     public virtual void ConfigureServices(WebApplicationBuilder builder)
     {
         AddHealthChecks(builder);
-        AddDIContainer(builder);
+        AddServiceProviderFactory(builder);
         AddLogging(builder);
         AddDefaultOptions(builder);
         AddDefaultServices(builder);
@@ -498,6 +545,8 @@ public abstract class BaseStartup : IStartup
         AddJsonOptions(builder);
         AddOpenApi(builder);
         AddAuth(builder);
+        AddScheduler(builder);
+        AddDistributedLock(builder);
     }
 
     public virtual IFileProvider GetFileProvider(WebApplicationBuilder builder)
@@ -549,7 +598,7 @@ public abstract class BaseStartup : IStartup
                         if (dbContext.Database.EnsureCreated())
                         {
                             var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
-                            serviceProvider.GetServices(dbSeedType).ForEach(o => dbSeedType.GetMethod("Seed")?.Invoke(o, [dbContext]));
+                            serviceProvider.GetServices(dbSeedType).ForEach(o => dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]));
                         }
                     }
                 });
@@ -648,7 +697,7 @@ public abstract class BaseStartup : IStartup
     /// <param name="app"></param>
     public virtual void UseStaticFiles(WebApplication app)
     {
-        app.UseDefaultFiles();
+        //app.UseDefaultFiles();
         app.UseStaticFiles(new StaticFileOptions
         {
             FileProvider = app.Services.GetRequiredService<IFileProvider>(),

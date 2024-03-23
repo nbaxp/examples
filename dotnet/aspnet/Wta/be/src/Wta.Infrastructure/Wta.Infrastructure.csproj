@@ -23,6 +23,9 @@
     <PackageReference Include="Autofac.Configuration" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" />
     <PackageReference Include="ClosedXML" />
+    <PackageReference Include="Coravel" />
+    <PackageReference Include="DistributedLock" />
+    <PackageReference Include="DistributedLock.Redis" />
     <PackageReference Include="DynamicExpresso.Core" />
     <PackageReference Include="EntityFramework.DynamicLinq" />
     <PackageReference Include="MailKit" />
@@ -38,10 +41,12 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.ResourceMonitoring" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
     <PackageReference Include="Minio" />
+    <PackageReference Include="NCrontab" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     <PackageReference Include="Oracle.EntityFrameworkCore" />
     <PackageReference Include="OrchardCore.Localization.Core" />
+    <PackageReference Include="Polly" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Extensions.Hosting" />

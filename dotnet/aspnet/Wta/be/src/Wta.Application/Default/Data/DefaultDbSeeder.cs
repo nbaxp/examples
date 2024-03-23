@@ -1,9 +1,14 @@
+using Wta.Infrastructure;
+using Wta.Infrastructure.Scheduling;
+
 namespace Wta.Application.Default.Data;
 
 public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider, IEncryptionService encryptionService, ITenantService tenantService) : IDbSeeder<DefaultDbContext>
 {
     public void Seed(DefaultDbContext context)
     {
+        //添加定时任务
+        InitJob(context);
         //添加字典
         InitDict(context);
         //添加部门
@@ -14,6 +19,18 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
         InitRole(context);
         //添加用户
         InitUser(context);
+    }
+
+    private static void InitJob(DefaultDbContext context)
+    {
+        WtaApplication.Assemblies
+            .SelectMany(o => o.GetTypes())
+            .Where(o => o.IsClass && !o.IsAbstract && o.IsAssignableTo(typeof(IScheduledTask)) && o.HasAttribute<CronAttribute>())
+            .ForEach(o =>
+            {
+                context.Set<Job>().Add(new Job { Name = o.GetDisplayName(), Type = o.FullName!, Cron = o.GetCustomAttribute<CronAttribute>()!.Cron });
+            });
+        context.SaveChanges();
     }
 
     private static void InitDepartment(DbContext context)
@@ -81,8 +98,8 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     Type = MenuType.Group,
                     Authorize = "Anonymous",
                     Name = groupType.GetDisplayName(),
-                    Number = groupType.FullName!,
-                    RouterPath = groupType.Name.ToSlugify()!,
+                    Number = groupType.FullName?.TrimEnd("Attribute")!,
+                    RouterPath = groupType.Name.TrimEnd("Attribute").ToSlugify()!,
                     Icon = groupType.GetCustomAttribute<IconAttribute>()?.Icon ?? "folder",
                     Order = groupType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0
                 });
@@ -203,7 +220,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 var groupAttribute = resourceType.GetCustomAttributes().FirstOrDefault(o => o.GetType().IsAssignableTo(typeof(GroupAttribute)));
                 if (groupAttribute != null && groupAttribute is GroupAttribute group)
                 {
-                    var number = group.GetType().FullName!;
+                    var number = group.GetType().FullName?.TrimEnd("Attribute")!;
                     var groupPermission = list.FirstOrDefault(o => o.Number == number);
                     if (groupPermission != null)
                     {

@@ -1,4 +1,5 @@
 using Mapster;
+using Wta.Infrastructure;
 using Wta.Infrastructure.Application.Models;
 
 namespace Wta.Application.Default.Controllers;
@@ -69,7 +70,7 @@ public class TenantController(ILogger<Tenant> logger,
             if (scope.ServiceProvider.GetRequiredService(dbContextType) is DbContext dbContext)
             {
                 var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
-                scope.ServiceProvider.GetServices(dbSeedType).ForEach(o => dbSeedType.GetMethod("Seed")?.Invoke(o, [dbContext]));
+                scope.ServiceProvider.GetServices(dbSeedType).ForEach(o => dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]));
             }
         });
         return Json(true);

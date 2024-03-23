@@ -1,5 +1,3 @@
-using Wta.Infrastructure.Startup;
-
 namespace Wta.Application.Default;
 
 public class DefaultModule : IStartup

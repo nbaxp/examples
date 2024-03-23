@@ -2,8 +2,9 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using Wta.Infrastructure.Application.Domain;
 
-namespace Wta.Infrastructure.Application.Domain;
+namespace Wta.Infrastructure.Monitoring;
 
 [System, Display(Name = "监控", Order = 0)]
 public class Monitor : IResource
