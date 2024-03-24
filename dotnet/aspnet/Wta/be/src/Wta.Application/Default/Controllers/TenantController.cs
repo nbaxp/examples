@@ -1,5 +1,4 @@
 using Mapster;
-using Wta.Infrastructure;
 using Wta.Infrastructure.Application.Models;
 
 namespace Wta.Application.Default.Controllers;
@@ -60,9 +59,9 @@ public class TenantController(ILogger<Tenant> logger,
         tenantService.TenantNumber = entity.Number;
         tenantService.Permissions = model.Permissions;
         //设置租户种子数据
-        WtaApplication.Assemblies
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
         .SelectMany(o => o.GetTypes())
-        .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t == typeof(DbContext)))
+        .Where(o => o.IsClass && !o.IsAbstract && o.GetBaseClasses().Any(t => t == typeof(DbContext)))
         .OrderBy(o => o.GetCustomAttribute<DisplayAttribute>()?.Order ?? 0)
         .ForEach(dbContextType =>
         {

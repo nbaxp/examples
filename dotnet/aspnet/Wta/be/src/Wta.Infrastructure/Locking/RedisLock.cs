@@ -9,21 +9,27 @@ public class DistributedLock : ILock, IDisposable
 
     public DistributedLock(IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("redis") ?? "127.0.0.1:6379";
-        Connection = ConnectionMultiplexer.ConnectAsync(connectionString).GetAwaiter().GetResult();
+        var connectionString = configuration.GetConnectionString("Redis") ?? "127.0.0.1:6379";
+        Database = ConnectionMultiplexer.ConnectAsync(connectionString).GetAwaiter().GetResult().GetDatabase();
     }
 
-    public ConnectionMultiplexer Connection { get; }
+    public IDatabase Database { get; }
 
     public async Task<IDisposable?> Acquire(string key, TimeSpan timeout = default)
     {
-        var @lock = new RedisDistributedLock(key, Connection.GetDatabase());
+        var @lock = new RedisDistributedLock(key, Database);
         return await @lock.AcquireAsync(timeout).ConfigureAwait(false);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     public async Task<IDisposable?> TryAcquireAsync(string key, TimeSpan timeout = default)
     {
-        var @lock = new RedisDistributedLock(key, Connection.GetDatabase());
+        var @lock = new RedisDistributedLock(key, Database);
         return await @lock.TryAcquireAsync(timeout).ConfigureAwait(false);
     }
 
@@ -33,15 +39,9 @@ public class DistributedLock : ILock, IDisposable
         {
             if (disposing)
             {
-                Connection.Dispose();
+                Database.Multiplexer.Dispose();
             }
             disposedValue = true;
         }
-    }
-
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 }

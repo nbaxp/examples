@@ -2,8 +2,8 @@ using Wta.Infrastructure.Scheduling;
 
 namespace Wta.Application.Default.Data;
 
-[DependsOn<DefaultDbContext>]
-public class DefaultDbConfig : IEntityTypeConfiguration<Tenant>,
+public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
+    IEntityTypeConfiguration<Tenant>,
     IEntityTypeConfiguration<Job>,
     IEntityTypeConfiguration<Dict>,
     IEntityTypeConfiguration<Department>,

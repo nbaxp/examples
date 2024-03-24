@@ -122,9 +122,9 @@ public abstract class BaseStartup : IStartup
     public virtual void AddDbContext(WebApplicationBuilder builder)
     {
         //添加实体配置
-        WtaApplication.Assemblies
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
-            .Where(o => !o.IsAbstract && o.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)))
+            .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(BaseDbConfig<>)))
             .ForEach(configType =>
             {
                 configType.GetInterfaces().Where(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)).ForEach(o =>
@@ -133,7 +133,7 @@ public abstract class BaseStartup : IStartup
                 });
             });
         //添加种子服务
-        WtaApplication.Assemblies
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(o => !o.IsAbstract && o.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IDbSeeder<>)))
             .ForEach(o =>
@@ -142,7 +142,7 @@ public abstract class BaseStartup : IStartup
                 builder.Services.AddScoped(typeof(IDbSeeder<>).MakeGenericType(dbContextType), o);
             });
         //添加数据上下文服务
-        WtaApplication.Assemblies
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t == typeof(DbContext)))
             .ForEach(dbContextType =>
@@ -191,12 +191,13 @@ public abstract class BaseStartup : IStartup
     /// <param name="builder"></param>
     public virtual void AddDefaultOptions(WebApplicationBuilder builder)
     {
-        WtaApplication.Assemblies.SelectMany(o => o.GetTypes()).Where(type => type.GetCustomAttributes<OptionsAttribute>().Any()).ForEach(type =>
-        {
-            var attribute = type.GetCustomAttribute<OptionsAttribute>()!;
-            var configurationSection = builder.Configuration.GetSection(attribute.Section ?? type.Name.TrimEnd("Options"));
-            typeof(OptionsConfigurationServiceCollectionExtensions).InvokeExtensionMethod("Configure", [type], [typeof(IConfiguration)], builder.Services, configurationSection);
-        });
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
+            .SelectMany(o => o.GetTypes()).Where(type => type.GetCustomAttributes<OptionsAttribute>().Any()).ForEach(type =>
+            {
+                var attribute = type.GetCustomAttribute<OptionsAttribute>()!;
+                var configurationSection = builder.Configuration.GetSection(attribute.Section ?? type.Name.TrimEnd("Options"));
+                typeof(OptionsConfigurationServiceCollectionExtensions).InvokeExtensionMethod("Configure", [type], [typeof(IConfiguration)], builder.Services, configurationSection);
+            });
     }
 
     /// <summary>
@@ -205,7 +206,8 @@ public abstract class BaseStartup : IStartup
     /// <param name="builder"></param>
     public virtual void AddDefaultServices(WebApplicationBuilder builder)
     {
-        WtaApplication.Assemblies.SelectMany(o => o.GetTypes())
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
+            .SelectMany(o => o.GetTypes())
             .Where(type => type.GetCustomAttributes(typeof(ServiceAttribute<>)).Any())
             .ForEach(type =>
             {
@@ -238,16 +240,9 @@ public abstract class BaseStartup : IStartup
             });
     }
 
-    /// <summary>
-    /// 添加依赖注入
-    /// </summary>
-    /// <param name="builder"></param>
-    public virtual void AddServiceProviderFactory(WebApplicationBuilder builder)
+    public virtual void AddDistributedLock(WebApplicationBuilder builder)
     {
-        builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory(containerBuilder =>
-        {
-            containerBuilder.RegisterModule(new ConfigurationModule(builder.Configuration));
-        }));
+        //builder.Services.AddSingleton<IDistributedLockProvider>(o=>new RedisDistributedLock());
     }
 
     public virtual void AddHealthChecks(WebApplicationBuilder builder)
@@ -286,7 +281,7 @@ public abstract class BaseStartup : IStartup
     public virtual void AddLocalEventBus(WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<IEventPublisher, LocalEventPublisher>();
-        WtaApplication.Assemblies
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(t => t.GetInterfaces().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(IEventHander<>)))
             .ToList()
@@ -438,6 +433,22 @@ public abstract class BaseStartup : IStartup
         });
     }
 
+    public virtual void AddScheduler(WebApplicationBuilder builder)
+    {
+        //builder.Services.AddScheduler();
+    }
+
+    /// <summary>
+    /// 添加依赖注入
+    /// </summary>
+    /// <param name="builder"></param>
+    public virtual void AddServiceProviderFactory(WebApplicationBuilder builder)
+    {
+        builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory(containerBuilder =>
+        {
+            containerBuilder.RegisterModule(new ConfigurationModule(builder.Configuration));
+        }));
+    }
     /// <summary>
     /// 添加 SignalR
     /// </summary>
@@ -455,50 +466,6 @@ public abstract class BaseStartup : IStartup
             signalRServerBuilder.AddStackExchangeRedis(redisConnectionString);
         }
     }
-
-    public virtual void AddDistributedLock(WebApplicationBuilder builder)
-    {
-        //builder.Services.AddSingleton<IDistributedLockProvider>(o=>new RedisDistributedLock());
-    }
-
-    public virtual void AddScheduler(WebApplicationBuilder builder)
-    {
-        //builder.Services.AddScheduler();
-    }
-
-    public virtual void UseScheduler(WebApplication webApplication)
-    {
-        //webApplication.Services.UseScheduler(o =>
-        //{
-        //    webApplication.Services.GetServices<IScheduledTask>().ForEach(t =>
-        //    {
-        //        try
-        //        {
-        //            o.Schedule(async () =>
-        //            {
-        //                var connectionString = webApplication.Configuration.GetConnectionString("redis")!;
-        //                var connection = await ConnectionMultiplexer.ConnectAsync(connectionString).ConfigureAwait(false);
-        //                var redisLock = new RedisDistributedLock(t.GetType().FullName, connection.GetDatabase());
-        //                using var handle = await redisLock.TryAcquireAsync().ConfigureAwait(false);
-        //                if (handle != null)
-        //                {
-        //                    Console.WriteLine("已获取分布式加锁，开始执行");
-        //                    await t.ExecuteAsync().ConfigureAwait(false);
-        //                }
-        //                else
-        //                {
-        //                    Console.WriteLine("未获取分布式加锁成功，跳过执行");
-        //                }
-        //            }).Cron(t.Cron);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            webApplication.Logger.LogError(ex.ToString());
-        //        }
-        //    });
-        //});
-    }
-
     /// <summary>
     /// 2.配置应用程序
     /// https://learn.microsoft.com/zh-cn/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0&tabs=aspnetcore2x#middleware-order
@@ -551,7 +518,8 @@ public abstract class BaseStartup : IStartup
 
     public virtual IFileProvider GetFileProvider(WebApplicationBuilder builder)
     {
-        var providers = WtaApplication.Assemblies.Select(o => new FixedEmbeddedFileProvider(o)).ToArray()
+        var providers = AppDomain.CurrentDomain.GetCustomerAssemblies()
+            .Select(o => new FixedEmbeddedFileProvider(o)).ToArray()
             .Append(builder.Environment.ContentRootFileProvider)
             .Append(new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "wwwroot"))
             .Append(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
@@ -584,24 +552,24 @@ public abstract class BaseStartup : IStartup
     /// <param name="app"></param>
     public virtual void UseDbContext(WebApplication app)
     {
-        WtaApplication.Assemblies
-                    .SelectMany(o => o.GetTypes())
-                    .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t == typeof(DbContext)))
-                    .OrderBy(o => o.GetCustomAttribute<DisplayAttribute>()?.Order ?? 0)
-                .ForEach(dbContextType =>
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
+            .SelectMany(o => o.GetTypes())
+            .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t == typeof(DbContext)))
+            .OrderBy(o => o.GetCustomAttribute<DisplayAttribute>()?.Order ?? 0)
+            .ForEach(dbContextType =>
+            {
+                using var scope = app.Services.CreateScope();
+                var serviceProvider = scope.ServiceProvider;
+                var contextName = dbContextType.Name;
+                if (serviceProvider.GetRequiredService(dbContextType) is DbContext dbContext)
                 {
-                    using var scope = app.Services.CreateScope();
-                    var serviceProvider = scope.ServiceProvider;
-                    var contextName = dbContextType.Name;
-                    if (serviceProvider.GetRequiredService(dbContextType) is DbContext dbContext)
+                    if (dbContext.Database.EnsureCreated())
                     {
-                        if (dbContext.Database.EnsureCreated())
-                        {
-                            var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
-                            serviceProvider.GetServices(dbSeedType).ForEach(o => dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]));
-                        }
+                        var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
+                        serviceProvider.GetServices(dbSeedType).ForEach(o => dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]));
                     }
-                });
+                }
+            });
     }
 
     /// <summary>
@@ -682,6 +650,38 @@ public abstract class BaseStartup : IStartup
         app.UseRouting();
     }
 
+    public virtual void UseScheduler(WebApplication webApplication)
+    {
+        //webApplication.Services.UseScheduler(o =>
+        //{
+        //    webApplication.Services.GetServices<IScheduledTask>().ForEach(t =>
+        //    {
+        //        try
+        //        {
+        //            o.Schedule(async () =>
+        //            {
+        //                var connectionString = webApplication.Configuration.GetConnectionString("redis")!;
+        //                var connection = await ConnectionMultiplexer.ConnectAsync(connectionString).ConfigureAwait(false);
+        //                var redisLock = new RedisDistributedLock(t.GetType().FullName, connection.GetDatabase());
+        //                using var handle = await redisLock.TryAcquireAsync().ConfigureAwait(false);
+        //                if (handle != null)
+        //                {
+        //                    Console.WriteLine("已获取分布式加锁，开始执行");
+        //                    await t.ExecuteAsync().ConfigureAwait(false);
+        //                }
+        //                else
+        //                {
+        //                    Console.WriteLine("未获取分布式加锁成功，跳过执行");
+        //                }
+        //            }).Cron(t.Cron);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            webApplication.Logger.LogError(ex.ToString());
+        //        }
+        //    });
+        //});
+    }
     /// <summary>
     /// 8.配置 SignalR
     /// </summary>

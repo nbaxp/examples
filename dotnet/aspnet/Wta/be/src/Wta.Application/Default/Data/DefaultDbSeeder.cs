@@ -1,4 +1,3 @@
-using Wta.Infrastructure;
 using Wta.Infrastructure.Scheduling;
 
 namespace Wta.Application.Default.Data;
@@ -23,7 +22,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
 
     private static void InitJob(DefaultDbContext context)
     {
-        WtaApplication.Assemblies
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(o => o.IsClass && !o.IsAbstract && o.IsAssignableTo(typeof(IScheduledTask)) && o.HasAttribute<CronAttribute>())
             .ForEach(o =>
@@ -81,8 +80,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
     {
         var list = new List<Permission>();
         // 添加菜单分组
-        var groups = WtaApplication
-            .Assemblies
+        var groups = AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(o => o.IsClass && !o.IsAbstract && o.IsAssignableTo(typeof(GroupAttribute)))
             .ToList();
@@ -164,7 +162,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
         //添加资源菜单和资源操作按钮
         var order = 1;
         var actionDescriptors = actionProvider.ActionDescriptors.Items;
-        WtaApplication.Assemblies
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(IResource)))
             .ForEach(resourceType =>

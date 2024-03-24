@@ -7,24 +7,20 @@ public static class WtaApplication
 {
     public static WebApplication Application { get; private set; } = default!;
 
-    public static List<Assembly> Assemblies { get; private set; } = [];
     public static WebApplicationBuilder Builder { get; private set; } = default!;
-    public static Dictionary<Type, List<Type>> DbContextEntities { get; } = [];
-    public static Dictionary<Type, Type> EntityDbContext { get; } = [];
     public static Dictionary<Type, Type> EntityModel { get; } = [];
     public static Dictionary<Type, List<Type>> ModuleDbContexts { get; } = [];
 
     public static void Initialize()
     {
-        Assemblies.Add(Assembly.GetEntryAssembly()!);
-        Assemblies.Add(Assembly.GetExecutingAssembly());
         //加载实体和数据上下文关系
         ////获取配置类
-        Assemblies.SelectMany(o => o.GetTypes())
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
+            .SelectMany(o => o.GetTypes())
             .Where(o => !o.IsAbstract && o.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)))
             .ForEach(item =>
             {
-                var dbContextType = item.GetCustomAttribute(typeof(DependsOnAttribute<>))!.GetType().GenericTypeArguments.First();
+                var dbContextType = item.GetBaseClasses().First(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseDbConfig<>)).GenericTypeArguments.First();
                 var moduleType = dbContextType.GetCustomAttribute(typeof(DependsOnAttribute<>))!.GetType().GenericTypeArguments.First();
                 if (moduleType.IsAssignableTo(typeof(IStartup)))
                 {
@@ -37,23 +33,10 @@ public static class WtaApplication
                         ModuleDbContexts.Add(moduleType, [dbContextType]);
                     }
                 }
-                var entityTypes = item.GetInterfaces().Where(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
-                .Select(o => o.GetGenericArguments()[0]);
-                entityTypes.ForEach(item =>
-                {
-                    EntityDbContext.TryAdd(item, dbContextType);
-                });
-                if (DbContextEntities.TryGetValue(dbContextType, out var entityTypeList))
-                {
-                    entityTypeList.AddRange(entityTypes);
-                }
-                else
-                {
-                    DbContextEntities.Add(dbContextType, entityTypes.ToList());
-                }
             });
         // 缓存实体和模型关系
-        Assemblies.SelectMany(o => o.GetTypes())
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
+            .SelectMany(o => o.GetTypes())
             .Where(o => o.IsClass &&
             !o.IsAbstract &&
             o.GetCustomAttributes(typeof(DependsOnAttribute<>)).Any(o => o.GetType().GenericTypeArguments.First().IsAssignableTo(typeof(IResource))))
@@ -67,10 +50,10 @@ public static class WtaApplication
     public static void Run<T>(string[] args)
         where T : IStartup
     {
-        typeof(T).GetCustomAttributes(typeof(DependsOnAttribute<>))
-            .Select(o => o.GetType().GenericTypeArguments.First().Assembly)
-            .Distinct()
-            .ForEach(Assemblies.Add);
+        typeof(T).GetCustomAttributes().ForEach(o =>
+        {
+            Console.WriteLine(o.GetType().Assembly.FullName);
+        });
         Initialize();
         var startup = Activator.CreateInstance<T>()!;
         var modules = ModuleDbContexts.Keys.Select(o => Activator.CreateInstance(o) as IStartup);
@@ -82,9 +65,9 @@ public static class WtaApplication
         startup.Configure(Application);
         modules.ForEach(o => o!.Configure(Application));
         Console.WriteLine("Starting web host...");
-        Application.Run();
         try
         {
+            Application.Run();
         }
         catch (Exception ex)
         {
