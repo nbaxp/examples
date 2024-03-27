@@ -1,7 +1,8 @@
 version: "3.8"
 
 services:
-  openssh-server: # 模拟服务器，用于提供 drone 使用 scp 插件进行文件部署
+  openssh-server:
+    # 模拟服务器，用于提供 drone 使用 scp 插件进行文件部署
     image: linuxserver/openssh-server:version-9.6_p1-r0
     environment:
       - PUID=1000
@@ -14,19 +15,21 @@ services:
       - 2222:2222
     volumes:
       - ./apps/nginx/html:/config/html
-  docker-dind: # 模拟服务器上的 docker
+  docker-dind:
+    # 模拟服务器上的 docker，此容器无 ssh，因此需手动启动、重启或更新镜像
+    # 真实环境中应该在 .drone 文件中使用 ssh 登录并更新镜像并重启服务
     image: docker:25.0.4-dind
     privileged: true
     ports:
       - 8080:80
     volumes:
       - ./demo/docker-compose.yml:/app/docker-compose.yml
-    command: ["--insecure-registry=host.docker.internal:8082"]
-  nginx: # 模拟服务器上的 nginx
+    command: [ "--insecure-registry=host.docker.internal:8082" ]
+  nginx:
+    # 模拟服务器上的 nginx
     image: nginx:1.24.0
     ports:
       - 80:80
-      - 443:443
     volumes:
       - ./apps/nginx/conf.d:/etc/nginx/conf.d
       - ./apps/nginx/cert:/etc/nginx/cert
@@ -53,7 +56,7 @@ services:
       - ./data/minio:/data
     command: server --console-address ":9001" /data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: [ "CMD", "mc", "ready", "local" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -82,7 +85,7 @@ services:
       - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
       - DRONE_SERVER_PROTO=${DRONE_SERVER_PROTO}
       - DRONE_GIT_ALWAYS_AUTH=true
-      - DRONE_USER_CREATE=username:wanggang,admin:true
+      - DRONE_USER_CREATE=username:root,admin:true
     ports:
       - 3800:80
     volumes:
@@ -101,6 +104,7 @@ services:
     depends_on:
       - drone
   nexus3:
+    # 私有仓库
     image: sonatype/nexus3:3.66.0
     restart: always
     container_name: nexus3

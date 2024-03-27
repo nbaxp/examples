@@ -60,5 +60,5 @@ steps:
     settings:
       host: smtp.ym.163.com
       username: admin@nbaxp.com
-      password: aA123456!
+      password: ******
       from: admin@nbaxp.com
