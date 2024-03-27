@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  certs-maker:
+    # 生成自签发证书
+    image: soulteary/certs-maker
+    environment:
+      - CERT_DNS=host.docker.internal
+    volumes:
+      - ./apps/nginx/cert:/ssl
+    command: sh -c "certs-maker && tail -f /dev/null"
+  nginx:
+    # 前端入口
+    image: nginx:1.24.0
+    restart: always # 等待证书生成
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nginx.rule=PathPrefix(`/nginx`)
+      - traefik.http.routers.nginx.middlewares=nginx
+      - traefik.http.middlewares.nginx.stripprefix.prefixes=/nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./apps/nginx/conf.d:/etc/nginx/conf.d
+      - ./apps/nginx/cert:/etc/nginx/cert
+      - ./apps/nginx/html:/usr/share/nginx/html
+    depends_on:
+      - traefik # nginx 不支持动态服务
+  traefik:
+    # 网关
+    image: traefik:v3.0.0-rc3
+    ports:
+      - 8080:8080
+      - 8000:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - --api=true
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+  # signalr: # asp.net signalr server 直接挂载编译好的程序
+  #   image: mcr.microsoft.com/dotnet/aspnet:8.0
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.signalr.rule=PathPrefix(`/api/signalr`)
+  #     - traefik.http.routers.signalr.middlewares=signalr
+  #     - traefik.http.middlewares.signalr.stripprefix.prefixes=/api/signalr
+  #   ports:
+  #     - 8081:8080
+  #   volumes:
+  #     - ./apps/signalr:/app
+  #   command:  sh -c "cd /app && chmod +x ./demo && ./demo"
+  signalr:
+    # asp.net signalr server 启动根据源码构建的镜像
+    build:
+      context: ./src/signalr
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.signalr.rule=PathPrefix(`/api/signalr`)
+      - traefik.http.routers.signalr.middlewares=signalr
+      - traefik.http.middlewares.signalr.stripprefix.prefixes=/api/signalr
+    ports:
+      - 8081:80

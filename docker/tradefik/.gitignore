@@ -1,0 +1,6 @@
+data/
+logs/
+apps/nginx/cert/
+bin/
+obj/
+*.bak
