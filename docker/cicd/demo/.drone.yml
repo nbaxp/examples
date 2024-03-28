@@ -30,6 +30,18 @@ steps:
       strip_prefix: dist/
       target: /demo/${DRONE_BUILD_NUMBER}-${DRONE_COMMIT_AUTHOR}-${DRONE_REPO_BRANCH}-${DRONE_COMMIT_SHA:0:8}
 
+  - name: publish-docker
+    image: plugins/docker
+    settings:
+      registry: host.docker.internal:8082
+      repo: host.docker.internal:8082/demo
+      insecure: true
+      username: admin
+      password: aA123456!
+      tags:
+        - latest
+        - ${DRONE_BUILD_NUMBER}-${DRONE_COMMIT_AUTHOR}-${DRONE_REPO_BRANCH}-${DRONE_COMMIT_SHA:0:8}
+
   - name: publish-scp
     image: appleboy/drone-scp
     privileged: true
@@ -43,22 +55,36 @@ steps:
       source: dist
       strip_components: 1
 
-  - name: publish-docker
-    image: plugins/docker
+  - name: deploy-update
+    image: appleboy/drone-scp
+    privileged: true
     settings:
-      registry: host.docker.internal:8082
-      repo: host.docker.internal:8082/demo
-      insecure: true
-      username: admin
-      password: aA123456!
-      tags:
-        - latest
-        - ${DRONE_BUILD_NUMBER}-${DRONE_COMMIT_AUTHOR}-${DRONE_REPO_BRANCH}-${DRONE_COMMIT_SHA:0:8}
+      host: host.docker.internal
+      username: root
+      password: root
+      port: 2022
+      overwrite: true
+      target: /root/app
+      source: ./docker-compose.yml
+      strip_components: 1
 
-  - name: notify-email
-    image: drillster/drone-email
+  - name: deploy-restart
+    image: appleboy/drone-ssh
     settings:
-      host: smtp.ym.163.com
-      username: admin@nbaxp.com
-      password: ******
-      from: admin@nbaxp.com
+      host: host.docker.internal
+      username: root
+      password: root
+      port: 2022
+      command_timeout: 2m
+      script:
+        - cd /root/app
+        - docker compose pull
+        - docker compose up -d
+
+  # - name: notify-email
+  #   image: drillster/drone-email
+  #   settings:
+  #     host: smtp.ym.163.com
+  #     username: admin@nbaxp.com
+  #     password: aA123456!
+  #     from: admin@nbaxp.com

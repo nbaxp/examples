@@ -5,3 +5,4 @@ services:
     image: host.docker.internal:8082/demo:latest
     ports:
       - 80:80
+      

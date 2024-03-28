@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   openssh-server:
-    # 模拟服务器，用于提供 drone 使用 scp 插件进行文件部署
+    # 模拟的 linux 原生部署环境
     image: linuxserver/openssh-server:version-9.6_p1-r0
     environment:
       - PUID=1000
@@ -15,16 +15,27 @@ services:
       - 2222:2222
     volumes:
       - ./apps/nginx/html:/config/html
+  # docker-dind:
+  #   # 模拟服务器上的 docker，此容器无 ssh，因此需手动启动、重启或更新镜像
+  #   # 真实环境中应该在 .drone 文件中使用 ssh 登录并更新镜像并重启服务
+  #   image: docker:26.0.0-dind
+  #   privileged: true
+  #   ports:
+  #     - 8080:80
+  #   volumes:
+  #     - ./demo/docker-compose.yml:/app/docker-compose.yml
+  #   command: [ "--insecure-registry=host.docker.internal:8082" ]
   docker-dind:
-    # 模拟服务器上的 docker，此容器无 ssh，因此需手动启动、重启或更新镜像
-    # 真实环境中应该在 .drone 文件中使用 ssh 登录并更新镜像并重启服务
-    image: docker:25.0.4-dind
+    # 模拟的 docker 部署环境
     privileged: true
+    build:
+      context: ./src/docker-ssh
     ports:
       - 8080:80
+      - 2022:22
     volumes:
-      - ./demo/docker-compose.yml:/app/docker-compose.yml
-    command: [ "--insecure-registry=host.docker.internal:8082" ]
+      - ./demo/docker-compose.yml:/root/app/docker-compose.yml
+    command: bash -c "dockerd --insecure-registry=host.docker.internal:8082 & rc-service sshd start & cd /root/app && docker compose up -d &  tail -f /dev/null"
   nginx:
     # 模拟服务器上的 nginx
     image: nginx:1.24.0
