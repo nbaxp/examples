@@ -15,16 +15,6 @@ services:
       - 2222:2222
     volumes:
       - ./apps/nginx/html:/config/html
-  # docker-dind:
-  #   # 模拟服务器上的 docker，此容器无 ssh，因此需手动启动、重启或更新镜像
-  #   # 真实环境中应该在 .drone 文件中使用 ssh 登录并更新镜像并重启服务
-  #   image: docker:26.0.0-dind
-  #   privileged: true
-  #   ports:
-  #     - 8080:80
-  #   volumes:
-  #     - ./demo/docker-compose.yml:/app/docker-compose.yml
-  #   command: [ "--insecure-registry=host.docker.internal:8082" ]
   docker-dind:
     # 模拟的 docker 部署环境
     privileged: true
@@ -35,7 +25,7 @@ services:
       - 2022:22
     volumes:
       - ./demo/docker-compose.yml:/root/app/docker-compose.yml
-    command: bash -c "dockerd --insecure-registry=host.docker.internal:8082 & rc-service sshd start & cd /root/app && docker compose up -d &  tail -f /dev/null"
+    command: bash -c "rc-service sshd start && dockerd --insecure-registry=host.docker.internal:8082"
   nginx:
     # 模拟服务器上的 nginx
     image: nginx:1.24.0
@@ -125,3 +115,14 @@ services:
       - 8082:8082
     volumes:
       - ./data/nexus3:/nexus-data
+  gitness:
+    image: harness/gitness:3.0.0-beta.6
+    environment:
+      - GITNESS_HTTP_PORT=3001
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/gitness:/data
+    ports:
+      - 3001:3001

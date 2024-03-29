@@ -1,0 +1,43 @@
+#https://developer.harness.io/docs/category/use-plugins/
+version: 1
+kind: pipeline
+spec:
+  stages:
+    - name: build
+      type: ci
+      spec:
+        steps:
+          - name: test
+            type: run
+            spec:
+              container: alpine
+              script: |-
+                uname -a
+                env
+                pwd
+                ls
+                echo 'test:'
+                echo $DRONE_REPO_BRANCH
+          - name: build
+            type: run
+            spec:
+              container: node:20.11.1
+              script: |-
+                npm i
+                npm run build
+                ls
+          - name: publish-s3
+            type: plugin
+            spec: 
+              name: s3
+              inputs:
+                bucket: default
+                endpoint: http://host.docker.internal:9000
+                path_style: true
+                access_key: admin
+                secret_key: aA123456!
+                source: dist/**/*
+                strip_prefix: dist/
+                target: /demo/node/${{build.number}}-${{build.branch}}-${{build.author_name}}-${{build.commit_hash}}
+
+
