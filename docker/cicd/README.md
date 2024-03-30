@@ -2,6 +2,12 @@
 
 Windows 下安装最新版的 Docker Desktop：<https://www.docker.com/products/docker-desktop>
 
+目前的几种方式：
+
+1. gitea + drone + drone runner：至少3个项目组合实现
+1. gitea/forgejo + gitea runner/forgejo runner：至少2个项目组合实现，兼容 github actions,forgejo 是 gitea 的新分支
+1. gitness: drone 的下一代版本，一站式实现，兼容 github actions
+
 ## 目录结构说明
 
 1. docker-compose.yml：应用配置文件

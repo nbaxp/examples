@@ -57,7 +57,7 @@ services:
       - ./data/minio:/data
     command: server --console-address ":9001" /data
     healthcheck:
-      test: [ "CMD", "mc", "ready", "local" ]
+      test: ["CMD", "mc", "ready", "local"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -74,6 +74,17 @@ services:
     ports:
       - 3000:3000
       - 2200:22
+  act_runner:
+    image: gitea/act_runner:latest
+    restart: always
+    environment:
+      - GITEA_INSTANCE_URL=http://forgejo:3000 #http://gitea:3000
+      - GITEA_RUNNER_REGISTRATION_TOKEN=ejKXaEOxsqRWs1UJvhCbxWVi2NDt7kgNb0twslsI #JoGrOi6G6LwluvCml0qbxF6FD55d2Ff6LKuXpm1C
+    depends_on:
+      - forgejo #gitea
+    volumes:
+      - ./data/act_runner:/data
+      - /var/run/docker.sock:/var/run/docker.sock
   drone:
     image: drone/drone:2.22.0
     restart: always
@@ -126,3 +137,15 @@ services:
       - ./data/gitness:/data
     ports:
       - 3001:3001
+  forgejo:
+    image: mstreicherde/forgejo:1.21.8-0
+    restart: always
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    ports:
+      - 3000:3000
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/forgejo:/data
