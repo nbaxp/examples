@@ -1,0 +1,31 @@
+version: '3.8'
+
+networks:
+  default:
+    driver: bridge
+
+services:
+  gitea-server:
+    # https://docs.gitea.com/zh-cn/installation/install-with-docker-rootless
+    image: gitea/gitea:${GITEA_VERSION}
+    restart: always
+    ports:
+      - 3000:3000
+      - 2222:2222
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./apps/gitea:/etc/gitea
+      - ./data/gitea:/var/lib/gitea
+  gitea_runner:
+    # https://docs.gitea.com/zh-cn/usage/actions/act-runner#%E4%BD%BF%E7%94%A8-docker-compose-%E8%BF%90%E8%A1%8C-runner
+    image: gitea/act_runner:${ACT_RUNNER_VERSION}
+    restart: always
+    environment:
+      - GITEA_INSTANCE_URL=${GITEA_INSTANCE_URL}
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${REGISTRATION_TOKEN}
+    depends_on:
+      - gitea-server
+    volumes:
+      - ./data/act_runner:/data
+      - /var/run/docker.sock:/var/run/docker.sock
