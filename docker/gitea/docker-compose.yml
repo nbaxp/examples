@@ -5,7 +5,7 @@ networks:
     driver: bridge
 
 services:
-  gitea-server:
+  gitea:
     # https://docs.gitea.com/zh-cn/installation/install-with-docker-rootless
     image: gitea/gitea:${GITEA_VERSION}
     restart: always
@@ -19,13 +19,16 @@ services:
       - ./data/gitea:/var/lib/gitea
   gitea_runner:
     # https://docs.gitea.com/zh-cn/usage/actions/act-runner#%E4%BD%BF%E7%94%A8-docker-compose-%E8%BF%90%E8%A1%8C-runner
+    # https://github.com/dufok/dokku-act-runner/blob/4992822de2026a702c24491b91f5fcffc7bcb22d/examples/docker-compose/README.md
     image: gitea/act_runner:${ACT_RUNNER_VERSION}
     restart: always
+    privileged: true
     environment:
       - GITEA_INSTANCE_URL=${GITEA_INSTANCE_URL}
       - GITEA_RUNNER_REGISTRATION_TOKEN=${REGISTRATION_TOKEN}
+      - DOCKER_HOST=unix:///var/run/user/1000/docker.sock
     depends_on:
-      - gitea-server
+      - gitea
     volumes:
       - ./data/act_runner:/data
-      - /var/run/docker.sock:/var/run/docker.sock
+      # - /var/run/docker.sock:/var/run/docker.sock

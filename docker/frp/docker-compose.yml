@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  portainer:
+    image: snowdreamtech/frpc:0.56.0
+    restart: always
+    network_mode: host
+    volumes:
+      - ./frpc.toml:/etc/frp/frpc.toml

@@ -9,41 +9,47 @@ jobs:
   Job=-1:
     runs-on: ubuntu-22.04
     steps:
-      - run: echo "event:${{ gitea.event_name }},os:${{ runner.os }},branch:${{ gitea.ref }},repository :${{ gitea.repository }},status:${{ job.status }}"
+      # - run: echo "event:${{ gitea.event_name }},os:${{ runner.os }},branch:${{ gitea.ref }},repository :${{ gitea.repository }},status:${{ job.status }}"
       - name: Check out
-        uses: https://gitea.com/actions/checkout@v4
+        uses: http://host.docker.internal:3000/actions/checkout@v4
+      - name: Install docker
+        uses: http://host.docker.internal:3000/papodaca/install-docker-action@main
+      # - name: Set up QEMU
+      #   uses: http://host.docker.internal:3000/docker/setup-qemu-action@v3
+      # - name: Set up Docker Buildx
+      #   uses: http://host.docker.internal:3000/docker/setup-buildx-action@v3
+      - run: |
+          docker -v
+          docker info
       - name: List
         run: |
           ls ${{ gitea.workspace }}
-      - name: Build Dist
-        uses: https://gitea.com/actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: |
-          pwd
-          ls
-          npm install
-          npm run build
-          ls dist
-        working-directory: ./src/vue
-      - name: Set up QEMU
-        uses: https://gitea.com/actions/docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          insecure: true
-          http: true
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          registry: host.docker.internal:3000/root/vue
-          username: root
-          password: aA123456!
-      - name: Build and push Docker images
-        uses: https://gitea.com/actions/docker/build-push-action
-        with:
-          context: ./src/vue
-          file: ./src/vue/Dockerfile
-          push: false
-          # tags: latest
-          # labels: ${{ steps.meta.outputs.labels }}
+      # - name: Build Dist
+      #   uses: https://gitea.com/actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      # - run: |
+      #     pwd
+      #     ls
+      #     npm install
+      #     npm run build
+      #     ls dist
+      #   working-directory: ./src/vue
+      #   with:
+      #     insecure: true
+      #     http: true
+
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: host.docker.internal:3000/root/vue
+      #     username: root
+      #     password: aA123456!
+      # - name: Build and push Docker images
+      #   uses: http://host.docker.internal:3000/docker/build-push-action
+      #   with:
+      #     context: ./src/vue
+      #     file: ./src/vue/Dockerfile
+      #     push: false
+      # tags: latest
+      # labels: ${{ steps.meta.outputs.labels }}
