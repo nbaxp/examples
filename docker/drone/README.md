@@ -10,7 +10,8 @@
     ```
 
 1. 访问 `http://[IP]:3000/` 安装 gitea，注册管理员账户并登陆（root@aA123456!）
-1. 访问`http://[IP]:3000/user/settings/applications`，添加名为 drone 的应用，填写重定向地址,重定向地址格式为 `http://[IP]:[drone_port]/login`，如：`http://172.25.64.1:3800/login`
+1. 访问 `http://[IP]:3000/user/settings/applications` 添加名为 package 的令牌，drone 使用此令牌发布版本，需要添加 repository 读写权限
+1. 访问 `http://[IP]:3000/user/settings/applications`，添加名为 drone 的应用，填写重定向地址,重定向地址格式为 `http://[IP]:[drone_port]/login`，如：`http://172.25.64.1:3800/login`
 1. 复制客户端ID和密钥，保存并更新 .env 文件中的 DRONE_GITEA_CLIENT_ID 和 DRONE_GITEA_CLIENT_SECRET
 1. 启动 drone 及其 runner 服务，访问 `http://[IP]:3800/` 跳转到 gite 进行登录
 1. gite 中新建 demo 项目，提交当前目录文件到项目

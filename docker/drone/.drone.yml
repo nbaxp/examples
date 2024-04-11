@@ -48,12 +48,13 @@ steps:
       - echo "${DRONE_BUILD_NUMBER}-${DRONE_COMMIT_AUTHOR}-${DRONE_REPO_BRANCH}-${DRONE_COMMIT_SHA:0:8}\n">./dist/version.txt
       - echo ${DRONE_COMMIT_MESSAGE}>>./dist/version.txt
       - ls dist
-  - name: package
-    image: lunagod/drone-zip
+  - name: archive
+    image: joseluisq/drone-archive
     settings:
-      input:
-        - ./src/vue/dist
-      output: release.zip
+      format: zip
+      src_base_path: ./src/vue/dist
+      src: ./
+      dest: ./fe.zip
   - name: release-tag
     pull: always
     image: plugins/gitea-release:latest
@@ -61,5 +62,5 @@ steps:
       insecure: true
       base_url: http://172.25.64.1:3000
       title: "${DRONE_TAG} is released"
-      files: release.zip
+      files: fe.zip
       api_key: 4e562b0a93d643e518966cad92bef2e131ca2c33
