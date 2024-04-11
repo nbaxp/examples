@@ -1,0 +1,65 @@
+---
+kind: pipeline
+type: docker
+name: publish-docker
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+
+platform:
+  arch: amd64
+  os: linux
+
+steps:
+  - name: publish-docker
+    image: plugins/docker
+    settings:
+      registry: 172.25.64.1:3000
+      repo: 172.25.64.1:3000/root/demo
+      insecure: true
+      username: root
+      password: aA123456!
+      dockerfile: src/vue/Dockerfile
+      context: src/vue
+      tags:
+        - latest
+        - ${DRONE_BUILD_NUMBER}-${DRONE_COMMIT_AUTHOR}-${DRONE_REPO_BRANCH}-${DRONE_COMMIT_SHA:0:10}
+---
+kind: pipeline
+type: docker
+name: release-tag
+
+trigger:
+  event:
+    - tag
+
+steps:
+  - name: build
+    image: node:20.11.1
+    privileged: true
+    commands:
+      - cd src/vue
+      - npm i
+      - npm run build
+      - 'git --no-pager log --date=format:"%Y-%m-%d %H:%M:%S" --pretty=format:"%h - %ad %cn: %s %b" --invert-grep --grep="CI SKIP" --grep="drone" >./dist/log.txt'
+      - echo "${DRONE_BUILD_NUMBER}-${DRONE_COMMIT_AUTHOR}-${DRONE_REPO_BRANCH}-${DRONE_COMMIT_SHA:0:8}\n">./dist/version.txt
+      - echo ${DRONE_COMMIT_MESSAGE}>>./dist/version.txt
+      - ls dist
+  - name: package
+    image: lunagod/drone-zip
+    settings:
+      input:
+        - ./src/vue/dist
+      output: release.zip
+  - name: release-tag
+    pull: always
+    image: plugins/gitea-release:latest
+    settings:
+      insecure: true
+      base_url: http://172.25.64.1:3000
+      title: "${DRONE_TAG} is released"
+      files: release.zip
+      api_key: 4e562b0a93d643e518966cad92bef2e131ca2c33

@@ -1,10 +1,13 @@
-version: '3.8'
+version: "3.8"
 
 networks:
   default:
     driver: bridge
 
 services:
+  ubuntu-act:
+    image: ghcr.io/catthehacker/ubuntu:act-22.04
+    command: bash -c "tail -f /dev/null"
   gitea:
     # https://docs.gitea.com/zh-cn/installation/install-with-docker-rootless
     image: gitea/gitea:${GITEA_VERSION}
@@ -31,4 +34,3 @@ services:
       - gitea
     volumes:
       - ./data/act_runner:/data
-      # - /var/run/docker.sock:/var/run/docker.sock

@@ -1,29 +1,68 @@
 # https://docs.gitea.com/usage/actions/quickstart
+# https://gitea.com/gitea/act_runner/src/branch/main/.gitea/workflows/release-nightly.yml
 name: Workflow
-Actions:
 on:
   push:
     branches:
       - main
 jobs:
-  Job=-1:
+  Job-1:
     runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/catthehacker/ubuntu:act-22.04
     steps:
-      # - run: echo "event:${{ gitea.event_name }},os:${{ runner.os }},branch:${{ gitea.ref }},repository :${{ gitea.repository }},status:${{ job.status }}"
-      - name: Check out
-        uses: http://host.docker.internal:3000/actions/checkout@v4
-      - name: Install docker
-        uses: http://host.docker.internal:3000/papodaca/install-docker-action@main
+      # - run: lsb_release -a
+      # - run: uname -a
+      # - run: pwd
+      # - run: ls
+      # - run: env
+      # - run: docker info
+      # - run: mkdir -p  /etc/docker
+      # - run: echo "{\"insecure-registries\":[\"gitea:3000\"]}">/etc/docker/daemon.json
+      # - run: cat /etc/docker/daemon.json
+      # - run: service docker restart
+      # - run: docker info
+      - name: Checkout
+        uses: http://gitea:3000/actions/checkout@v4
+      # - run: cd $GITHUB_WORKSPACE/src/vue && pwd && docker build --rm=true -t $GITHUB_SHA -f Dockerfile . --pull=true #-t latest,$GITHUB_REF_NAME-$GITHUB_ACTOR-$GITHUB_SHA -f Dockerfile . --pull=true
+      # - run: docker image ls
+      # - run: docker tag $GITHUB_SHA gitea:3000/$GITHUB_REPOSITORY:latest
+      # - run: docker tag $GITHUB_SHA gitea:3000/$GITHUB_REPOSITORY:$GITHUB_REF_NAME-GITHUB_RUN_ID-$GITHUB_ACTOR-$GITHUB_SHA
+      # - run: docker image ls
+      # - run: docker push gitea:3000/$GITHUB_REPOSITORY:latest
+      # - run: docker push gitea:3000/$GITHUB_REPOSITORY:$GITHUB_REF_NAME-GITHUB_RUN_ID-$GITHUB_ACTOR-$GITHUB_SHA
+      # - name: Run the build process with Docker
+      #   uses: http://gitea:3000/addnab/docker-run-action@v3
+      #   with:
+      #     image: plugins/docker:20.17.3
+      #     options: -v ${{ github.workspace }}/src/vue:/drone/src
+      #     run: ls /drone/src
+      #   composer install
+      #   npm install
+      #   npm run production
+      # - name: Install docker
+      #  uses: http://host.docker.internal:3000/papodaca/install-docker-action@main
       # - name: Set up QEMU
-      #   uses: http://host.docker.internal:3000/docker/setup-qemu-action@v3
-      # - name: Set up Docker Buildx
-      #   uses: http://host.docker.internal:3000/docker/setup-buildx-action@v3
-      - run: |
-          docker -v
-          docker info
-      - name: List
-        run: |
-          ls ${{ gitea.workspace }}
+      #   uses: http://gitea:3000/docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: http://gitea:3000/docker/setup-buildx-action@v3
+        with: # replace it with your local IP
+          driver-opts: network=host
+          # config-inline: |
+          #   [registry."192.168.31.155:3000"]
+          #     http = true
+          #     insecure = true
+      # - run: systemctl restart docker
+      # - run: docker info
+      # - name: Login to Docker Hub
+      #   uses: http://gitea:3000/docker/login-action@v3
+      #   with:
+      #     registry: http://192.168.31.155:3000
+      #     username: root
+      #     password: aA123456!
+      # - name: List
+      #  run: |
+      #    ls ${{ gitea.workspace }}
       # - name: Build Dist
       #   uses: https://gitea.com/actions/setup-node@v4
       #   with:
@@ -38,18 +77,25 @@ jobs:
       #   with:
       #     insecure: true
       #     http: true
-
       # - name: Login to Docker Hub
       #   uses: docker/login-action@v3
       #   with:
       #     registry: host.docker.internal:3000/root/vue
       #     username: root
       #     password: aA123456!
-      # - name: Build and push Docker images
-      #   uses: http://host.docker.internal:3000/docker/build-push-action
-      #   with:
-      #     context: ./src/vue
-      #     file: ./src/vue/Dockerfile
-      #     push: false
-      # tags: latest
-      # labels: ${{ steps.meta.outputs.labels }}
+      - name: Get Meta
+        id: meta
+        run: |
+          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(git describe --tags --always | sed 's/^v//') >> $GITHUB_OUTPUT
+      - name: Build and push Docker images
+        uses: http://gitea:3000/docker/build-push-action@v5
+        with:
+          context: ./src/vue
+          file: ./src/vue/Dockerfile
+          platforms: |
+            linux/amd64
+          push: true
+          tags: |
+            host.docker.internal:3000/root/gitea:${{ steps.meta.outputs.REPO_VERSION }}
+            host.docker.internal:3000/root/gitea:${{ env.DOCKER_LATEST }}

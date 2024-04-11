@@ -4,6 +4,8 @@
 1. 访问 `http://localhost:3000/user/settings/actions/runners`,复制 Registration Token ，更新 .env 文件的 REGISTRATION_TOKEN
 1. 执行 `docker compose up -d` ，待 act_runner 重启成功后刷新 `http://localhost:3000/user/settings/actions/runners` 查看 runners 是否生效
 1. 同步相关仓库到本地
+    1. https://github.com/actions/checkout/
+    1. https://github.com/addnab/docker-run-action
     1. `https://github.com/actions/runner-images`
     1. `https://github.com/docker/setup-qemu-action`
     1. `https://github.com/docker/setup-buildx-action`

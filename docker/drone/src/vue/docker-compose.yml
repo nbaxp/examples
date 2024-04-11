@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  app:
+    image: host.docker.internal:3000/wanggang/demo:latest
+    ports:
+      - 80:80
+      
