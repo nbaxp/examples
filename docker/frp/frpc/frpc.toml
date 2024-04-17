@@ -1,0 +1,25 @@
+# frpc.toml
+serverAddr = "temp.nbaxp.com"
+serverPort = 7000
+auth.token = "aA123456!"
+
+[[proxies]]
+name = "ssh"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 22
+remotePort = 6000
+
+[[proxies]]
+name = "portainer"
+type = "http"
+localIP = "127.0.0.1"
+localPort = 9000
+subdomain = "portainer"
+
+[[proxies]]
+name = "gitea"
+type = "http"
+localIP = "127.0.0.1"
+localPort = 3000
+subdomain = "gitea"

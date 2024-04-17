@@ -1,8 +1,8 @@
-version: "3.8"
+name: frpc
 
 services:
   portainer:
-    image: snowdreamtech/frpc:0.56.0
+    image: snowdreamtech/frpc:${FRPC_VERSION}
     restart: always
     network_mode: host
     volumes:

@@ -1,0 +1,15 @@
+# https://www.composerize.com/
+name: proxmox_ve
+services:
+  proxmox_ve:
+    image: makedie/proxmox_ve:8.0.3
+    container_name: pve
+    privileged: true
+    #stdin_open: true
+    #tty: true
+    network_mode: host
+    extra_hosts:
+      - pve:172.21.176.1
+    hostname: pve
+    ports:
+      - 8086:8086

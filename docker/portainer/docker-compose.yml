@@ -2,10 +2,10 @@ name: portainer
 
 services:
   portainer:
-    image: portainer/portainer-ce:2.19.4
+    image: portainer/portainer-ce:${PORTAINER_VERSION}
     restart: always
     ports:
       - 9000:9000
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:rw
-      - /data/portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/portainer:/data

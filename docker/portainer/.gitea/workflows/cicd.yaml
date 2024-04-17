@@ -1,0 +1,43 @@
+name: Workflow
+on:
+  push:
+    branches:
+      - main
+jobs:
+  Job-1:
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/catthehacker/ubuntu:act-22.04
+      env:
+        RUNNER_TOOL_CACHE: /toolcache
+    steps:
+      - run: uname -a
+      - run: env
+      - run: apt -y update
+      - run: apt -y install rsync
+      - run: rsync --version
+      - name: Checkout
+        uses: http://gitea:3000/actions/checkout@v4
+      - name: Set GITHUB_SHA_SHORT
+        run: |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "GITHUB_SHA_SHORT=$calculatedSha" >> $GITHUB_ENV
+          echo "$calculatedSha">.version
+      - run: pwd
+      - run: ls -a
+      - name: Deploy to Staging server
+        uses: http://gitea:3000/easingthemes/ssh-depl@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-avzr --delete --exclude=.git* --exclude=.editorconfig --exclude=data --exclude=logs --include=docker-compose.yml --include=.env --include=apps"
+          SOURCE: "./"
+          REMOTE_HOST: 192.168.0.125
+          REMOTE_USER: root
+          TARGET: /root/publish/portainer
+          SCRIPT_BEFORE: |
+            cd /root/publish/portainer
+            docker compose down
+          SCRIPT_AFTER: |
+            cd /root/publish/portainer
+            docker compose up -d
+            find ./ -name "local_ssh_script-before*.sh" | xargs rm

@@ -9,7 +9,7 @@ jobs:
   Job-1:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/catthehacker/ubuntu:act-22.04
+      image: catthehacker/ubuntu:act-22.04
       env:
         RUNNER_TOOL_CACHE: /toolcache
     steps:

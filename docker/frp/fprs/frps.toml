@@ -1,0 +1,10 @@
+
+bindPort = 7000
+vhostHTTPPort = 8080
+subdomainHost = "temp.nbaxp.com"
+auth.token= "aA123456!"
+
+webServer.port = 8081
+webServer.addr = "0.0.0.0"
+webServer.user = "admin"
+webServer.password = "aA123456!"
