@@ -1,0 +1,42 @@
+# https://docs.gitea.com/usage/actions/quickstart
+# https://gitea.com/gitea/act_runner/src/branch/main/.gitea/workflows/release-nightly.yml
+# https://github.com/docker/docs/issues/2979
+# https://github.com/CJLove/config-cpp/blob/master/.gitea/workflows/ci.yml
+name: Workflow
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    env:
+      RUNNER_TOOL_CACHE: /toolcache
+    runs-on: ubuntu-22.04
+    container:
+      image: catthehacker/ubuntu:act-22.04
+    steps:
+      - run: env
+      - run: docker info
+      - uses: http://gitea:3000/actions/checkout@v4
+      - name: use docker for build
+        run: |
+          docker run --privileged --rm \
+            --volumes-from=${{ env.JOB_CONTAINER_NAME }} \
+            node:20.12.2 sh -c \
+            "node -v &&\
+            npm -v &&\
+            cd ${{ github.workspace }} &&\
+            cd src/vue
+            npm install &&\
+            npm run build"
+      # - name: use node action for build
+      #   uses: http://gitea:3000/actions/setup-node@v4
+      #   with:
+      #     node-version: 20.12.2
+      #     cache: "npm"
+      #     cache-dependency-path: "**/package-lock.json"
+      # - run: |
+      #     cd src/vue
+      #     npm install
+      #     npm run build

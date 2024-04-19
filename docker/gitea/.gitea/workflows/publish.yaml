@@ -1,0 +1,119 @@
+# https://docs.gitea.com/usage/actions/quickstart
+# https://gitea.com/gitea/act_runner/src/branch/main/.gitea/workflows/release-nightly.yml
+name: Workflow
+on:
+  push:
+    tags:
+      - "*"
+jobs:
+  docker:
+    env:
+      RUNNER_TOOL_CACHE: /toolcache
+    runs-on: ubuntu-22.04
+    container:
+      image: catthehacker/ubuntu:act-22.04
+    steps:
+      - run: env
+      - run: docker info
+      - uses: http://gitea:3000/actions/checkout@v4
+      - run: |
+          host=`echo $GITHUB_SERVER_URL |sed 's/https\?:\/\///'`
+          echo "GITHUB_HOST=$host" >> $GITHUB_ENV
+      - run: |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "GITHUB_SHA_SHORT=$calculatedSha" >> $GITHUB_ENV
+      - run: env
+      - uses: http://gitea:3000/docker/setup-qemu-action@v3
+      - uses: http://gitea:3000/docker/setup-buildx-action@v3
+        with:
+          config-inline: |
+            [registry."${{ env.GITHUB_HOST }}"]
+              http = true
+              insecure = true
+      - uses: http://gitea:3000/docker/login-action@v3
+        with:
+          registry: ${{ env.GITHUB_HOST }}
+          username: root
+          password: aA123456!
+      - uses: http://gitea:3000/docker/build-push-action@v5
+        with:
+          context: ./src/vue
+          file: ./src/vue/Dockerfile
+          platforms: |
+            linux/amd64
+          push: true
+          tags: |
+            ${{ env.GITHUB_HOST }}/${{ env.GITHUB_REPOSITORY }}:latest
+            ${{ env.GITHUB_HOST }}/${{ env.GITHUB_REPOSITORY }}:${{ env.GITHUB_REF_NAME }}-${{ env.GITHUB_RUN_ID }}-${{ env.GITHUB_REPOSITORY_OWNER }}-${{ env.GITHUB_SHA_SHORT }}
+      - run: apt-get -y update
+      - run: apt-get -y install rsync
+      - run: rsync --version
+      - run: pwd
+      - run: ls -a
+      - uses: http://gitea:3000/easingthemes/ssh-depl@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-avzr --delete --exclude=.git* --exclude=.editorconfig --exclude=README.md --exclude=src --exclude=data --exclude=logs --include=docker-compose.yml --include=.env --include=apps"
+          SOURCE: "./"
+          REMOTE_HOST: 192.168.0.125
+          REMOTE_PORT: 2222
+          REMOTE_USER: root
+          TARGET: /root/publish/demo
+          SCRIPT_BEFORE: |
+            cd /root/publish/demo
+            docker compose down
+          SCRIPT_AFTER: |
+            cd /root/publish/demo
+            docker compose up -d
+            find ./ -name "local_ssh_script-before*.sh" | xargs rm
+  tag:
+    env:
+      RUNNER_TOOL_CACHE: /toolcache
+    runs-on: ubuntu-22.04
+    container:
+      image: catthehacker/ubuntu:act-22.04
+    steps:
+      - run: env
+      - run: docker info
+      - uses: http://gitea:3000/actions/checkout@v4
+      - run: |
+          host=`echo $GITHUB_SERVER_URL |sed 's/https\?:\/\///'`
+          echo "GITHUB_HOST=$host" >> $GITHUB_ENV
+      - run: |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "GITHUB_SHA_SHORT=$calculatedSha" >> $GITHUB_ENV
+      - run: |
+          repo=`echo ${GITHUB_REPOSITORY##*/}`
+          echo "GIT_REPO_NAME=$repo" >> $GITHUB_ENV
+      - run: env
+      - run: |
+          docker run --rm \
+            --volumes-from=${{ env.JOB_CONTAINER_NAME }} \
+            node:20.12.2 sh -c \
+            "node -v &&\
+            npm -v &&\
+            cd ${{ github.workspace }} &&\
+            cd src/vue
+            npm install &&\
+            npm run build"
+      - uses: thedoctor0/zip-release@0.7.6
+        with:
+          type: "zip"
+          filename: "release.zip"
+          path: src/vue/dist
+          custom: -j src/vue/dist
+      - run: ls
+      - run: |
+          docker run --rm \
+            --volumes-from=${{ env.JOB_CONTAINER_NAME }} \
+            -e PLUGIN_INSECURE=true \
+            -e PLUGIN_TITLE=${{ env.GITHUB_REF_NAME }} \
+            -e PLUGIN_BASE_URL=http://${{ env.GITHUB_HOST }} \
+            -e PLUGIN_API_KEY=${{ secrets.RELEASE_TOKEN }} \
+            -e PLUGIN_FILES=release.zip \
+            -e DRONE_REPO_OWNER=${{ env.GITHUB_REPOSITORY_OWNER }} \
+            -e DRONE_REPO_NAME=${{ env.GIT_REPO_NAME }} \
+            -e DRONE_COMMIT_REF=${{ env.GITHUB_REF }} \
+            -e DRONE_BUILD_EVENT=tag \
+            -w $(pwd) \
+            plugins/gitea-release
