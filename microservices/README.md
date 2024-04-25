@@ -4,7 +4,7 @@
 
 ```mermaid
 graph LR
-Browser(浏览器（Desktop、Mobile）)-->Gateway(网关（Spring Cloud Gateway）)
+Browser(浏览器（Desktop、Mobile）)-->Nginx(Nginx Web 服务器)-->Gateway(网关)
 APP(移动 APP（Android、IoS）)-->Gateway
 客户端(客户端（WinForm、WPF）)-->Gateway
 Gateway-->服务治理(服务治理（Nacos）)
