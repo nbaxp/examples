@@ -1,0 +1,23 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+	"files": {
+		"ignoreUnknown": true,
+		"ignore": ["lib/**/*.js"],
+		"include": ["src/**/*.js"]
+	},
+	"formatter": {
+		"formatWithErrors": true,
+		"indentStyle": "space",
+		"lineWidth": 120
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single"
+		}
+	},
+	"json": {
+		"parser": {
+			"allowComments": true
+		}
+	}
+}

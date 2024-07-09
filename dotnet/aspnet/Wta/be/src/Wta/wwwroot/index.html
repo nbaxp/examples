@@ -1,10 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="./" />
+  <link rel="icon" type="image/svg+xml" href="./src/assets/favicon.ico" />
+  <link rel="stylesheet" href="./src/main.css" />
+  <title>loading...</title>
 </head>
+
 <body>
-    <h1>Home</h1>
+  <noscript>JavaScript Disabled</noscript>
+  <div id="app">
+    <svg viewBox="0 0 50 50" style="
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          width: 50px;
+          height: 50px;
+          margin: auto;
+        ">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.2s" repeatCount="indefinite" />
+      <circle class="path" cx="25" cy="25" r="20" fill="none" style="
+            animation: loading-dash 1.5s ease-in-out infinite;
+            stroke: #409eff;
+            stroke-dasharray: 90, 150;
+            stroke-dashoffset: 0;
+            stroke-width: 2;
+            stroke-linecap: round;
+          " />
+    </svg>
+  </div>
+  <script type="importmap">
+      {
+        "imports": {
+          "@/": "./src/",
+          "lodash": "./lib/lodash/lodash.esm.js",
+          "linq": "./lib/linq/linq.min.js",
+          "vue": "./lib/vue/vue.esm-browser.js",
+          "vue-router": "./lib/vue-router/vue-router.esm-browser.js",
+          "pinia": "./lib/pinia/pinia.esm-browser.js",
+          "vue-i18n": "./lib/vue-i18n/vue-i18n.esm-browser.prod.js",
+          "pubsub-js": "./lib/pubsub-js/pubsub.esm.js",
+          "@vueuse/shared": "./lib/@vueuse/shared/index.js",
+          "@vueuse/core": "./lib/@vueuse/core/index.js",
+          "element-plus": "./lib/element-plus/index.full.min.js",
+          "element-plus/": "./lib/element-plus/",
+          "@element-plus/icons-vue": "./lib/@element-plus/icons-vue/index.js",
+          "nprogress": "./lib/nprogress/nprogress.vite-esm.js",
+          "nprogress/":"./lib/nprogress/",
+          "echarts/core": "./lib/echarts/echarts.esm.min.js",
+          "vue-echarts": "./lib/vue-echarts/index.esm.min.js",
+          "@vue/devtools-api": "./lib/@vue/devtools-api/shim.js",
+          "vue-demi": "./lib/vue-demi/shim.js",
+          "resize-detector": "./lib/resize-detector/index.js",
+          "jsondiffpatch": "./lib/jsondiffpatch/index.min.js",
+          "utils": "./src/utils/index.js",
+          "jwt-decode": "./lib/jwt-decode/jwt-decode.esm.js"
+        }
+      }
+    </script>
+  <script>
+    window.process = { env: { NODE_ENV: "production" } };
+  </script>
+  <script type="module" src="./src/main.js"></script>
 </body>
+
 </html>

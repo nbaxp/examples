@@ -1,0 +1,5 @@
+@import url("../lib/nprogress/nprogress.css");
+@import url("../lib/element-plus/index.css");
+@import url("../lib/element-plus/theme-chalk/dark/css-vars.css");
+@import url("../lib/tailwindcss/tailwind.min.css");
+@import url("./styles/site.css");
