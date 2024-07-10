@@ -1,9 +1,29 @@
 {
-  "editor.formatOnSave": true,
+  "workbench.tree.indent": 16,
   "liveServer.settings.port": 9527,
   "explorer.excludeGitIgnore": true,
   "search.followSymlinks": false,
   "search.exclude": {
-    "lib/**": true
-  }
+    "lib/**": true,
+    "assets/**": true
+  },
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnType": false,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "formatSelectionAsHtml.formatter": "prettier",
 }

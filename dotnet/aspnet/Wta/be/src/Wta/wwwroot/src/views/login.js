@@ -33,8 +33,8 @@ export default {
     const success = async (data) => {
       const tokenStore = useTokenStore();
       tokenStore.setToken(data.access_token, data.refresh_token);
-      const userStore = useUserStore();
-      await userStore.getUserInfo();
+      // const userStore = useUserStore();
+      // await userStore.getUserInfo();
       const redirect = router.currentRoute.value.query?.redirect ?? '/';
       router.push(redirect);
     };

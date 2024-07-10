@@ -254,7 +254,7 @@ export default {
         const method = props.schema.method || 'post';
         const data = (await request(method, url, postData)).data;
         if (!data.error) {
-          options.value = (data.result.records ?? getProp(data, props.schema.path) ?? data.result).map((o) => {
+          options.value = getProp(data, props.schema.path??'data.items').map((o) => {
             if (Array.isArray(o)) {
               return {
                 value: o[0],

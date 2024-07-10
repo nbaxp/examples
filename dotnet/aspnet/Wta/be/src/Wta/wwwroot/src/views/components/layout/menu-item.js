@@ -1,14 +1,14 @@
-import html from 'utils';
-import { reactive, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAppStore, useTabsStore } from '@/store/index.js';
-import { ElMessageBox } from 'element-plus';
-import SvgIcon from '@/components/icon/index.js';
+import { useAppStore, useTabsStore } from "@/store/index.js";
+import SvgIcon from "@/views/components/icon/index.js";
+import { ElMessageBox } from "element-plus";
+import html from "utils";
+import { reactive, watch } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
-  name: 'menuItem',
-  components: { SvgIcon },
-  template: html`<template v-if="!modelValue.meta?.hideInMenu">
+	name: "menuItem",
+	components: { SvgIcon },
+	template: html`<template v-if="!modelValue.meta?.hideInMenu">
     <el-sub-menu :index="path" v-if="modelValue.children&&modelValue.children.some(o=>!o.meta?.hideInMenu)">
       <template #title>
         <el-icon><svg-icon :name="modelValue.meta.icon??'folder'" /></el-icon>
@@ -25,45 +25,51 @@ export default {
       </template>
     </el-menu-item>
   </template>`,
-  props: {
-    modelValue: {
-      typeof: Object,
-    },
-    parent: {
-      typeof: String,
-      default: null,
-    },
-  },
-  setup(props, context) {
-    const appStore = useAppStore();
-    const tabsStore = useTabsStore();
-    const router = useRouter();
-    const model = reactive(props.modelValue);
-    watch(
-      model,
-      (value) => {
-        context.emit('update:modelValue', value);
-      },
-      { deep: true }
-    );
-    //
-    const path = `${props.parent}/${props.modelValue.path}`;
-    const click = (route) => {
-      if (!route.meta?.isExternal) {
-        if (appStore.useTabs && tabsStore.routes.length >= (appStore.maxTabs ?? 10)) {
-          ElMessageBox.alert(`页签达到最大限制${appStore.maxTabs ?? 10},请关闭不再使用的页签`, `提示`);
-        } else {
-          router.push(path);
-        }
-      } else {
-        window.open(props.modelValue.path);
-      }
-    };
-    //
-    return {
-      model,
-      path,
-      click,
-    };
-  },
+	props: {
+		modelValue: {
+			typeof: Object,
+		},
+		parent: {
+			typeof: String,
+			default: null,
+		},
+	},
+	setup(props, context) {
+		const appStore = useAppStore();
+		const tabsStore = useTabsStore();
+		const router = useRouter();
+		const model = reactive(props.modelValue);
+		watch(
+			model,
+			(value) => {
+				context.emit("update:modelValue", value);
+			},
+			{ deep: true },
+		);
+		//
+		const path = `${props.parent}/${props.modelValue.path}`;
+		const click = (route) => {
+			if (!route.meta?.isExternal) {
+				if (
+					appStore.useTabs &&
+					tabsStore.routes.length >= (appStore.maxTabs ?? 10)
+				) {
+					ElMessageBox.alert(
+						`页签达到最大限制${appStore.maxTabs ?? 10},请关闭不再使用的页签`,
+						`提示`,
+					);
+				} else {
+					router.push(path);
+				}
+			} else {
+				window.open(props.modelValue.path);
+			}
+		};
+		//
+		return {
+			model,
+			path,
+			click,
+		};
+	},
 };

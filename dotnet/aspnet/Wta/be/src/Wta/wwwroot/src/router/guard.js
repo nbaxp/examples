@@ -12,7 +12,7 @@ const beforeEach = async (to, from, next) => {
   const isLogin = await tokenStore.isLogin();
   if (isLogin) {
     if (!appStore.menu) {
-      await appStore.refreshRouter();
+      await appStore.refreshMenu();
       next({ path: to.fullPath });
     } else {
       next();

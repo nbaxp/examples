@@ -24,6 +24,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     [Display(Name = "查询", Order = 1)]
     public virtual ApiResult<QueryModel<TModel>> Search(QueryModel<TModel> model)
     {
+        model ??= new QueryModel<TModel>();
         var query = Where(model);
         model.TotalCount = query.Count();
         query = OrderBy(query, model.OrderBy);

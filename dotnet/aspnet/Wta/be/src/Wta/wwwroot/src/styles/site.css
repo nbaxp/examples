@@ -23,12 +23,6 @@ button:focus {
   outline: none;
 }
 
-/*webkit滚动条样式*/
-#app * {
-  scrollbar-width: thin;
-  scrollbar-color: var(--el-scrollbar-bg-color, var(--el-text-color-secondary));
-}
-
 ::-webkit-scrollbar {
   width: 8px;
   background: transparent;
@@ -43,10 +37,20 @@ button:focus {
   opacity: var(--el-scrollbar-opacity, 0.3);
 }
 
+img.loading {
+  height: 2rem;
+  width: 2rem;
+}
+
 #app {
   width: 100vw;
   height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   --header: 60px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--el-scrollbar-bg-color, var(--el-text-color-secondary));
 }
 
 #app>.el-container {

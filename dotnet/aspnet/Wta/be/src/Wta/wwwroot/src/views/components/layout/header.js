@@ -1,25 +1,25 @@
-import html from 'utils';
-import { ref } from 'vue';
-import { useAppStore, useTokenStore, useUserStore } from '@/store/index.js';
-import { useDark, useFullscreen, useToggle } from '@vueuse/core';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
-import SvgIcon from '@/components/icon/index.js';
-import LayoutLogo from './logo.js';
-import LayoutLocale from './locale.js';
-import LayoutSettings from './settings.js';
+import { useAppStore, useTokenStore, useUserStore } from "@/store/index.js";
+import SvgIcon from "@/views/components/icon/index.js";
+import { useDark, useFullscreen, useToggle } from "@vueuse/core";
+import { ElMessage, ElMessageBox } from "element-plus";
+import html from "utils";
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import LayoutLocale from "./locale.js";
+import LayoutLogo from "./logo.js";
+import LayoutSettings from "./settings.js";
 
 export default {
-  components: {
-    SvgIcon,
-    LayoutLogo,
-    LayoutLocale,
-    LayoutSettings,
-    ElMessage,
-    ElMessageBox,
-  },
-  template: html`
+	components: {
+		SvgIcon,
+		LayoutLogo,
+		LayoutLocale,
+		LayoutSettings,
+		ElMessage,
+		ElMessageBox,
+	},
+	template: html`
     <div class="flex items-center justify-between">
       <div class="flex items-center justify-center">
         <layout-logo />
@@ -93,87 +93,97 @@ export default {
       </div>
     </div>
   `,
-  setup() {
-    const router = useRouter();
-    const i18n = useI18n();
-    const appStore = useAppStore();
-    const tokenStore = useTokenStore();
-    const userStore = useUserStore();
-    //
-    const searchRef = ref(null);
-    const searchLoading = ref(false);
-    const searchModel = ref('');
-    const searchOptions = ref([]);
-    const showSearch = ref(false);
-    const hideSearch = () => {
-      showSearch.value = false;
-    };
-    const clickSearch = () => {
-      showSearch.value = !showSearch.value;
-      if (showSearch.value) {
-        searchRef.value.focus();
-      }
-    };
-    const searchMenu = (query) => {
-      if (query) {
-        try {
-          searchLoading.value = true;
-          searchOptions.value = router
-            .getRoutes()
-            .filter((o) => !o.meta?.hideInMenu && !o.children?.length && o.meta?.title.indexOf(query) >= 0);
-        } finally {
-          searchLoading.value = false;
-        }
-      }
-    };
-    const searchChange = (route) => {
-      if (!route.meta?.isExternal) {
-        router.push(route.path);
-        searchModel.value = '';
-        searchOptions.value = [];
-        showSearch.value = false;
-      } else {
-        window.open(route.path);
-      }
-    };
-    //
-    const isDark = useDark();
-    const toggleDark = useToggle(isDark);
-    const toggleMenuCollapse = () => (appStore.isMenuCollapse = !appStore.isMenuCollapse);
-    //
-    const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(document.documentElement);
-    const confirmLogout = async () => {
-      try {
-        await ElMessageBox.confirm(i18n.t('confirmLogout'), i18n.t('tip'), { type: 'warning' });
-        await tokenStore.logout();
-      } catch (error) {
-        if (error === 'cancel') {
-          ElMessage({
-            type: 'info',
-            message: i18n.t('cancel'),
-          });
-        }
-      }
-    };
-    return {
-      appStore,
-      tokenStore,
-      userStore,
-      showSearch,
-      hideSearch,
-      clickSearch,
-      searchRef,
-      searchLoading,
-      searchModel,
-      searchOptions,
-      searchMenu,
-      searchChange,
-      isDark,
-      toggleDark,
-      toggleMenuCollapse,
-      isFullscreen,
-      toggleFullscreen,
-      confirmLogout,
-    };
-  },
+	setup() {
+		const router = useRouter();
+		const i18n = useI18n();
+		const appStore = useAppStore();
+		const tokenStore = useTokenStore();
+		const userStore = useUserStore();
+		//
+		const searchRef = ref(null);
+		const searchLoading = ref(false);
+		const searchModel = ref("");
+		const searchOptions = ref([]);
+		const showSearch = ref(false);
+		const hideSearch = () => {
+			showSearch.value = false;
+		};
+		const clickSearch = () => {
+			showSearch.value = !showSearch.value;
+			if (showSearch.value) {
+				searchRef.value.focus();
+			}
+		};
+		const searchMenu = (query) => {
+			if (query) {
+				try {
+					searchLoading.value = true;
+					searchOptions.value = router
+						.getRoutes()
+						.filter(
+							(o) =>
+								!o.meta?.hideInMenu &&
+								!o.children?.length &&
+								o.meta?.title.indexOf(query) >= 0,
+						);
+				} finally {
+					searchLoading.value = false;
+				}
+			}
+		};
+		const searchChange = (route) => {
+			if (!route.meta?.isExternal) {
+				router.push(route.path);
+				searchModel.value = "";
+				searchOptions.value = [];
+				showSearch.value = false;
+			} else {
+				window.open(route.path);
+			}
+		};
+		//
+		const isDark = useDark();
+		const toggleDark = useToggle(isDark);
+		const toggleMenuCollapse = () =>
+			(appStore.isMenuCollapse = !appStore.isMenuCollapse);
+		//
+		const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(
+			document.documentElement,
+		);
+		const confirmLogout = async () => {
+			try {
+				await ElMessageBox.confirm(i18n.t("confirmLogout"), i18n.t("tip"), {
+					type: "warning",
+				});
+				await tokenStore.logout();
+			} catch (error) {
+				if (error === "cancel") {
+					ElMessage({
+						type: "info",
+						message: i18n.t("cancel"),
+					});
+				}
+			}
+		};
+		return {
+			appStore,
+			tokenStore,
+			userStore,
+			showSearch,
+			hideSearch,
+			clickSearch,
+			searchRef,
+			searchLoading,
+			searchModel,
+			searchOptions,
+			searchMenu,
+			searchChange,
+			isDark,
+			toggleDark,
+			toggleMenuCollapse,
+			isFullscreen,
+			toggleFullscreen,
+			confirmLogout,
+		};
+	},
 };

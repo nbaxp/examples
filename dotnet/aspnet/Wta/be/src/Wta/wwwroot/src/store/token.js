@@ -1,5 +1,6 @@
 import jwtDecode from 'jwt-decode';
 import { defineStore } from 'pinia';
+import {getUrl} from '@/utils/request.js';
 
 const REFRESH_TOKEN_KEY = 'refresh_token';
 
@@ -20,10 +21,16 @@ export default defineStore('token', {
       await this.refresh();
       return !!this.accessToken;
     },
+    setToken(accessToken,refreshToken){
+      this.accessToken = accessToken;
+      this.refreshToken = refreshToken;
+      localStorage.setItem(REFRESH_TOKEN_KEY,refreshToken);
+    },
     async refresh() {
       if (this.refreshToken) {
         const exp = new Date(jwtDecode(this.refreshToken).exp * 1000);
-        if (exp > new Date()) {
+        const now = new Date();
+        if (exp<now) {
           const response = await fetch(getUrl('token/refresh'), {
             method: 'POST',
             body: JSON.stringify(this.refreshToken),

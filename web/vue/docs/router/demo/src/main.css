@@ -1,0 +1,19 @@
+@import url(./tailwind.min.css);
+
+body {
+    border: none;
+}
+
+#app {
+    width: 100vw;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#app>img.loading {
+    height: 2rem;
+    width: 2rem;
+}

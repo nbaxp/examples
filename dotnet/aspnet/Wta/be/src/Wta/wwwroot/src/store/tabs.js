@@ -1,9 +1,20 @@
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
-import settings from '@/config/settings.js';
-
-export default defineStore('tabs', {
-  state: () => ({
-    ...settings,
-  }),
+export default defineStore("tabs", {
+	state: () => ({
+		routes: [],
+		isRefreshing: false,
+	}),
+	actions: {
+		addRoute(route) {
+			if (!this.routes.find((o) => o.fullPath === route.fullPath)) {
+				this.routes.push(route);
+			} else {
+				const index = this.routes.findIndex(
+					(o) => o.fullPath === route.fullPath,
+				);
+				this.routes[index] = route;
+			}
+		},
+	},
 });
