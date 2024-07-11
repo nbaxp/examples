@@ -6,13 +6,13 @@ import LayoutHeader from "./footer.js";
 import LayoutFooter from "./footer.js";
 
 export default {
-	components: { AppForm, LayoutFooter },
+	components: { AppForm, LayoutHeader,LayoutFooter },
 	template: html`
     <el-container class="is-vertical main backtop">
       <el-header><layout-header /></el-header>
       <el-main class="flex items-center justify-center">
         <div>
-          <router-view />
+          <router-view></router-view>
         </div>
       </el-main>
       <el-footer v-if="appStore.settings.showCopyright">

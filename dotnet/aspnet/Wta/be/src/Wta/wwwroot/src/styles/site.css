@@ -37,20 +37,23 @@ button:focus {
   opacity: var(--el-scrollbar-opacity, 0.3);
 }
 
-img.loading {
-  height: 2rem;
-  width: 2rem;
-}
-
 #app {
   width: 100vw;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  --header: 60px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--el-scrollbar-bg-color, var(--el-text-color-secondary));
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--el-scrollbar-bg-color, var(--el-text-color-secondary));
+    --header: 60px;
+  }
+}
+
+img.loading {
+  width: 2rem;
+  height: 2rem;
 }
 
 #app>.el-container {
@@ -80,10 +83,6 @@ img.loading {
     overflow: auto;
     border-right: none;
   }
-}
-
-.el-aside.open {
-  min-width: 200px;
 }
 
 .el-main {
@@ -145,18 +144,6 @@ a.logo {
   white-space: nowrap;
 }
 
-.el-dialog {
-  padding: 0;
-
-  .el-dialog__headerbtn {
-    height: 60px;
-  }
-
-  .el-dialog__body {
-    padding: 20px;
-  }
-}
-
 .el-dialog__header,
 .el-dialog__footer,
 .el-drawer__header,
@@ -177,19 +164,17 @@ a.logo {
   border-top: 1px solid var(--el-border-color);
 }
 
-.el-form {
-  .el-form-item__label {
-    padding-right: 0 !important;
-    width: 56px !important;
-    margin-right: 14px;
-    overflow: hidden;
-    justify-content: flex-start;
-    white-space: nowrap;
-  }
+.el-input {
+  width: 100%;
+  min-width: 240px;
+}
 
-  .el-form-item__content {
-    width: 16em !important;
-  }
+.el-select,
+.el-input-number,
+.el-date-editor.el-input,
+.el-date-editor.el-input__wrapper {
+  width: 100%;
+  min-width: 240px;
 }
 
 /* markdown component */
@@ -238,18 +223,19 @@ html.dark-nav {
   .el-aside,
   .el-aside *,
   .el-header,
-  .el-header .el-dropdown-link {
-    background-color: #343a40;
+  .el-header .el-menu,
+  .el-header .el-menu-item {
+    background-color: #343a40 !important;
     color: #e5eaf3;
   }
 
   .el-aside *:hover,
   .el-header *:hover {
-    background-color: #343a40;
+    background-color: #343a40 !important;
   }
 
   .el-aside .el-menu-item.is-active * {
-    color: #409eff;
+    color: #409eff !important;
   }
 
   .el-aside .el-scrollbar__thumb {
@@ -262,7 +248,7 @@ html.dark-nav {
   }
 
   .el-header {
-    border-bottom-color: #343a40;
+    border-bottom-color: #343a40 !important;
   }
 
   .el-header .el-icon {

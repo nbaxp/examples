@@ -21,7 +21,7 @@ export default {
             trigger="contextmenu"
             @visible-change="showContextMenu(index, $event)"
           >
-            <span class="inline-flex items-center"> {{ $t(item.meta?.title) }} </span>
+            <span class="inline-flex items-center"> {{ $t(item.meta?.title??item.path) }} </span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="refresh(index)">

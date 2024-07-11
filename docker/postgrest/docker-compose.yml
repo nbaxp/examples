@@ -1,0 +1,64 @@
+name: postgrest
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - DB_ANON_ROLE=${DB_ANON_ROLE}
+      - DB_SCHEMA=${DB_SCHEMA}
+    volumes:
+      - ./apps/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./apps/postgres/init:/docker-entrypoint-initdb.d
+      - ./data/postgres:/var/lib/postgresql/data
+    command: -c config_file=/etc/postgresql/postgresql.conf
+  postgrest:
+    # https://postgrest.org/en/v12/index.html
+    image: postgrest/postgrest
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - PGRST_DB_URI=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - PGRST_OPENAPI_SERVER_PROXY_URI=http://localhost:3000
+      - PGRST_DB_SCHEMA=${DB_SCHEMA}
+      - PGRST_DB_ANON_ROLE=${DB_ANON_ROLE}
+      - PGRST_JWT_SECRET=${POSTGREST_JWT_SECRET}
+    depends_on:
+      - postgres
+  prest:
+    image: prest/prest
+    links:
+      - "postgres:postgres"
+    environment:
+      - PREST_DEBUG=false
+      - PREST_AUTH_ENABLED=true
+      - PREST_PG_HOST=postgres
+      - PREST_PG_USER=${POSTGRES_USER}
+      - PREST_PG_PASS=${POSTGRES_PASSWORD}
+      - PREST_PG_DATABASE=${POSTGRES_DB}
+      - PREST_PG_PORT=5432
+      - PREST_SSL_MODE=disable
+      - PREST_CACHE_ENABLED=false
+      - PREST_CACHE=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - 3001:3001
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    restart: always
+    ports:
+      - 8080:8080
+    # volumes:
+    #   - ./apps/swagger-ui/init:/usr/share/nginx/html/index.html
+    environment:
+      - API_URL=http://localhost:3000/
+    depends_on:
+      - postgrest

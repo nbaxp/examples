@@ -32,7 +32,7 @@ export default {
                 v-if="!appStore.settings.useTabs || route.meta?.noCache"
                 :key="route.fullPath"
               />
-              <keep-alive :max="appStore.settings.maxTabs" :include="include">
+              <keep-alive v-else :max="appStore.settings.maxTabs" :include="include">
                 <component :is="Component" :key="route.fullPath" />
               </keep-alive>
             </router-view>
@@ -50,7 +50,7 @@ export default {
     const tabsStore = useTabsStore();
     const path = computed(() => useRoute().matched[0].path);
     const items = computed(() => useRoute().matched[0].children);
-    const include = computed(() => tabsStore.routes.map((o) => o.fullPath));
+    const include = computed(() => tabsStore.routes.filter((o) => o.name));
     const style = computed(() => {
       let height = 0;
       if (appStore.settings.showBreadcrumb) {
