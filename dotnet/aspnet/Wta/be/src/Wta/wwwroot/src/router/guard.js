@@ -11,7 +11,7 @@ const beforeEach = async (to, from, next) => {
   const appStore = useAppStore();
   const isLogin = await tokenStore.isLogin();
   if (isLogin) {
-    if (!appStore.menu) {
+    if (!appStore.menus) {
       await appStore.refreshMenu();
       next({ path: to.fullPath });
     } else {
@@ -27,10 +27,10 @@ const beforeEach = async (to, from, next) => {
 };
 
 const afterEach = (to, from) => {
-  console.debug(`after route: ${from.fullPath}-->${to.fullPath}`);
+  console.debug(`after route: ${to.name}: ${from.fullPath}-->${to.fullPath}`);
   try {
     const appStore = useAppStore();
-    if (appStore.useTabs && !to.meta?.hideInMenu) {
+    if (appStore.settings.useTabs && !to.meta?.hideInMenu) {
       const tabsStore = useTabsStore();
       tabsStore.addRoute(to);
     }

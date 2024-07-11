@@ -14,7 +14,7 @@ export default {
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item v-for="locale in $i18n.availableLocales" @click="change(locale)">
-          {{config.options.find(o=>o.value===locale)?.label}} {{locale}}
+          {{config.options.find(o=>o.key===locale)?.value}}
           <el-icon class="el-icon--right" v-if="locale===$i18n.locale">
             <ep-select />
           </el-icon>

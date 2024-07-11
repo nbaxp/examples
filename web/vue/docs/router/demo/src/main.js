@@ -4,6 +4,8 @@ import mixin from "./mixin.js";
 
 const appComponent = { template: "<router-view></router-view>" };
 
+const template = "<pre>{{JSON.stringify($router.getRoutes(),null,2)}}</pre>";
+
 const layout1 = {
     template: `layout1:<router-view></router-view>`
 };
@@ -14,49 +16,69 @@ const layout2 = {
 
 const routes = [
     {
-        name: 'root1',
-        path: "/",
-        component: layout1,
-        meta: {
-            title: "门户"
+        path:'',
+        meta:{
+            title:'root'
         },
-        children: [
+        children:[
             {
-                path: "",
-                component: {
-                    template: `<h1>Home</h1><img class="loading" src="./src/loading.svg" />`
-                }
-            },
-            {
-                path: "about",
-                component: {
-                    template: "<h1>About</h1>"
+                path:'/',
+                component:{
+                    template:"<router-view></router-view>"
                 }
             }
         ]
     },
     {
-        name: 'root2',
-        path: "/doc",
-        component: layout2,
-        meta: {
-            title: "文档"
-        },
-        children: [
-            {
-                path: "",
-                component: {
-                    template: "<h1>Doc Home</h1>"
-                }
-            },
-            {
-                path: "about",
-                component: {
-                    template: "<h1>Doc About</h1>"
-                }
-            }
-        ]
-    },
+        path:'/login',
+        component:{
+            template
+        }
+    }
+    // {
+    //     name: 'root1',
+    //     path: "/",
+    //     component: layout1,
+    //     meta: {
+    //         title: "门户"
+    //     },
+    //     children: [
+    //         {
+    //             path: "",
+    //             component: {
+    //                 template: `<h1>Home</h1><img class="loading" src="./src/loading.svg" />`
+    //             }
+    //         },
+    //         {
+    //             path: "about",
+    //             component: {
+    //                 template: "<h1>About</h1>"
+    //             }
+    //         }
+    //     ]
+    // },
+    // {
+    //     name: 'root2',
+    //     path: "/doc",
+    //     component: layout2,
+    //     meta: {
+    //         title: "文档"
+    //     },
+    //     children: [
+    //         {
+    //             path: "",
+    //             component: {
+    //                 template: "<h1>Doc Home</h1>"
+    //             }
+    //         },
+    //         {
+    //             path: "about",
+    //             component: {
+    //                 template: "<h1>Doc About</h1>"
+    //             }
+    //         }
+    //     ]
+    // },
 ];
 
 
@@ -71,7 +93,5 @@ const router = createRouter({
 
 app.use(router);
 
-setTimeout(() => {
-    app.mount("#app");
-}, 30000);
+app.mount("#app");
 

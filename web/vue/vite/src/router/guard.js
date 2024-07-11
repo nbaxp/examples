@@ -49,6 +49,7 @@ const beforeEach = async (to, from, next) => {
 
 const afterEach = (to, from) => {
   log(`after route: ${from.fullPath}-->${to.fullPath}`);
+  console.log(to.matched);
   try {
     const appStore = useAppStore();
     if (appStore.settings.useTabs && !to.meta?.hideInMenu) {

@@ -10,6 +10,16 @@ export default defineStore('token', {
     refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
   }),
   actions: {
+    setToken(accessToken,refreshToken){
+      this.accessToken = accessToken;
+      this.refreshToken = refreshToken;
+      localStorage.setItem(REFRESH_TOKEN_KEY,refreshToken);
+    },
+    removeToken() {
+      this.accessToken = null;
+      this.refreshToken = null;
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+    },
     async isLogin() {
       if (this.accessToken) {
         const exp = new Date(jwtDecode(this.accessToken).exp * 1000);
@@ -21,16 +31,10 @@ export default defineStore('token', {
       await this.refresh();
       return !!this.accessToken;
     },
-    setToken(accessToken,refreshToken){
-      this.accessToken = accessToken;
-      this.refreshToken = refreshToken;
-      localStorage.setItem(REFRESH_TOKEN_KEY,refreshToken);
-    },
     async refresh() {
       if (this.refreshToken) {
         const exp = new Date(jwtDecode(this.refreshToken).exp * 1000);
-        const now = new Date();
-        if (exp<now) {
+        if (exp > new Date()) {
           const response = await fetch(getUrl('token/refresh'), {
             method: 'POST',
             body: JSON.stringify(this.refreshToken),
@@ -40,13 +44,11 @@ export default defineStore('token', {
           });
           if (response.status === 200) {
             const result = await response.json();
-            this.accessToken = result.data.access_token;
-            this.refreshToken = result.data.refresh_token;
+            this.setToken(result.access_token,result.refresh_token);
             return;
           }
         }
-        this.refreshToken = null;
-        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        this.removeToken();
       }
     },
   },

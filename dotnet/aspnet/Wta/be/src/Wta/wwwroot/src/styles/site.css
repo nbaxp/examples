@@ -74,7 +74,6 @@ img.loading {
 .el-aside {
   height: 100%;
   background-color: var(--el-menu-bg-color);
-  min-width: 200px;
 
   .el-menu--vertical {
     min-height: 100%;
@@ -83,8 +82,8 @@ img.loading {
   }
 }
 
-.el-aside.collapse {
-  min-width: auto;
+.el-aside.open {
+  min-width: 200px;
 }
 
 .el-main {

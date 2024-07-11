@@ -1,12 +1,12 @@
+import useLoginModel from '@/models/login.js';
+import { useTokenStore, useUserStore } from '@/store/index.js';
 import html, { schemaToModel } from 'utils';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AppForm from './components/form/index.js';
 import LayoutFooter from './components/layout/footer.js';
-import LayoutLocale from './components/layout/locale.js';
+import LayoutLocale from './components/layout/lang.js';
 import LayoutLogo from './components/layout/logo.js';
-import useLoginModel from '@/models/login.js';
-import { useTokenStore, useUserStore } from '@/store/index.js';
 
 export default {
   components: { AppForm, LayoutLogo, LayoutLocale, LayoutFooter },
@@ -33,8 +33,6 @@ export default {
     const success = async (data) => {
       const tokenStore = useTokenStore();
       tokenStore.setToken(data.access_token, data.refresh_token);
-      // const userStore = useUserStore();
-      // await userStore.getUserInfo();
       const redirect = router.currentRoute.value.query?.redirect ?? '/';
       router.push(redirect);
     };
