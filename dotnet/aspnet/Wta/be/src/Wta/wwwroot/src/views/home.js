@@ -20,23 +20,62 @@ export default {
     </el-carousel>
   </el-col>
 </el-row>
-<el-row>
-  <el-col class="py-8">
-    <img src="./src/assets/images/4.png" style="margin:0 auto" />
+<el-row :gutter="20">
+  <el-col :span="12" class="py-8">
+    <el-card>
+      <template #header>
+        <div class="card-header">
+          <span>对接原有ERP</span>
+        </div>
+      </template>
+      <p>支持Excel导入、API接入，实时更新生产进度</p>
+    </el-card>
+  </el-col>
+  <el-col :span="12" class="py-8">
+    <el-card>
+      <template #header>
+        <div class="card-header">
+          <span>有事扫一扫</span>
+        </div>
+      </template>
+      <p>不管是员工报工、质检还是主管检查工作，扫码全搞定</p>
+    </el-card>
+  </el-col>
+</el-row>
+<el-row :gutter="20">
+  <el-col :span="12" class="py-8">
+    <el-card>
+      <template #header>
+        <div class="card-header">
+          <span>全过程记录</span>
+        </div>
+      </template>
+      <p>生产工序、产量、操作员信息等全部记录在案，随时可追溯</p>
+    </el-card>
+  </el-col>
+  <el-col :span="12" class="py-8">
+    <el-card>
+      <template #header>
+        <div class="card-header">
+          <span>自动汇总报表</span>
+        </div>
+      </template>
+      <p>管理者可围绕自己关注的指标自定义报表，实时查看生产进度</p>
+    </el-card>
   </el-col>
 </el-row>
 <el-row>
-    <el-col class="py-8">
-      <el-tabs type="border-card" tab-position="top">
-        <el-tab-pane v-for="(item1,index1) in list" :label="item1.label">
+  <el-col class="py-8">
+    <el-tabs type="border-card" tab-position="top">
+      <el-tab-pane v-for="(item1,index1) in list" :label="item1.label">
         <el-tabs tab-position="left">
           <el-tab-pane v-for="(item2,index2) in item1.children" :label="item2.label">
             <md :name="'flow/'+((index1+1)*10+index2+1)" />
           </el-tab-pane>
         </el-tabs>
-        </el-tab-pane>
-      </el-tabs>
-    </el-col>
+      </el-tab-pane>
+    </el-tabs>
+  </el-col>
 </el-row>
   `,
   styles: html`

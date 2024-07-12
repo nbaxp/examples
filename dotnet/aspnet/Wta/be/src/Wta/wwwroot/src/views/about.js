@@ -6,7 +6,11 @@ export default {
   components: { Layout },
   template: `
 <layout>
-About
+  <el-row>
+    <el-col class="py-8">
+      <img src="./src/assets/images/4.png" style="margin:0 auto" />
+    </el-col>
+  </el-row>
 </layout>
     `,
   setup() {
