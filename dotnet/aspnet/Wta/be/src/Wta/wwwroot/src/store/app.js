@@ -9,12 +9,12 @@ const routes = [
     path: '/',
     component: () => import('../views/components/layout/portal-layout.js'),
     meta: {
-      title: '/portal',
+      title: 'portal',
       icon: 'folder',
     },
     children: [
       {
-        path: '',
+        path: 'home',
         component: () => import('../views/home.js'),
         meta: {
           title: 'home',

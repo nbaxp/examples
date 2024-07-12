@@ -24,7 +24,7 @@ export default {
   template: html`<div class="flex items-center justify-between">
   <div class="flex items-center justify-center">
     <layout-logo />
-    <el-icon @click="toggleMenuCollapse" class="cursor-pointer" style="margin: 0 20px" :size="18">
+    <el-icon @click="toggleMenuCollapse" class="collapse-button cursor-pointer" style="margin: 0 20px" :size="18">
       <svg-icon name="unfold" v-if="appStore.settings.isMenuCollapse" />
       <svg-icon name="fold" v-else />
     </el-icon>

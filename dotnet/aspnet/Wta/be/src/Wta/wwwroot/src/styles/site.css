@@ -103,6 +103,10 @@ img.loading {
   overflow: hidden;
 }
 
+.portal-layout .collapse-button {
+  display: none;
+}
+
 .el-footer {
   width: 100%;
   border-top: 1px solid var(--el-border-color);
@@ -218,7 +222,7 @@ a.logo {
 
 /*暗色菜单*/
 
-html.dark-nav {
+html.dark-nav .admin-layout {
 
   .el-aside,
   .el-aside *,

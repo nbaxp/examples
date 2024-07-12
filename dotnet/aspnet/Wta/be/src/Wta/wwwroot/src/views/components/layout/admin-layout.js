@@ -15,7 +15,7 @@ export default {
     LayoutBreadcrumb,
     LayoutFooter,
   },
-  template: html`<el-container>
+  template: html`<el-container class="admin-layout">
     <el-header><layout-header /></el-header>
     <el-container>
       <el-aside width="auto" :class="{open:!appStore.settings.isMenuCollapse}">
