@@ -6,8 +6,7 @@ export default {
   components: { Layout },
   template: `
 <layout>
-  <div>{{new Date()}}</div>
-  <pre>{{JSON.stringify($router.getRoutes().find(o=>o.name==='root'),null,4)}}</pre>
+About
 </layout>
     `,
   setup() {

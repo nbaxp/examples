@@ -18,7 +18,7 @@ export default {
     onMounted(async () => {
       let mdText = tplRef.value.querySelector('.source pre')?.innerText;
       if (props.name !== null) {
-        const response = await fetch(`./assets/docs/${props.name}.md`);
+        const response = await fetch(`./src/assets/docs/${props.name}.md`);
         mdText = await response.text();
       }
       new Cherry({

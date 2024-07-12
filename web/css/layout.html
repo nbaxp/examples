@@ -1,0 +1,101 @@
+<html>
+
+<head>
+    <title>CSS Flex 自动布局</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body * {
+            box-sizing: border-box;
+            border: 5px solid gray;
+            padding: 1em;
+        }
+
+        body>.container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header,
+        .main,
+        .side,
+        .content,
+        .footer {
+            width: 100%;
+            display: flex;
+            flex: 1;
+        }
+
+        .main,
+        .main .content {
+            flex-basis: 100%;
+        }
+
+        .side,
+        .content {
+            height: 100%;
+        }
+
+        .header>.container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+
+            .logo,
+            .menu,
+            .login {
+                flex: 1;
+            }
+
+            .menu {
+                flex-basis: 100%;
+            }
+        }
+
+        .side>.container {
+            width: 200px;
+        }
+
+        .content>.container {
+            width: 100%;
+        }
+
+        .footer>.container {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="container">
+                <div class="logo">logo</div>
+                <div class="menu">menu 自动铺满</div>
+                <div class="login">login</div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="side">
+                <div class="container">side 自动宽度</div>
+            </div>
+            <div class="content">
+                <div class="container">content 自动铺满</div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="container">footer 自动高度</div>
+        </div>
+    </div>
+</body>
+
+</html>

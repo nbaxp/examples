@@ -15,21 +15,22 @@ export default {
     LayoutBreadcrumb,
     LayoutFooter,
   },
-  template: html`<el-container class="portal-layout backtop">
-  <el-header class="flex items-center justify-center">
+  template: html`
+<el-container class="portal-layout backtop">
+  <el-header class="flex justify-center">
     <div class="container xl"><layout-header /></div>
   </el-header>
-  <el-main class="el-main">
+  <el-main class="flex justify-center" style="padding-top:60px">
     <div class="container xl">
-    <div style="height:200vh"></div>
-      <router-view></router-view>
+      <slot><router-view></router-view></slot>
       <el-backtop target=".backtop > .el-main" />
     </div>
   </el-main>
-  <el-footer class="flex items-center justify-center" v-if="appStore.settings.showCopyright">
+  <el-footer class="flex justify-center" v-if="appStore.settings.showCopyright">
     <div class="container xl"><layout-footer /></div>
   </el-footer>
-</el-container>`,
+</el-container>
+`,
   setup() {
     const appStore = useAppStore();
     const tabsStore = useTabsStore();

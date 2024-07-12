@@ -37,7 +37,7 @@ export const HeadMenu = {
       router
         .getRoutes()
         .find((o) => o.name === 'root')
-        .children.filter((o) => o.path !== '/')
+        .children//.filter((o) => o.path !== '/')
         .sort((a, b) => a.meta?.order > b.meta?.order),
     );
     const onClick = (route, event) => {

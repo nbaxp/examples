@@ -7,9 +7,10 @@ import redirect from '../views/redirect.js';
 const routes = [
   {
     path: '/',
+    redirect: '/home',
     component: () => import('../views/components/layout/portal-layout.js'),
     meta: {
-      title: 'portal',
+      title: '门户',
       icon: 'folder',
     },
     children: [
@@ -17,17 +18,41 @@ const routes = [
         path: 'home',
         component: () => import('../views/home.js'),
         meta: {
-          title: 'home',
+          title: '首页',
           icon: 'file',
         },
       },
     ],
   },
   {
-    path: '/module1',
+    path: '/wms',
+    component: () => import('../views/test.js'),
+    meta: {
+      title: '仓库管理',
+      icon: 'folder',
+    },
+  },
+  {
+    path: '/mes',
+    component: () => import('../views/test.js'),
+    meta: {
+      title: '生产工单',
+      icon: 'folder',
+    },
+  },
+  {
+    path: '/device',
+    component: () => import('../views/test.js'),
+    meta: {
+      title: '设备管理于巡检',
+      icon: 'folder',
+    },
+  },
+  {
+    path: '/test',
     component: () => import('../views/components/layout/admin-layout.js'),
     meta: {
-      title: 'module1',
+      title: 'Test',
       icon: 'folder',
     },
     children: [
@@ -50,31 +75,12 @@ const routes = [
     ],
   },
   {
-    path: '/module2',
-    component: () => import('../views/components/layout/admin-layout.js'),
+    path: '/about',
+    component: () => import('../views/about.js'),
     meta: {
-      title: 'module2',
+      title: '关于',
       icon: 'folder',
     },
-    children: [
-      {
-        path: '',
-        component: () => import('../views/test.js'),
-        meta: {
-          title: 'module2 home',
-          icon: 'file',
-          noCache: true,
-        },
-      },
-      {
-        path: 'page2',
-        component: () => import('../views/test.js'),
-        meta: {
-          title: 'module2 page',
-          icon: 'file',
-        },
-      },
-    ],
   },
 ];
 

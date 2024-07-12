@@ -1,61 +1,41 @@
 import Mock from '../../../lib/better-mock/mock.browser.esm.js';
+import CryptoJS from '../../../lib/crypto-js.js';
 import * as jose from '../../../lib/jose/index.js';
-
-const publicJsonWebKey = {
-  crv: 'P-256',
-  ext: true,
-  key_ops: ['verify'],
-  kty: 'EC',
-  x: '-JaTLMzlNj6a4DFNHbeXfEOimiqmB1SV-lVyW6CZ0Cs',
-  y: 'H8FwD_z3eLs5X3l0_JZnuIgSFf1kNbWNAa1yuDfcvJ8',
-};
-
-const privateJsonWebKey = {
-  crv: 'P-256',
-  d: 'E40lOv52Czs0F3Y1TUPWVtZe2nWKuLOM2Igd86mpQSg',
-  ext: true,
-  key_ops: ['sign'],
-  kty: 'EC',
-  x: '-JaTLMzlNj6a4DFNHbeXfEOimiqmB1SV-lVyW6CZ0Cs',
-  y: 'H8FwD_z3eLs5X3l0_JZnuIgSFf1kNbWNAa1yuDfcvJ8',
-};
-
-const publicKey = await window.crypto.subtle.importKey(
-  'jwk',
-  publicJsonWebKey,
-  {
-    name: 'ECDSA',
-    namedCurve: 'P-256',
-  },
-  true,
-  ['verify'],
-);
-const privateKey = await window.crypto.subtle.importKey(
-  'jwk',
-  privateJsonWebKey,
-  {
-    name: 'ECDSA',
-    namedCurve: 'P-256',
-  },
-  true,
-  ['sign'],
-);
 
 const issuer = 'urn:example:issuer'; //发行方
 const audience = 'urn:example:audience'; //接收方
-const accessTokenTimeout = '1m';
-const refreshTokenTimeout = '24m';
+const accessTokenTimeout = 1;
+const refreshTokenTimeout = 24;
 
-async function createToken(claims, timeout) {
-  const jwt = await new jose.SignJWT(claims)
-    .setProtectedHeader({ alg: 'ES256' })
-    .setIssuedAt()
-    .setIssuer(issuer)
-    .setAudience(audience)
-    .setExpirationTime(timeout)
-    .sign(privateKey);
-  return jwt;
-}
+const base64UrlEncode = (str) => {
+  const encodedSource = CryptoJS.enc.Base64.stringify(str);
+  const reg = /\//g;
+  return encodedSource.replace(/=+$/, '').replace(/\+/g, '-').replace(reg, '_');
+};
+
+const createToken = (claims = { user: 'admin' }, minutes = 1, secretSalt = '123456') => {
+  const header = JSON.stringify({
+    alg: 'HS256',
+    typ: 'JWT',
+    issuer,
+    audience,
+  });
+
+  const iat = new Date().getTime();
+  const exp = iat + 2 * 60 * minutes;
+
+  const payload = JSON.stringify({
+    ...claims,
+    iat,
+    exp,
+  });
+
+  const before_sign = `${base64UrlEncode(CryptoJS.enc.Utf8.parse(header))}.${base64UrlEncode(CryptoJS.enc.Utf8.parse(payload))}`;
+  const signature = CryptoJS.HmacSHA256(before_sign, secretSalt);
+  const signatureBase64 = base64UrlEncode(signature);
+
+  return `${before_sign}.${signatureBase64}`;
+};
 
 export default function () {
   Mock.mock('/api/token/create', 'POST', (request) => {
@@ -70,15 +50,10 @@ export default function () {
     if (userName === 'admin' && password === '123456') {
       const claims = { user: userName };
       return new Promise((resolve) => {
-        Promise.all([createToken(claims, accessTokenTimeout), createToken(claims, refreshTokenTimeout)]).then(
-          (results) => {
-            const [access_token, refresh_token] = results;
-            resolve({
-              access_token,
-              refresh_token,
-            });
-          },
-        );
+        resolve({
+          access_token: createToken(claims, accessTokenTimeout),
+          refresh_token: createToken(claims, refreshTokenTimeout),
+        });
       });
     }
     return {
@@ -90,24 +65,12 @@ export default function () {
 
   Mock.mock('/api/token/refresh', 'POST', (request) => {
     const jwt = JSON.parse(request.body);
+    const claims = { user: 'admin' };
     return new Promise((resolve) => {
-      jose
-        .jwtVerify(jwt, publicKey, { issuer, audience })
-        .then((result) => {
-          const claims = { user: 'admin' };
-          Promise.all([createToken(claims, accessTokenTimeout), createToken(claims, refreshTokenTimeout)]).then(
-            (results) => {
-              const [access_token, refresh_token] = results;
-              resolve({
-                access_token,
-                refresh_token,
-              });
-            },
-          );
-        })
-        .catch((error) => {
-          resolve({ _status: 400, code: 400, message: 'refresh_token 已过期' });
-        });
+      resolve({
+        access_token: createToken(claims, accessTokenTimeout),
+        refresh_token: createToken(claims, refreshTokenTimeout),
+      });
     });
   });
 }
