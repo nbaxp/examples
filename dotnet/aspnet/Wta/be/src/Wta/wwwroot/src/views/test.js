@@ -1,19 +1,15 @@
-import Layout from '@/views/components/layout/portal-layout.js';
 import html from 'utils';
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default {
-  components: { Layout },
-  template: `
-<layout>
-  <div>{{new Date()}}</div>
-  <pre>{{JSON.stringify($router.getRoutes().find(o=>o.name==='root'),null,4)}}</pre>
-</layout>
+  template: html`
+<div>{{new Date()}}</div>
     `,
   setup() {
-    console.log('test:setup');
+    const router = useRouter();
     onMounted(() => {
-      console.log('test:onMounted');
+      console.log(router.currentRoute.value.fullPath);
     });
   },
 };

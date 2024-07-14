@@ -7,8 +7,8 @@ import redirect from '../views/redirect.js';
 const routes = [
   {
     path: '/',
-    redirect: '/home',
-    component: () => import('../views/components/layout/portal-layout.js'),
+    redirect: 'home',
+    component: () => import('../views/layout/portal-layout.js'),
     meta: {
       title: '门户',
       icon: 'folder',
@@ -22,65 +22,93 @@ const routes = [
           icon: 'file',
         },
       },
+      {
+        path: 'wms',
+        component: () => import('../views/test.js'),
+        meta: {
+          title: '仓库管理',
+          icon: 'folder',
+        },
+      },
+      {
+        path: 'mes',
+        component: () => import('../views/test.js'),
+        meta: {
+          title: '生产工单',
+          icon: 'folder',
+        },
+      },
+      {
+        path: 'device',
+        component: () => import('../views/test.js'),
+        meta: {
+          title: '设备管理于巡检',
+          icon: 'folder',
+        },
+      },
+      {
+        path: 'about',
+        component: () => import('../views/about.js'),
+        meta: {
+          title: '关于',
+          icon: 'folder',
+        },
+      },
     ],
   },
   {
     path: '/wms',
-    component: () => import('../views/test.js'),
+    component: () => import('../views/layout/admin-layout.js'),
     meta: {
-      title: '仓库管理',
-      icon: 'folder',
-    },
-  },
-  {
-    path: '/mes',
-    component: () => import('../views/test.js'),
-    meta: {
-      title: '生产工单',
-      icon: 'folder',
-    },
-  },
-  {
-    path: '/device',
-    component: () => import('../views/test.js'),
-    meta: {
-      title: '设备管理于巡检',
-      icon: 'folder',
-    },
-  },
-  {
-    path: '/test',
-    component: () => import('../views/components/layout/admin-layout.js'),
-    meta: {
-      title: 'Test',
+      title: 'WMS',
       icon: 'folder',
     },
     children: [
       {
         path: '',
-        component: () => import('../views/test.js'),
+        component: () => import('../views/wms/home.js'),
         meta: {
-          title: 'module1 home',
+          title: 'WMS home',
           icon: 'file',
         },
       },
       {
         path: 'page1',
-        component: () => import('../views/test.js'),
+        component: () => import('../views/wms/page.js'),
         meta: {
-          title: 'module1 page',
+          title: 'WMS page',
           icon: 'file',
+          noCache: true,
         },
       },
     ],
   },
   {
-    path: '/about',
-    component: () => import('../views/about.js'),
+    path: '/mes',
+    component: () => import('../views/layout/admin-layout.js'),
     meta: {
-      title: '关于',
+      title: 'MES',
       icon: 'folder',
     },
+    children: [
+      {
+        path: '',
+        component: () => import('../views/mes/home.js'),
+        meta: {
+          title: 'MES home',
+          icon: 'file',
+        },
+      },
+      {
+        path: 'page1',
+        component: () => import('../views/mes/page.js'),
+        meta: {
+          title: 'MES page',
+          icon: 'file',
+          noCache: true,
+        },
+      },
+    ],
   },
 ];
 
@@ -116,7 +144,8 @@ export default defineStore('app', {
               }
             }
           }
-          item.name = item.meta.fullPath.replaceAll('/', '_');
+          item.name = `route${item.meta.fullPath.replaceAll('/', '_')}`;
+          console.log(item.name);
           if (item.children?.length) {
             populateFullPath(item.children, item); // 递归处理子节点
           }

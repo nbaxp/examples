@@ -8,38 +8,36 @@ import { useRoute, useRouter } from 'vue-router';
 
 export const HeadMenu = {
   components: { SvgIcon },
-  template: html`<el-menu
-    mode="horizontal"
-    :default-active="$route.matched[1].path"
-    :ellipsis="false"
-    router
-  >
-    <template v-for="route in routes">
-      <el-menu-item
-        v-if="!route.meta?.hideInMenu"
-        :key="route.path"
-        :index="route.path"
-        @click="onClick(route, $event)"
-      >
-        <template #title>
-          <svg-icon v-if="route.meta?.icon" :name="route.meta.icon" />
-          <span :title="route.path"
-            >{{ $t(route.meta?.title ?? route.path) }}</span
-          >
-        </template>
-      </el-menu-item>
-    </template>
-  </el-menu>`,
+  template: html`
+<el-menu mode="horizontal" :default-active="active" :ellipsis="false" router>
+  <template v-for="route in routes">
+    <el-menu-item v-if="!route.meta?.hideInMenu" :key="route.meta.fullPath" :index="route.meta.fullPath" @click="onClick(route, $event)">
+      <template #title>
+        <el-icon><svg-icon v-if="route.meta?.icon" :name="route.meta.icon" /></el-icon>
+        <span :title="route.path">{{route.meta.title }}</span>
+      </template>
+    </el-menu-item>
+  </template>
+</el-menu>
+  `,
   setup() {
     const tabsStore = useTabsStore();
     const router = useRouter();
-    const routes = computed(() =>
-      router
-        .getRoutes()
-        .find((o) => o.name === 'root')
-        .children//.filter((o) => o.path !== '/')
-        .sort((a, b) => a.meta?.order > b.meta?.order),
-    );
+    const routes = computed(() => {
+      const root = router.getRoutes().find((o) => o.name === 'root');
+      const result =
+        router.currentRoute.value.matched[1].path === '/'
+          ? root.children.find((o) => o.path === '/').children
+          : root.children.filter((o) => o.path !== '/');
+      return result.sort((a, b) => a.meta?.order > b.meta?.order);
+    });
+    const active = computed(() => {
+      return (
+        router.currentRoute.value.matched[1].path === '/'
+          ? router.currentRoute.value.matched[2]
+          : router.currentRoute.value.matched[1]
+      ).meta.fullPath;
+    });
     const onClick = (route, event) => {
       if (route.path.startsWith('http')) {
         window.open(props.node.path);
@@ -50,6 +48,7 @@ export const HeadMenu = {
     };
     return {
       routes,
+      active,
       onClick,
     };
   },
@@ -104,12 +103,7 @@ export const MenuItem = {
     );
     //
     const onClick = (route, event) => {
-      if (!route.path.startsWith('http')) {
-        if (appStore.settings.useTabs && tabsStore.routes.length >= (appStore.settings.maxTabs ?? 10)) {
-          ElMessageBox.alert(`页签达到最大限制${appStore.settings.maxTabs ?? 10},请关闭不再使用的页签`, `提示`);
-          event.preventDefault();
-        }
-      } else {
+      if (route.path.startsWith('http')) {
         event.preventDefault();
         window.open(props.node.path);
       }

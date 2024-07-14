@@ -1,8 +1,8 @@
-import html from "utils";
-import { useRouter } from "vue-router";
+import html from 'utils';
+import { useRouter } from 'vue-router';
 
 export default {
-  template: html`<el-row class="breadcrumb">
+  template: html`<el-row class="breadcrumb flex1">
     <el-breadcrumb>
       <template v-for="item in $route.matched">
         <el-breadcrumb-item v-if="!item.meta?.hideInMenu" :to="{ path: item.path }">

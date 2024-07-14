@@ -21,7 +21,7 @@ export default {
     ElMessageBox,
     HeadMenu,
   },
-  template: html`<div class="flex items-center justify-between">
+  template: html`<div class="w-full flex justify-between">
   <div class="flex items-center justify-center">
     <layout-logo />
     <el-icon @click="toggleMenuCollapse" class="collapse-button cursor-pointer" style="margin: 0 20px" :size="18">

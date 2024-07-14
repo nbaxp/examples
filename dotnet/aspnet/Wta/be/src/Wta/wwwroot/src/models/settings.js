@@ -27,11 +27,6 @@ export default function () {
         title: '服务端路由模式',
         type: 'boolean',
       },
-      maxTabs: {
-        title: '标签页数量',
-        type: 'integer',
-        rules,
-      },
       isMenuCollapse: {
         title: '菜单栏折叠',
         rules,

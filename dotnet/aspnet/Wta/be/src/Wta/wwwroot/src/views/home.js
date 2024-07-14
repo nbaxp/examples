@@ -22,17 +22,17 @@ export default {
 </el-row>
 <el-row :gutter="20">
   <el-col :span="12" class="py-8">
-    <el-card>
+    <el-card shadow="always">
       <template #header>
         <div class="card-header">
-          <span>对接原有ERP</span>
+          <h2>对接原有ERP</h2>
         </div>
       </template>
       <p>支持Excel导入、API接入，实时更新生产进度</p>
     </el-card>
   </el-col>
   <el-col :span="12" class="py-8">
-    <el-card>
+    <el-card shadow="always">
       <template #header>
         <div class="card-header">
           <span>有事扫一扫</span>
@@ -44,7 +44,7 @@ export default {
 </el-row>
 <el-row :gutter="20">
   <el-col :span="12" class="py-8">
-    <el-card>
+    <el-card shadow="always">
       <template #header>
         <div class="card-header">
           <span>全过程记录</span>
@@ -54,7 +54,7 @@ export default {
     </el-card>
   </el-col>
   <el-col :span="12" class="py-8">
-    <el-card>
+    <el-card shadow="always">
       <template #header>
         <div class="card-header">
           <span>自动汇总报表</span>

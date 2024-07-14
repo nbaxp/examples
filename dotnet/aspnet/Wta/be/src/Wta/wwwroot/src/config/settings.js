@@ -4,7 +4,6 @@ export default {
   baseURL: '/api',
   serverLocale: true,
   serverRoute: true,
-  maxTabs: 10,
   isMenuCollapse: false,
   color: '#409eff',
   size: 'default',

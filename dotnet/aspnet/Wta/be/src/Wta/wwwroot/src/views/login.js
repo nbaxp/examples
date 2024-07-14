@@ -4,9 +4,9 @@ import html, { schemaToModel } from 'utils';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AppForm from './components/form/index.js';
-import LayoutFooter from './components/layout/footer.js';
-import LayoutLocale from './components/layout/lang.js';
-import LayoutLogo from './components/layout/logo.js';
+import LayoutFooter from './layout/footer.js';
+import LayoutLocale from './layout/lang.js';
+import LayoutLogo from './layout/logo.js';
 
 export default {
   components: { AppForm, LayoutLogo, LayoutLocale, LayoutFooter },

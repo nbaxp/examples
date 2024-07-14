@@ -37,6 +37,31 @@ button:focus {
   opacity: var(--el-scrollbar-opacity, 0.3);
 }
 
+.flex1 {
+  width: 100%;
+  display: flex;
+  flex: 1;
+  overflow: visible;
+}
+
+.flex100 {
+  width: 100%;
+  display: flex;
+  flex: 1 100%;
+}
+
+.flex-dir-col {
+  flex-direction: column;
+}
+
+flex-dir-row {
+  flex-direction: row;
+}
+
+.overflow-visible {
+  overflow: visible !important;
+}
+
 #app {
   width: 100vw;
   height: 100vh;
@@ -47,7 +72,6 @@ button:focus {
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--el-scrollbar-bg-color, var(--el-text-color-secondary));
-    --header: 60px;
   }
 }
 
@@ -62,11 +86,9 @@ img.loading {
   overflow: hidden;
 }
 
-#app>.el-container>.el-container {
+/* #app>.el-container>.el-container {
   margin-top: var(--header);
-  height: calc(100% - var(--header));
-  overflow: auto;
-}
+} */
 
 .el-scrollbar,
 .el-scrollbar__view {
@@ -90,7 +112,6 @@ img.loading {
 }
 
 .el-main>.router-view {
-  min-height: calc(100% - 100px);
   padding: 20px;
 }
 
@@ -114,25 +135,16 @@ img.loading {
   overflow: hidden;
 }
 
-a.logo {
-  display: block;
-  height: var(--header);
-}
-
-.footer {
-  height: var(--header);
-}
-
 .logo img {
   min-width: 28px;
   height: 28px;
-  margin-right: 16px;
+  margin-right: 1em;
 }
 
 .logo h1 {
   height: 32px;
   line-height: 32px;
-  padding-right: 20px;
+  padding-right: 1em;
 }
 
 .el-dropdown-link:focus-visible {
