@@ -25,7 +25,16 @@ export default {
       </el-image>
     </div>
   `,
-  props: ["modelValue", "url", "method", "authCode", "codeHash"],
+  props: [
+    "modelValue",
+    "url",
+    "method",
+    "authCode",
+    "codeHash",
+    "errors",
+    "prop",
+    "icon",
+  ],
   emit: ["callback"],
   setup(props, context) {
     const model = useModel(props, "modelValue");
@@ -39,7 +48,14 @@ export default {
     const onClick = async () => {
       await load();
     };
-
+    watch(
+      () => props.errors[props.prop],
+      async () => {
+        if (props.errors[props.prop]) {
+          await load();
+        }
+      }
+    );
     onMounted(async () => {
       await load();
     });

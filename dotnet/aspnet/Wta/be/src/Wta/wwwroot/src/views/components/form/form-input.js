@@ -151,6 +151,9 @@ export default {
           :url="schema.url"
           :codeHash="schema.codeHash"
           @callback="updateCodeHash"
+          :errors="errors"
+          :prop="prop"
+          :icon="schema.icon"
         />
       </template>
       <template v-else-if="getInput(schema)==='base64image'">
@@ -216,7 +219,7 @@ export default {
       height: 24px;
     }
   </style>`,
-  props: ["modelValue", "schema", "prop", "isReadOnly", "mode"],
+  props: ["modelValue", "schema", "prop", "isReadOnly", "mode", "errors"],
   emit: ["update:modelValue"],
   setup(props, context) {
     const model = reactive(props.modelValue);

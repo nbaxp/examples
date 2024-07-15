@@ -1,7 +1,7 @@
 import request from "@/utils/request.js";
 import { ElMessage, ElMessageBox } from "element-plus";
 import html from "utils";
-import { reactive, ref, watch } from "vue";
+import { nextTick, reactive, ref, watch } from "vue";
 import AppFormItem from "./form-item.js";
 
 export default {
@@ -104,7 +104,11 @@ export default {
           } else {
             //errorMessage.value = result.message;
             if (result.data instanceof Object && !Array.isArray(result.data)) {
-              Object.assign(errors.value, result.data);
+              errors.value = {};
+              nextTick(() => {
+                errors.value = result.data;
+                //Object.assign(errors.value, result.data);
+              });
             } else {
               await ElMessageBox.alert(result.message, "提示", {
                 type: "warning",
