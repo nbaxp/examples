@@ -1,6 +1,6 @@
 import { useTabsStore } from '@/store/index.js';
 import html from 'utils';
-import { nextTick, ref, watchEffect } from 'vue';
+import { computed, nextTick, ref, watchEffect } from 'vue';
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
 
 export default {

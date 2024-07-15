@@ -42,7 +42,7 @@ export const HeadMenu = {
       if (route.path.startsWith('http')) {
         window.open(props.node.path);
       } else {
-        const path = tabsStore.routes.findLast((o) => o.path === route.path)?.path ?? route.path;
+        const path = tabsStore.routes.findLast((o) => o.matched[1].path === route.path)?.path ?? route.path;
         router.push(path);
       }
     };

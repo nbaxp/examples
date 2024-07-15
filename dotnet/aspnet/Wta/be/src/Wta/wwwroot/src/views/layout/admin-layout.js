@@ -32,8 +32,8 @@ export default {
               <div v-if="route.meta?.noCache">no cache</div>
               <div v-else>cache</div>
               <component :is="Component" v-if="route.meta?.noCache" :key="route.fullPath" />
-              <keep-alive v-else>
-                <component :is="Component" :key="route.fullPath" />
+              <keep-alive>
+                <component :is="Component"  v-if="!route.meta?.noCache" :key="route.fullPath" />
               </keep-alive>
             </router-view>
           </div>
