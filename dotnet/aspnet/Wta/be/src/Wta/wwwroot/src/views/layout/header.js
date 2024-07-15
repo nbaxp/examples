@@ -54,10 +54,6 @@ export default {
           @click="searchChange(item)"
         />
       </el-select>
-      <el-icon v-model="isDark" @click="toggleDark()" :size="18" class="cursor-pointer">
-        <ep-sunny v-if="isDark" />
-        <ep-moon v-else />
-      </el-icon>
       <el-icon @click="toggleFullscreen" :size="18" class="cursor-pointer">
         <svg-icon name="fullscreen-exit" v-if="isFullscreen" />
         <svg-icon name="fullscreen" v-else />
@@ -141,9 +137,6 @@ export default {
         window.open(route.path);
       }
     };
-    //
-    const isDark = useDark();
-    const toggleDark = useToggle(isDark);
     const toggleMenuCollapse = () => (appStore.settings.isMenuCollapse = !appStore.settings.isMenuCollapse);
     //
     const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(document.documentElement);
@@ -177,8 +170,6 @@ export default {
       searchOptions,
       searchMenu,
       searchChange,
-      isDark,
-      toggleDark,
       toggleMenuCollapse,
       isFullscreen,
       toggleFullscreen,

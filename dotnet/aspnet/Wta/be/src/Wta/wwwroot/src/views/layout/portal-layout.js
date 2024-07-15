@@ -22,7 +22,9 @@ export default {
   </el-header>
   <el-main class="flex justify-center" style="padding-top:60px">
     <div class="container xl">
-      <router-view></router-view>
+      <div :class="$route.name">
+        <router-view></router-view>
+      </div>
       <el-backtop target=".backtop > .el-main" />
     </div>
   </el-main>

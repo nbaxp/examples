@@ -38,8 +38,8 @@ export default {
             </router-view>
           </div>
         </div>
-        <el-footer v-if="appStore.settings.showCopyright" class="flex1 h-full overflow-visible">
-          <div class="container xl"><layout-footer /></div>
+        <el-footer v-if="appStore.settings.showCopyright" class="flex1 h-full overflow-visible align-center">
+          <layout-footer />
         </el-footer>
       </el-main>
       <el-backtop target=".backtop > .el-main" />

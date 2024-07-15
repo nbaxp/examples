@@ -1,9 +1,7 @@
-import Layout from '@/views/components/layout/portal-layout.js';
 import html from 'utils';
 import { onMounted } from 'vue';
 
 export default {
-  components: { Layout },
   template: `
 <el-row>
   <el-col class="py-8">

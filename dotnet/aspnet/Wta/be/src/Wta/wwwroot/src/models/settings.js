@@ -17,6 +17,7 @@ export default function () {
         type: 'boolean',
       },
       baseURL: {
+        title: '后端地址',
         rules,
       },
       serverLocale: {
@@ -28,7 +29,7 @@ export default function () {
         type: 'boolean',
       },
       isMenuCollapse: {
-        title: '菜单栏折叠',
+        title: '折叠菜单',
         rules,
         type: 'boolean',
       },

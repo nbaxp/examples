@@ -1,110 +1,118 @@
-import router from '@/router/index.js';
-import { defineStore } from 'pinia';
+import router from "@/router/index.js";
+import { defineStore } from "pinia";
 
-import settings from '../config/settings.js';
-import redirect from '../views/redirect.js';
+import settings from "../config/settings.js";
+import redirect from "../views/redirect.js";
 
 const routes = [
   {
-    path: '/',
-    redirect: 'home',
-    component: () => import('../views/layout/portal-layout.js'),
+    path: "/",
+    redirect: "home",
+    component: () => import("../views/layout/portal-layout.js"),
     meta: {
-      title: '门户',
-      icon: 'folder',
+      title: "门户",
+      icon: "folder",
     },
     children: [
       {
-        path: 'home',
-        component: () => import('../views/home.js'),
+        path: "home",
+        component: () => import("../views/home.js"),
         meta: {
-          title: '首页',
-          icon: 'file',
+          title: "首页",
+          icon: "file",
         },
       },
       {
-        path: 'wms',
-        component: () => import('../views/test.js'),
+        path: "page1",
+        component: () => import("../views/test.js"),
         meta: {
-          title: '仓库管理',
-          icon: 'folder',
+          title: "仓库管理",
+          icon: "folder",
         },
       },
       {
-        path: 'mes',
-        component: () => import('../views/test.js'),
+        path: "page2",
+        component: () => import("../views/test.js"),
         meta: {
-          title: '生产工单',
-          icon: 'folder',
+          title: "生产工单",
+          icon: "folder",
         },
       },
       {
-        path: 'device',
-        component: () => import('../views/test.js'),
+        path: "page3",
+        component: () => import("../views/test.js"),
         meta: {
-          title: '设备管理于巡检',
-          icon: 'folder',
+          title: "设备管理于巡检",
+          icon: "folder",
         },
       },
       {
-        path: 'about',
-        component: () => import('../views/about.js'),
+        path: "page4",
+        component: () => import("../views/test.js"),
         meta: {
-          title: '关于',
-          icon: 'folder',
+          title: "质量管理",
+          icon: "folder",
+        },
+      },
+      {
+        path: "about",
+        component: () => import("../views/about.js"),
+        meta: {
+          title: "关于",
+          icon: "folder",
         },
       },
     ],
   },
   {
-    path: '/wms',
-    component: () => import('../views/layout/admin-layout.js'),
+    path: "/wms",
+    component: () => import("../views/layout/admin-layout.js"),
     meta: {
-      title: 'WMS',
-      icon: 'folder',
+      title: "WMS",
+      icon: "folder",
     },
     children: [
       {
-        path: '',
-        component: () => import('../views/wms/home.js'),
+        path: "",
+        component: () => import("../views/wms/home.js"),
         meta: {
-          title: 'WMS home',
-          icon: 'file',
+          title: "WMS home",
+          icon: "file",
         },
       },
       {
-        path: 'page1',
-        component: () => import('../views/wms/page.js'),
+        path: "page1",
+        component: () => import("../views/wms/page.js"),
         meta: {
-          title: 'WMS page',
-          icon: 'file',
+          title: "WMS page",
+          icon: "file",
           noCache: true,
         },
       },
     ],
   },
   {
-    path: '/mes',
-    component: () => import('../views/layout/admin-layout.js'),
+    path: "/mes",
+    component: () => import("../views/layout/admin-layout.js"),
     meta: {
-      title: 'MES',
-      icon: 'folder',
+      title: "MES",
+      icon: "folder",
     },
     children: [
       {
-        path: '',
-        component: () => import('../views/mes/home.js'),
+        path: "",
+        component: () => import("../views/mes/home.js"),
         meta: {
-          title: 'MES home',
-          icon: 'file',
+          title: "MES home",
+          icon: "file",
         },
       },
       {
-        path: 'page1',
-        component: () => import('../views/mes/page.js'),
+        path: "page1",
+        component: () => import("../views/mes/page.js"),
         meta: {
-          title: 'MES page',
-          icon: 'file',
+          title: "MES page",
+          icon: "file",
           noCache: true,
         },
       },
@@ -116,9 +124,12 @@ const getRoutes = async () => {
   return routes;
 };
 
-export default defineStore('app', {
+export default defineStore("app", {
   state: () => ({
-    settings: { ...settings },
+    settings: Object.assign(
+      { ...settings },
+      JSON.parse(localStorage.getItem("settings"))
+    ),
     menus: null,
   }),
   actions: {
@@ -137,14 +148,14 @@ export default defineStore('app', {
             if (!item.path) {
               item.meta.fullPath = parent?.meta?.fullPath;
             } else {
-              if (parent.meta.fullPath.endsWith('/')) {
+              if (parent.meta.fullPath.endsWith("/")) {
                 item.meta.fullPath = `${parent?.meta?.fullPath}${item.path}`;
               } else {
                 item.meta.fullPath = `${parent?.meta?.fullPath}/${item.path}`;
               }
             }
           }
-          item.name = `route${item.meta.fullPath.replaceAll('/', '_')}`;
+          item.name = `route${item.meta.fullPath.replaceAll("/", "_")}`;
           console.log(item.name);
           if (item.children?.length) {
             populateFullPath(item.children, item); // 递归处理子节点
@@ -153,12 +164,12 @@ export default defineStore('app', {
       };
       populateFullPath(this.menus);
       //
-      const key = 'root';
+      const key = "root";
       const root = router.getRoutes().find((o) => o.name === key);
       if (root) {
         router.removeRoute(root);
       }
-      router.addRoute('/', { name: key, path: '/', children: this.menus });
+      router.addRoute("/", { name: key, path: "/", children: this.menus });
     },
   },
 });
