@@ -1,4 +1,5 @@
 import router from "@/router/index.js";
+import { getUrl } from "@/utils/request.js";
 import { defineStore } from "pinia";
 
 import settings from "../config/settings.js";
@@ -121,6 +122,17 @@ const routes = [
 ];
 
 const getRoutes = async () => {
+  // let routes = null;
+  // try {
+  //   const response = await fetch(getUrl("menu"), { method: "POST" });
+  //   if (response.ok) {
+  //     const result = await response.json();
+  //     routes = [];
+  //   }
+  // } catch (e) {
+  //   console.log(e);
+  // }
+  // return routes;
   return routes;
 };
 

@@ -1,19 +1,19 @@
-import jwtDecode from 'jwt-decode';
-import { defineStore } from 'pinia';
-import {getUrl} from '@/utils/request.js';
+import { getUrl } from "@/utils/request.js";
+import jwtDecode from "jwt-decode";
+import { defineStore } from "pinia";
 
-const REFRESH_TOKEN_KEY = 'refresh_token';
+const REFRESH_TOKEN_KEY = "refresh_token";
 
-export default defineStore('token', {
+export default defineStore("token", {
   state: () => ({
     accessToken: null,
     refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
   }),
   actions: {
-    setToken(accessToken,refreshToken){
+    setToken(accessToken, refreshToken) {
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
-      localStorage.setItem(REFRESH_TOKEN_KEY,refreshToken);
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     },
     removeToken() {
       this.accessToken = null;
@@ -35,16 +35,16 @@ export default defineStore('token', {
       if (this.refreshToken) {
         const exp = new Date(jwtDecode(this.refreshToken).exp * 1000);
         if (exp > new Date()) {
-          const response = await fetch(getUrl('token/refresh'), {
-            method: 'POST',
+          const response = await fetch(getUrl("token/refresh"), {
+            method: "POST",
             body: JSON.stringify(this.refreshToken),
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
           });
           if (response.status === 200) {
-            const result = await response.json();
-            this.setToken(result.access_token,result.refresh_token);
+            const { data } = await response.json();
+            this.setToken(data.access_token, data.refresh_token);
             return;
           }
         }

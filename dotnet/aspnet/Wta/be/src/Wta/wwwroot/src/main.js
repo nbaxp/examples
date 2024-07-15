@@ -8,7 +8,7 @@ import ElementPlus from "element-plus";
 import { createApp } from "vue";
 import useMock from "../mock/index.js";
 
-useMock();
+//useMock();
 const app = createApp(App);
 app.mixin(style);
 app.use(store);
@@ -16,7 +16,7 @@ app.use(i18n);
 app.use(router);
 app.use(ElementPlus);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-	app.component(`Ep${key}`, component);
+  app.component(`Ep${key}`, component);
 }
 
 app.mount("#app");
