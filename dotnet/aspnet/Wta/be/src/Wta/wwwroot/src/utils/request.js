@@ -47,6 +47,11 @@ async function getOptions(
   if (customOptions) {
     Object.assign(options, customOptions);
   }
+  // 添加Token
+  const tokenStore = useTokenStore();
+  if (await tokenStore.isLogin()) {
+    options.headers.Authorization = `Bearer ${tokenStore.accessToken}`;
+  }
   if (options.method === "GET") {
     //GET 拼接URL参数
     if (data) {

@@ -70,7 +70,7 @@ public class Permission : BaseTreeEntity<Permission>
     /// </summary>
     public List<RolePermission> RolePermissions { get; set; } = [];
 
-    public string RouterPath { get; set; } = default!;
+    public string RoutePath { get; set; } = default!;
 
     /// <summary>
     /// Vue Router Meta

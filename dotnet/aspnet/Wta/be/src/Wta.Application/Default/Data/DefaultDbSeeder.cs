@@ -97,7 +97,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     Authorize = "Anonymous",
                     Name = groupType.GetDisplayName(),
                     Number = groupType.FullName?.TrimEnd("Attribute")!,
-                    RouterPath = groupType.Name.TrimEnd("Attribute").ToSlugify()!,
+                    RoutePath = groupType.Name.TrimEnd("Attribute").ToSlugify()!,
                     Icon = groupType.GetCustomAttribute<IconAttribute>()?.Icon ?? "folder",
                     Order = groupType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0
                 });
@@ -123,15 +123,31 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
         list.Add(new Permission
         {
             Id = context.NewGuid(),
-            Type = MenuType.Menu,
+            Type = MenuType.Group,
             Authorize = "Anonymous",
             Name = "首页",
-            Number = "Home",
-            RouterPath = "home",
-            Component = "home",
+            Number = "Layout",
+            RoutePath = "/",
+            Redirect = "home",
+            Component = "layout/portal-layout",
             Icon = "home",
             NoCache = true,
-            Order = 1
+            Order = 1,
+            Children = new List<Permission>
+            {
+                new Permission {
+                    Id = context.NewGuid(),
+                    Type = MenuType.Menu,
+                    Authorize = "Anonymous",
+                    Name = "首页",
+                    Number = "Home",
+                    RoutePath = "home",
+                    Component = "home",
+                    Icon = "home",
+                    NoCache = true,
+                    Order = 1,
+                }
+            }
         });
         //添加用户中心
         var userCenterGroup = new Permission
@@ -141,7 +157,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             Authorize = "Authenticated",
             Name = "用户中心",
             Number = "UserCenter",
-            RouterPath = "user-center",
+            RoutePath = "user-center",
             Icon = "user",
             Order = 2,
         };
@@ -155,7 +171,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             Authorize = "Authenticated",
             Name = "修改密码",
             Number = "ResetPasswrod",
-            RouterPath = "reset-password",
+            RoutePath = "reset-password",
             Component = "reset-password",
             Order = 1
         });
@@ -180,7 +196,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     Authorize = "Authenticated",
                     Name = resourceType.GetDisplayName(),
                     Number = resourceType.FullName!,
-                    RouterPath = resourceType.Name.ToSlugify()!,
+                    RoutePath = resourceType.Name.ToSlugify()!,
                     Component = "list",
                     Schema = $"{resourceType.Name.ToSlugify()}",
                     Order = resourceType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? order++
@@ -205,7 +221,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                         Authorize = number,
                         Name = (descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName).ToLowerCamelCase(),
                         Number = number,
-                        RouterPath = number,
+                        RoutePath = number,
                         Url = descriptor.AttributeRouteInfo?.Template,
                         Method = (descriptor.ActionConstraints?.FirstOrDefault() as HttpMethodActionConstraint)?.HttpMethods.FirstOrDefault(),
                         Command = descriptor.ActionName.ToSlugify(),
@@ -268,14 +284,17 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
         var password = "123456";
         var salt = encryptionService.CreateSalt();
         var passwordHash = encryptionService.HashPassword(password, salt);
-
         var userId = context.NewGuid();
+        var email = "76527413@qq.com";
 
         context.Set<User>().Add(new User
         {
             Id = userId,
-            Name = tenantService.TenantNumber != null ? "租户管理员" : "管理员",
             UserName = userName,
+            Email = email,
+            NormalizedEmail = email.ToUpperInvariant(),
+            EmailConfirmed = true,
+            Name = tenantService.TenantNumber != null ? "租户管理员" : "管理员",
             Avatar = "api/file/avatar.svg",
             NormalizedUserName = userName.ToUpperInvariant(),
             SecurityStamp = salt,

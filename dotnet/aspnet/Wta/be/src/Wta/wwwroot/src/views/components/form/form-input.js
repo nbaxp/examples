@@ -1,20 +1,19 @@
-import { bytesFormat, importFunction } from "@/utils/index.js";
-import request from "@/utils/request.js";
-import SvgIcon from "@/views/components/icon/index.js";
-import { dayjs } from "element-plus";
-import { ElMessage, useFormItem } from "element-plus";
-import html from "utils";
-import { getProp } from "utils";
-import { onMounted, reactive, ref, watch } from "vue";
-import { useRoute } from "vue-router";
-import ImageCaptcha from "./image-captcha.js";
+import { bytesFormat, importFunction } from '@/utils/index.js';
+import request from '@/utils/request.js';
+import SvgIcon from '@/views/components/icon/index.js';
+import { dayjs } from 'element-plus';
+import { ElMessage, useFormItem } from 'element-plus';
+import html from 'utils';
+import { getProp } from 'utils';
+import { onMounted, reactive, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import CodeCaptcha from './code-captcha.js';
+import ImageCaptcha from './image-captcha.js';
 
 export default {
-  components: { SvgIcon, ImageCaptcha },
+  components: { SvgIcon, ImageCaptcha, CodeCaptcha },
   template: html`<template v-if="getDisabled()">
-      <template
-        v-if="model[prop]!==null&&(schema.type!=='array'||model[prop].length>0)"
-      >
+      <template v-if="model[prop]!==null&&(schema.type!=='array'||model[prop].length>0)">
         <template v-if="schema.type==='boolean'||model[prop]!==false">
           <template v-if="schema.type==='boolean'">
             <el-button v-if="schema.input==='select'" link type="primary">
@@ -22,12 +21,8 @@ export default {
             </el-button>
             <el-switch v-else disabled v-model="model[prop]" type="checked" />
           </template>
-          <template v-else-if="schema.input==='year'"
-            >{{dayjs(model[prop]).format('YYYY')}}</template
-          >
-          <template v-else-if="schema.input==='date'"
-            >{{dayjs(model[prop]).format('YYYY-MM-DD')}}</template
-          >
+          <template v-else-if="schema.input==='year'">{{dayjs(model[prop]).format('YYYY')}}</template>
+          <template v-else-if="schema.input==='date'">{{dayjs(model[prop]).format('YYYY-MM-DD')}}</template>
           <template v-else-if="schema.input==='datetime'">
             {{dayjs(model[prop]).format('YYYY-MM-DD HH:mm:ss')}}
           </template>
@@ -39,21 +34,13 @@ export default {
               </el-button>
             </template>
             <template v-else>
-              <el-button
-                link
-                type="primary"
-                v-for="item in model[prop]"
-                :key="item"
-              >
+              <el-button link type="primary" v-for="item in model[prop]" :key="item">
                 {{options?.find(o=>o.value==item)?.label??item}}
               </el-button>
             </template>
           </template>
           <template v-else-if="schema.input==='base64image'">
-            <img
-              :src="'data:image/png;base64,'+model[prop]"
-              style="max-height:18px;"
-            />
+            <img :src="'data:image/png;base64,'+model[prop]" style="max-height:18px;" />
           </template>
           <template v-else><span>{{model[prop]}}</span></template>
         </template>
@@ -61,26 +48,15 @@ export default {
     </template>
     <template v-else>
       <template v-if="getInput(schema)==='tabs'&&mode==='query'">
-        <el-tabs
-          type="card"
-          v-model="model[prop]"
-          style="height:24px;margin:0;"
-          class="form"
-        >
+        <el-tabs type="card" v-model="model[prop]" style="height:24px;margin:0;" class="form">
           <el-tab-pane label="全部" key="all" :name="''" />
-          <el-tab-pane
-            v-for="item in options"
-            :label="item.label"
-            :name="item.value"
-          />
+          <el-tab-pane v-for="item in options" :label="item.label" :name="item.value" />
         </el-tabs>
       </template>
       <template v-if="getInput(schema)==='color'">
         <el-color-picker v-model="model[prop]" />
       </template>
-      <template
-        v-else-if="getInput(schema)==='select'||getInput(schema)==='tabs'"
-      >
+      <template v-else-if="getInput(schema)==='select'||getInput(schema)==='tabs'">
         <el-select
           v-model="model[prop]"
           :placeholder="schema.placeholder??schema.title"
@@ -88,12 +64,7 @@ export default {
           :value-on-clear="null"
           clearable
         >
-          <el-option
-            v-for="item in options"
-            :key="item.key"
-            :label="item.label"
-            :value="item.value"
-          >
+          <el-option v-for="item in options" :key="item.key" :label="item.label" :value="item.value">
             <span style="display:flex;align-items:center;">
               <el-icon v-if="item.icon" class="el-icon--left">
                 <svg-icon :name="item.icon" />
@@ -143,7 +114,10 @@ export default {
           <el-option prop="true" :value="true" :label="$t('true')" />
           <el-option prop="false" :value="false" :label="$t('false')" />
         </el-select>
-        <el-switch v-model="model[prop]" type="checked" v-else />
+        <template v-else>
+          <el-switch v-model="model[prop]" type="checked" />
+          <span v-if="schema.showLabel" class="pl-4">{{schema.title}}</span>
+        </template>
       </template>
       <template v-else-if="schema.input === 'image-captcha'">
         <image-captcha
@@ -156,18 +130,20 @@ export default {
           :icon="schema.icon"
         />
       </template>
+      <template v-else-if="schema.input === 'code-captcha'">
+        <code-captcha
+          v-model="model[prop]"
+          :icon="schema.icon"
+          :url="schema.url"
+          :codeHash="schema.codeHash"
+          @callback="updateCodeHash"
+          :query="model[schema.query]"
+          :regexp="schema.regexp"
+        />
+      </template>
       <template v-else-if="getInput(schema)==='base64image'">
-        <el-upload
-          ref="uploadRef"
-          :show-file-list="false"
-          :auto-upload="false"
-          :on-change="handleChange"
-        >
-          <img
-            v-if="model[prop]"
-            :src="'data:image/png;base64,'+model[prop]"
-            style="max-height:18px;"
-          />
+        <el-upload ref="uploadRef" :show-file-list="false" :auto-upload="false" :on-change="handleChange">
+          <img v-if="model[prop]" :src="'data:image/png;base64,'+model[prop]" style="max-height:18px;" />
           <el-icon v-else class="avatar-uploader-icon"><ep-plus /></el-icon>
         </el-upload>
       </template>
@@ -191,11 +167,8 @@ export default {
           <template #tip>
             <div class="el-upload__tip">
               <div>
-                单个文件大小限制：{{ bytesFormat(size) }}，上传数量限制：{{
-                limit }}
-                <template v-if="schema.accept"
-                  >，上传文件类型：{{ schema.accept }}</template
-                >
+                单个文件大小限制：{{ bytesFormat(size) }}，上传数量限制：{{ limit }}
+                <template v-if="schema.accept">，上传文件类型：{{ schema.accept }}</template>
               </div>
             </div>
           </template>
@@ -219,17 +192,17 @@ export default {
       height: 24px;
     }
   </style>`,
-  props: ["modelValue", "schema", "prop", "isReadOnly", "mode", "errors"],
-  emit: ["update:modelValue"],
+  props: ['modelValue', 'schema', 'prop', 'isReadOnly', 'mode', 'errors'],
+  emit: ['update:modelValue'],
   setup(props, context) {
     const model = reactive(props.modelValue);
     watch(model, (value) => {
-      context.emit("update:modelValue", value);
+      context.emit('update:modelValue', value);
     });
     const route = useRoute();
     /*start*/
     const getDisabled = () => {
-      if (props.mode === "details") {
+      if (props.mode === 'details') {
         return true;
       }
       if (props.schema.readOnly) {
@@ -249,41 +222,34 @@ export default {
 
     //
     const updateCodeHash = (data) => {
-      model[props.schema.codeHash ?? "codeHash"] = data;
+      model[props.schema.codeHash ?? 'codeHash'] = data;
     };
 
     //upload
     const fileList = ref([]);
     const limit = props.schema.multiple ? props.schema.limit ?? 5 : 1;
     const size = props.schema.size ?? 1024 * 1024;
-    const fileTypes =
-      props.schema.accept?.split(",").map((o) => o.toLowerCase()) ?? [];
+    const fileTypes = props.schema.accept?.split(',').map((o) => o.toLowerCase()) ?? [];
     const { formItem } = useFormItem();
     const handleChange = async (uploadFile, uploadFiles) => {
-      const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf("."));
+      const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf('.'));
       const index = uploadFiles.findIndex((o) => o.uid !== uploadFile.uid);
       if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
-        ElMessage.error(
-          `当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`
-        );
+        ElMessage.error(`当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`);
         uploadFiles.splice(index, 1);
         return false;
       }
       if (uploadFile.size > size) {
-        ElMessage.error(
-          `当前文件大小 ${bytesFormat(uploadFile.size)} 已超过 ${bytesFormat(
-            size
-          )}`
-        );
+        ElMessage.error(`当前文件大小 ${bytesFormat(uploadFile.size)} 已超过 ${bytesFormat(size)}`);
         uploadFiles.splice(index, 1);
         return false;
       }
       //
-      if (props.schema.input === "base64image") {
+      if (props.schema.input === 'base64image') {
         if (uploadFiles.length) {
           const reader = new FileReader();
           reader.onload = (o) => {
-            model[props.prop] = o.target.result.split(",")[1];
+            model[props.prop] = o.target.result.split(',')[1];
           };
           reader.readAsDataURL(uploadFile.raw);
         } else {
@@ -291,9 +257,7 @@ export default {
         }
       } else {
         if (uploadFiles.length) {
-          model[props.prop] = props.schema.multiple
-            ? uploadFiles
-            : uploadFiles[0];
+          model[props.prop] = props.schema.multiple ? uploadFiles : uploadFiles[0];
         } else {
           model[props.prop] = props.schema.multiple ? [] : null;
         }
@@ -321,29 +285,27 @@ export default {
       });
       options.value = map.get(key);
       if (!options.value) {
-        const method = props.schema.method || "post";
+        const method = props.schema.method || 'post';
         const data = (await request(method, url, postData)).data;
         if (!data.error) {
-          options.value = getProp(data, props.schema.path ?? "data.items").map(
-            (o) => {
-              if (Array.isArray(o)) {
-                return {
-                  value: o[0],
-                  label: o[1],
-                };
-              }
-              if (o instanceof Object) {
-                return {
-                  value: o[props.schema.value ?? "value"],
-                  label: o[props.schema.label ?? "label"],
-                };
-              }
+          options.value = getProp(data, props.schema.path ?? 'data.items').map((o) => {
+            if (Array.isArray(o)) {
               return {
-                value: o,
-                label: o,
+                value: o[0],
+                label: o[1],
               };
             }
-          );
+            if (o instanceof Object) {
+              return {
+                value: o[props.schema.value ?? 'value'],
+                label: o[props.schema.label ?? 'label'],
+              };
+            }
+            return {
+              value: o,
+              label: o,
+            };
+          });
           map.set(key, options.value);
         } else {
           options.value = [];
@@ -359,7 +321,7 @@ export default {
       async () => {
         if (props.schema.options) {
           options.value = props.schema.options;
-        } else if (props.schema.url && props.schema.input === "select") {
+        } else if (props.schema.url && props.schema.input === 'select') {
           if (!props.schema.dependsOn || model[props.schema.dependsOn]) {
             await fetchOptions();
           } else {

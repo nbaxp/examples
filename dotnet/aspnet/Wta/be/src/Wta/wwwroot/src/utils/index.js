@@ -119,7 +119,7 @@ function listToTree(list, config) {
       }
     }
     if (options.func) {
-      func(item);
+      options.func(item);
     }
   }
   return tree;
@@ -179,6 +179,15 @@ function downloadFile(file, name) {
   }
 }
 
+function traverseTree(list, func) {
+  for (const node of list) {
+    func(node);
+    if (node.children?.length) {
+      traverseTree(node.children, func);
+    }
+  }
+}
+
 export default html;
 export {
   log,
@@ -194,4 +203,5 @@ export {
   importFunction,
   reload,
   downloadFile,
+  traverseTree,
 };

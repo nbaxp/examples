@@ -8,10 +8,14 @@ import { ref } from 'vue';
 export default {
   components: { ElConfigProvider },
   template: html`
-<el-config-provider :locale="options[$i18n.locale]" :size="appStore.size??'default'">
-  <router-view></router-view>
-</el-config-provider>
-`,
+    <el-config-provider
+      :locale="options[$i18n.locale]"
+      :size="appStore.size??'default'"
+      :button="{autoInsertSpace:true}"
+    >
+      <router-view></router-view>
+    </el-config-provider>
+  `,
   setup() {
     const options = ref({
       'zh-CN': zh,

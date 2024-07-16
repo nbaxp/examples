@@ -82,44 +82,21 @@ const validators = {
     if (!value) {
       callback(errors);
     } else {
-      const url = rule.url;
-      const method = rule.method ?? 'post';
-      const data = rule.params instanceof Function ? rule.params(value) : rule.params; // { [rule.field]: value };
-      request(method, url, data)
-        .then((o) => o.data)
-        .then((o) => {
-          if (o.error) {
-            errors.push(o.error);
-          } else {
-            const result = getProp(o, rule.path);
-            if (result && Array.isArray(result) && result.length) {
-              errors.push(message);
-            }
+      const { url } = rule;
+      const method = rule.method ?? 'POST';
+      const data = { [rule.field]: value };
+      request(method, url, data, null, true)
+        .then((result) => {
+          if (result.data.data === false) {
+            const message = i18n.global.t(result.data.message ?? rule.message, i18n.global.t(rule.title ?? rule.field));
+            errors.push(new Error(message));
           }
           callback(errors);
         })
-        .catch((e) => {
-          errors.push(e);
+        .catch((o) => {
+          errors.push(o);
           callback(errors);
         });
-      // request
-      // 	.request(config)
-      // 	.then((response) => {
-      // 		if (response.status === 200) {
-      // 			if (response.data.code) {
-      // 				if (response.data.code !== 200) {
-      // 					errors.push(new Error(1 + response.data.message));
-      // 				}
-      // 			}
-      // 		} else {
-      // 			errors.push(new Error(2 + response.data));
-      // 		}
-      // 		callback(errors);
-      // 	})
-      // 	.catch((o) => {
-      // 		errors.push(o.response?.data?.message ?? message ?? o.message);
-      // 		callback(errors);
-      // 	});
     }
   },
 };
