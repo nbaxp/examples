@@ -29,8 +29,6 @@ export default {
         <div class="router-view flex100">
           <div class="w-full h-full">
             <router-view v-if="!tabsStore.isRefreshing" v-slot="{ Component, route }">
-              <div v-if="route.meta?.noCache">no cache</div>
-              <div v-else>cache</div>
               <component :is="Component" v-if="route.meta?.noCache" :key="route.fullPath" />
               <keep-alive>
                 <component :is="Component"  v-if="!route.meta?.noCache" :key="route.fullPath" />

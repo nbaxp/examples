@@ -135,6 +135,10 @@ img.loading {
   overflow: hidden;
 }
 
+.el-aside.open {
+  min-width: 200px;
+}
+
 .logo img {
   min-width: 28px;
   height: 28px;
@@ -151,8 +155,8 @@ img.loading {
   outline: unset;
 }
 
-.el-form--inline .el-form-item__content {
-  min-width: 192px;
+.el-form-item__content {
+  min-width: 210px !important;
   min-height: 24px;
 }
 

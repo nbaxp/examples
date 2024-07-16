@@ -131,7 +131,7 @@ const getRoutes = async () => {
         const route = {
           id: o.id,
           parentId: o.parentId,
-          path: o.routePath,
+          path: o.routePath ?? '',
           meta: {
             type: o.type,
             buttonType: o.buttonType,

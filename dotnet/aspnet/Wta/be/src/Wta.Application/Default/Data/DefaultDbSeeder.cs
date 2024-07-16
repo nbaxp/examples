@@ -158,10 +158,24 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             Name = "用户中心",
             Number = "UserCenter",
             RoutePath = "user-center",
+            Component = "layout/admin-layout",
             Icon = "user",
             Order = 2,
         };
         list.Add(userCenterGroup);
+        //添加用户信息菜单
+        list.Add(new Permission
+        {
+            ParentId = userCenterGroup.Id,
+            Id = context.NewGuid(),
+            Type = MenuType.Menu,
+            Authorize = "Authenticated",
+            Name = "用户信息",
+            Number = "UserCenterHome",
+            RoutePath = "",
+            Component = "user-center/home",
+            Order = 1
+        });
         //添加修改密码菜单
         list.Add(new Permission
         {
@@ -172,7 +186,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             Name = "修改密码",
             Number = "ResetPasswrod",
             RoutePath = "reset-password",
-            Component = "reset-password",
+            Component = "user-center/reset-password",
             Order = 1
         });
         //添加资源菜单和资源操作按钮
@@ -189,6 +203,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 }
                 // 菜单
                 var resourceServiceType = typeof(IResourceService<>).MakeGenericType(resourceType);
+                var component = actionDescriptors.Cast<ControllerActionDescriptor>().FirstOrDefault(o => o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType))?.ControllerTypeInfo.AsType().GetCustomAttribute<ViewAttribute>()?.Component ?? "list";
                 var resourcePermission = new Permission
                 {
                     Id = context.NewGuid(),
@@ -197,7 +212,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     Name = resourceType.GetDisplayName(),
                     Number = resourceType.FullName!,
                     RoutePath = resourceType.Name.ToSlugify()!,
-                    Component = "list",
+                    Component = component,
                     Schema = $"{resourceType.Name.ToSlugify()}",
                     Order = resourceType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? order++
                 };

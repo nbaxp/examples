@@ -1,13 +1,3 @@
-import {
-  action_archive,
-  action_unarchive,
-  execute_import,
-  export_data,
-  import_id,
-  unlink,
-  web_save,
-  web_search_read,
-} from '@/constants/index.js';
 import { useAppStore, useTokenStore } from '@/store/index.js';
 import { downloadFile, format, importFunction, schemaToModel } from '@/utils/index.js';
 import request, { getUrl } from '@/utils/request.js';
@@ -460,24 +450,6 @@ export default {
     const editFormModel = ref(null);
     const editFormButton = ref(null);
     const tempModel = ref(null);
-    //
-    // config.import ??= { schema: { type: 'object', properties: {} } };
-    // config.import.schema.properties.files ??= {
-    //   title: '文件',
-    //   type: 'array',
-    //   multiple: true,
-    //   input: 'file',
-    //   accept: '.xlsx',
-    //   default: [],
-    //   limit: 10,
-    //   size: 100 * 1024 * 1024,
-    //   rules: [
-    //     {
-    //       required: true,
-    //       trigger: 'change',
-    //     },
-    //   ],
-    // };
     const versions = ref([]);
     const onClick = async (method, confirMmessage = '确认操作吗？', reload = true) => {
       try {
@@ -522,7 +494,7 @@ export default {
       }
     };
     const getColumns = (schema) => {
-      const propertyNames = Object.keys(schema.properties);
+      const propertyNames = Object.keys(schema.properties ?? {});
       for (const propertyName of propertyNames) {
         const property = schema.properties[propertyName];
         if (!property.hideForList || (property.type !== 'object' && property.type !== 'array' && !property.hidden)) {
@@ -568,8 +540,9 @@ export default {
     const load = async () => {
       tableLoading.value = true;
       try {
-        const url = config.buttons.find((o) => o.path === 'query').meta.action;
-        const method = config.query.method;
+        const button = config.buttons.find((o) => o.meta.command === 'search');
+        const url = button.meta.url;
+        const method = button.meta.method;
         const postData = buildQuery();
         const data = (await request(method, url, postData)).data;
         if (data.error) {

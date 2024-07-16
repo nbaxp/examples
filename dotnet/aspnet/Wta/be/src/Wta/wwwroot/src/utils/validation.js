@@ -63,7 +63,7 @@ const validators = {
   compare(rule, value, callback, source, options) {
     const errors = [];
     if (value && value !== rule.data[rule.compare]) {
-      const message = format(options.messages.compare, rule.title, rule.schema.properties[rule.compare].title);
+      const message = format(messages.compare, rule.title, rule.schema.properties[rule.compare].title);
       errors.push(new Error(message));
     }
     callback(errors);
@@ -71,7 +71,7 @@ const validators = {
   true(rule, value, callback, source, options) {
     const errors = [];
     if (!value) {
-      const message = format(options.messages.true, rule.title);
+      const message = format(messages.true, rule.title);
       errors.push(new Error(message));
     }
     callback(errors);

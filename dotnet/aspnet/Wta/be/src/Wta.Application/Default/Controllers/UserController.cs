@@ -95,7 +95,7 @@ public class UserController(ILogger<User> logger,
         throw new BadRequestException();
     }
 
-    [AllowAnonymous, Ignore]
+    [AllowAnonymous]
     public ApiResult<bool> ResetPassword(ResetPasswordModel model)
     {
         if (ModelState.IsValid)
