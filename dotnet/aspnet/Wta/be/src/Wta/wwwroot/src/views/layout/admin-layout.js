@@ -25,8 +25,8 @@ export default {
     <el-container class="is-vertical main backtop flex100 flex-dir-col">
       <layout-tabs v-if="appStore.settings.useTabs" />
       <el-main class="flex100 flex-dir-col">
-        <layout-breadcrumb v-if="appStore.settings.showBreadcrumb" />
         <div class="router-view flex100">
+        <layout-breadcrumb v-if="appStore.settings.showBreadcrumb" />
           <div class="w-full h-full">
             <router-view v-if="!tabsStore.isRefreshing" v-slot="{ Component, route }">
               <component :is="Component" v-if="route.meta?.noCache" :key="route.fullPath" />

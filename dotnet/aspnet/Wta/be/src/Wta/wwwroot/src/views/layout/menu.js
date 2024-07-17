@@ -1,10 +1,10 @@
-import { useAppStore, useTabsStore } from "@/store/index.js";
-import Icon from "@/views/components/icon/index.js";
-import SvgIcon from "@/views/components/icon/index.js";
-import { ElMessageBox } from "element-plus";
-import html from "utils";
-import { computed, nextTick, reactive, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useAppStore, useTabsStore } from '@/store/index.js';
+import Icon from '@/views/components/icon/index.js';
+import SvgIcon from '@/views/components/icon/index.js';
+import { ElMessageBox } from 'element-plus';
+import html from 'utils';
+import { computed, nextTick, reactive, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 export const HeadMenu = {
   components: { SvgIcon },
@@ -36,27 +36,25 @@ export const HeadMenu = {
     const tabsStore = useTabsStore();
     const router = useRouter();
     const routes = computed(() => {
-      const root = router.getRoutes().find((o) => o.name === "root");
+      const root = router.getRoutes().find((o) => o.name === 'root');
       const result =
-        router.currentRoute.value.matched[1].path === "/"
-          ? root.children.find((o) => o.path === "/").children
-          : root.children.filter((o) => o.path !== "/");
+        router.currentRoute.value.matched[1].path === '/'
+          ? root.children.find((o) => o.path === '/').children
+          : root.children.filter((o) => o.path !== '/');
       return result.sort((a, b) => a.meta?.order > b.meta?.order);
     });
     const active = computed(() => {
       return (
-        router.currentRoute.value.matched[1].path === "/"
+        router.currentRoute.value.matched[1].path === '/'
           ? router.currentRoute.value.matched[2]
           : router.currentRoute.value.matched[1]
       ).meta.fullPath;
     });
     const onClick = (route, event) => {
-      if (route.path.startsWith("http")) {
+      if (route.path.startsWith('http')) {
         window.open(props.node.path);
       } else {
-        const path =
-          tabsStore.routes.findLast((o) => o.matched[1].path === route.path)
-            ?.path ?? route.path;
+        const path = tabsStore.routes.findLast((o) => o.matched[1].path === route.path)?.path ?? route.path;
         router.push(path);
       }
     };
@@ -69,7 +67,7 @@ export const HeadMenu = {
 };
 
 export const MenuItem = {
-  name: "menuItem",
+  name: 'menuItem',
   components: { SvgIcon },
   template: html`<template v-if="model&&!model.meta?.hideInMenu">
     <el-sub-menu
@@ -111,13 +109,13 @@ export const MenuItem = {
     watch(
       model,
       (value) => {
-        context.emit("update:modelValue", value);
+        context.emit('update:modelValue', value);
       },
-      { deep: true }
+      { deep: true },
     );
     //
     const onClick = (route, event) => {
-      if (route.path.startsWith("http")) {
+      if (route.path.startsWith('http')) {
         event.preventDefault();
         window.open(props.node.path);
       }
@@ -157,7 +155,7 @@ export default {
           show.value = true;
         });
       },
-      { immediate: true }
+      { immediate: true },
     );
     return {
       appStore,

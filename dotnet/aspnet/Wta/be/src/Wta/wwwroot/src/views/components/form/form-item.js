@@ -1,10 +1,10 @@
-import { getRules } from "@/utils/validation.js";
-import AppFormInput from "@/views/components/form/form-input.js";
-import html from "utils";
-import { reactive, watch } from "vue";
+import { getRules } from '@/utils/validation.js';
+import AppFormInput from '@/views/components/form/form-input.js';
+import html from 'utils';
+import { reactive, watch } from 'vue';
 
 export default {
-  name: "formItem",
+  name: 'formItem',
   components: {
     AppFormInput,
   },
@@ -28,16 +28,16 @@ export default {
       </el-form-item>
     </template>
   </template>`,
-  props: ["modelValue", "mode", "parentSchema", "schema", "prop", "errors"],
-  emit: ["update:modelValue"],
+  props: ['modelValue', 'mode', 'parentSchema', 'schema', 'prop', 'errors'],
+  emit: ['update:modelValue'],
   setup(props, context) {
     const model = reactive(props.modelValue);
     watch(model, (value) => {
-      context.emit("update:modelValue", value);
+      context.emit('update:modelValue', value);
     });
     /*start*/
     const showItem = () => {
-      if (props.mode === "query") {
+      if (props.mode === 'query') {
         return !props.schema.hideForQuery;
       }
       if (props.schema.hideForEdit) {
@@ -46,10 +46,10 @@ export default {
       return true;
     };
     const getDisabled = () => {
-      if (props.mode === "details") {
+      if (props.mode === 'details') {
         return true;
       }
-      if (props.mode === "update" && props.schema.readOnly) {
+      if (props.mode === 'update' && props.schema.readOnly) {
         return true;
       }
       return false;

@@ -1,6 +1,6 @@
-import Md from "@/views/components/markdown/index.js";
-import html from "utils";
-import { ref } from "vue";
+import Md from '@/views/components/markdown/index.js';
+import html from 'utils';
+import { ref } from 'vue';
 
 export default {
   components: { Md },
@@ -136,99 +136,99 @@ export default {
     const counter = ref(0);
     const list = [
       {
-        label: "技术管理",
+        label: '技术管理',
         children: [
           {
-            label: "产品信息",
+            label: '产品信息',
           },
           {
-            label: "生产工序",
+            label: '生产工序',
           },
           {
-            label: "产品BOM",
+            label: '产品BOM',
           },
           {
-            label: "基础设置",
+            label: '基础设置',
           },
         ],
       },
       {
-        label: "计划管理",
+        label: '计划管理',
         children: [
           {
-            label: "生产计划",
+            label: '生产计划',
           },
           {
-            label: "计划看板",
+            label: '计划看板',
           },
           {
-            label: "执行跟踪",
+            label: '执行跟踪',
           },
           {
-            label: "费用统计",
+            label: '费用统计',
           },
           {
-            label: "用料统计",
+            label: '用料统计',
           },
         ],
       },
       {
-        label: "生产管理",
+        label: '生产管理',
         children: [
           {
-            label: "生产工单",
+            label: '生产工单',
           },
           {
-            label: "生产领料",
+            label: '生产领料',
           },
           {
-            label: "生产退料",
+            label: '生产退料',
           },
           {
-            label: "生产报工",
+            label: '生产报工',
           },
           {
-            label: "生产入库",
+            label: '生产入库',
           },
         ],
       },
       {
-        label: "委外管理",
+        label: '委外管理',
         children: [
           {
-            label: "供应商管理",
+            label: '供应商管理',
           },
           {
-            label: "委外工单",
+            label: '委外工单',
           },
           {
-            label: "委外领料",
+            label: '委外领料',
           },
           {
-            label: "委外入库",
+            label: '委外入库',
           },
         ],
       },
       {
-        label: "库存管理",
+        label: '库存管理',
         children: [
           {
-            label: "仓库管理",
+            label: '仓库管理',
           },
           {
-            label: "入库单",
+            label: '入库单',
           },
           {
-            label: "出库单",
+            label: '出库单',
           },
           {
-            label: "库存调拨",
+            label: '库存调拨',
           },
           {
-            label: "库存盘点",
+            label: '库存盘点',
           },
           {
-            label: "出入库统计",
+            label: '出入库统计',
           },
         ],
       },

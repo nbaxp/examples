@@ -335,7 +335,7 @@ export default {
           }
         }
       },
-      { immediate: true }
+      { immediate: true },
     );
 
     //watch
@@ -351,7 +351,7 @@ export default {
             props.schema.watch(model, value);
           }
         }
-      }
+      },
     );
 
     onMounted(async () => {});

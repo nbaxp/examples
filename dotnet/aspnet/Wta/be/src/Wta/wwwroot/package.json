@@ -1,4 +1,9 @@
 {
+    "scripts": {
+    "format": "biome format --write ./src",
+    "lint": "biome check ./src",
+    "prepare": "npm run format && npm run lint"
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
     "lit-html": "^3.1.4"

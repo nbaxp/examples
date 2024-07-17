@@ -1,10 +1,10 @@
 export default function () {
   return {
-    url: "user/reset-password",
+    url: 'user/reset-password',
     properties: {
       currentPassword: {
-        title: "当前密码",
-        input: "password",
+        title: '当前密码',
+        input: 'password',
         rules: [
           {
             required: true,
@@ -12,8 +12,8 @@ export default function () {
         ],
       },
       newPassword: {
-        title: "新密码",
-        input: "password",
+        title: '新密码',
+        input: 'password',
         rules: [
           {
             required: true,
@@ -21,12 +21,12 @@ export default function () {
         ],
       },
       confirmNewPassword: {
-        title: "确认新密码",
-        input: "password",
+        title: '确认新密码',
+        input: 'password',
         rules: [
           {
-            validator: "compare",
-            compare: "newPassword",
+            validator: 'compare',
+            compare: 'newPassword',
           },
         ],
       },

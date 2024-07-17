@@ -1,7 +1,7 @@
-import request from "@/utils/request.js";
-import SvgIcon from "@/views/components/icon/index.js";
-import html from "utils";
-import { onMounted, ref, useModel, watch } from "vue";
+import request from '@/utils/request.js';
+import SvgIcon from '@/views/components/icon/index.js';
+import html from 'utils';
+import { onMounted, ref, useModel, watch } from 'vue';
 
 export default {
   components: { SvgIcon },
@@ -25,24 +25,15 @@ export default {
       </el-image>
     </div>
   `,
-  props: [
-    "modelValue",
-    "url",
-    "method",
-    "authCode",
-    "codeHash",
-    "errors",
-    "prop",
-    "icon",
-  ],
-  emit: ["callback"],
+  props: ['modelValue', 'url', 'method', 'authCode', 'codeHash', 'errors', 'prop', 'icon'],
+  emit: ['callback'],
   setup(props, context) {
-    const model = useModel(props, "modelValue");
-    const src = ref("");
+    const model = useModel(props, 'modelValue');
+    const src = ref('');
     const load = async () => {
       const result = await request(props.method, props.url);
-      src.value = result.data.data[props.authCode ?? "authCode"];
-      context.emit("callback", result.data.data[props.codeHash ?? "codeHash"]);
+      src.value = result.data.data[props.authCode ?? 'authCode'];
+      context.emit('callback', result.data.data[props.codeHash ?? 'codeHash']);
     };
 
     const onClick = async () => {
@@ -54,7 +45,7 @@ export default {
         if (props.errors[props.prop]) {
           await load();
         }
-      }
+      },
     );
     onMounted(async () => {
       await load();

@@ -103,7 +103,7 @@ export default {
 
     const cpuModel = reactive({
       title: {
-        text: t('cpuUsage'),
+        text: t('CPU占用率'),
       },
       xAxis: {
         type: 'category',
@@ -125,7 +125,7 @@ export default {
 
     const memoryModel = reactive({
       title: {
-        text: t('memoryUsage'),
+        text: t('内存占用率'),
       },
       xAxis: {
         type: 'category',
@@ -151,13 +151,13 @@ export default {
       if (cpuModel.series[0].data.length > 60) {
         cpuModel.series[0].data.shift();
       }
-      cpuModel.title.text = `${t('cpuUsage')}:${persentFormat(model.cpuUsage / 100)}`;
+      cpuModel.title.text = `${t('CPU占用率')}:${persentFormat(model.cpuUsage / 100)}`;
       cpuModel.series[0].data.push(data.cpuUsage);
       // memory
       if (memoryModel.series[0].data.length > 60) {
         memoryModel.series[0].data.shift();
       }
-      memoryModel.title.text = `${t('memoryUsage')}:${persentFormat(model.memoryUsage / 100)}`;
+      memoryModel.title.text = `${t('内存占用率')}:${persentFormat(model.memoryUsage / 100)}`;
       memoryModel.series[0].data.push(data.memoryUsage);
     };
 
