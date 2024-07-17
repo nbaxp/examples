@@ -100,6 +100,7 @@ img.loading {
 .el-aside {
   height: 100%;
   background-color: var(--el-menu-bg-color);
+  border-right: solid 1px var(--el-menu-border-color);
 
   .el-menu--vertical {
     min-height: 100%;
@@ -126,6 +127,7 @@ img.loading {
   overflow: hidden;
 
   .el-menu {
+    height: calc(var(--el-menu-horizontal-height) - 1px);
     border: none;
 
     .is-active {
@@ -143,9 +145,10 @@ img.loading {
   border-top: 1px solid var(--el-border-color);
   background-color: var(--el-menu-bg-color);
   overflow: hidden;
+  padding: 0;
 }
 
-.el-aside.open {
+.el-aside.open .el-menu {
   min-width: 200px;
 }
 
@@ -233,30 +236,6 @@ img.loading {
 
 /*Tabs多页签*/
 .router-tabs {
-
-  /* box-sizing: border-box;
-  height: 40px !important;
-  background-color: var(--el-fill-color-blank);
-  border-width: 0 !important;
-
-  .el-tabs__item {
-    margin-top: 0 !important;
-    padding: 0 !important;
-    border-bottom-width: 0;
-  }
-
-  .el-dropdown span {
-    padding: 0 20px;
-  }
-
-  .el-tabs__content {
-    display: none;
-  }
-
-  .el-icon {
-    margin-right: 5px;
-    margin-left: -15px;
-  } */
   .el-tabs__item {
     padding: 15px !important;
   }
@@ -291,13 +270,13 @@ html.dark-nav .admin-layout {
   .el-header,
   .el-header .el-menu,
   .el-header .el-menu-item {
-    background-color: #343a40 !important;
+    background-color: #121212 !important;
     color: #e5eaf3;
   }
 
-  .el-aside *:hover,
-  .el-header *:hover {
-    background-color: #343a40 !important;
+  .el-aside .el-menu-item:hover *,
+  .el-header .el-menu-item:hover * {
+    color: #409eff !important;
   }
 
   .el-aside .el-menu-item.is-active * {
