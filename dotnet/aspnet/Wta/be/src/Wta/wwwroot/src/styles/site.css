@@ -134,6 +134,10 @@ img.loading {
       border: none;
     }
   }
+
+  .search {
+    width: 200px;
+  }
 }
 
 .portal-layout .collapse-button {
@@ -254,6 +258,9 @@ img.loading {
     margin-bottom: 0;
   }
 
+  .el-tabs__nav {
+    border-top: none !important;
+  }
 }
 
 /*站内导航*/

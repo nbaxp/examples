@@ -8,17 +8,24 @@ export default defineStore('token', {
   state: () => ({
     accessToken: null,
     refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
+    exp: null,
+    name: null,
   }),
   actions: {
-    setToken(accessToken, refreshToken) {
+    update(accessToken, refreshToken) {
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      const data = jwtDecode(this.accessToken);
+      this.exp = new Date(data.exp * 1000);
+      this.name = data.name;
     },
-    removeToken() {
+    clear() {
       this.accessToken = null;
       this.refreshToken = null;
       localStorage.removeItem(REFRESH_TOKEN_KEY);
+      this.exp = null;
+      this.name = null;
     },
     async isLogin() {
       if (this.accessToken) {
@@ -44,11 +51,11 @@ export default defineStore('token', {
           });
           if (response.status === 200) {
             const { data } = await response.json();
-            this.setToken(data.access_token, data.refresh_token);
+            this.update(data.access_token, data.refresh_token);
             return;
           }
         }
-        this.removeToken();
+        this.clear();
       }
     },
   },

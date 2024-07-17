@@ -3,7 +3,7 @@ import SvgIcon from '@/views/components/icon/index.js';
 import { useDark, useFullscreen, useToggle } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import html from 'utils';
-import { computed, ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import LayoutLocale from './lang.js';
@@ -32,10 +32,11 @@ export default {
   </div>
   <div class="flex">
     <el-space :size="appStore.settings.size">
-      <el-icon class="cursor-pointer" @click="clickSearch">
+      <el-icon class="cursor-pointer" @click="clickSearch" :title="$t('search-menu')">
         <ep-search />
       </el-icon>
       <el-select
+        class="search"
         ref="searchRef"
         placeholder="search"
         v-show="showSearch"
@@ -58,13 +59,14 @@ export default {
         <svg-icon name="fullscreen-exit" v-if="isFullscreen" />
         <svg-icon name="fullscreen" v-else />
       </el-icon>
+      <layout-locale />
       <el-dropdown class="cursor-pointer" v-if="tokenStore.accessToken">
         <span class="el-dropdown-link flex">
           <el-avatar v-if="userStore.avatar" class="el-icon--left" :size="18" :src="'./assets/icons/avatar.svg'" />
           <el-icon v-else class="el-icon--left" :size="18">
             <ep-user />
           </el-icon>
-          {{ userStore.userName }}
+          {{ tokenStore.name }}
           <el-icon class="el-icon--right">
             <ep-arrow-down />
           </el-icon>
@@ -87,7 +89,6 @@ export default {
       <el-link type="info" v-else>
         <router-link to="/register">{{$t('register')}}</router-link>
       </el-link>
-      <layout-locale />
       <layout-settings />
     </el-space>
   </div>
@@ -112,7 +113,9 @@ export default {
     const clickSearch = () => {
       showSearch.value = !showSearch.value;
       if (showSearch.value) {
-        searchRef.value.focus();
+        nextTick(() => {
+          searchRef.value.focus();
+        });
       }
     };
     const searchMenu = (query) => {
@@ -121,7 +124,10 @@ export default {
           searchLoading.value = true;
           searchOptions.value = router
             .getRoutes()
-            .filter((o) => !o.meta?.hideInMenu && !o.children?.length && o.meta?.title.indexOf(query) >= 0);
+            .filter(
+              (o) =>
+                o.meta?.fullPath && !o.meta?.hideInMenu && !o.children?.length && o.meta?.title.indexOf(query) >= 0,
+            );
         } finally {
           searchLoading.value = false;
         }
@@ -137,7 +143,9 @@ export default {
         window.open(route.path);
       }
     };
-    const toggleMenuCollapse = () => (appStore.settings.isMenuCollapse = !appStore.settings.isMenuCollapse);
+    const toggleMenuCollapse = () => {
+      appStore.settings.isMenuCollapse = !appStore.settings.isMenuCollapse;
+    };
     //
     const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(document.documentElement);
     const confirmLogout = async () => {
@@ -145,7 +153,7 @@ export default {
         await ElMessageBox.confirm(i18n.t('confirmLogout'), i18n.t('tip'), {
           type: 'warning',
         });
-        await tokenStore.removeToken();
+        await tokenStore.clear();
         router.push({ path: 'login', query: { redirect: router.currentRoute.value.fullPath } });
       } catch (error) {
         if (error === 'cancel') {
