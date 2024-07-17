@@ -8,12 +8,11 @@ export default {
   components: {
     AppFormInput,
   },
-  template: html`<template v-if="!schema.meta.hidden&&showItem()">
+  template: html`<template v-if="!schema.meta?.hidden&&showItem()">
     <template v-if="schema.type==='object'"></template>
     <template v-else-if="schema.type!=='array'||schema.items?.type!=='array'">
       <el-form-item
-        :title="parentSchema.labelWidth===0?null:schema.title"
-        :label="parentSchema.labelWidth===0?null:schema.title"
+        :label="parentSchema.meta?.labelWidth===0?null:schema.title"
         :prop="getProp(prop)"
         :rules="getDisabled()?[]:getRules(parentSchema,schema,model,getProp(prop))"
         :error="mode==='query'?null:getError(prop)"

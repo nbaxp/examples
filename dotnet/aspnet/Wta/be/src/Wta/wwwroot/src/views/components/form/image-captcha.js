@@ -31,7 +31,7 @@ export default {
     const model = useModel(props, 'modelValue');
     const src = ref('');
     const load = async () => {
-      const result = await request(props.method, props.url);
+      const result = await request(props.url, null, props.method);
       src.value = result.data.data[props.authCode ?? 'authCode'];
       context.emit('callback', result.data.data[props.codeHash ?? 'codeHash']);
     };

@@ -1,18 +1,18 @@
 import useSchema from '@/models/reset-password.js';
+import { schemaToModel } from '@/utils/schema.js';
 import AppForm from '@/views/components/form/index.js';
 import { ElMessageBox } from 'element-plus';
 import html from 'utils';
-import { schemaToModel } from '@/utils/schema.js';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 export default {
   components: { AppForm },
-  template: html`
-    <el-card>
-      <app-form ref="formRef" v-model="model" :schema="schema" @success="success" />
-    </el-card>
-  `,
+  template: html`<div class="flex100">
+  <el-card>
+    <app-form ref="formRef" v-model="model" :schema="schema" @success="success" />
+  </el-card>
+</div>`,
   setup() {
     const formRef = ref(null);
     const schema = ref(useSchema());

@@ -140,10 +140,6 @@ img.loading {
   }
 }
 
-.portal-layout .collapse-button {
-  display: none;
-}
-
 .el-footer {
   width: 100%;
   border-top: 1px solid var(--el-border-color);
@@ -166,6 +162,7 @@ img.loading {
   height: 32px;
   line-height: 32px;
   padding-right: 1em;
+  overflow: hidden;
 }
 
 .el-dropdown-link:focus-visible {
@@ -202,14 +199,14 @@ img.loading {
 }
 
 .el-form {
-  .el-form-item__label {
+  /* .el-form-item__label {
     padding-right: 0 !important;
     width: 5em !important;
     margin-right: 1em;
     overflow: hidden;
     justify-content: flex-start;
     white-space: nowrap;
-  }
+  } */
 
   /* .el-form-item__content {
     width: 240 !important;
@@ -222,6 +219,15 @@ img.loading {
   .el-input__suffix-inner {
     width: 2em;
   }
+}
+
+.el-form.el-form--inline {
+  padding-right: 0 !important;
+  width: 5em !important;
+  margin-right: 1em;
+  overflow: hidden;
+  justify-content: flex-start;
+  white-space: nowrap;
 }
 
 /* .el-select,

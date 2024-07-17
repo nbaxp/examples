@@ -123,31 +123,15 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
         list.Add(new Permission
         {
             Id = context.NewGuid(),
-            Type = MenuType.Group,
+            Type = MenuType.Menu,
             Authorize = "Anonymous",
             Name = "首页",
-            Number = "Layout",
-            RoutePath = "/",
-            Redirect = "home",
-            Component = "layout/portal-layout",
+            Number = "Home",
+            RoutePath = "home",
+            Component = "home",
             Icon = "home",
             NoCache = true,
-            Order = 1,
-            Children = new List<Permission>
-            {
-                new Permission {
-                    Id = context.NewGuid(),
-                    Type = MenuType.Menu,
-                    Authorize = "Anonymous",
-                    Name = "首页",
-                    Number = "Home",
-                    RoutePath = "home",
-                    Component = "home",
-                    Icon = "home",
-                    NoCache = true,
-                    Order = 1,
-                }
-            }
+            Order = 1
         });
         //添加用户中心
         var userCenterGroup = new Permission
@@ -158,7 +142,6 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             Name = "用户中心",
             Number = "UserCenter",
             RoutePath = "user-center",
-            Component = "layout/admin-layout",
             Icon = "user",
             Order = 2,
         };

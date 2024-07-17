@@ -32,7 +32,7 @@ async function getOptions(method, originalUrl, data, customOptions, isUrlEncoded
   //设置默认值
   const options = {
     credentials: 'include',
-    method: method ?? 'POST',
+    method,
     headers: {
       'Accept-Language': i18n.global.locale.value,
     },
@@ -152,7 +152,7 @@ async function getResult(response) {
 /**
  * @returns {code,message,data,error}
  */
-async function request(method, url, data, customOptions, isUrlEncoded = false) {
+async function request(url, data, customOptions, method = 'POST', isUrlEncoded = false) {
   //规范化请求参数
   const { fullUrl, options } = await getOptions(method, url, data, customOptions, isUrlEncoded);
   try {

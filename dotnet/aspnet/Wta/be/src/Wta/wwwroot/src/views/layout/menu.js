@@ -11,8 +11,8 @@ export const HeadMenu = {
   template: html`
     <el-menu
       mode="horizontal"
-      :default-active="active"
       :ellipsis="false"
+      :default-active="active"
       router
     >
       <template v-for="route in routes">
@@ -44,11 +44,7 @@ export const HeadMenu = {
       return result.sort((a, b) => a.meta?.order > b.meta?.order);
     });
     const active = computed(() => {
-      return (
-        router.currentRoute.value.matched[1].path === '/'
-          ? router.currentRoute.value.matched[2]
-          : router.currentRoute.value.matched[1]
-      ).meta.fullPath;
+      return router.currentRoute.value.matched[1].meta.fullPath;
     });
     const onClick = (route, event) => {
       if (route.path.startsWith('http')) {

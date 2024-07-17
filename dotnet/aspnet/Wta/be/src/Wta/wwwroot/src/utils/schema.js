@@ -29,20 +29,21 @@ export function normalize(schema) {
   if (!schema) {
     return null;
   }
-  const { title, type = 'string', properties = {}, input, default: defaultValue, ...meta } = schema;
+  const { title, type = 'string', properties = {}, input, default: defaultValue, rules, ...meta } = schema;
   const result = {
     title,
     type,
     properties,
     input,
     default: defaultValue,
+    rules,
     meta,
   };
   if (!input) {
     if (type === 'number') {
       result.input = 'number';
     } else if (type === 'boolean') {
-      result.input = 'checkbox';
+      result.input = 'switch';
     } else {
       result.input = 'text';
     }

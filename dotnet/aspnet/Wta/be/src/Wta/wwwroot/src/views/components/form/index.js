@@ -86,10 +86,10 @@ export default {
         const valid = await validate();
         if (valid) {
           loading.value = true;
-          const url = props.schema.url;
-          const method = props.schema.method ?? 'POST';
+          const url = props.schema.meta.url;
+          const method = props.schema.meta.method;
           errorMessage.value = null;
-          const result = await request(method, url, model);
+          const result = await request(url, model, method);
           if (!result.error) {
             context.emit('success', result.data);
           } else {

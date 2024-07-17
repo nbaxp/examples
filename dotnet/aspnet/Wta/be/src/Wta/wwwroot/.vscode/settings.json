@@ -25,4 +25,5 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "formatSelectionAsHtml.formatter": "prettier",
+  "formatSelectionAsHtml.printWidth": 120
 }

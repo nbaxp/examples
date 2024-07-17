@@ -13,179 +13,178 @@ import ImageCaptcha from './image-captcha.js';
 export default {
   components: { SvgIcon, ImageCaptcha, CodeCaptcha },
   template: html`<template v-if="getDisabled()">
-      <template v-if="model[prop]!==null&&(schema.type!=='array'||model[prop].length>0)">
-        <template v-if="schema.type==='boolean'||model[prop]!==false">
-          <template v-if="schema.type==='boolean'">
-            <el-button v-if="schema.input==='select'" link type="primary">
-              {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
-            </el-button>
-            <el-switch v-else disabled v-model="model[prop]" type="checked" />
-          </template>
-          <template v-else-if="schema.input==='year'">{{dayjs(model[prop]).format('YYYY')}}</template>
-          <template v-else-if="schema.input==='date'">{{dayjs(model[prop]).format('YYYY-MM-DD')}}</template>
-          <template v-else-if="schema.input==='datetime'">
-            {{dayjs(model[prop]).format('YYYY-MM-DD HH:mm:ss')}}
-          </template>
-          <template v-else-if="schema.input==='password'">******</template>
-          <template v-else-if="schema.input==='select'||schema.input==='tabs'">
-            <template v-if="!schema.multiple">
-              <el-button link type="primary">
-                {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
-              </el-button>
-            </template>
-            <template v-else>
-              <el-button link type="primary" v-for="item in model[prop]" :key="item">
-                {{options?.find(o=>o.value==item)?.label??item}}
-              </el-button>
-            </template>
-          </template>
-          <template v-else-if="schema.input==='base64image'">
-            <img :src="'data:image/png;base64,'+model[prop]" style="max-height:18px;" />
-          </template>
-          <template v-else><span>{{model[prop]}}</span></template>
+  <template v-if="model[prop]!==null&&(schema.type!=='array'||model[prop].length>0)">
+    <template v-if="schema.type==='boolean'||model[prop]!==false">
+      <template v-if="schema.type==='boolean'">
+        <el-button v-if="schema.input==='select'" link type="primary">
+          {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
+        </el-button>
+        <el-switch v-else disabled v-model="model[prop]" type="checked" />
+      </template>
+      <template v-else-if="schema.input==='year'">{{dayjs(model[prop]).format('YYYY')}}</template>
+      <template v-else-if="schema.input==='date'">{{dayjs(model[prop]).format('YYYY-MM-DD')}}</template>
+      <template v-else-if="schema.input==='datetime'">
+        {{dayjs(model[prop]).format('YYYY-MM-DD HH:mm:ss')}}
+      </template>
+      <template v-else-if="schema.input==='password'">******</template>
+      <template v-else-if="schema.input==='select'||schema.input==='tabs'">
+        <template v-if="!schema.multiple">
+          <el-button link type="primary">
+            {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
+          </el-button>
         </template>
-      </template>
-    </template>
-    <template v-else>
-      <template v-if="getInput(schema)==='tabs'&&mode==='query'">
-        <el-tabs type="card" v-model="model[prop]" style="height:24px;margin:0;" class="form">
-          <el-tab-pane label="全部" key="all" :name="''" />
-          <el-tab-pane v-for="item in options" :label="item.label" :name="item.value" />
-        </el-tabs>
-      </template>
-      <template v-if="getInput(schema)==='color'">
-        <el-color-picker v-model="model[prop]" />
-      </template>
-      <template v-else-if="getInput(schema)==='select'||getInput(schema)==='tabs'">
-        <el-select
-          v-model="model[prop]"
-          :placeholder="schema.placeholder??schema.title"
-          :multiple="!!schema.multiple"
-          :value-on-clear="null"
-          clearable
-        >
-          <el-option v-for="item in options" :key="item.key" :label="item.label" :value="item.value">
-            <span style="display:flex;align-items:center;">
-              <el-icon v-if="item.icon" class="el-icon--left">
-                <svg-icon :name="item.icon" />
-              </el-icon>
-              {{item.label}}
-            </span>
-          </el-option>
-        </el-select>
-      </template>
-      <template
-        v-else-if="getInput(schema)==='month'||getInput(schema)==='datetime'||getInput(schema)==='datetimerange'"
-      >
-        <el-date-picker
-          v-model="model[prop]"
-          :type="schema.input"
-          :value-format="schema.format??'YYYY-MM-DD HH:mm:ss'"
-          :placeholder="schema.placeholder??schema.title"
-          clearable
-        />
-      </template>
-      <template v-else-if="getInput(schema)==='number'">
-        <el-input
-          :disabled="getDisabled()"
-          :placeholder="schema.placeholder??schema.title"
-          v-model="model[prop]"
-          type="number"
-        />
-      </template>
-      <template v-else-if="getInput(schema)==='integer'">
-        <el-input-number
-          :disabled="getDisabled()"
-          :placeholder="schema.placeholder??schema.title"
-          v-model="model[prop]"
-          :precision="0"
-        />
-      </template>
-      <template v-else-if="getInput(schema)==='boolean'">
-        <el-select
-          :value-on-clear="null"
-          clearable
-          :disabled="getDisabled()"
-          v-model="model[prop]"
-          :placeholder="schema.placeholder??schema.title"
-          v-if="schema.nullable"
-        >
-          <el-option prop="select" value="" :label="$t('select')" />
-          <el-option prop="true" :value="true" :label="$t('true')" />
-          <el-option prop="false" :value="false" :label="$t('false')" />
-        </el-select>
         <template v-else>
-          <el-switch v-model="model[prop]" type="checked" />
-          <span v-if="schema.showLabel" class="pl-4">{{schema.title}}</span>
+          <el-button link type="primary" v-for="item in model[prop]" :key="item">
+            {{options?.find(o=>o.value==item)?.label??item}}
+          </el-button>
         </template>
       </template>
-      <template v-else-if="schema.input === 'image-captcha'">
-        <image-captcha
-          v-model="model[prop]"
-          :url="schema.meta.url"
-          :codeHash="schema.codeHash"
-          @callback="updateCodeHash"
-          :errors="errors"
-          :prop="prop"
-          :icon="schema.icon"
-        />
+      <template v-else-if="schema.input==='base64image'">
+        <img :src="'data:image/png;base64,'+model[prop]" style="max-height:18px;" />
       </template>
-      <template v-else-if="schema.input === 'code-captcha'">
-        <code-captcha
-          v-model="model[prop]"
-          :icon="schema.icon"
-          :url="schema.url"
-          :codeHash="schema.codeHash"
-          @callback="updateCodeHash"
-          :query="model[schema.query]"
-          :regexp="schema.regexp"
-        />
+      <template v-else><span>{{model[prop]}}</span></template>
+    </template>
+  </template>
+</template>
+<template v-else>
+  <template v-if="schema.input==='color'">
+    <el-color-picker v-model="model[prop]" />
+  </template>
+  <template v-else-if="schema.input==='select'">
+    <el-select
+      v-model="model[prop]"
+      :placeholder="schema.placeholder??schema.title"
+      :multiple="!!schema.multiple"
+      :value-on-clear="null"
+      clearable
+    >
+      <el-option v-for="item in options" :key="item.key" :label="item.label" :value="item.value">
+        <span style="display:flex;align-items:center;">
+          <el-icon v-if="item.icon" class="el-icon--left">
+            <svg-icon :name="item.icon" />
+          </el-icon>
+          {{item.label}}
+        </span>
+      </el-option>
+    </el-select>
+  </template>
+  <template v-else-if="schema.input==='month'||schema.input==='datetime'||schema.input==='datetimerange'">
+    <el-date-picker
+      v-model="model[prop]"
+      :type="schema.input"
+      :value-format="schema.format??'YYYY-MM-DD HH:mm:ss'"
+      :placeholder="schema.placeholder??schema.title"
+      clearable
+    />
+  </template>
+  <template v-else-if="schema.input==='number'">
+    <el-input
+      :disabled="getDisabled()"
+      :placeholder="schema.placeholder??schema.title"
+      v-model="model[prop]"
+      type="number"
+    />
+  </template>
+  <template v-else-if="schema.input==='integer'">
+    <el-input-number
+      :disabled="getDisabled()"
+      :placeholder="schema.placeholder??schema.title"
+      v-model="model[prop]"
+      :precision="0"
+    />
+  </template>
+    <template v-else-if="schema.input==='switch'">
+      <el-switch v-model="model[prop]" type="checked" />
+      <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}</span>
+  </template>
+  <template v-else-if="schema.input==='boolean'">
+    <el-select
+      :value-on-clear="null"
+      clearable
+      :disabled="getDisabled()"
+      v-model="model[prop]"
+      :placeholder="schema.placeholder??schema.title"
+      v-if="schema.nullable"
+    >
+      <el-option prop="select" value="" :label="$t('select')" />
+      <el-option prop="true" :value="true" :label="$t('true')" />
+      <el-option prop="false" :value="false" :label="$t('false')" />
+    </el-select>
+    <template v-else>
+      <el-switch v-model="model[prop]" type="checked" />
+      <span v-if="schema.showLabel" class="pl-4">{{schema.title}}</span>
+    </template>
+  </template>
+  <template v-else-if="schema.input === 'image-captcha'">
+    <image-captcha
+      v-model="model[prop]"
+      :url="schema.meta.url"
+      :codeHash="schema.codeHash"
+      @callback="updateCodeHash"
+      :errors="errors"
+      :prop="prop"
+      :icon="schema.icon"
+    />
+  </template>
+  <template v-else-if="schema.input === 'code-captcha'">
+    <code-captcha
+      v-model="model[prop]"
+      :icon="schema.icon"
+      :url="schema.url"
+      :codeHash="schema.codeHash"
+      @callback="updateCodeHash"
+      :query="model[schema.query]"
+      :regexp="schema.regexp"
+    />
+  </template>
+  <template v-else-if="schema.input==='base64image'">
+    <el-upload ref="uploadRef" :show-file-list="false" :auto-upload="false" :on-change="handleChange">
+      <img v-if="model[prop]" :src="'data:image/png;base64,'+model[prop]" style="max-height:18px;" />
+      <el-icon v-else class="avatar-uploader-icon"><ep-plus /></el-icon>
+    </el-upload>
+  </template>
+  <template v-else-if="schema.input==='file'">
+    <el-upload
+      ref="uploadRef"
+      v-model:file-list="model[prop]"
+      class="upload"
+      drag
+      :accept="schema.accept"
+      :multiple="schema.multiple"
+      :limit="limit"
+      :auto-upload="false"
+      :on-change="handleChange"
+    >
+      <template #trigger>
+        <el-icon style="font-size:4em;">
+          <ep-upload-filled />
+        </el-icon>
       </template>
-      <template v-else-if="getInput(schema)==='base64image'">
-        <el-upload ref="uploadRef" :show-file-list="false" :auto-upload="false" :on-change="handleChange">
-          <img v-if="model[prop]" :src="'data:image/png;base64,'+model[prop]" style="max-height:18px;" />
-          <el-icon v-else class="avatar-uploader-icon"><ep-plus /></el-icon>
-        </el-upload>
+      <template #tip>
+        <div class="el-upload__tip">
+          <div>
+            单个文件大小限制：{{ bytesFormat(size) }}，上传数量限制：{{ limit }}
+            <template v-if="schema.accept">，上传文件类型：{{ schema.accept }}</template>
+          </div>
+        </div>
       </template>
-      <template v-else-if="getInput(schema)==='file'">
-        <el-upload
-          ref="uploadRef"
-          v-model:file-list="model[prop]"
-          class="upload"
-          drag
-          :accept="schema.accept"
-          :multiple="schema.multiple"
-          :limit="limit"
-          :auto-upload="false"
-          :on-change="handleChange"
-        >
-          <template #trigger>
-            <el-icon style="font-size:4em;">
-              <ep-upload-filled />
-            </el-icon>
-          </template>
-          <template #tip>
-            <div class="el-upload__tip">
-              <div>
-                单个文件大小限制：{{ bytesFormat(size) }}，上传数量限制：{{ limit }}
-                <template v-if="schema.accept">，上传文件类型：{{ schema.accept }}</template>
-              </div>
-            </div>
-          </template>
-        </el-upload>
-      </template>
-      <template v-else>
-        <el-input
-          clearable
-          :disabled="getDisabled()"
-          :placeholder="schema.placeholder??schema.title"
-          v-model="model[prop]"
-          :type="schema.input??'text'"
-          :show-password="schema.input==='password'"
-          :prefix-icon="schema.icon"
-        />
-      </template>
-    </template>`,
+    </el-upload>
+  </template>
+  <template v-else-if="schema.input==='checkbox'">
+    <el-checkbox v-model="model[prop]" :label="schema.title" size="large" />
+  </template>
+  <template v-else>
+    <el-input
+      clearable
+      :disabled="getDisabled()"
+      :placeholder="prop"
+      v-model="model[prop]"
+      :type="schema.input"
+      :show-password="schema.input==='password'"
+      :prefix-icon="schema.icon"
+    />
+  </template>
+</template>`,
   styles: html`<style>
     .form .el-tabs__header,
     .form .el-tabs__item {
@@ -209,9 +208,6 @@ export default {
         return true;
       }
       return false;
-    };
-    const getInput = (schema) => {
-      return schema.input ?? schema.type;
     };
     /*end*/
 
@@ -319,8 +315,8 @@ export default {
     watch(
       () => model[props.schema.dependsOn],
       async () => {
-        if (props.schema.options) {
-          options.value = props.schema.options;
+        if (props.schema.meta?.options) {
+          options.value = props.schema.meta?.options;
         } else if (props.schema.url && props.schema.input === 'select') {
           if (!props.schema.dependsOn || model[props.schema.dependsOn]) {
             await fetchOptions();
@@ -358,7 +354,6 @@ export default {
     return {
       model,
       getDisabled,
-      getInput,
       dayjs,
       selectProps,
       selectValues,
