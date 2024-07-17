@@ -1,5 +1,9 @@
+import { normalize } from '@/utils/schema.js';
+
 export default function () {
-  return {
+  const schema = {
+    type: 'object',
+    input: 'form',
     title: '登录',
     url: 'token/create',
     method: 'POST',
@@ -47,4 +51,7 @@ export default function () {
       },
     },
   };
+  const result = normalize(schema);
+  console.log(result);
+  return result;
 }

@@ -2,7 +2,7 @@ import useSchema from '@/models/reset-password.js';
 import AppForm from '@/views/components/form/index.js';
 import { ElMessageBox } from 'element-plus';
 import html from 'utils';
-import { schemaToModel } from 'utils';
+import { schemaToModel } from '@/utils/schema.js';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 

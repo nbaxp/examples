@@ -5,6 +5,7 @@ import router from '@/router/index.js';
 import store from '@/store/index.js';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import ElementPlus from 'element-plus';
+import { delay } from 'utils';
 import { createApp } from 'vue';
 import useMock from '../mock/index.js';
 
@@ -18,5 +19,5 @@ app.use(ElementPlus);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(`Ep${key}`, component);
 }
-
+await delay(1000);
 app.mount('#app');

@@ -1,6 +1,7 @@
 import useLoginModel from '@/models/login.js';
 import { useTokenStore, useUserStore } from '@/store/index.js';
-import html, { schemaToModel } from 'utils';
+import { schemaToModel } from '@/utils/schema.js';
+import html from 'utils';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AppForm from './components/form/index.js';

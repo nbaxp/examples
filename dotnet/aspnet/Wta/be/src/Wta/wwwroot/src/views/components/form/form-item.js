@@ -8,7 +8,7 @@ export default {
   components: {
     AppFormInput,
   },
-  template: html`<template v-if="!schema.hidden&&showItem()">
+  template: html`<template v-if="!schema.meta.hidden&&showItem()">
     <template v-if="schema.type==='object'"></template>
     <template v-else-if="schema.type!=='array'||schema.items?.type!=='array'">
       <el-form-item

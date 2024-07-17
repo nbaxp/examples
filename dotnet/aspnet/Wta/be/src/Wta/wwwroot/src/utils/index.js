@@ -73,30 +73,6 @@ function format(template, ...args) {
   });
 }
 
-function schemaToModel(schema, defProp = 'default') {
-  const entity = {};
-  const propertyNames = Object.keys(schema.properties ?? {});
-  for (const propertyName of propertyNames) {
-    const property = schema.properties[propertyName];
-    if (property.type === 'object') {
-      entity[propertyName] = schemaToModel(property);
-    } else if (defProp in property) {
-      entity[propertyName] = property.default;
-    } else if (property.type === 'array') {
-      entity[propertyName] = [];
-    } else if (property.type === 'boolean') {
-      entity[propertyName] = false; //property.nullable ? null : false;
-    } else if (property.type === 'number' || property.type === 'integer') {
-      entity[propertyName] = null; //property.nullable ? null : 0;
-    } else if (property.type === 'string') {
-      entity[propertyName] = null;
-    } else {
-      entity[propertyName] = null;
-    }
-  }
-  return entity;
-}
-
 function listToTree(list, config) {
   const options = Object.assign(
     {
@@ -195,7 +171,6 @@ export {
   persentFormat,
   bytesFormat,
   format,
-  schemaToModel,
   listToTree,
   treeToList,
   getProp,

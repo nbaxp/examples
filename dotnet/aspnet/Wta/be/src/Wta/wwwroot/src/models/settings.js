@@ -71,6 +71,15 @@ export default function () {
         title: '显示页脚',
         type: 'boolean',
       },
+      navigationMode: {
+        title: '导航模式',
+        input: 'select',
+        options: [
+          { value: 'left', label: '左侧', icon: 'left' },
+          { value: 'top', label: '顶部', icon: 'top' },
+          { value: 'top-left', label: '顶部左侧', icon: 'top-left' },
+        ],
+      },
     },
   };
 }

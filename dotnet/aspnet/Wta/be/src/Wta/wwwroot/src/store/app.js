@@ -128,34 +128,18 @@ const getRoutes = async () => {
     if (response.ok) {
       const result = await response.json();
       const list = result.data.map((o) => {
+        const { id, parentId, routePath: path, redirect, component, ...meta } = o;
+        meta.title ??= o.name;
         const route = {
-          id: o.id,
-          parentId: o.parentId,
-          path: o.routePath ?? '',
-          meta: {
-            type: o.type,
-            buttonType: o.buttonType,
-            title: o.name,
-            icon: o.icon,
-            classList: o.classList,
-            order: o.order,
-            noCache: o.noCache,
-            permission: o.number,
-            authorize: o.authorize,
-            method: o.method,
-            url: o.url,
-            command: o.command,
-            hidden: o.hidden,
-            schema: o.schema,
-            component: o.component,
-          },
+          id,
+          parentId,
+          path: path === null ? '' : path,
+          component,
+          meta,
         };
-        if (o.redirect) {
-          route.redirect = o.redirect;
-        }
-        if (o.component) {
-          const path = `../views/${o.component}.js`;
-          route.component = () => import(path);
+        if (route.component) {
+          const componentPath = `../views/${route.component}.js`;
+          route.component = () => import(componentPath);
         }
         return route;
       });

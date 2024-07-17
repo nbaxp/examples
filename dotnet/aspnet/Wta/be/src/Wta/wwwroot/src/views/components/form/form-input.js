@@ -122,7 +122,7 @@ export default {
       <template v-else-if="schema.input === 'image-captcha'">
         <image-captcha
           v-model="model[prop]"
-          :url="schema.url"
+          :url="schema.meta.url"
           :codeHash="schema.codeHash"
           @callback="updateCodeHash"
           :errors="errors"

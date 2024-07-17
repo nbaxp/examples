@@ -1,12 +1,13 @@
 import { useAppStore, useTokenStore } from '@/store/index.js';
-import { downloadFile, format, importFunction, schemaToModel } from '@/utils/index.js';
 import request, { getUrl } from '@/utils/request.js';
+import { schemaToModel } from '@/utils/schema.js';
 import AppFormInput from '@/views/components/form/form-input.js';
 import AppForm from '@/views/components/form/index.js';
 import SvgIcon from '@/views/components/icon/index.js';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import * as jsondiffpatch from 'jsondiffpatch';
 import { camelCase, capitalize } from 'lodash';
+import { downloadFile, format, importFunction } from 'utils';
 import html, { getProp, listToTree } from 'utils';
 import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
