@@ -9,7 +9,7 @@ export default {
   <div class="w-full">
     <el-tabs
       v-model="model"
-      type="border-card"
+      type="card"
       :closable="tabsStore.routes.length > 1"
       @tab-remove="remove"
       @tab-click="onClick"

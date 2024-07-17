@@ -257,9 +257,24 @@ img.loading {
     margin-right: 5px;
     margin-left: -15px;
   } */
+  .el-tabs__item {
+    padding: 15px !important;
+  }
+
+  .is-active {
+    .el-dropdown {
+      color: var(--el-color-primary) !important;
+    }
+  }
+
   .el-tabs__content {
     display: none;
   }
+
+  .el-tabs__header {
+    margin-bottom: 0;
+  }
+
 }
 
 /*站内导航*/
