@@ -74,7 +74,7 @@ export default {
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item>
-              <router-link to="/account">
+              <router-link to="/user-center">
                 <el-icon><ep-user /></el-icon>
                 {{$t('userCenter')}}
               </router-link>

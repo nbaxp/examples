@@ -6,7 +6,7 @@ using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Monitoring;
 
-[System, Display(Name = "监控", Order = 0)]
+[SystemManament, Display(Name = "监控", Order = 0)]
 public class Monitor : IResource
 {
     public Monitor()

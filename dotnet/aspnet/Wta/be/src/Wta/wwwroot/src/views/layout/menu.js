@@ -1,38 +1,33 @@
 import { useAppStore, useTabsStore } from '@/store/index.js';
 import Icon from '@/views/components/icon/index.js';
 import SvgIcon from '@/views/components/icon/index.js';
-import { ElMessageBox } from 'element-plus';
 import html from 'utils';
-import { computed, nextTick, reactive, ref, watch } from 'vue';
+import { computed, nextTick, reactive, ref, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 export const HeadMenu = {
   components: { SvgIcon },
-  template: html`
-    <el-menu
-      mode="horizontal"
-      :ellipsis="false"
-      :default-active="active"
-      router
-    >
-      <template v-for="route in routes">
-        <el-menu-item
-          v-if="!route.meta?.hideInMenu"
-          :key="route.meta.fullPath"
-          :index="route.meta.fullPath"
-          @click="onClick(route, $event)"
-        >
-          <template #title>
-            <el-icon>
-              <svg-icon v-if="route.meta?.icon" :name="route.meta.icon" />
-            </el-icon>
-            <span :title="route.meta.fullPath">{{route.meta.title }}</span>
-          </template>
-        </el-menu-item>
-      </template>
-    </el-menu>
-  `,
+  template: html`<el-menu mode="horizontal" :ellipsis="false" :default-active="active" router>
+  <template v-if="appStore.settings.showTopMenu">
+    <template v-for="route in routes">
+      <el-menu-item
+        v-if="!route.meta?.hideInMenu"
+        :key="route.meta.fullPath"
+        :index="route.meta.fullPath"
+        @click="onClick(route, $event)"
+      >
+        <template #title>
+          <el-icon>
+            <svg-icon v-if="route.meta?.icon" :name="route.meta.icon" />
+          </el-icon>
+          <span :title="route.meta.fullPath">{{route.meta.title }}</span>
+        </template>
+      </el-menu-item>
+    </template>
+  </template>
+</el-menu>`,
   setup() {
+    const appStore = useAppStore();
     const tabsStore = useTabsStore();
     const router = useRouter();
     const routes = computed(() => {
@@ -55,6 +50,7 @@ export const HeadMenu = {
       }
     };
     return {
+      appStore,
       routes,
       active,
       onClick,
@@ -99,8 +95,6 @@ export const MenuItem = {
     },
   },
   setup(props, context) {
-    const appStore = useAppStore();
-    const tabsStore = useTabsStore();
     const model = reactive(props.modelValue);
     watch(
       model,
@@ -129,7 +123,7 @@ export default {
   template: html`<el-menu
     :collapse="appStore.settings.isMenuCollapse"
     :collapse-transition="false"
-    :default-active="$route.path"
+    :default-active="active"
     router
     v-if="show"
   >
@@ -140,12 +134,19 @@ export default {
   setup() {
     const appStore = useAppStore();
     const route = useRoute();
+    const router = useRouter();
     const list = ref([]);
     const show = ref(false);
+    const active = ref(null);
+    watchEffect(() => {
+      active.value = route.path;
+      list.value = appStore.settings.showTopMenu
+        ? route.matched[1].children
+        : router.getRoutes().find((o) => o.name === 'root').children;
+    });
     watch(
-      () => route.path,
+      list,
       () => {
-        list.value = route.matched[1].children;
         show.value = false;
         nextTick(() => {
           show.value = true;
@@ -156,6 +157,7 @@ export default {
     return {
       appStore,
       list,
+      active,
       show,
     };
   },

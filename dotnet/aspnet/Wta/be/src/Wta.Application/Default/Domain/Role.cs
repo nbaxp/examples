@@ -1,6 +1,6 @@
 namespace Wta.Application.Default.Domain;
 
-[System, Display(Name = "角色", Order = 3)]
+[SystemManament, Display(Name = "角色", Order = 3)]
 public class Role : Entity
 {
     public string Name { get; set; } = default!;

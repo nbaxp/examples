@@ -73,6 +73,10 @@ export default function () {
         title: '显示页脚',
         type: 'boolean',
       },
+      showTopMenu: {
+        title: '启用主导航',
+        type: 'boolean',
+      },
     },
   };
   const result = normalize(schema);

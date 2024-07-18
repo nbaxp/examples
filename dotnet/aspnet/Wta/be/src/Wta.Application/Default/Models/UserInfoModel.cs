@@ -1,6 +1,8 @@
 namespace Wta.Application.Default.Models;
 
-public class UserInfoModel
+[UserCenter]
+[Display(Name = "用户信息", Order = 1)]
+public class UserInfoModel : IResource
 {
     public string? UserName { get; set; }
     public string? Name { get; set; }

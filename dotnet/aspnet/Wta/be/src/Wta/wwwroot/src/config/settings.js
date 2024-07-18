@@ -12,4 +12,5 @@ export default {
   useTabs: true,
   showCopyright: true,
   showBreadcrumb: true,
+  showTopMenu: true,
 };

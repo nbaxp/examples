@@ -1,4 +1,4 @@
-import useSchema from '@/models/reset-password.js';
+import useSchema from '@/models/user-center/reset-password.js';
 import { schemaToModel } from '@/utils/schema.js';
 import AppForm from '@/views/components/form/index.js';
 import { ElMessageBox } from 'element-plus';

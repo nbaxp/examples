@@ -1,6 +1,8 @@
 namespace Wta.Application.Default.Models;
 
-public class ResetPasswordModel
+[UserCenter]
+[Display(Name = "修改密码", Order = 2)]
+public class ResetPasswordModel : IResource
 {
     [Required]
     [DataType(DataType.Password)]

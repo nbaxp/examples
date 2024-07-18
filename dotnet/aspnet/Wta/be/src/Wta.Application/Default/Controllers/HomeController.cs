@@ -1,10 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
 namespace Wta.Controllers;
 
-[AllowAnonymous]
-public class HomeController : Controller
+[AllowAnonymous, View("home"), Icon("home")]
+public class HomeController : Controller, IResourceService<HomeModel>
 {
     [ResponseCache(NoStore = true)]
     public IActionResult Index()

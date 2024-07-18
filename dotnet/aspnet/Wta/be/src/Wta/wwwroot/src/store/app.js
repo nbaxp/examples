@@ -16,6 +16,7 @@ const getRoutes = async () => {
           id,
           parentId,
           path: path === null ? '' : path,
+          redirect,
           component,
           meta,
         };

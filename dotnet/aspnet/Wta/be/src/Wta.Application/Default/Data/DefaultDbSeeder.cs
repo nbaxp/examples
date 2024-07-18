@@ -98,6 +98,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     Name = groupType.GetDisplayName(),
                     Number = groupType.FullName?.TrimEnd("Attribute")!,
                     RoutePath = groupType.Name.TrimEnd("Attribute").ToSlugify()!,
+                    Redirect = groupType.GetCustomAttributes<KeyValueAttribute>().FirstOrDefault(o => o.Key == "Redirect")?.Value,
                     Icon = groupType.GetCustomAttribute<IconAttribute>()?.Icon ?? "folder",
                     Order = groupType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0
                 });
@@ -118,59 +119,6 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     current = list.FirstOrDefault(o => o.Number == number);
                 }
             });
-        });
-        //添加首页
-        list.Add(new Permission
-        {
-            Id = context.NewGuid(),
-            Type = MenuType.Menu,
-            Authorize = "Anonymous",
-            Name = "首页",
-            Number = "Home",
-            RoutePath = "home",
-            Component = "home",
-            Icon = "home",
-            NoCache = true,
-            Order = 1
-        });
-        //添加用户中心
-        var userCenterGroup = new Permission
-        {
-            Id = context.NewGuid(),
-            Type = MenuType.Group,
-            Authorize = "Authenticated",
-            Name = "用户中心",
-            Number = "UserCenter",
-            RoutePath = "user-center",
-            Icon = "user",
-            Order = 2,
-        };
-        list.Add(userCenterGroup);
-        //添加用户信息菜单
-        list.Add(new Permission
-        {
-            ParentId = userCenterGroup.Id,
-            Id = context.NewGuid(),
-            Type = MenuType.Menu,
-            Authorize = "Authenticated",
-            Name = "用户信息",
-            Number = "UserCenterHome",
-            RoutePath = "",
-            Component = "user-center/home",
-            Order = 1
-        });
-        //添加修改密码菜单
-        list.Add(new Permission
-        {
-            ParentId = userCenterGroup.Id,
-            Id = context.NewGuid(),
-            Type = MenuType.Menu,
-            Authorize = "Authenticated",
-            Name = "修改密码",
-            Number = "ResetPasswrod",
-            RoutePath = "reset-password",
-            Component = "user-center/reset-password",
-            Order = 1
         });
         //添加资源菜单和资源操作按钮
         var order = 1;
@@ -194,7 +142,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     Authorize = "Authenticated",
                     Name = resourceType.GetDisplayName(),
                     Number = resourceType.FullName!,
-                    RoutePath = resourceType.Name.ToSlugify()!,
+                    RoutePath = resourceType.Name.TrimEnd("Model").ToSlugify()!,
                     Component = component,
                     Schema = $"{resourceType.Name.ToSlugify()}",
                     Order = resourceType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? order++
