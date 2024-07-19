@@ -3,6 +3,12 @@ namespace Wta.Application.Default.Controllers;
 [View("user-center/reset-password")]
 public class ResetPasswordController(IRepository<User> repository, IEncryptionService encryptionService) : BaseController, IResourceService<ResetPasswordModel>
 {
+    [HttpGet, AllowAnonymous, Ignore]
+    public ApiResult<object> Index()
+    {
+        return Json(typeof(ResetPasswordModel).GetMetadataForType());
+    }
+
     [AllowAnonymous]
     public ApiResult<bool> Index(ResetPasswordModel model)
     {

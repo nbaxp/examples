@@ -98,7 +98,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     Name = groupType.GetDisplayName(),
                     Number = groupType.FullName?.TrimEnd("Attribute")!,
                     RoutePath = groupType.Name.TrimEnd("Attribute").ToSlugify()!,
-                    Redirect = groupType.GetCustomAttributes<KeyValueAttribute>().FirstOrDefault(o => o.Key == "Redirect")?.Value,
+                    Redirect = groupType.GetCustomAttributes<KeyValueAttribute>().FirstOrDefault(o => o.Key == "Redirect")?.Value.ToString(),
                     Icon = groupType.GetCustomAttribute<IconAttribute>()?.Icon ?? "folder",
                     Order = groupType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0
                 });
@@ -221,6 +221,12 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 IsReadOnly = true
             }).ToList()
         });
+        context.Set<Role>().Add(new Role
+        {
+            Id = context.NewGuid(),
+            Name = "测试",
+            Number = "test",
+        });
         context.SaveChanges();
     }
 
@@ -253,7 +259,8 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     RoleId = context.Set<Role>().First(o=>o.Number=="admin").Id,
                     IsReadOnly = true
                 }
-            }
+            },
+            DepartmentId = context.Set<Department>().FirstOrDefault()?.Id
         });
         context.SaveChanges();
     }

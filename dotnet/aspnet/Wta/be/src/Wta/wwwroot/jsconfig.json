@@ -5,8 +5,14 @@
     "plugins": [
       {
         "name": "typescript-lit-html-plugin"
-      }
-    ]
+      },
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    }
   },
   "exclude": [
     "node_modules"
@@ -14,9 +20,4 @@
   "include": [
     "src/**/*"
   ],
-  "paths": {
-    "@/": [
-      "src/"
-    ]
-  }
 }

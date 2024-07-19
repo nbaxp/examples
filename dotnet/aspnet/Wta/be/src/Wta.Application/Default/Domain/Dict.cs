@@ -1,6 +1,6 @@
 namespace Wta.Application.Default.Domain;
 
-[SystemManament, Display(Name = "字典", Order = 1)]
+[SystemManagement, Display(Name = "字典", Order = 1)]
 public class Dict : BaseTreeEntity<Dict>
 {
 }

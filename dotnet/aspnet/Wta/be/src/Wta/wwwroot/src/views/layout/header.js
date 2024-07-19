@@ -154,7 +154,8 @@ export default {
           type: 'warning',
         });
         await tokenStore.clear();
-        router.push({ path: 'login', query: { redirect: router.currentRoute.value.fullPath } });
+        //router.push({ path: 'login', query: { redirect: router.currentRoute.value.fullPath } });
+        router.push(`/login?redirect=${router.currentRoute.value.fullPath}`);
       } catch (error) {
         if (error === 'cancel') {
           ElMessage({

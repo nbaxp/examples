@@ -4,12 +4,11 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using Wta.Infrastructure.Monitoring;
-using Monitor = Wta.Infrastructure.Monitoring.Monitor;
 
 namespace Wta.Application.Default.Controllers;
 
-[View("monitor")]
-public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : BaseController, IResourceService<Monitor>
+[View("system-management/monitor")]
+public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : BaseController, IResourceService<MonitorModel>
 {
     [Ignore]
     [AllowAnonymous]
@@ -26,7 +25,7 @@ public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : Ba
             .ToArray();
             var memoryTotal = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes;
             var drive = DriveInfo.GetDrives().FirstOrDefault(o => o.RootDirectory.FullName == Directory.GetDirectoryRoot(Path.GetPathRoot(Environment.ProcessPath!)!))!;
-            var line = new Monitor
+            var line = new MonitorModel
             {
                 OSArchitecture = RuntimeInformation.OSArchitecture.ToString(),
                 OSDescription = RuntimeInformation.OSDescription,

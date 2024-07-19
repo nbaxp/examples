@@ -41,13 +41,14 @@ export default {
         v-if="!hideButton"
         :label-width="0"
         style="margin-bottom:0;"
+        :label="schema.meta?.submitStyle?'':' '"
       >
         <slot name="submit">
           <el-button
             type="primary"
             @click="submit"
             :disabled="loading"
-            :style="schema.submitStyle"
+            :style="schema.meta?.submitStyle"
           >
             {{$t(schema.title??'confirm')}}
           </el-button>
@@ -89,7 +90,7 @@ export default {
           const url = props.schema.meta.url;
           const method = props.schema.meta.method;
           errorMessage.value = null;
-          const result = await request(url, model, method);
+          const result = await request(method, url, model);
           if (!result.error) {
             context.emit('success', result.data);
           } else {

@@ -9,6 +9,12 @@ public class TokenController(ILogger<TokenController> logger,
     IStringLocalizer stringLocalizer,
     IRepository<User> userRepository) : BaseController
 {
+    [HttpGet, AllowAnonymous, Ignore]
+    public ApiResult<object> Create()
+    {
+        return Json(typeof(LoginRequestModel).GetMetadataForType());
+    }
+
     [HttpPost]
     [AllowAnonymous]
     public ApiResult<LoginResponseModel> Create(LoginRequestModel model)

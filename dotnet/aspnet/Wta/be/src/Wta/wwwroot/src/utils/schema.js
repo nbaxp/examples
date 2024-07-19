@@ -3,14 +3,14 @@ export function schemaToModel(schema, isQueryForm = false) {
     return null;
   }
   const result = {};
-  for (const propertyName in schema.properties) {
-    const property = schema.properties[propertyName];
+  const entries = Object.entries(schema.properties).sort((a, b) => (a[1]?.order ?? 0) - (b[1]?.order ?? 0));
+  for (const [propertyName, property] of entries) {
     const type = property.type;
     let value = null;
     if (type === 'object') {
       value = schemaToModel(property);
     } else if (!isQueryForm) {
-      if ('default' in property) {
+      if (property.default) {
         value = property.default;
       } else if (type === 'array') {
         value = [];

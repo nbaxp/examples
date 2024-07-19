@@ -5,12 +5,14 @@ namespace Wta.Application.Default.Models;
 public class CaptchaModel : IValidatableObject
 {
     [Required]
+    [UIHint("image-captcha")]
+    [KeyValue("url", "captcha/image")]
     public string? AuthCode { get; set; }
 
-    [Required, Hidden]
+    [Required, ScaffoldColumn(false)]
     public string? CodeHash { get; set; }
 
-    [Hidden]
+    [ScaffoldColumn(false)]
     public DateTime? Expires { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

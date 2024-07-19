@@ -28,7 +28,7 @@ export default {
       </template>
       <template v-else-if="schema.input==='password'">******</template>
       <template v-else-if="schema.input==='select'||schema.input==='tabs'">
-        <template v-if="!schema.multiple">
+        <template v-if="!schema.meta?.multiple">
           <el-button link type="primary">
             {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
           </el-button>
@@ -46,6 +46,7 @@ export default {
     </template>
   </template>
 </template>
+<!--display-edit-->
 <template v-else>
   <template v-if="schema.input==='color'">
     <el-color-picker v-model="model[prop]" />
@@ -53,8 +54,8 @@ export default {
   <template v-else-if="schema.input==='select'">
     <el-select
       v-model="model[prop]"
-      :placeholder="schema.placeholder??schema.title"
-      :multiple="!!schema.multiple"
+      :placeholder="schema.meta?.placeholder??schema.meta?.title"
+      :multiple="!!schema.meta?.multiple"
       :value-on-clear="null"
       clearable
     >
@@ -93,9 +94,9 @@ export default {
       :precision="0"
     />
   </template>
-    <template v-else-if="schema.input==='switch'">
-      <el-switch v-model="model[prop]" type="checked" />
-      <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}</span>
+  <template v-else-if="schema.input==='switch'">
+    <el-switch v-model="model[prop]" type="checked" />
+    <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}</span>
   </template>
   <template v-else-if="schema.input==='boolean'">
     <el-select
@@ -123,7 +124,7 @@ export default {
       @callback="updateCodeHash"
       :errors="errors"
       :prop="prop"
-      :icon="schema.icon"
+      :icon="schema.meta.icon"
     />
   </template>
   <template v-else-if="schema.input === 'code-captcha'">
@@ -137,10 +138,35 @@ export default {
       :regexp="schema.regexp"
     />
   </template>
-  <template v-else-if="schema.input==='base64image'">
-    <el-upload ref="uploadRef" :show-file-list="false" :auto-upload="false" :on-change="handleChange">
-      <img v-if="model[prop]" :src="'data:image/png;base64,'+model[prop]" style="max-height:18px;" />
+  <template v-else-if="schema.input==='base64-image'">
+    <el-upload
+      class="el-input__inner flex1"
+      ref="uploadRef"
+      :show-file-list="false"
+      :auto-upload="false"
+      :on-change="handleChange"
+    >
+      <img v-if="model[prop]" :src="'data:image/png;base64,'+model[prop]" />
       <el-icon v-else class="avatar-uploader-icon"><ep-plus /></el-icon>
+    </el-upload>
+  </template>
+  <template v-else-if="schema.input==='image'">
+    <el-upload
+      class="el-input__inner flex"
+      :show-file-list="false"
+      :auto-upload="false"
+      :limit="1"
+      :accept="schema.meta?.accept"
+      v-model:file-list="fileList"
+      :on-change="beforeUpload"
+    >
+      <template #trigger>
+        <img v-if="model[prop]" :src="model[prop]" />
+        <el-icon v-else><ep-plus /></el-icon>
+      </template>
+      <template #tip>
+        <el-icon v-if="model[prop]" class="cursor-pointer h-full" @click="()=>{model[prop]=null;fileList.value=[]}"><ep-close /></el-icon>
+      </template>
     </el-upload>
   </template>
   <template v-else-if="schema.input==='file'">
@@ -149,8 +175,8 @@ export default {
       v-model:file-list="model[prop]"
       class="upload"
       drag
-      :accept="schema.accept"
-      :multiple="schema.multiple"
+      :accept="schema.meta?.accept"
+      :multiple="schema.meta?.multiple"
       :limit="limit"
       :auto-upload="false"
       :on-change="handleChange"
@@ -164,7 +190,7 @@ export default {
         <div class="el-upload__tip">
           <div>
             单个文件大小限制：{{ bytesFormat(size) }}，上传数量限制：{{ limit }}
-            <template v-if="schema.accept">，上传文件类型：{{ schema.accept }}</template>
+            <template v-if="schema.meta?.accept">，上传文件类型：{{ schema.meta?.accept }}</template>
           </div>
         </div>
       </template>
@@ -204,7 +230,7 @@ export default {
       if (props.mode === 'details') {
         return true;
       }
-      if (props.schema.readOnly) {
+      if (props.schema.meta?.readOnly) {
         return true;
       }
       return false;
@@ -223,10 +249,23 @@ export default {
 
     //upload
     const fileList = ref([]);
-    const limit = props.schema.multiple ? props.schema.limit ?? 5 : 1;
-    const size = props.schema.size ?? 1024 * 1024;
-    const fileTypes = props.schema.accept?.split(',').map((o) => o.toLowerCase()) ?? [];
+    const limit = props.schema.meta?.multiple ? props.schema.meta?.limit ?? 5 : 1;
+    const size = props.schema.meta?.size ?? 1024 * 1024;
+    const fileTypes = props.schema.meta?.accept?.split(',').map((o) => o.toLowerCase()) ?? [];
     const { formItem } = useFormItem();
+
+    const beforeUpload = async (uploadFile, uploadFiles) => {
+      const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf('.'));
+      const index = uploadFiles.findIndex((o) => o.uid !== uploadFile.uid);
+      if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
+        ElMessage.error(`当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`);
+        uploadFiles.splice(index, 1);
+      }
+      if (uploadFile.size > size) {
+        ElMessage.error(`当前文件大小 ${bytesFormat(uploadFile.size)} 已超过 ${bytesFormat(size)}`);
+        uploadFiles.splice(index, 1);
+      }
+    };
     const handleChange = async (uploadFile, uploadFiles) => {
       const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf('.'));
       const index = uploadFiles.findIndex((o) => o.uid !== uploadFile.uid);
@@ -253,9 +292,9 @@ export default {
         }
       } else {
         if (uploadFiles.length) {
-          model[props.prop] = props.schema.multiple ? uploadFiles : uploadFiles[0];
+          model[props.prop] = props.schema.meta?.multiple ? uploadFiles : uploadFiles[0];
         } else {
-          model[props.prop] = props.schema.multiple ? [] : null;
+          model[props.prop] = props.schema.meta?.multiple ? [] : null;
         }
         try {
           await formItem.validate();
@@ -270,8 +309,10 @@ export default {
     const fetchOptions = async () => {
       route.meta.cache ||= new Map();
       const map = route.meta.cache;
-      const url = `${props.schema.url}`;
-      let postData = props.schema.data;
+      const url = `${props.schema.meta.url}`;
+      let postData = props.schema.meta?.data ?? {
+        includeAll: true,
+      };
       if (props.schema.data instanceof Function) {
         postData = props.schema.data(model[props.schema.dependsOn]);
       }
@@ -281,10 +322,10 @@ export default {
       });
       options.value = map.get(key);
       if (!options.value) {
-        const method = props.schema.method || 'post';
+        const method = props.schema.meta?.method || 'POST';
         const data = (await request(method, url, postData)).data;
         if (!data.error) {
-          options.value = getProp(data, props.schema.path ?? 'data.items').map((o) => {
+          options.value = getProp(data, props.schema.meta?.path ?? 'data.items').map((o) => {
             if (Array.isArray(o)) {
               return {
                 value: o[0],
@@ -293,8 +334,8 @@ export default {
             }
             if (o instanceof Object) {
               return {
-                value: o[props.schema.value ?? 'value'],
-                label: o[props.schema.label ?? 'label'],
+                value: o[props.schema.meta?.value ?? 'value'],
+                label: o[props.schema.meta?.label ?? 'label'],
               };
             }
             return {
@@ -306,33 +347,35 @@ export default {
         } else {
           options.value = [];
         }
-        if (props.schema.selected && options.value.length) {
+        if (!model[props.prop] && props.schema.meta.selected && options.value.length) {
           model[props.prop] = options.value[0].value;
         }
       }
     };
 
+    //if (props.schema?.dependsOn) {
     watch(
-      () => model[props.schema.dependsOn],
+      () => model[props.schema.meta?.dependsOn],
       async () => {
         if (props.schema.meta?.options) {
           options.value = props.schema.meta?.options;
-        } else if (props.schema.url && props.schema.input === 'select') {
-          if (!props.schema.dependsOn || model[props.schema.dependsOn]) {
+        } else if (props.schema.meta?.url && props.schema.input === 'select') {
+          if (!props.schema.meta?.dependsOn || model[props.schema.meta?.dependsOn]) {
             await fetchOptions();
           } else {
             options.value = [];
           }
-          if (
-            (model[props.prop] || model[props.prop] === false) &&
-            !options.value.find((o) => o.value === model[props.prop])
-          ) {
-            model[props.prop] = null;
-          }
+          // if (
+          //   (model[props.prop] || model[props.prop] === false) &&
+          //   !options.value.find((o) => o.value === model[props.prop])
+          // ) {
+          //   model[props.prop] = null;
+          // }
         }
       },
       { immediate: true },
     );
+    //}
 
     //watch
     watch(
@@ -350,7 +393,9 @@ export default {
       },
     );
 
-    onMounted(async () => {});
+    onMounted(async () => {
+      //await fetchOptions();
+    });
     return {
       model,
       getDisabled,
@@ -363,6 +408,7 @@ export default {
       limit,
       size,
       handleChange,
+      beforeUpload,
       fetchOptions,
       updateCodeHash,
     };

@@ -159,6 +159,8 @@ img.loading {
 }
 
 .logo h1 {
+  font-size: 18px;
+  font-weight: 500;
   height: 32px;
   line-height: 32px;
   padding-right: 1em;
@@ -219,6 +221,10 @@ img.loading {
   .el-input__suffix-inner {
     width: 2em;
   }
+
+  .el-upload img {
+    height: var(--el-input-inner-height);
+  }
 }
 
 .el-form.el-form--inline {
@@ -266,6 +272,7 @@ img.loading {
 
   .el-tabs__nav {
     border-top: none !important;
+    border-left: none !important;
   }
 }
 

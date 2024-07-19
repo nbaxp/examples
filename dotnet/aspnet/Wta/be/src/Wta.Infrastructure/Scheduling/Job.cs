@@ -2,7 +2,7 @@ using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Scheduling;
 
-[SystemManament, Display(Name = "定时任务", Order = 1000)]
+[SystemManagement, Display(Name = "定时任务", Order = 1000)]
 public class Job : Entity
 {
     public string Name { get; set; } = default!;

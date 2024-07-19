@@ -22,7 +22,7 @@ msgstr "{0}和{1}必须相同"
 msgid "EmailAddress"
 msgstr "{0}不是有效的Email格式"
 msgid "StringLengthIncludingMinimum"
-msgstr "{0}最小长度为{1}"
+msgstr "{0}最小长度为{2}，最大长度为{1}"
 
 #通用
 msgid "Application"
@@ -172,6 +172,8 @@ msgstr "租户"
 #属性
 msgid "Disabled"
 msgstr "禁用"
+msgid "TenantNumber"
+msgstr "租户"
 msgid "UserName"
 msgstr "用户名"
 msgid "Password"

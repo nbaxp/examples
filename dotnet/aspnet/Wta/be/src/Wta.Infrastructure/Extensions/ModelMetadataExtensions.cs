@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
@@ -11,9 +12,36 @@ public static class ModelMetadataExtensions
     {
         var schema = new Dictionary<string, object>();
         var modelType = meta.UnderlyingOrModelType;
-        var title = meta.ContainerType == null ? modelType.Name : meta.ContainerType?.GetProperty(meta.PropertyName!)?.PropertyType.Name;
+        var title = meta.ContainerType == null ? modelType.GetDisplayName() : meta.ContainerType?.GetProperty(meta.PropertyName!)?.GetDisplayName();
         schema.Add("title", title!);
-
+        var modelMeta = (meta as DefaultModelMetadata)!;
+        modelMeta.Attributes.Attributes?.ForEach(o =>
+        {
+            if (o is KeyValueAttribute keyValue)
+            {
+                schema.TryAdd(keyValue.Key, keyValue.Value);
+            }
+            else if (o is DataTypeAttribute dataType)
+            {
+                if (dataType.DataType == DataType.Password)
+                {
+                    schema.TryAdd("input", "password");
+                }
+                else if (dataType.DataType == DataType.Date)
+                {
+                    schema.TryAdd("input", "date");
+                }
+                else if (dataType.DataType == DataType.DateTime)
+                {
+                    schema.TryAdd("input", "datetime");
+                }
+            }
+        });
+        var roles = meta.GetRules(serviceProvider, title!);
+        if (roles.Any())
+        {
+            schema.Add("rules", roles);
+        }
         // array
         if (meta.IsEnumerableType)
         {
@@ -134,12 +162,6 @@ public static class ModelMetadataExtensions
                 //}
             }
         }
-
-        var roles = meta.GetRules(serviceProvider, title!);
-        if (roles.Any())
-        {
-            schema.Add("rules", roles);
-        }
         return schema;
     }
 
@@ -162,14 +184,14 @@ public static class ModelMetadataExtensions
             var message = string.Format(CultureInfo.InvariantCulture, localizer.GetString(nameof(RequiredAttribute)).Value, title);
             rules.Add(new Dictionary<string, object> { { "required", true }, { "message", message } });
         }
-        if (pm.IsRequired)
-        {
-            if (!pm.ModelType.IsValueType && pm.Attributes.Attributes.Any(o => o.GetType() == typeof(RequiredAttribute)))
-            {
-                var message = string.Format(CultureInfo.InvariantCulture, localizer.GetString(nameof(RequiredAttribute)).Value, title);
-                rules.Add(new Dictionary<string, object> { { "required", true }, { "message", message } });
-            }
-        }
+        //if (pm.IsRequired)
+        //{
+        //    if (!pm.ModelType.IsValueType && pm.Attributes.Attributes.Any(o => o.GetType() == typeof(RequiredAttribute)))
+        //    {
+        //        var message = string.Format(CultureInfo.InvariantCulture, localizer.GetString(nameof(RequiredAttribute)).Value, title);
+        //        rules.Add(new Dictionary<string, object> { { "required", true }, { "message", message } });
+        //    }
+        //}
         foreach (var item in pm.Attributes.Attributes)
         {
             if (item is ValidationAttribute attribute && !string.IsNullOrEmpty(attribute.ErrorMessage))
@@ -262,20 +284,26 @@ public static class ModelMetadataExtensions
                     var name = dataType.GetDataTypeName();
                     if (name == DataType.Date.ToString())
                     {
-                        rule.TryAdd("format", "date");
+                        rule.TryAdd("input", "date");
                     }
                     else if (name == DataType.DateTime.ToString())
                     {
-                        rule.TryAdd("format", "datetime");
+                        rule.TryAdd("input", "datetime");
                     }
                 }
                 else
                 {
                     //Console.WriteLine($"{attribute.GetType().Name}");
                 }
-                rule.Add("message", message!);
+                if (rule.Count > 0)
+                {
+                    rule.Add("message", message!);
+                }
+                if (rule.Count > 0)
+                {
+                    rules.Add(rule);
+                }
                 //rule.Add("trigger", "change");
-                rules.Add(rule);
             }
             else
             {
@@ -308,7 +336,7 @@ public static class ModelMetadataExtensions
         schema.Add("type", type);
         if (modelType.GetUnderlyingType() == typeof(DateTime))
         {
-            schema.TryAdd("format", "datetime");
+            schema.TryAdd("input", "datetime");
         }
     }
 }

@@ -6,10 +6,10 @@ using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Monitoring;
 
-[SystemManament, Display(Name = "监控", Order = 0)]
-public class Monitor : IResource
+[SystemManagement, Display(Name = "监控", Order = 0)]
+public class MonitorModel : IResource
 {
-    public Monitor()
+    public MonitorModel()
     {
         var addresses = Dns.GetHostAddresses(Dns.GetHostName())
                     .Where(o => o.AddressFamily == AddressFamily.InterNetwork)

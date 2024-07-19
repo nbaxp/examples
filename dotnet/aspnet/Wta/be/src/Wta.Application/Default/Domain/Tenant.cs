@@ -1,6 +1,6 @@
 namespace Wta.Application.Default.Domain;
 
-[SystemManament, Display(Name = "租户", Order = 6)]
+[SystemManagement, Display(Name = "租户", Order = 6)]
 public class Tenant : Entity
 {
     public string Name { get; set; } = default!;
