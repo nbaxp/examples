@@ -1,3 +1,5 @@
+import { delay } from 'utils';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 export default {
@@ -5,6 +7,12 @@ export default {
   setup() {
     const router = useRouter();
     const redirect = router.currentRoute.value.query?.redirect ?? '/';
-    router.push(redirect);
+
+    onMounted(async () => {
+      if (!redirect.startsWith('/redirect')) {
+        await delay(500);
+        router.push(redirect);
+      }
+    });
   },
 };

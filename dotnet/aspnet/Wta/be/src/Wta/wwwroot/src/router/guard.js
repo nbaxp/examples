@@ -28,10 +28,9 @@ const beforeEach = async (to, from, next) => {
 
 const afterEach = (to, from) => {
   console.debug(`after route: ${to.name}: ${from.fullPath}-->${to.fullPath}`);
-  console.log(to.matched);
   try {
     const appStore = useAppStore();
-    if (appStore.settings.useTabs && !to.meta?.hideInMenu) {
+    if (appStore.settings.useTabs && to.matched[0].name === 'root' && !to.meta?.hideInMenu) {
       const tabsStore = useTabsStore();
       tabsStore.addRoute(to);
     }

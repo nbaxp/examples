@@ -6,7 +6,7 @@ import html from 'utils';
 import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import LayoutLocale from './lang.js';
+import LayoutLocale from './locale.js';
 import LayoutLogo from './logo.js';
 import { HeadMenu } from './menu.js';
 import LayoutSettings from './settings.js';

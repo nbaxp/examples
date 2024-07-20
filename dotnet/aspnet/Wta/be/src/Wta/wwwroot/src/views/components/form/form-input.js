@@ -39,8 +39,8 @@ export default {
           </el-button>
         </template>
       </template>
-      <template v-else-if="schema.input==='base64image'">
-        <img :src="'data:image/png;base64,'+model[prop]" style="max-height:18px;" />
+      <template v-else-if="schema.input==='image-inline'">
+        <img :src="model[prop]" style="max-height:18px;" />
       </template>
       <template v-else><span>{{model[prop]}}</span></template>
     </template>
@@ -138,19 +138,7 @@ export default {
       :regexp="schema.regexp"
     />
   </template>
-  <template v-else-if="schema.input==='base64-image'">
-    <el-upload
-      class="el-input__inner flex1"
-      ref="uploadRef"
-      :show-file-list="false"
-      :auto-upload="false"
-      :on-change="handleChange"
-    >
-      <img v-if="model[prop]" :src="'data:image/png;base64,'+model[prop]" />
-      <el-icon v-else class="avatar-uploader-icon"><ep-plus /></el-icon>
-    </el-upload>
-  </template>
-  <template v-else-if="schema.input==='image'">
+  <template v-else-if="schema.input==='image-upload'||schema.input==='image-inline'">
     <el-upload
       class="el-input__inner flex"
       :show-file-list="false"
@@ -158,20 +146,21 @@ export default {
       :limit="1"
       :accept="schema.meta?.accept"
       v-model:file-list="fileList"
-      :on-change="beforeUpload"
+      :on-change="uploadOnChange"
     >
       <template #trigger>
-        <img v-if="model[prop]" :src="model[prop]" />
-        <el-icon v-else><ep-plus /></el-icon>
+        <el-icon v-if="!model[prop]"><ep-plus /></el-icon>
       </template>
       <template #tip>
-        <el-icon v-if="model[prop]" class="cursor-pointer h-full" @click="()=>{model[prop]=null;fileList.value=[]}"><ep-close /></el-icon>
+        <el-image v-if="model[prop]" :src="model[prop]" :preview-src-list="[model[prop]]" />
+        <el-icon v-if="model[prop]" class="cursor-pointer h-full" @click="()=>{model[prop]=null;fileList.value=[]}">
+          <ep-close />
+        </el-icon>
       </template>
     </el-upload>
   </template>
   <template v-else-if="schema.input==='file'">
     <el-upload
-      ref="uploadRef"
       v-model:file-list="model[prop]"
       class="upload"
       drag
@@ -179,7 +168,7 @@ export default {
       :multiple="schema.meta?.multiple"
       :limit="limit"
       :auto-upload="false"
-      :on-change="handleChange"
+      :on-change="uploadOnChange"
     >
       <template #trigger>
         <el-icon style="font-size:4em;">
@@ -254,53 +243,38 @@ export default {
     const fileTypes = props.schema.meta?.accept?.split(',').map((o) => o.toLowerCase()) ?? [];
     const { formItem } = useFormItem();
 
-    const beforeUpload = async (uploadFile, uploadFiles) => {
+    const uploadOnChange = async (uploadFile, uploadFiles) => {
       const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf('.'));
       const index = uploadFiles.findIndex((o) => o.uid !== uploadFile.uid);
+      uploadFiles.splice(index, 1);
       if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
         ElMessage.error(`当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`);
-        uploadFiles.splice(index, 1);
-      }
-      if (uploadFile.size > size) {
-        ElMessage.error(`当前文件大小 ${bytesFormat(uploadFile.size)} 已超过 ${bytesFormat(size)}`);
-        uploadFiles.splice(index, 1);
-      }
-    };
-    const handleChange = async (uploadFile, uploadFiles) => {
-      const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf('.'));
-      const index = uploadFiles.findIndex((o) => o.uid !== uploadFile.uid);
-      if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
-        ElMessage.error(`当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`);
-        uploadFiles.splice(index, 1);
         return false;
       }
       if (uploadFile.size > size) {
         ElMessage.error(`当前文件大小 ${bytesFormat(uploadFile.size)} 已超过 ${bytesFormat(size)}`);
-        uploadFiles.splice(index, 1);
         return false;
       }
-      //
-      if (props.schema.input === 'base64image') {
-        if (uploadFiles.length) {
-          const reader = new FileReader();
-          reader.onload = (o) => {
-            model[props.prop] = o.target.result.split(',')[1];
-          };
-          reader.readAsDataURL(uploadFile.raw);
-        } else {
-          model[props.prop] = null;
-        }
+      if (props.schema.input === 'image-upload') {
+        const formData = new FormData();
+        formData.append('file', uploadFile.raw);
+        const data = await request('POST', props.schema.meta.url, formData);
+        model[props.prop] = data.data.data;
+        await formItem.validate();
+      } else if (props.schema.input === 'image-inline') {
+        const reader = new FileReader();
+        reader.onload = async (o) => {
+          model[props.prop] = o.target.result;
+          await formItem.validate();
+        };
+        reader.readAsDataURL(uploadFile.raw);
       } else {
         if (uploadFiles.length) {
           model[props.prop] = props.schema.meta?.multiple ? uploadFiles : uploadFiles[0];
         } else {
           model[props.prop] = props.schema.meta?.multiple ? [] : null;
         }
-        try {
-          await formItem.validate();
-        } catch (error) {
-          console.log(error);
-        }
+        await formItem.validate();
       }
     };
 
@@ -407,10 +381,9 @@ export default {
       fileList,
       limit,
       size,
-      handleChange,
-      beforeUpload,
       fetchOptions,
       updateCodeHash,
+      uploadOnChange,
     };
   },
 };

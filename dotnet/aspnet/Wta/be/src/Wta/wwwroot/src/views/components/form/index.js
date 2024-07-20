@@ -50,7 +50,7 @@ export default {
             :disabled="loading"
             :style="schema.meta?.submitStyle"
           >
-            {{$t(schema.title??'confirm')}}
+            {{$t('confirm')}}
           </el-button>
           <el-button v-if="showReset" @click="reset" :disabled="loading">
             {{$t('reset')}}

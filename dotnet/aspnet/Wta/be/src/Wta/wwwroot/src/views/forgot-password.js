@@ -2,11 +2,11 @@ import useSchema from '@/models/forgot-password.js';
 import { schemaToModel } from '@/utils/schema.js';
 import AppForm from '@/views/components/form/index.js';
 import LayoutFooter from '@/views/layout/footer.js';
-import LayoutLocale from '@/views/layout/lang.js';
 import LayoutLogo from '@/views/layout/logo.js';
 import html from 'utils';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import LayoutLocale from '~/src/views/layout/locale.js';
 
 export default {
   components: { AppForm, LayoutFooter, LayoutLocale, LayoutLogo },

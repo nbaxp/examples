@@ -148,8 +148,13 @@ img.loading {
   padding: 0;
 }
 
-.el-aside.open .el-menu {
+/* .el-aside.open .el-menu {
   min-width: 200px;
+} */
+
+.el-card {
+  min-width: 300px;
+  min-height: 100px;
 }
 
 .logo img {

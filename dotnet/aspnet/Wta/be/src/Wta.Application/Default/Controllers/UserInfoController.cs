@@ -9,7 +9,7 @@ public class UserInfoController(IRepository<User> repository) : BaseController, 
         return Json(typeof(UserInfoModel).GetMetadataForType());
     }
 
-    [HttpGet, AllowAnonymous, Ignore]
+    [HttpGet, Authorize, Ignore]
     public ApiResult<UserInfoModel> Index()
     {
         var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
@@ -20,9 +20,28 @@ public class UserInfoController(IRepository<User> repository) : BaseController, 
            .ThenInclude(o => o!.RolePermissions)
            .ThenInclude(o => o.Permission)
            .FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
-        var model = result.ToModel<User,UserInfoModel>();
+        var model = result.ToModel<User, UserInfoModel>();
         model.Roles = result.UserRoles.Select(o => o.RoleId).ToList();
         return Json(model);
+    }
+
+    [HttpPost, Authorize]
+    public ApiResult<bool> Index(UserInfoModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            throw new BadRequestException();
+        }
+        if (model.UserName != User.Identity?.Name)
+        {
+            ModelState.AddModelError(nameof(model.UserName), "Error");
+            throw new BadRequestException();
+        }
+        var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
+        var user = repository.Query().FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
+        user.FromModel(model);
+        repository.SaveChanges();
+        return Json(true);
     }
 
     //[HttpGet,Authorize]
