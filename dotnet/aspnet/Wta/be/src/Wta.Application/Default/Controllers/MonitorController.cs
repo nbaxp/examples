@@ -8,7 +8,7 @@ using Wta.Infrastructure.Monitoring;
 namespace Wta.Application.Default.Controllers;
 
 [View("system-management/monitor")]
-public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : BaseController, IResourceService<MonitorModel>
+public class MonitorController(JsonSerializerOptions jsonSerializerOptions, EventListenerHostedService eventListenerHostedService) : BaseController, IResourceService<MonitorModel>
 {
     [Ignore]
     [AllowAnonymous]
@@ -27,6 +27,7 @@ public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : Ba
             var drive = DriveInfo.GetDrives().FirstOrDefault(o => o.RootDirectory.FullName == Directory.GetDirectoryRoot(Path.GetPathRoot(Environment.ProcessPath!)!))!;
             var line = new MonitorModel
             {
+                //os
                 OSArchitecture = RuntimeInformation.OSArchitecture.ToString(),
                 OSDescription = RuntimeInformation.OSDescription,
                 UserName = Environment.UserName,
@@ -34,6 +35,19 @@ public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : Ba
                 HostName = Dns.GetHostName(),
                 HostAddresses = string.Join(',', addresses),
                 RuntimeIdentifier = RuntimeInformation.RuntimeIdentifier,
+                //cpu
+                CpuCount = Environment.ProcessorCount,
+                CpuUsage = EventListenerHostedService.Data.GetValueOrDefault("cpu-usage"),
+                //memory
+                MemoryTotal = memoryTotal,
+                MemoryUsage = EventListenerHostedService.Data.GetValueOrDefault("working-set") * 1024 * 1024 / memoryTotal,
+                //network
+                BytesReceived = (int)EventListenerHostedService.Data.GetValueOrDefault("bytes-received"),
+                BytesSent = (int)EventListenerHostedService.Data.GetValueOrDefault("bytes-sent"),
+                //disk
+                //framework
+                //app
+
                 ProcessCount = Process.GetProcesses().Length,
                 ProcessArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
                 ProcessName = process.ProcessName,
@@ -44,16 +58,10 @@ public class MonitorController(JsonSerializerOptions jsonSerializerOptions) : Ba
                 DriveName = drive.Name,
                 DrivieTotalSize = drive.TotalSize,
                 DriveAvailableFreeSpace = drive.AvailableFreeSpace,
-                CpuCount = Environment.ProcessorCount,
-                MemoryTotal = memoryTotal,
-                CpuUsage = EventListenerHostedService.Data.GetValueOrDefault("cpu-usage"),
-                MemoryUsage = EventListenerHostedService.Data.GetValueOrDefault("working-set") * 1024 * 1024 / memoryTotal,
                 Framework = RuntimeInformation.FrameworkDescription,
                 ExceptionCount = (int)EventListenerHostedService.Data.GetValueOrDefault("exception-count"),
                 TotalRequests = (int)EventListenerHostedService.Data.GetValueOrDefault("total-requests"),
                 CurrentRequests = (int)EventListenerHostedService.Data.GetValueOrDefault("current-requests"),
-                BytesReceived = (int)EventListenerHostedService.Data.GetValueOrDefault("bytes-received"),
-                BytesSent = (int)EventListenerHostedService.Data.GetValueOrDefault("bytes-sent"),
             };
             var message = "data:" + JsonSerializer.Serialize(line, jsonSerializerOptions) + "\n\n";
             await Response.Body.WriteAsync(Encoding.UTF8.GetBytes(message)).ConfigureAwait(false);

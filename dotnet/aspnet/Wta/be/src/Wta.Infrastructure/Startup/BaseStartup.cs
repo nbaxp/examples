@@ -2,6 +2,8 @@ using Autofac;
 using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
 using OrchardCore.Localization;
+using Prometheus;
+using Prometheus.SystemMetrics;
 using Serilog;
 using Serilog.Events;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -245,9 +247,10 @@ public abstract class BaseStartup : IStartup
         //builder.Services.AddSingleton<IDistributedLockProvider>(o=>new RedisDistributedLock());
     }
 
-    public virtual void AddHealthChecks(WebApplicationBuilder builder)
+    public virtual void AddMonitoring(WebApplicationBuilder builder)
     {
-        builder.Services.AddHealthChecks();
+        builder.Services.AddHealthChecks().ForwardToPrometheus();
+        builder.Services.AddSystemMetrics();
     }
 
     /// <summary>
@@ -473,7 +476,7 @@ public abstract class BaseStartup : IStartup
     /// <param name="webApplication"></param>
     public virtual void Configure(WebApplication webApplication)
     {
-        UseHealthChecks(webApplication);
+        UseMonitoring(webApplication);
         UseLogging(webApplication);
         UseStaticFiles(webApplication);
         UseRouting(webApplication);
@@ -493,7 +496,7 @@ public abstract class BaseStartup : IStartup
     /// <param name="builder"></param>
     public virtual void ConfigureServices(WebApplicationBuilder builder)
     {
-        AddHealthChecks(builder);
+        AddMonitoring(builder);
         AddServiceProviderFactory(builder);
         AddLogging(builder);
         AddDefaultOptions(builder);
@@ -585,9 +588,10 @@ public abstract class BaseStartup : IStartup
     /// 1.配置健康检查
     /// </summary>
     /// <param name="app"></param>
-    public virtual void UseHealthChecks(WebApplication app)
+    public virtual void UseMonitoring(WebApplication app)
     {
         app.MapHealthChecks("/hc");
+        app.UseMetricServer().UseHttpMetrics();
     }
 
     /// <summary>
