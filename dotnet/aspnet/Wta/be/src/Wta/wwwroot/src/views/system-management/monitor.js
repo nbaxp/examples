@@ -2,196 +2,293 @@ import Chart from '@/views/components/chart/index.js';
 import { dayjs } from 'element-plus';
 import html from 'utils';
 import { bytesFormat, persentFormat } from 'utils';
-import { onMounted, reactive } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 export default {
   components: { Chart },
-  template: html`  <el-row :gutter="20" style="margin-bottom: 20px">
-    <el-col :span="24">
-      <el-card class="box-card">
-        <template #header>
-          <div class="card-header">
-            <span> {{ t('主机') }}</span>
-          </div>
-        </template>
-        <el-descriptions border>
-          <el-descriptions-item :label="t('服务器时间')"
-            >{{ dayjs(model.serverTime).format('YYYY-MM-DD HH:mm:ss') }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="t('CPU总数')">{{ model.cpuCount }} </el-descriptions-item>
-          <el-descriptions-item :label="t('内存合计')">{{ bytesFormat(model.memoryTotal) }} </el-descriptions-item>
-          <el-descriptions-item :label="t('OS架构')">{{ model.osArchitecture }} </el-descriptions-item>
-          <el-descriptions-item :label="t('OS简介')">{{ model.osDescription }} </el-descriptions-item>
-          <el-descriptions-item :label="t('主机名称')">{{ model.hostName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('运行时标识')">{{ model.runtimeIdentifier }} </el-descriptions-item>
-          <el-descriptions-item :label="t('用户名')">{{ model.userName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('进程数')">{{ model.processCount }} </el-descriptions-item>
-          <el-descriptions-item :label="t('主机地址')">{{ model.hostAddresses }} </el-descriptions-item>
-        </el-descriptions>
-      </el-card>
-    </el-col>
-  </el-row>
-  <el-row :gutter="20" style="margin-bottom: 20px">
+  template: html`<div class="container xl">
+  <el-row :gutter="20" class="mb-5">
     <el-col :span="12">
-      <el-card class="box-card">
+      <el-card>
         <chart :option="cpuModel" height="300px" />
       </el-card>
     </el-col>
     <el-col :span="12">
-      <el-card class="box-card">
+      <el-card>
         <chart :option="memoryModel" height="300px" />
       </el-card>
     </el-col>
   </el-row>
-  <el-row :gutter="20" style="margin-bottom: 20px">
-    <el-col :span="24">
-      <el-card class="box-card">
-        <template #header>
-          <div class="card-header">
-            <span> {{ t('进程') }}</span>
-          </div>
-        </template>
-        <el-descriptions border :column="3">
-          <el-descriptions-item :label="t('进程架构')">
-            {{ model.processArchitecture }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="t('进程Id')">{{ model.processId }} </el-descriptions-item>
-          <el-descriptions-item :label="t('进程名称')">{{ model.processName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('进程参数')">{{ model.processArguments }} </el-descriptions-item>
-          <el-descriptions-item :label="t('句柄数量')">{{ model.processHandleCount }} </el-descriptions-item>
-          <el-descriptions-item :label="t('进程文件')">{{ model.processFileName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('驱动器名称')">{{ model.driveName }} </el-descriptions-item>
-          <el-descriptions-item :label="t('驱动器大小')"
-            >{{ bytesFormat(model.drivieTotalSize) }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="t('剩余空间')">
-            {{ bytesFormat(model.driveAvailableFreeSpace) }}
-          </el-descriptions-item>
-        </el-descriptions>
+  <el-row :gutter="20">
+    <el-col :span="12">
+      <el-card>
+        <chart :option="networkModel" height="300px" />
+      </el-card>
+    </el-col>
+    <el-col :span="12">
+      <el-card>
+        <chart :option="diskModel" height="300px" />
       </el-card>
     </el-col>
   </el-row>
-  <el-row :gutter="20" style="margin-bottom: 20px">
-    <el-col :span="24">
-      <el-card class="box-card">
-        <template #header>
-          <div class="card-header">
-            <span> {{ t('Framework') }}</span>
-          </div>
-        </template>
-        <el-descriptions border :column="3">
-          <el-descriptions-item :label="t('版本')">{{ model.framework }} </el-descriptions-item>
-          <el-descriptions-item :label="t('异常数量')">{{ model.exceptionCount }} </el-descriptions-item>
-          <el-descriptions-item :label="t('请求总数')">{{ model.totalRequests }} </el-descriptions-item>
-          <el-descriptions-item :label="t('接收数据')">
-            {{ bytesFormat(model.bytesReceived) }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="t('发送数据')">{{ bytesFormat(model.bytesSent) }} </el-descriptions-item>
-          <el-descriptions-item :label="t('请求总数')">
-            {{ persentFormat(model.totalRequests) }}
-          </el-descriptions-item>
-        </el-descriptions>
-      </el-card>
-    </el-col>
-  </el-row>`,
+</div>`,
   setup(prop) {
-    const hasEventSource = !!window.EventSource;
-    const { t } = useI18n();
-
-    const model = reactive({});
-
-    const cpuModel = reactive({
-      title: {
-        text: t('CPU占用率'),
-      },
-      xAxis: {
-        type: 'category',
-        data: Object.keys(Array(30).fill()),
-      },
-      yAxis: {
-        type: 'value',
-        min: 0,
-        max: 100,
-      },
-      series: [
-        {
-          data: [],
-          type: 'line',
-          smooth: true,
-        },
-      ],
-    });
-
-    const memoryModel = reactive({
-      title: {
-        text: t('内存占用率'),
-      },
-      xAxis: {
-        type: 'category',
-        data: Object.keys(Array(30).fill()),
-      },
-      yAxis: {
-        type: 'value',
-        min: 0,
-        max: 100,
-      },
-      series: [
-        {
-          data: [],
-          type: 'line',
-          smooth: true,
-        },
-      ],
-    });
-
-    const update = (data) => {
-      Object.assign(model, data);
-      // cpu
-      if (cpuModel.series[0].data.length > 60) {
-        cpuModel.series[0].data.shift();
-      }
-      cpuModel.title.text = `${t('CPU占用率')}:${persentFormat(model.cpuUsage / 100)}`;
-      cpuModel.series[0].data.push(data.cpuUsage);
-      // memory
-      if (memoryModel.series[0].data.length > 60) {
-        memoryModel.series[0].data.shift();
-      }
-      memoryModel.title.text = `${t('内存占用率')}:${persentFormat(model.memoryUsage / 100)}`;
-      memoryModel.series[0].data.push(data.memoryUsage);
-    };
-
-    const connect = () => {
-      const es = new EventSource('/api/monitor/index');
-      es.onmessage = (event) => {
-        update(JSON.parse(event.data));
-      };
-      es.onerror = (e) => {
-        es.close();
-        console.log(e);
-        setTimeout(connect, 5 * 1000);
-      };
-    };
-
+    const model = ref(null);
+    let timer = null;
+    const seconds = 1;
     onMounted(() => {
-      if (hasEventSource) {
-        try {
-          connect();
-        } catch (e) {
-          console.log(e);
-          setTimeout(connect, 5 * 1000);
+      timer = setInterval(load, seconds * 1000);
+    });
+    onUnmounted(() => {
+      clearInterval(timer);
+    });
+    //reduce
+    const sum = (p, c) => p + c.value;
+
+    // const connect = () => {
+    //   const es = new EventSource('/api/monitor/index');
+    //   es.onmessage = (event) => {
+    //     update(JSON.parse(event.data));
+    //   };
+    //   es.onerror = (e) => {
+    //     es.close();
+    //     console.log(e);
+    //     setTimeout(connect, 5 * 1000);
+    //   };
+    // };
+
+    //cpu
+    const cpuModel = ref({
+      title: {
+        text: '',
+      },
+      xAxis: {
+        type: 'category',
+        data: Object.keys(Array(30).fill()),
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 100,
+      },
+      series: [
+        {
+          data: [],
+          type: 'line',
+          smooth: true,
+        },
+      ],
+    });
+    let cpuUsage1 = null;
+    const updateCpu = () => {
+      const cpuUsage2 = {
+        idle: model.value.node_cpu_seconds_total.filter((o) => o.mode === 'idle').reduce(sum, 0),
+        total: model.value.node_cpu_seconds_total.reduce(sum, 0),
+      };
+      if (!cpuUsage1) {
+        cpuUsage1 = cpuUsage2;
+      } else {
+        const cpuUsage = (((cpuUsage2.idle - cpuUsage1.idle) / (cpuUsage2.total - cpuUsage1.total)) * 100).toFixed(2);
+        if (cpuModel.value.series[0].data.length > 60) {
+          cpuModel.value.series[0].data.shift();
         }
+        cpuModel.value.series[0].data.push(cpuUsage);
+        cpuModel.value.title.text = 'CPU';
       }
+    };
+
+    //memory
+    const memoryModel = ref({
+      title: {
+        text: '',
+      },
+      legend: {
+        data: ['节点', '进程'],
+      },
+      xAxis: {
+        type: 'category',
+        data: Object.keys(Array(30).fill()),
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 100,
+      },
+      series: [
+        {
+          data: [],
+          type: 'line',
+          smooth: true,
+        },
+        {
+          data: [],
+          type: 'line',
+          smooth: true,
+        },
+      ],
     });
 
+    const updateMemory = () => {
+      if (memoryModel.value.series[0].data.length > 60) {
+        memoryModel.value.series[0].data.shift();
+      }
+      if (memoryModel.value.series[1].data.length > 60) {
+        memoryModel.value.series[1].data.shift();
+      }
+      const totalMemory = model.value.node_memory_MemTotal_bytes.reduce(sum, 0);
+      const memoryUsage = ((1 - model.value.node_memory_MemAvailable_bytes.reduce(sum, 0) / totalMemory) * 100).toFixed(
+        2,
+      );
+      const processMemoryUsage = (model.value.process_private_memory_bytes.reduce(sum, 0) / totalMemory).toFixed(2);
+      memoryModel.value.series[0].data.push(memoryUsage);
+      memoryModel.value.series[1].data.push(processMemoryUsage);
+      memoryModel.value.title.text = '内存';
+    };
+
+    //network
+    const networkModel = ref({
+      title: {
+        text: '',
+      },
+      legend: {
+        data: ['接收', '发送'],
+      },
+      xAxis: {
+        type: 'category',
+        data: Object.keys(Array(30).fill()),
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [
+        {
+          data: [],
+          type: 'line',
+          smooth: true,
+        },
+        {
+          data: [],
+          type: 'line',
+          smooth: true,
+        },
+      ],
+    });
+    let networkReceive1 = null;
+    let networkTransmit1 = null;
+    const updateNetwork = () => {
+      const networkReceive2 = model.value.node_network_receive_bytes_total.reduce(sum, 0);
+      const networkTransmit2 = model.value.node_network_transmit_bytes_total.reduce(sum, 0);
+      const networkReceive = Number.parseInt((networkReceive2 - networkReceive1) / 1024 / 1024 / seconds);
+      const networkTransmit = Number.parseInt((networkTransmit2 - networkTransmit1) / 1024 / 1024 / seconds);
+      if (!networkReceive1) {
+        networkReceive1 = networkReceive2;
+      } else {
+        if (networkModel.value.series[0].data.length > 60) {
+          networkModel.value.series[0].data.shift();
+        }
+        networkModel.value.series[0].data.push(networkReceive);
+      }
+
+      if (!networkTransmit1) {
+        networkTransmit1 = networkTransmit2;
+      } else {
+        if (networkModel.value.series[1].data.length > 60) {
+          networkModel.value.series[1].data.shift();
+        }
+        networkModel.value.series[1].data.push(networkTransmit);
+      }
+      networkModel.value.title.text = '网络';
+    };
+
+    //dist
+    const diskModel = ref({
+      title: {
+        text: '',
+      },
+      legend: {
+        data: [],
+      },
+      xAxis: {
+        type: 'category',
+        data: Object.keys(Array(30).fill()),
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [],
+    });
+
+    const updateDisk = () => {
+      //model.value.node_filesystem_size_bytes node_filesystem_avail_bytes
+      for (let i = 0; i < model.value.node_filesystem_avail_bytes.length; i++) {
+        const item = model.value.node_filesystem_avail_bytes[i];
+        if (!diskModel.value.series[i]) {
+          diskModel.value.series[i] = {
+            name: item.mountpoint,
+            data: [],
+            type: 'line',
+            smooth: true,
+          };
+          diskModel.value.legend.data[i] = item.mountpoint;
+        }
+        if (diskModel.value.series[i].data.length > 60) {
+          diskModel.value.series[i].data.shift();
+        }
+        diskModel.value.series[i].data.push(Number.parseInt(item.value / 1024 / 1024 / 1024));
+      }
+      diskModel.value.title.text = '硬盘';
+    };
+
+    const load = async () => {
+      const response = await fetch('metrics');
+      const result = await response.text();
+      const lines = result.split('\n').filter((o) => o);
+      const types = new Map(
+        lines
+          .filter((o) => o.startsWith('# TYPE'))
+          .map((o) => {
+            const [, , key, value] = o.split(' ');
+            return [key, value];
+          }),
+      );
+      model.value = Object.groupBy(
+        lines
+          .filter((o) => !o.startsWith('#'))
+          .map((o) => {
+            const [, name, , label, value] = /^([^\{\}]+)(\{(.+)\})? (.+)$/.exec(o);
+            const result = {
+              name,
+              value: Number(value),
+            };
+            result.type = types.get(name);
+            if (label) {
+              const values = label
+                .split(',')
+                .map((o) => o.split('='))
+                .map((o) => [o[0], o[1].slice(1, -1)]);
+              const labels = Object.fromEntries(values);
+              Object.assign(result, labels);
+            }
+            return result;
+          }),
+        (o) => o.name,
+      );
+      console.log(model.value);
+      updateCpu();
+      updateMemory();
+      updateNetwork();
+      updateDisk();
+    };
     return {
-      t,
       model,
       cpuModel,
       memoryModel,
-      dayjs,
-      bytesFormat,
-      persentFormat,
+      networkModel,
+      diskModel,
+      // dayjs,
+      // bytesFormat,
+      // persentFormat,
     };
   },
 };

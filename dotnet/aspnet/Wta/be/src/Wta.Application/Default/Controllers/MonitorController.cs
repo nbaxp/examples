@@ -15,6 +15,17 @@ public class MonitorController(JsonSerializerOptions jsonSerializerOptions, Even
     [HttpGet]
     public async Task Index()
     {
+        for (int i = 0; i < 3; i++)
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    Math.Sin(DateTime.Now.Ticks);
+                }
+            });
+        }
+
         Response.ContentType = "text/event-stream";
         var process = Process.GetCurrentProcess();
         while (!this.HttpContext.RequestAborted.IsCancellationRequested)
