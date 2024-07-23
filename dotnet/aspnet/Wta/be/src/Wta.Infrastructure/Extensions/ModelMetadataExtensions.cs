@@ -12,14 +12,14 @@ public static class ModelMetadataExtensions
     {
         var schema = new Dictionary<string, object>();
         var modelType = meta.UnderlyingOrModelType;
-        var modelMeta = (meta as DefaultModelMetadata)!;
+        DefaultModelMetadata modelMeta = (meta as DefaultModelMetadata)!;
         if (meta.ContainerType == null && modelType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseTreeEntity<>)))
         {
             schema.TryAdd("isTree", true);
         }
-        if(parent!=null&&
-            parent.ModelType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseTreeEntity<>))&&
-            meta.PropertyName==nameof(BaseTreeEntity<BaseEntity>.ParentId))
+        if (parent != null &&
+            parent.ModelType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseTreeEntity<>)) &&
+            meta.PropertyName == nameof(BaseTreeEntity<BaseEntity>.ParentId))
         {
             schema.TryAdd("url", $"{parent.ModelType.Name.ToSlugify()}/search");
             schema.TryAdd("value", "id");
@@ -71,7 +71,19 @@ public static class ModelMetadataExtensions
             {
                 schema.Add("type", "object");
                 var properties = new Dictionary<string, object>();
-                foreach (var propertyMetadata in meta.Properties)
+                var getOrder = (ModelMetadata o) =>
+                {
+                    var order = 0;
+                    var meta = (o as DefaultModelMetadata)!;
+                    var attribute = meta.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(DisplayOrderAttribute));
+                    if (attribute != null && attribute is DisplayOrderAttribute displayOrder)
+                    {
+                        order = displayOrder.Order;
+                    }
+                    return order;
+                };
+                var ModelProperties = modelMeta.Properties.OrderBy(o => getOrder(o));
+                foreach (var propertyMetadata in ModelProperties)
                 {
                     if (meta.ContainerType != propertyMetadata.ContainerType)
                     {
@@ -138,9 +150,9 @@ public static class ModelMetadataExtensions
         {
             schema.TryAdd("url", modelType.GetGenericArguments().First().Name.ToSlugify()!);
         }
-        if (modelMeta.Attributes.Attributes.Any(o => o.GetType() == typeof(HiddenAttribute)))
+        if (modelMeta.Name == "Id"||modelMeta.Attributes.Attributes.Any(o => o.GetType() == typeof(HiddenAttribute)))
         {
-            schema.Add("hidden", true);
+            schema.TryAdd("hidden", true);
         }
         var propertyName = modelMeta.Name;
         if (propertyName != null)

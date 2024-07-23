@@ -1056,7 +1056,9 @@ export default {
       //   }
       // }
       // return web_search_read(config.model, specification, offset, limit, domain, order);
-      const data = {};
+      const data = {
+        includeAll:!!props.schema.meta.isTree
+      };
       Object.entries(unref(queryModel)).forEach(([key, value]) => {
         if (key !== 'totalCount' && key !== 'items' && key !== 'pageSizeOptions') {
           if (value !== null) {

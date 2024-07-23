@@ -34,13 +34,14 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         var query = Where(model);
         model.TotalCount = query.Count();
         query = OrderBy(query, model.OrderBy);
-        if (!model.IncludeAll)
+        if (model.IncludeAll)
         {
-            query = SkipTake(query, model.PageIndex, model.PageSize);
+            model.PageIndex = 1;
+            model.PageSize = query.Count();
         }
         else
         {
-            model.PageSize = model.TotalCount;
+            query = SkipTake(query, model.PageIndex, model.PageSize);
         }
         model.Items = query.ToList().Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
         return Json(model);
