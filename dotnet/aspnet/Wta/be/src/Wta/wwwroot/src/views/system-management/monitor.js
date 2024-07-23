@@ -2,7 +2,7 @@ import Chart from '@/views/components/chart/index.js';
 import { dayjs } from 'element-plus';
 import html from 'utils';
 import { bytesFormat, persentFormat } from 'utils';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onActivated, onDeactivated, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 export default {
@@ -37,12 +37,16 @@ export default {
     const model = ref(null);
     let timer = null;
     const seconds = 1;
-    onMounted(() => {
+    const start = () => {
       timer = setInterval(load, seconds * 1000);
-    });
-    onUnmounted(() => {
+    };
+    const stop = () => {
       clearInterval(timer);
-    });
+    };
+    onMounted(start);
+    onUnmounted(stop);
+    onActivated(start);
+    onDeactivated(stop);
     //reduce
     const sum = (p, c) => p + c.value;
 
@@ -77,6 +81,8 @@ export default {
           data: [],
           type: 'line',
           smooth: true,
+          areaStyle: {},
+          showSymbol: false,
         },
       ],
     });
@@ -89,7 +95,7 @@ export default {
       if (!cpuUsage1) {
         cpuUsage1 = cpuUsage2;
       } else {
-        const cpuUsage = (((cpuUsage2.idle - cpuUsage1.idle) / (cpuUsage2.total - cpuUsage1.total)) * 100).toFixed(2);
+        const cpuUsage = cpuUsage2.idle / cpuUsage2.total; // (((cpuUsage2.idle - cpuUsage1.idle) / (cpuUsage2.total - cpuUsage1.total)) * 100).toFixed(2);
         if (cpuModel.value.series[0].data.length > 60) {
           cpuModel.value.series[0].data.shift();
         }
@@ -117,14 +123,18 @@ export default {
       },
       series: [
         {
+          name: '节点',
           data: [],
           type: 'line',
           smooth: true,
+          showSymbol: false,
         },
         {
+          name: '进程',
           data: [],
           type: 'line',
           smooth: true,
+          showSymbol: false,
         },
       ],
     });
@@ -163,14 +173,18 @@ export default {
       },
       series: [
         {
+          name: '接收',
           data: [],
           type: 'line',
           smooth: true,
+          showSymbol: false,
         },
         {
+          name: '发送',
           data: [],
           type: 'line',
           smooth: true,
+          showSymbol: false,
         },
       ],
     });
@@ -179,8 +193,8 @@ export default {
     const updateNetwork = () => {
       const networkReceive2 = model.value.node_network_receive_bytes_total.reduce(sum, 0);
       const networkTransmit2 = model.value.node_network_transmit_bytes_total.reduce(sum, 0);
-      const networkReceive = Number.parseInt((networkReceive2 - networkReceive1) / 1024 / 1024 / seconds);
-      const networkTransmit = Number.parseInt((networkTransmit2 - networkTransmit1) / 1024 / 1024 / seconds);
+      const networkReceive = Number.parseInt((networkReceive2 - networkReceive1) / 1024 / seconds);
+      const networkTransmit = Number.parseInt((networkTransmit2 - networkTransmit1) / 1024 / seconds);
       if (!networkReceive1) {
         networkReceive1 = networkReceive2;
       } else {
@@ -215,6 +229,8 @@ export default {
       },
       yAxis: {
         type: 'value',
+        smooth: true,
+        showSymbol: false,
       },
       series: [],
     });
@@ -274,7 +290,7 @@ export default {
           }),
         (o) => o.name,
       );
-      console.log(model.value);
+      //console.log(model.value);
       updateCpu();
       updateMemory();
       updateNetwork();

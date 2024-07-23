@@ -24,6 +24,9 @@ function getUrl(url) {
   if (url.startsWith('http')) {
     return url;
   }
+  if (url.startsWith(settings.baseURL)) {
+    return url;
+  }
   return `${settings.baseURL}/${url}`;
 }
 

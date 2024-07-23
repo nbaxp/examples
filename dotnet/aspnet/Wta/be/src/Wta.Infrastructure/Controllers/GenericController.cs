@@ -21,6 +21,12 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     public IRepository<TEntity> Repository { get; } = repository;
     public IEventPublisher EventPublisher = eventPublisher;
 
+    [HttpGet, AllowAnonymous, Ignore]
+    public virtual ApiResult<object> Schema()
+    {
+        return Json(typeof(TModel).GetMetadataForType());
+    }
+
     [Display(Name = "查询", Order = 1)]
     public virtual ApiResult<QueryModel<TModel>> Search(QueryModel<TModel> model)
     {
@@ -60,6 +66,26 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return result;
     }
 
+    [Display(Name = "新建", Order = 6)]
+    public virtual ApiResult<bool> Create(TModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            throw new BadRequestException();
+        }
+        var entity = Activator.CreateInstance<TEntity>();
+        entity.FromModel(model, ToEntity, true);
+        if (entity is BaseTreeEntity<TEntity> node)
+        {
+            node.Parent = node.ParentId.HasValue ? Repository.Query().FirstOrDefault(o => o.Id == node.ParentId.Value) : null;
+            node.UpdateNode();
+        }
+        Repository.Add(entity);
+        EventPublisher.Publish(new EntityCreatedEvent<TEntity>(entity));
+        Repository.SaveChanges();
+        return Json(true);
+    }
+
     [Display(Name = "导入", Order = 4)]
     public virtual ApiResult<bool> Import(ImportModel<TModel> model)
     {
@@ -92,26 +118,6 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx"
         };
         return result;
-    }
-
-    [Display(Name = "新建", Order = 6)]
-    public virtual ApiResult<bool> Create(TModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            throw new BadRequestException();
-        }
-        var entity = Activator.CreateInstance<TEntity>();
-        entity.FromModel(model, ToEntity, true);
-        if (entity is BaseTreeEntity<TEntity> node)
-        {
-            node.Parent = node.ParentId.HasValue ? Repository.Query().FirstOrDefault(o => o.Id == node.ParentId.Value) : null;
-            node.UpdateNode();
-        }
-        Repository.Add(entity);
-        EventPublisher.Publish(new EntityCreatedEvent<TEntity>(entity));
-        Repository.SaveChanges();
-        return Json(true);
     }
 
     [Display(Name = "更新", Order = 7)]
@@ -220,12 +226,6 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             return result;
         }
         throw new ProblemException("NotFound");
-    }
-
-    [AllowAnonymous, Ignore]
-    public JsonResult Schema()
-    {
-        return new JsonResult(typeof(TModel).GetMetadataForType());
     }
 
     protected IQueryable<TEntity> Where(QueryModel<TModel> model)

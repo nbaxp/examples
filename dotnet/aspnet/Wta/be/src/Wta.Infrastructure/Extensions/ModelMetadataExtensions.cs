@@ -1,8 +1,8 @@
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Extensions;
 
@@ -12,9 +12,22 @@ public static class ModelMetadataExtensions
     {
         var schema = new Dictionary<string, object>();
         var modelType = meta.UnderlyingOrModelType;
+        var modelMeta = (meta as DefaultModelMetadata)!;
+        if (meta.ContainerType == null && modelType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseTreeEntity<>)))
+        {
+            schema.TryAdd("isTree", true);
+        }
+        if(parent!=null&&
+            parent.ModelType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseTreeEntity<>))&&
+            meta.PropertyName==nameof(BaseTreeEntity<BaseEntity>.ParentId))
+        {
+            schema.TryAdd("url", $"{parent.ModelType.Name.ToSlugify()}/search");
+            schema.TryAdd("value", "id");
+            schema.TryAdd("label", "name");
+            schema.TryAdd("input", "select");
+        }
         var title = meta.ContainerType == null ? modelType.GetDisplayName() : meta.ContainerType?.GetProperty(meta.PropertyName!)?.GetDisplayName();
         schema.Add("title", title!);
-        var modelMeta = (meta as DefaultModelMetadata)!;
         modelMeta.Attributes.Attributes?.ForEach(o =>
         {
             if (o is KeyValueAttribute keyValue)
@@ -125,42 +138,42 @@ public static class ModelMetadataExtensions
         {
             schema.TryAdd("url", modelType.GetGenericArguments().First().Name.ToSlugify()!);
         }
-
-        if (meta is DefaultModelMetadata defaultModelMetadata)
+        if (modelMeta.Attributes.Attributes.Any(o => o.GetType() == typeof(HiddenAttribute)))
         {
-            var propertyName = defaultModelMetadata.Name;
-            if (propertyName != null)
+            schema.Add("hidden", true);
+        }
+        var propertyName = modelMeta.Name;
+        if (propertyName != null)
+        {
+            if (modelMeta.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(DefaultValueAttribute)) is DefaultValueAttribute defaultValue)
             {
-                if (defaultModelMetadata.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(DefaultValueAttribute)) is DefaultValueAttribute defaultValue)
-                {
-                    schema.Add("default", defaultValue.Value!);
-                }
-                //if (defaultModelMetadata.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(NavigationAttribute)) is NavigationAttribute navigationAttribute)
-                //{
-                //    var path = navigationAttribute.Property ?? $"{propertyName[..^2]}.Name";
-                //    path = string.Join('.', path.Split('.').Select(o => o.ToLowerCamelCase()));
-                //    schema.Add("navigation", path);
-                //    schema.Add("input", "select");
-                //    schema.Add("url", propertyName[..^2].ToSlugify());
-                //}
-                if (defaultModelMetadata.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(ScaffoldColumnAttribute)) is ScaffoldColumnAttribute scaffoldColumnAttribute
-                    && !scaffoldColumnAttribute.Scaffold)
-                {
-                    //列表、详情、新建、更新、查询都不显示
-                    schema.Add("hidden", true);
-                }
-                if (defaultModelMetadata.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(ReadOnlyAttribute)) is ReadOnlyAttribute readOnlyAttribute
-                    && readOnlyAttribute.IsReadOnly)
-                {
-                    //列表、详情显示，编辑时不显示，查询时显示
-                    schema.Add("readOnly", true);
-                }
-                //if (defaultModelMetadata.Attributes.Attributes.Any(o => o.GetType() == typeof(DisplayOnlyAttribute)))
-                //{
-                //    //列表、详情、编辑时都只显示，查询时显示
-                //    schema.Add("displayOnly", true);
-                //}
+                schema.Add("default", defaultValue.Value!);
             }
+            //if (defaultModelMetadata.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(NavigationAttribute)) is NavigationAttribute navigationAttribute)
+            //{
+            //    var path = navigationAttribute.Property ?? $"{propertyName[..^2]}.Name";
+            //    path = string.Join('.', path.Split('.').Select(o => o.ToLowerCamelCase()));
+            //    schema.Add("navigation", path);
+            //    schema.Add("input", "select");
+            //    schema.Add("url", propertyName[..^2].ToSlugify());
+            //}
+            if (modelMeta.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(ScaffoldColumnAttribute)) is ScaffoldColumnAttribute scaffoldColumnAttribute
+                && !scaffoldColumnAttribute.Scaffold)
+            {
+                //列表、详情、新建、更新、查询都不显示
+                schema.Add("hidden", true);
+            }
+            if (modelMeta.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(ReadOnlyAttribute)) is ReadOnlyAttribute readOnlyAttribute
+                && readOnlyAttribute.IsReadOnly)
+            {
+                //列表、详情显示，编辑时不显示，查询时显示
+                schema.Add("readOnly", true);
+            }
+            //if (defaultModelMetadata.Attributes.Attributes.Any(o => o.GetType() == typeof(DisplayOnlyAttribute)))
+            //{
+            //    //列表、详情、编辑时都只显示，查询时显示
+            //    schema.Add("displayOnly", true);
+            //}
         }
         return schema;
     }

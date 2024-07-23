@@ -77,7 +77,7 @@ export default {
     </el-col>
   </el-row>
   <el-row>
-    <el-col class="pb-8">
+    <el-col class="py-8">
       <el-tabs type="border-card" tab-position="top">
         <el-tab-pane v-for="(item1,index1) in list" :label="item1.label">
           <el-tabs tab-position="left">

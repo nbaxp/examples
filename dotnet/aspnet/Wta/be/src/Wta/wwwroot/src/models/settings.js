@@ -79,7 +79,5 @@ export default function () {
       },
     },
   };
-  const result = normalize(schema);
-  console.log(result);
-  return result;
+  return normalize(schema);
 }

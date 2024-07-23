@@ -134,7 +134,9 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 }
                 // 菜单
                 var resourceServiceType = typeof(IResourceService<>).MakeGenericType(resourceType);
-                var component = actionDescriptors.Cast<ControllerActionDescriptor>().FirstOrDefault(o => o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType))?.ControllerTypeInfo.AsType().GetCustomAttribute<ViewAttribute>()?.Component ?? "list";
+                var component = actionDescriptors.Cast<ControllerActionDescriptor>()
+                .FirstOrDefault(o => o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType))?
+                .ControllerTypeInfo.AsType().GetCustomAttribute<ViewAttribute>()?.Component ?? "_list";
                 var resourcePermission = new Permission
                 {
                     Id = context.NewGuid(),
