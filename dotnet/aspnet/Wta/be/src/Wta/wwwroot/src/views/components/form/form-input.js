@@ -27,7 +27,7 @@ export default {
         {{dayjs(model[prop]).format('YYYY-MM-DD HH:mm:ss')}}
       </template>
       <template v-else-if="schema.input==='password'">******</template>
-      <template v-else-if="schema.input==='select'||schema.input==='tabs'">
+      <template v-else-if="schema.input==='select'">
         <template v-if="!schema.meta?.multiple">
           <el-button link type="primary">
             {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
@@ -192,7 +192,7 @@ export default {
     <el-input
       clearable
       :disabled="getDisabled()"
-      :placeholder="prop"
+      :placeholder="schema.meta.placeholder??schema.title??prop"
       v-model="model[prop]"
       :type="schema.input"
       :show-password="schema.input==='password'"

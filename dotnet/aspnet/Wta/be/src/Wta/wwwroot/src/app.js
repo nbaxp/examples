@@ -10,7 +10,7 @@ export default {
   template: html`
     <el-config-provider
       :locale="options[$i18n.locale]"
-      :size="appStore.size??'default'"
+      :size="appStore.settings.size??'default'"
       :button="{autoInsertSpace:true}"
     >
       <router-view></router-view>

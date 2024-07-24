@@ -45,7 +45,7 @@ export default {
       schema.value = normalize(result.data.data);
       model.value = schemaToModel(schema.value);
       //
-      schema.value.hideReset = true;
+      schema.value.meta.hideReset = true;
       model.value.userName = 'admin';
       model.value.password = '123456';
     });

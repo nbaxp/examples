@@ -4,6 +4,7 @@ import { schemaToModel } from '@/utils/schema.js';
 import AppFormInput from '@/views/components/form/form-input.js';
 import AppForm from '@/views/components/form/index.js';
 import SvgIcon from '@/views/components/icon/index.js';
+import { useCssVar } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import * as jsondiffpatch from 'jsondiffpatch';
 import { camelCase, capitalize } from 'lodash';
@@ -22,166 +23,171 @@ export default {
   },
   template: html`<div class="pb-5" v-loading="loading">
   <el-card style="position: relative;">
-  <div
-    @click="()=>queryFormFold=!queryFormFold"
-    class="cursor-pointer"
-    style="display:inline-block;position: absolute;top:20px;right:10px;"
-  >
-    <span style="line-height: 2em">
-      <el-icon>
-        <ep-arrow-up v-if="!queryFormFold" />
-        <ep-arrow-down v-else />
-      </el-icon>
-    </span>
-  </div>
-  <app-form
-    inline
-    mode="query"
-    :schema="schema"
-    v-model="queryModel"
-    @submit="load"
-    :hideButton="true"
-    :isQueryForm="true"
-    class="query"
-    label-position="left"
-    :style="queryStyle"
-  >
-    <template v-for="item in filterList.filter(o=>!o.hidden&&o.readOnly)">
-      <template v-if="schema.properties[item.column]?.title">
-        <el-form-item :label="item.title??schema.properties[item.column].title">
-          <app-form-input v-model="item" :schema="schema.properties[item.column]" prop="value" mode="query" />
-        </el-form-item>
+    <div
+      @click="()=>queryFormFold=!queryFormFold"
+      class="cursor-pointer"
+      style="display:inline-block;position: absolute;top:20px;right:20px;"
+    >
+      <span style="line-height: 2em">
+        <el-icon>
+          <ep-arrow-up v-if="!queryFormFold" />
+          <ep-arrow-down v-else />
+        </el-icon>
+      </span>
+    </div>
+    <app-form
+      inline
+      mode="query"
+      :schema="schema"
+      v-model="queryModel"
+      @submit="load"
+      :hideButton="true"
+      :isQueryForm="true"
+      class="query"
+      label-position="right"
+      :style="queryStyle"
+    >
+      <template v-for="item in filterList.filter(o=>!o.hidden&&o.readOnly)">
+        <template v-if="schema.properties[item.column]?.title">
+          <el-form-item :label="item.title??schema.properties[item.column].title">
+            <app-form-input v-model="item" :schema="schema.properties[item.column]" prop="value" mode="query" />
+          </el-form-item>
+        </template>
+        <div v-else>{{item.column}}</div>
       </template>
-      <div v-else>{{item.column}}</div>
-    </template>
-  </app-form>
-  <el-row style="padding-bottom:20px;">
-    <el-col>
-      <template v-for="item in buttons">
-        <el-button
-          v-if="!item.meta.hidden&&item.meta.buttonType==='table'"
-          @click="click(item,selectedRows)"
-          :class="item.meta.htmlClass??'el-button--primary'"
-          v-show="!item.meta.show||item.meta.show(selectedRows,queryModel)"
-          :disabled="getButtonDisabled(item)"
-        >
-          <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
-          <span>{{item.meta.title}}</span>
+    </app-form>
+    <el-row>
+      <el-col>
+        <template v-for="item in buttons">
+          <el-button
+            v-if="!item.meta.hidden&&item.meta.buttonType==='table'"
+            @click="click(item,selectedRows)"
+            :class="item.meta.htmlClass??'el-button--primary'"
+            v-show="!item.meta.show||item.meta.show(selectedRows,queryModel)"
+            :disabled="getButtonDisabled(item)"
+            class="mb-5 mr-3"
+            style="margin-left:0;"
+          >
+            <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
+            <span>{{item.meta.title}}</span>
+          </el-button>
+        </template>
+        <el-button v-if="false" @click="click('filter',selectedRows)">
+          <el-icon><ep-filter /></el-icon>
+          <span>{{$t('筛选')}}</span>
         </el-button>
-      </template>
-      <el-button v-if="false" @click="click('filter',selectedRows)">
-        <el-icon><ep-filter /></el-icon>
-        <span>{{$t('筛选')}}</span>
-      </el-button>
-      <slot name="tableButtons" :rows="selectedRows"></slot>
-    </el-col>
-  </el-row>
-  <el-table
-    :key="tableKey"
-    ref="tableRef"
-    :tree-props="treeProps"
-    :data="tableData"
-    @selection-change="handleSelectionChange"
-    @sort-change="sortChange"
-    :header-cell-class-name="getClass"
-    row-key="id"
-    table-layout="auto"
-    border
-    fit
-  >
-    <el-table-column v-if="!schema.disableSelection" fixed="left" type="selection" :selectable="schema.selectable" />
-    <el-table-column type="index" :label="$t('rowIndex')">
-      <template #default="scope">
-        {{ (pageModel.pageIndex - 1) * pageModel.pageSize + scope.$index + 1 }}
-      </template>
-    </el-table-column>
-    <template v-for="(item,key) in schema.properties">
-      <template v-if="item.navigation">
-        <el-table-column :prop="key" :label="item.title">
-          <template #default="scope">{{getProp(scope.row,item.navigation)}}</template>
-        </el-table-column>
-      </template>
-      <template v-else-if="item.oneToMany">
-        <el-table-column :prop="key" :label="item.title">
-          <template #default="scope">
-            <el-link type="primary" @click="showList({[key]:scope.row[key]},item.oneToMany,item.config)">
-              <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
-            </el-link>
-          </template>
-        </el-table-column>
-      </template>
-      <template v-else-if="item.link">
-        <el-table-column :prop="key" :label="item.title">
-          <template #default="scope">
-            <el-link type="primary" @click="click({path:key},[scope.row])">
-              {{scope.row[key]}}
-            </el-link>
-          </template>
-        </el-table-column>
-      </template>
-      <template v-else-if="item.type!=='object'&&!item.meta.hidden">
-        <template v-if="!item.hideForList&&showColumn(item,key)">
-          <el-table-column :prop="key" sortable="custom" :sort-orders="['descending', 'ascending', null]">
-            <template #header="scope">{{item.title}}</template>
+        <slot name="tableButtons" :rows="selectedRows"></slot>
+      </el-col>
+    </el-row>
+    <el-table
+      :key="tableKey"
+      ref="tableRef"
+      :tree-props="treeProps"
+      :data="tableData"
+      @selection-change="handleSelectionChange"
+      @sort-change="sortChange"
+      :header-cell-class-name="getClass"
+      row-key="id"
+      table-layout="auto"
+      border
+      fit
+    >
+      <el-table-column v-if="!schema.disableSelection" fixed="left" type="selection" :selectable="schema.selectable" />
+      <el-table-column type="index" :label="$t('rowIndex')">
+        <template #default="scope">
+          {{ (pageModel.pageIndex - 1) * pageModel.pageSize + scope.$index + 1 }}
+        </template>
+      </el-table-column>
+      <template v-for="(item,key) in schema.properties">
+        <template v-if="item.navigation">
+          <el-table-column :prop="key" :label="item.title">
+            <template #default="scope">{{getProp(scope.row,item.navigation)}}</template>
+          </el-table-column>
+        </template>
+        <template v-else-if="item.oneToMany">
+          <el-table-column :prop="key" :label="item.title">
             <template #default="scope">
-              <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
+              <el-link type="primary" @click="showList({[key]:scope.row[key]},item.oneToMany,item.config)">
+                <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
+              </el-link>
             </template>
           </el-table-column>
         </template>
-      </template>
-      <template v-if="item.type==='object'">
-        <template v-for="(item2,key2) in item['properties']">
-          <el-table-column :prop="key+'.'+key2">
-            <template #header="scope">{{item2.title}}</template>
+        <template v-else-if="item.link">
+          <el-table-column :prop="key" :label="item.title">
             <template #default="scope">
-              <template v-if="scope.row[key]">
-                <app-form-input mode="details" :schema="item2" :prop="key2" v-model="scope.row[key]" />
+              <el-link type="primary" @click="click({path:key},[scope.row])">
+                {{scope.row[key]}}
+              </el-link>
+            </template>
+          </el-table-column>
+        </template>
+        <template v-else-if="item.type!=='object'&&!item.meta.hidden">
+          <template v-if="!item.hideForList&&showColumn(item,key)">
+            <el-table-column :prop="key" sortable="custom" :sort-orders="['descending', 'ascending', null]">
+              <template #header="scope">{{item.title}}</template>
+              <template #default="scope">
+                <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
               </template>
-            </template>
-          </el-table-column>
+            </el-table-column>
+          </template>
+        </template>
+        <template v-if="item.type==='object'">
+          <template v-for="(item2,key2) in item['properties']">
+            <el-table-column :prop="key+'.'+key2">
+              <template #header="scope">{{item2.title}}</template>
+              <template #default="scope">
+                <template v-if="scope.row[key]">
+                  <app-form-input mode="details" :schema="item2" :prop="key2" v-model="scope.row[key]" />
+                </template>
+              </template>
+            </el-table-column>
+          </template>
         </template>
       </template>
-    </template>
-    <slot name="columns"></slot>
-    <el-table-column fixed="right">
-      <template #header>
-        <el-button @click="filterDrawer = true">
-          {{$t('operations')}}
-          <el-icon class="el-icon--right"><ep-filter /></el-icon>
-        </el-button>
-      </template>
-      <template #default="scope">
-        <div class="flex">
-          <template v-for="item in buttons">
-            <el-button
-              :class="item.meta.htmlClass??'is-plan'"
-              v-if="!item.meta.hidden&&item.meta.buttonType==='row'"
-              v-show="!item.meta.show||item.meta.show(scope.row,queryModel)"
-              @click="click(item,[scope.row])"
-              :disabled="item.meta.disabled && item.meta.disabled(scope.row)"
-            >
-              <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
-              <span>{{item.meta.title}}</span>
-            </el-button>
-          </template>
-          <slot name="rowButtons" :rows="[scope.row]"></slot>
-        </div>
-      </template>
-    </el-table-column>
-  </el-table>
-  <el-pagination
-    :size="appStore.size"
-    v-model:currentPage="pageModel.pageIndex"
-    v-model:page-size="pageModel.pageSize"
-    :total="pageModel.total"
-    :page-sizes="pageModel.sizeList"
-    :background="true"
-    layout="total, sizes, prev, pager, next, jumper"
-    @size-change="onPageSizeChange"
-    @current-change="onPageIndexChange"
-    class="pt-5"
-  />
-</el-card>
+      <slot name="columns"></slot>
+      <el-table-column fixed="right">
+        <template #header>
+          <el-button @click="filterDrawer = true">
+            {{$t('operations')}}
+            <el-icon class="el-icon--right"><ep-filter /></el-icon>
+          </el-button>
+        </template>
+        <template #default="scope">
+          <div class="flex">
+            <template v-for="item in buttons">
+              <el-button
+                :class="item.meta.htmlClass??'is-plan'"
+                v-if="!item.meta.hidden&&item.meta.buttonType==='row'"
+                v-show="!item.meta.show||item.meta.show(scope.row,queryModel)"
+                @click="click(item,[scope.row])"
+                :disabled="item.meta.disabled && item.meta.disabled(scope.row)"
+              >
+                <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
+                <span>{{item.meta.title}}</span>
+              </el-button>
+            </template>
+            <slot name="rowButtons" :rows="[scope.row]"></slot>
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+      v-if="tableData.length>pageModel.pageSize"
+      :size="appStore.size"
+      v-model:currentPage="pageModel.pageIndex"
+      v-model:page-size="pageModel.pageSize"
+      :total="pageModel.total"
+      :page-sizes="pageModel.sizeList"
+      :background="true"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="onPageSizeChange"
+      @current-change="onPageIndexChange"
+      class="pt-5"
+    />
+  </el-card>
+</div>
+<!--filter drawer-->
 <el-drawer v-model="filterDrawer" destroy-on-close @close="tableRef.doLayout()">
   <template #header><span class="el-dialog__title">{{$t('filter')}}</span></template>
   <el-scrollbar>
@@ -195,6 +201,7 @@ export default {
             <el-button type="primary" @click="columns.forEach(o=>o.checked=!o.checked)">
               {{$t('selectInverse')}}
             </el-button>
+            <el-button type="primary" @click="resetColumns">{{ $t('重置') }}</el-button>
           </div>
           <div v-for="item in columns" style="display:inline-block;padding:10px;width:50%;">
             <el-checkbox v-model="item.checked" :label="item.title" size="large" />
@@ -209,16 +216,6 @@ export default {
     </span>
   </template>
 </el-drawer>
-</div>
-<div class="c-list" v-loading="tableLoading" style="display:none;">
-  <div>
-    <el-scrollbar ref="listScrollbarRef" :always="true" style="height:100%;"></el-scrollbar>
-  </div>
-  <div class="mt-5" v-if="tableData.length>pageModel.pageSize">
-    <el-scrollbar></el-scrollbar>
-  </div>
-</div>
-
 <el-drawer :close-on-click-modal="false" v-model="subDrawer" destroy-on-close size="50%">
   <el-scrollbar>
     <app-list v-if="subDrawer" :query="subListQuery" :buttons="subListQuery.buttons" :config="subListQuery.config" />
@@ -229,10 +226,15 @@ export default {
     </span>
   </template>
 </el-drawer>
-<el-dialog v-model="dialogVisible" align-center destroy-on-close :close-on-click-modal="false" style="width:700px;">
+<el-dialog v-model="dialogVisible" align-center destroy-on-close :close-on-click-modal="false" style="max-height:100%;">
   <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
+  <template #footer>
+    <span class="dialog-footer">
+      <el-button type="primary" @click="submit">{{$t('confirm')}}</el-button>
+    </span>
+  </template>
   <el-row v-loading="editFormloading">
-    <el-col style="max-height:calc(100% - 180px );min-height:100%;">
+    <el-col>
       <el-scrollbar>
         <template v-if="editFormMode==='create'||editFormMode==='update'||editFormMode==='details'">
           <app-form
@@ -327,11 +329,6 @@ export default {
       </el-scrollbar>
     </el-col>
   </el-row>
-  <template #footer>
-    <span class="dialog-footer">
-      <el-button type="primary" @click="submit">{{$t('confirm')}}</el-button>
-    </span>
-  </template>
 </el-dialog>`,
   styles: html`<style>
     /* .el-form.filter .el-col {
@@ -456,17 +453,19 @@ export default {
       }
     };
     const getColumns = (schema) => {
+      const result = [];
       const propertyNames = Object.keys(schema.properties ?? {});
       for (const propertyName of propertyNames) {
         const property = schema.properties[propertyName];
-        if (!property.hideForList || (property.type !== 'object' && property.type !== 'array' && !property.hidden)) {
-          columns.value.push({
+        if (!property.meta?.hidden) {
+          result.push({
             name: propertyName,
             title: property.title,
             checked: true,
           });
         }
       }
+      return result;
     };
     const getClass = ({ row, column }) => {
       if (column.property) {
@@ -503,10 +502,10 @@ export default {
       loading.value = true;
       try {
         const button = props.schema.meta?.buttons.find((o) => o.meta.command === 'search');
-        const url = button.meta.url;
+        const url = `/${button.meta.url}`;
         const method = button.meta.method;
         const postData = buildQuery();
-        const data = (await request(method, '/' + url, postData)).data;
+        const data = (await request(method, url, postData)).data;
         if (data.error) {
           await ElMessageBox.confirm(data.error.data?.message ?? data.error.message ?? data.error.code, '提示', {
             type: 'error',
@@ -676,10 +675,20 @@ export default {
         } finally {
           editFormloading.value = false;
         }
+      } else if (editFormMode.value === 'details') {
+        editFormSchema.value = props.schema;
+        editFormTitle.value = t('详情');
+        const url = `/${item.meta.url}`;
+        const method = item.meta.method;
+        const result = await request(method, url, rows[0].id);
+        if (!result.error) {
+          editFormModel.value = result.data.data;
+        }
+        dialogVisible.value = true;
       } else if (item === 'filter') {
         editFormTitle.value = t('自定义查询');
         dialogVisible.value = true;
-      } else if (config[item.path]) {
+      } else if (props.schema[item.path]) {
         try {
           editFormloading.value = true;
           editFormSchema.value = config[item.path].schema;
@@ -1060,19 +1069,21 @@ export default {
       // return web_search_read(config.model, specification, offset, limit, domain, order);
       const data = {
         includeAll: !!props.schema.meta.isTree,
+        query: {},
       };
-      Object.entries(unref(queryModel)).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(unref(queryModel))) {
         if (key !== 'totalCount' && key !== 'items' && key !== 'pageSizeOptions') {
           if (value !== null) {
-            data[key] = value;
+            data.query[key] = value;
           }
         }
-      });
+      }
       data.orderBy = Object.entries(sortColumns.value)
         .map(([key, order]) => `${key} ${order}`)
         .join(',');
       return data;
     }
+    let originalColumns = [];
     onMounted(async () => {
       if (route.meta.children?.length) {
         for (const item of route.meta.children) {
@@ -1089,7 +1100,8 @@ export default {
           o.value = o.default.constructor === Function ? o.default() : o.default;
         }
       }
-      getColumns(props.schema);
+      originalColumns = getColumns(props.schema);
+      columns.value = JSON.parse(JSON.stringify(originalColumns));
       // if (props.query) {
       //   Object.assign(queryModel.value.query, props.query);
       // }
@@ -1101,11 +1113,19 @@ export default {
     });
     const queryFormFold = ref(true);
     const queryStyle = computed(() => {
+      const height =
+        useCssVar(`--el-component-size-${appStore.settings.size}`).value || useCssVar('--el-component-size').value;
       return {
         overflow: 'hidden',
-        height: queryFormFold.value ? '50px' : 'auto',
+        height: queryFormFold.value ? `calc(${height} + 18px)` : 'auto',
       };
     });
+
+    const resetColumns = () => {
+      if (originalColumns) {
+        columns.value = JSON.parse(JSON.stringify(originalColumns));
+      }
+    };
     return {
       appStore,
       loading,
@@ -1160,6 +1180,7 @@ export default {
       tempModel,
       queryFormFold,
       queryStyle,
+      resetColumns,
     };
   },
 };

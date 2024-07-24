@@ -100,6 +100,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     RoutePath = groupType.Name.TrimEnd("Attribute").ToSlugify()!,
                     Redirect = groupType.GetCustomAttributes<KeyValueAttribute>().FirstOrDefault(o => o.Key == "Redirect")?.Value.ToString(),
                     Icon = groupType.GetCustomAttribute<IconAttribute>()?.Icon ?? "folder",
+                    Component = groupType.GetCustomAttribute<ViewAttribute>()?.Component,
                     Order = groupType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0
                 });
             }
@@ -134,9 +135,10 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 }
                 // 菜单
                 var resourceServiceType = typeof(IResourceService<>).MakeGenericType(resourceType);
-                var component = actionDescriptors.Cast<ControllerActionDescriptor>()
+                var controllerType = actionDescriptors.Cast<ControllerActionDescriptor>()
                 .FirstOrDefault(o => o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType))?
-                .ControllerTypeInfo.AsType().GetCustomAttribute<ViewAttribute>()?.Component ?? "_list";
+                .ControllerTypeInfo.AsType()!;
+                var component = controllerType.GetCustomAttribute<ViewAttribute>()?.Component ?? "_list";
                 var resourcePermission = new Permission
                 {
                     Id = context.NewGuid(),
@@ -147,6 +149,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     RoutePath = resourceType.Name.TrimEnd("Model").ToSlugify()!,
                     Component = component,
                     Schema = $"{resourceType.Name.ToSlugify()}",
+                    Icon = controllerType.GetCustomAttribute<IconAttribute>()?.Icon ?? "file",
                     Order = resourceType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? order++
                 };
                 // 按钮

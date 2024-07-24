@@ -235,10 +235,10 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
 
         if (model != null)
         {
-            if (model.Query != null)
-            {
-                query = query.WhereByModel(model.Query);
-            }
+            //if (model.Query != null)
+            //{
+            //    query = query.WhereByModel(model.Query);
+            //}
             if (model.Filters.Count != 0)
             {
                 var expression = QueryFilter.ToExpression<TEntity>(model.Filters);

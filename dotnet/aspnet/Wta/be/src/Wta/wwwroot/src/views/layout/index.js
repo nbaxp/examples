@@ -16,7 +16,7 @@ export default {
     LayoutBreadcrumb,
     LayoutFooter,
   },
-  template: html`<el-container class="admin-layout">
+  template: html`<el-container class="admin-layout" :class="{home:isHomePage}">
   <el-header style="display:flex;flex:1;position:sticky;overflow:visible"><layout-header /></el-header>
   <el-container class="flex100 flex-direction-row">
     <el-aside v-if="!isHomePage" width="auto" class="flex1" :class="{open:!appStore.settings.isMenuCollapse}">

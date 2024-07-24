@@ -17,8 +17,8 @@ export const HeadMenu = {
         @click="onClick(route, $event)"
       >
         <template #title>
-          <el-icon>
-            <svg-icon v-if="route.meta?.icon" :name="route.meta.icon" />
+          <el-icon v-if="route.meta?.icon">
+            <svg-icon :name="route.meta.icon" />
           </el-icon>
           <span :title="route.meta.fullPath">{{route.meta.title }}</span>
         </template>

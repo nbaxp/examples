@@ -9,56 +9,41 @@ export default {
     AppFormItem,
   },
   name: 'AppForm',
-  template: html`<div v-loading="loading">
-    <el-form
-      ref="formRef"
-      :model="model"
-      label-width="auto"
-      :inline="inline"
-      @keyup.enter.native="submit"
-    >
-      <el-form-item
-        v-if="errorMessage"
-        :label-width="0"
-        style="margin-bottom:0;"
-      >
-        <el-text type="danger">{{errorMessage}}</el-text>
-      </el-form-item>
-      <template v-if="schema && schema.properties">
-        <template v-for="(value, prop) in getProperties(schema.properties)">
-          <app-form-item
-            :parentSchema="schema"
-            :schema="value"
-            v-model="model"
-            :prop="prop"
-            :mode="mode"
-            :errors="errors"
-          />
-        </template>
-      </template>
-      <slot></slot>
-      <el-form-item
-        v-if="!hideButton"
-        :label-width="0"
-        style="margin-bottom:0;"
-        :label="schema.meta?.submitStyle?'':' '"
-      >
-        <slot name="submit">
-          <el-button
-            type="primary"
-            @click="submit"
-            :disabled="loading"
-            :style="schema.meta?.submitStyle"
-          >
-            {{$t('confirm')}}
-          </el-button>
-          <el-button v-if="!hideReset" @click="reset" :disabled="loading">
-            {{$t('reset')}}
-          </el-button>
-        </slot>
-      </el-form-item>
-    </el-form>
-  </div>`,
+  template: html`<el-form
+  v-loading="loading"
+  ref="formRef"
+  :model="model"
+  label-width="auto"
+  :inline="inline"
+  @keyup.enter.native="submit"
+>
+  <el-form-item v-if="errorMessage" :label-width="0" style="margin-bottom:0;">
+    <el-text type="danger">{{errorMessage}}</el-text>
+  </el-form-item>
+  <template v-if="schema && schema.properties">
+    <template v-for="(value, prop) in getProperties(schema.properties)">
+      <app-form-item
+        :parentSchema="schema"
+        :schema="value"
+        v-model="model"
+        :prop="prop"
+        :mode="mode"
+        :errors="errors"
+      />
+    </template>
+  </template>
+  <slot></slot>
+  <el-form-item v-if="!hideButton" :label-width="0" style="margin-bottom:0;" :label="schema.meta?.submitStyle?'':' '">
+    <slot name="submit">
+      <el-button type="primary" @click="submit" :disabled="loading" :style="schema.meta?.submitStyle">
+        {{$t('confirm')}}
+      </el-button>
+      <el-button v-if="!schema.meta.hideReset" @click="reset" :disabled="loading">
+        {{$t('reset')}}
+      </el-button>
+    </slot>
+  </el-form-item>
+</el-form>`,
   props: ['modelValue', 'inline', 'schema', 'action', 'hideButton', 'showReset', 'isQueryForm', 'mode'],
   emits: ['update:modelValue', 'success', 'error'],
   setup(props, context) {
