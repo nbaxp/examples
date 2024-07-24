@@ -176,11 +176,6 @@ img.loading {
   outline: unset;
 }
 
-.el-form-item__content {
-  min-width: 210px !important;
-  min-height: 24px;
-}
-
 .el-table .cell {
   white-space: nowrap;
 }
@@ -206,17 +201,22 @@ img.loading {
 }
 
 .el-form {
-  /* .el-form-item__label {
+  .el-form-item__label {
     padding-right: 0 !important;
     width: 5em !important;
-    margin-right: 1em;
+    margin: 0 1em 0 0 !important;
     overflow: hidden;
     justify-content: flex-start;
     white-space: nowrap;
-  } */
+  }
+
+  .el-form-item__content {
+    min-width: 220px !important;
+    min-height: 24px;
+  }
 
   /* .el-form-item__content {
-    width: 240 !important;
+
   }
 
   .el-input {
@@ -230,15 +230,6 @@ img.loading {
   .el-upload img {
     height: var(--el-input-inner-height);
   }
-}
-
-.el-form.el-form--inline {
-  padding-right: 0 !important;
-  width: 5em !important;
-  margin-right: 1em;
-  overflow: hidden;
-  justify-content: flex-start;
-  white-space: nowrap;
 }
 
 /* .el-select,

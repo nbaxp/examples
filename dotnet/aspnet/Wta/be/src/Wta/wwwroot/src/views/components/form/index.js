@@ -52,7 +52,7 @@ export default {
           >
             {{$t('confirm')}}
           </el-button>
-          <el-button v-if="showReset" @click="reset" :disabled="loading">
+          <el-button v-if="!hideReset" @click="reset" :disabled="loading">
             {{$t('reset')}}
           </el-button>
         </slot>

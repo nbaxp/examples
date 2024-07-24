@@ -216,6 +216,9 @@ export default {
     const route = useRoute();
     /*start*/
     const getDisabled = () => {
+      if (props.mode === 'query') {
+        return false;
+      }
       if (props.mode === 'details') {
         return true;
       }

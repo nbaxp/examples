@@ -13,7 +13,7 @@ export default {
   components: { AppForm, LayoutLogo, LayoutLocale, LayoutFooter },
   template: html`<el-container>
   <el-main class="flex items-center justify-center">
-    <div>
+    <div style="min-width:333px;min-height:514px;">
       <div class="flex items-center justify-center pb-4">
         <layout-logo />
         <layout-locale />
@@ -44,6 +44,8 @@ export default {
       const result = await request('GET', 'token/create');
       schema.value = normalize(result.data.data);
       model.value = schemaToModel(schema.value);
+      //
+      schema.value.hideReset = true;
       model.value.userName = 'admin';
       model.value.password = '123456';
     });

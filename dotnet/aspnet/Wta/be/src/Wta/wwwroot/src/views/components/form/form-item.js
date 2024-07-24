@@ -1,7 +1,7 @@
 import { getRules } from '@/utils/validation.js';
 import AppFormInput from '@/views/components/form/form-input.js';
 import html from 'utils';
-import { reactive, watch } from 'vue';
+import { computed, reactive, watch } from 'vue';
 
 export default {
   name: 'formItem',
@@ -14,7 +14,7 @@ export default {
       <el-form-item
         :label="parentSchema.meta?.labelWidth===0?null:schema.title"
         :prop="getProp(prop)"
-        :rules="getDisabled()?[]:getRules(parentSchema,schema,model,getProp(prop))"
+        :rules="rules"
         :error="mode==='query'?null:getError(prop)"
       >
         <app-form-input
@@ -61,6 +61,13 @@ export default {
     const getError = (prop) => {
       return props.errors[prop];
     };
+    //
+    const rules = computed(() => {
+      if (props.mode === 'query' || props.mode === 'details') {
+        return [];
+      }
+      return getRules(props.parentSchema, props.schema, model, props.prop);
+    });
     /*end*/
     return {
       model,
@@ -68,7 +75,7 @@ export default {
       getProp,
       getError,
       getDisabled,
-      getRules,
+      rules,
     };
   },
 };

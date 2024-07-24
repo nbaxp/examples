@@ -14,5 +14,6 @@ public class TenantModel
 
     public bool Disabled { get; set; }
 
+    [Hidden]
     public List<string> Permissions { get; set; } = new List<string>();
 }
