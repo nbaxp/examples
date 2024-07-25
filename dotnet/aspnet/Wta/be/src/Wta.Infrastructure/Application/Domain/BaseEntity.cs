@@ -11,18 +11,24 @@ public abstract class BaseEntity : IResource
     public Guid Id { get; set; }
 
     [DisplayOrder(10000)]
+    [Hidden]
     public DateTime CreatedOn { get; set; }
 
     [DisplayOrder(10001)]
+    [Hidden]
     public string CreatedBy { get; set; } = default!;
 
     [DisplayOrder(10002)]
+    [Hidden]
     public DateTime? UpdatedOn { get; set; }
 
     [DisplayOrder(10003)]
+    [Hidden]
     public string? UpdatedBy { get; set; }
 
     [DisplayOrder(10004)]
+    [Hidden]
+    [UIHint("select")]
     public bool IsDeleted { get; set; }
 
     [Hidden]

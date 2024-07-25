@@ -28,6 +28,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     }
 
     [Display(Name = "查询", Order = 1)]
+    [Hidden]
     public virtual ApiResult<QueryModel<TModel>> Search(QueryModel<TModel> model)
     {
         model ??= new QueryModel<TModel>();
@@ -56,7 +57,8 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(model);
     }
 
-    [Display(Name = "导入模板", Order = 3), Hidden]
+    [Display(Name = "导入模板", Order = 3)]
+    [Hidden]
     public virtual FileContentResult ImportTemplate()
     {
         var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
@@ -67,8 +69,8 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return result;
     }
 
-    [Display(Name = "新建", Order = 6)]
-    public virtual ApiResult<bool> Create(TModel model)
+    [Display(Name = "新建", Order = 4)]
+    public virtual ApiResult<bool> Create([FromBody] TModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -87,7 +89,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(true);
     }
 
-    [Display(Name = "导入", Order = 4)]
+    [Display(Name = "导入", Order = 5)]
     public virtual ApiResult<bool> Import(ImportModel<TModel> model)
     {
         foreach (var file in model.Files)
@@ -103,7 +105,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(true);
     }
 
-    [Display(Name = "导出", Order = 5)]
+    [Display(Name = "导出", Order = 6)]
     public virtual FileContentResult Export(ExportModel<TModel> model)
     {
         var query = Where(model);
@@ -169,7 +171,37 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(true);
     }
 
-    [Display(Name = "删除", Order = 8)]
+    [Display(Name = "存档", Order = 8)]
+    public virtual ApiResult<bool> Archive([FromBody] Guid[] items)
+    {
+        foreach (var id in items)
+        {
+            var entity = Repository.Query().FirstOrDefault(o => o.Id == id);
+            if (entity != null)
+            {
+                entity.IsDeleted = true;
+                Repository.SaveChanges();
+            }
+        }
+        return Json(true);
+    }
+
+    [Display(Name = "解档", Order = 9)]
+    public virtual ApiResult<bool> Unarchive([FromBody] Guid[] items)
+    {
+        foreach (var id in items)
+        {
+            var entity = Repository.Query().FirstOrDefault(o => o.Id == id);
+            if (entity != null)
+            {
+                entity.IsDeleted = false;
+                Repository.SaveChanges();
+            }
+        }
+        return Json(true);
+    }
+
+    [Display(Name = "删除", Order = 10)]
     public virtual ApiResult<bool> Delete([FromBody] Guid[] items)
     {
         foreach (var id in items)
@@ -235,10 +267,10 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
 
         if (model != null)
         {
-            //if (model.Query != null)
-            //{
-            //    query = query.WhereByModel(model.Query);
-            //}
+            if (model.Query != null)
+            {
+                query = query.WhereByModel(model.Query);
+            }
             if (model.Filters.Count != 0)
             {
                 var expression = QueryFilter.ToExpression<TEntity>(model.Filters);

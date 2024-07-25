@@ -222,7 +222,7 @@ export default {
       if (props.mode === 'details') {
         return true;
       }
-      if (props.schema.meta?.readOnly) {
+      if (props.schema.meta?.readOnly && props.mode !== 'create') {
         return true;
       }
       return false;

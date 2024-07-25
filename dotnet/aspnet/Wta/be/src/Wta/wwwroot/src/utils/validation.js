@@ -141,7 +141,7 @@ const getRules = (parentSchema, property, data, prop) => {
         }
       }
     } else {
-      rule.message = format(rule.message, rule.title);
+      rule.message = t(rule.message, [rule.title]);
     }
   }
   return rules;

@@ -199,6 +199,12 @@ img.loading {
   }
 }
 
+.el-form--inline {
+  .el-form-item {
+    margin-right: 20px !Important;
+  }
+}
+
 /* .el-select,
 .el-input-number,
 .el-date-editor.el-input,

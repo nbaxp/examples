@@ -1,18 +1,18 @@
 import settings from '@/config/settings.js';
 import { get } from 'lodash';
 
-function log(message) {
+export function log(message) {
   if (settings.isDebug) {
     console.log(message);
   }
 }
 
-async function delay(ms) {
+export async function delay(ms) {
   return new Promise((resolve, _) => setTimeout(resolve, ms));
 }
 
 // format html`...` by vscode lit-html
-function html(strings, ...values) {
+export default function html(strings, ...values) {
   let output = '';
   let index;
   for (index = 0; index < values.length; index += 1) {
@@ -23,11 +23,11 @@ function html(strings, ...values) {
 }
 
 // format %
-function persentFormat(number) {
+export function persentFormat(number) {
   return `${Number.parseFloat(number * 100).toFixed(2)} %`;
 }
 // format bytes
-function bytesFormat(bytes) {
+export function bytesFormat(bytes) {
   // 输入验证：确保bytes是一个数字，且不为负
   if (Number.isNaN(bytes) || bytes < 0) {
     return 'Invalid input';
@@ -48,7 +48,7 @@ function bytesFormat(bytes) {
 }
 
 // string format
-function format(template, ...args) {
+export function format(template, ...args) {
   const formatRegExp = /%[sdj%]/g;
   let counter = 0;
   return template.replace(formatRegExp, (match) => {
@@ -73,7 +73,7 @@ function format(template, ...args) {
   });
 }
 
-function listToTree(list, config) {
+export function listToTree(list, config) {
   const options = Object.assign(
     {
       parentId: 'parentId',
@@ -101,7 +101,7 @@ function listToTree(list, config) {
   return tree;
 }
 
-function treeToList(tree, list = []) {
+export function treeToList(tree, list = []) {
   for (const o of tree) {
     list.push(o);
     if (o.children?.length) {
@@ -111,11 +111,11 @@ function treeToList(tree, list = []) {
   return list;
 }
 
-function getProp(instance, propPath) {
+export function getProp(instance, propPath) {
   return get(instance, propPath);
 }
 
-function getFileNameFromContentDisposition(contentDisposition) {
+export function getFileNameFromContentDisposition(contentDisposition) {
   const filenameRegex = /filename[^;\n]*=(UTF-\d['"]*)?((['"]).*?[.]$\2|[^;\n]*)?/gi;
   const matches = filenameRegex.exec(contentDisposition);
   if (matches?.[2]) {
@@ -131,17 +131,17 @@ async function importModule(input) {
 }
 
 // await importFunction('()=>console.log(123)');
-async function importFunction(input) {
+export async function importFunction(input) {
   const src = input ?? '()=>{}';
   const result = await importModule(`export default ${src}`);
   return result;
 }
 
-function reload() {
+export function reload() {
   location.href = `${location.protocol}//${location.host}${location.pathname}`;
 }
 
-function downloadFile(file, name) {
+export function downloadFile(file, name) {
   const url = window.URL.createObjectURL(file);
   const link = document.createElement('a');
   link.href = url;
@@ -155,7 +155,7 @@ function downloadFile(file, name) {
   }
 }
 
-function traverseTree(list, func) {
+export function traverseTree(list, func) {
   for (const node of list) {
     func(node);
     if (node.children?.length) {
@@ -164,19 +164,23 @@ function traverseTree(list, func) {
   }
 }
 
-export default html;
-export {
-  log,
-  delay,
-  persentFormat,
-  bytesFormat,
-  format,
-  listToTree,
-  treeToList,
-  getProp,
-  getFileNameFromContentDisposition,
-  importFunction,
-  reload,
-  downloadFile,
-  traverseTree,
-};
+//JSON
+export function fromJSON(str) {
+  return JSON.parse(str, (key, val) => {
+    if (typeof val === 'string') {
+      if (val.indexOf('function') === 0 || val.indexOf('async function') === 0) {
+        return eval(`(${val})`);
+      }
+    }
+    return val;
+  });
+}
+
+export function toJSON(obj) {
+  return JSON.stringify(obj, (key, val) => {
+    if (typeof val === 'function') {
+      return `${val}`;
+    }
+    return val;
+  });
+}

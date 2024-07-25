@@ -170,6 +170,8 @@ msgid "Tenant"
 msgstr "租户"
 
 #属性
+msgid "Order"
+msgstr "序号"
 msgid "Disabled"
 msgstr "禁用"
 msgid "TenantNumber"

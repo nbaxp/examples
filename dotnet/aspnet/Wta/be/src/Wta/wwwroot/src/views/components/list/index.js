@@ -35,7 +35,9 @@ export default {
         </el-icon>
       </span>
     </div>
+    <!--查询表单-->
     <app-form
+      ref="queryFormRef"
       inline
       mode="query"
       :schema="schema"
@@ -56,8 +58,8 @@ export default {
         <div v-else>{{item.column}}</div>
       </template>
     </app-form>
-    <el-row>
-      <el-col>
+    <el-row class="flex justify-between">
+      <div>
         <template v-for="item in buttons">
           <el-button
             v-if="!item.meta.hidden&&item.meta.buttonType==='table'"
@@ -77,8 +79,18 @@ export default {
           <span>{{$t('筛选')}}</span>
         </el-button>
         <slot name="tableButtons" :rows="selectedRows"></slot>
-      </el-col>
+      </div>
+      <div>
+        <el-button
+          @click="click(buttons.find(o=>o.meta.command==='search'),selectedRows)"
+          class="el-button--primary mb-5"
+        >
+          查询
+        </el-button>
+        <el-button @click="reset" class="mb-5 ml-3">重置</el-button>
+      </div>
     </el-row>
+    <!--列表-->
     <el-table
       :key="tableKey"
       ref="tableRef"
@@ -124,7 +136,7 @@ export default {
         </template>
         <template v-else-if="item.type!=='object'&&!item.meta.hidden">
           <template v-if="!item.hideForList&&showColumn(item,key)">
-            <el-table-column :prop="key" sortable="custom" :sort-orders="['descending', 'ascending', null]">
+            <el-table-column :prop="key" :sortable="schema.meta?.isTree?false:'custom'" :sort-orders="['descending', 'ascending', null]">
               <template #header="scope">{{item.title}}</template>
               <template #default="scope">
                 <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
@@ -172,6 +184,7 @@ export default {
         </template>
       </el-table-column>
     </el-table>
+    <!--分页-->
     <el-pagination
       v-if="tableData.length>pageModel.pageSize"
       :size="appStore.size"
@@ -187,7 +200,7 @@ export default {
     />
   </el-card>
 </div>
-<!--filter drawer-->
+<!--列过滤抽屉-->
 <el-drawer v-model="filterDrawer" destroy-on-close @close="tableRef.doLayout()">
   <template #header><span class="el-dialog__title">{{$t('filter')}}</span></template>
   <el-scrollbar>
@@ -216,17 +229,15 @@ export default {
     </span>
   </template>
 </el-drawer>
-<el-drawer :close-on-click-modal="false" v-model="subDrawer" destroy-on-close size="50%">
-  <el-scrollbar>
-    <app-list v-if="subDrawer" :query="subListQuery" :buttons="subListQuery.buttons" :config="subListQuery.config" />
-  </el-scrollbar>
-  <template #footer>
-    <span class="dialog-footer">
-      <el-button type="primary" @click="subDrawer=false">{{$t('confirm')}}</el-button>
-    </span>
-  </template>
-</el-drawer>
-<el-dialog v-model="dialogVisible" align-center destroy-on-close :close-on-click-modal="false" style="max-height:100%;">
+<!--编辑表单-->
+<el-dialog
+  v-model="dialogVisible"
+  align-center
+  append-to-body
+  destroy-on-close
+  :close-on-click-modal="false"
+  style="max-height:100%;width:700px;"
+>
   <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
   <template #footer>
     <span class="dialog-footer">
@@ -242,7 +253,7 @@ export default {
             :mode="editFormMode"
             ref="editFormRef"
             inline
-            label-position="left"
+            label-position="right"
             :hideButton="true"
             :schema="editFormSchema"
             v-model="editFormModel"
@@ -561,7 +572,7 @@ export default {
           //(await request(config.edit.detailsMethod ?? 'POST', url)).data;
           editFormModel.value.id = rows[0].id;
         }
-        editFormTitle.value = `${t(item.path)}${editFormSchema.value.title}`;
+        editFormTitle.value = `${t(item.meta.command)}${editFormSchema.value.title}`;
         dialogVisible.value = true;
       } else if (editFormMode.value === 'delete') {
         try {
@@ -725,42 +736,17 @@ export default {
           if (valid) {
             await onClick(
               async () => {
-                const url = schema.meta.buttons.find((o) => o.path === editFormMode.value)?.meta?.action;
-                // if (editFormMode.value === "update") {
-                // 	url = format(url, editFormModel.value.id);
-                // }
-                const method =
-                  (editFormMode.value === 'create' ? config.edit.createMethod : config.edit.updateMethod) ?? 'post';
-                let modelData = JSON.parse(JSON.stringify(editFormModel.value));
-                let changed = true;
-                let id = null;
-                if (editFormMode.value === 'update') {
-                  id = modelData.id;
-                  const patchData = jsondiffpatch.diff(tempModel.value, modelData);
-                  if (!patchData) {
-                    changed = false;
-                  } else {
-                    const patchModel = {};
-                    for (const key in patchData) {
-                      if (Object.hasOwnProperty.call(patchData, key)) {
-                        patchModel[key] = patchData[key][1];
-                      }
-                    }
-                    modelData = patchModel;
-                  }
-                }
-                if (changed) {
-                  const data = web_save(config.model, [[id], modelData], config.edit.schema.properties);
-                  const result = await request(method, url, data);
-                  if (!result.error) {
-                    dialogVisible.value = false;
-                    editFormMode.value = null;
-                    await reload();
-                  } else {
-                    ElMessageBox.alert(result.message, '提示', { type: 'error' });
-                  }
+                const button = props.schema.meta.buttons.find((o) => o.meta.command === editFormMode.value);
+                const url = `/${button?.meta?.url}`;
+                const method = button.meta.method ?? 'POST';
+                const data = JSON.parse(JSON.stringify(editFormModel.value));
+                const result = await request(method, url, data);
+                if (!result.error) {
+                  dialogVisible.value = false;
+                  editFormMode.value = null;
+                  await reload();
                 } else {
-                  ElMessageBox.alert('没有编辑数据，请编辑后保存', '提示', { type: 'error' });
+                  ElMessageBox.alert(result.message, '提示', { type: 'error' });
                 }
               },
               null,
@@ -1032,57 +1018,32 @@ export default {
       return operators;
     };
     function buildQuery() {
-      // const specification = props.schema.properties;
-      // const limit = pageModel.pageSize;
-      // const offset = (pageModel.pageIndex - 1) * pageModel.pageSize;
-      // const order = Array.from(sortColumns.value)
-      //   .map((o) => `${o[0]} ${o[1] === 'ascending' ? 'ASC' : 'DESC'}`)
-      //   .join(',');
-      // const domain = filterList.value
-      //   .filter((o) => {
-      //     return o.column && o.action && (o.value || o.value === false);
-      //   })
-      //   .map((o) => {
-      //     return [o.column, o.action, o.value];
-      //   });
-      // for (const key of Object.keys(queryModel.value)) {
-      //   const schema = props.schema.properties[key];
-      //   if (schema) {
-      //     const value = queryModel.value[key];
-      //     const type = schema.type ?? 'string';
-      //     const input = schema.input ?? 'text';
-      //     if (value !== null && (schema.type !== 'array' || value.length > 0)) {
-      //       if (type !== 'boolean' || value !== false || schema.sendFalse) {
-      //         let action = schema.action ?? null;
-      //         if (action === null) {
-      //           if (input === 'select') {
-      //             action = '=';
-      //           } else {
-      //             action = 'ilike';
-      //           }
-      //         }
-      //         domain.push([key, action, value]);
-      //       }
-      //     }
-      //   }
-      // }
-      // return web_search_read(config.model, specification, offset, limit, domain, order);
       const data = {
         includeAll: !!props.schema.meta.isTree,
-        query: {},
       };
-      for (const [key, value] of Object.entries(unref(queryModel))) {
-        if (key !== 'totalCount' && key !== 'items' && key !== 'pageSizeOptions') {
-          if (value !== null) {
-            data.query[key] = value;
+      const queryValue = [];
+      for (const [key, value] of Object.entries(JSON.parse(JSON.stringify(queryModel.value)))) {
+        //const schema = props.schema.properties[key];
+        if (Array.isArray(value)) {
+          if (value.length) {
+            queryValue.push([key, value]);
           }
+        } else if (value) {
+          queryValue.push([key, value]);
         }
       }
-      data.orderBy = Object.entries(sortColumns.value)
-        .map(([key, order]) => `${key} ${order}`)
+      if (queryValue.length) {
+        data.query = Object.fromEntries(queryValue);
+      }
+      const orderBy = Array.from(sortColumns.value)
+        .map(([key, order]) => `${key} ${order.match(/(.*)ending/)[1]}`)
         .join(',');
+      if (orderBy) {
+        data.orderBy = orderBy;
+      }
       return data;
     }
+
     let originalColumns = [];
     onMounted(async () => {
       if (route.meta.children?.length) {
@@ -1093,7 +1054,9 @@ export default {
         }
       }
       //
-      getSortModel(queryModel.value);
+      if (!props.schema.meta.isTree) {
+        getSortModel(queryModel.value);
+      }
       filterList.value = props.schema.meta?.filters ?? [];
       for (const o of filterList.value) {
         if (o.default) {
@@ -1126,10 +1089,17 @@ export default {
         columns.value = JSON.parse(JSON.stringify(originalColumns));
       }
     };
+    const queryFormRef = ref(null);
+    const reset = async () => {
+      queryFormRef.value.reset();
+      await reload();
+    };
     return {
       appStore,
       loading,
+      queryFormRef,
       listScrollbarRef,
+      reset,
       reload,
       onClick,
       queryModel,
