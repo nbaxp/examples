@@ -1,0 +1,18 @@
+name: superset
+
+services:
+  superset:
+    image: apache/superset:4.0.1
+    restart: always
+    environment:
+      - SUPERSET_SECRET_KEY=123456
+    ports:
+      - 3008:8088
+    volumes:
+      - ./apps/superset/superset_config.py:/etc/superset/superset_config.py
+      - ./data/superset:/app/superset_home
+    # for init
+    # command: bash -c "superset fab create-admin --username admin --firstname Superset --lastname Admin --email admin@superset.com --password admin && superset superset db upgrade && superset superset init"
+    # 中文
+    # sed -i "s/BABEL_DEFAULT_LOCALE = \"en/BABEL_DEFAULT_LOCALE = \"zh/g" superset/config.py
+    # sed -i "s/LANGUAGES = {}/# LANGUAGES = {}/g" superset/config.py

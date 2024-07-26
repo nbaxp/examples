@@ -1,0 +1,36 @@
+name: redmine
+
+services:
+  redmine:
+    image: redmine
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      REDMINE_DB_MYSQL: mysql
+      REDMINE_DB_PASSWORD: aA123456!
+      REDMINE_SECRET_KEY_BASE: supersecretkey
+    volumes:
+      - ./apps/redmine/redmine-plugins:/usr/src/redmine/plugins
+      - ./apps/redmine/redmine-data:/usr/src/redmine/files
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:8.4.0
+    restart: always
+    command: --mysql-native-password=ON
+    environment:
+      - MYSQL_ROOT_PASSWORD=aA123456!
+      - MYSQL_DATABASE=redmine
+    # ports:
+    #   - 3306:3306
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/mysql:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
