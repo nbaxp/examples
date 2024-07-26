@@ -4,10 +4,10 @@ import { normalize, schemaToModel } from '@/utils/schema.js';
 import html from 'utils';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import AppForm from './components/form/index.js';
-import LayoutFooter from './layout/footer.js';
-import LayoutLocale from './layout/locale.js';
-import LayoutLogo from './layout/logo.js';
+import AppForm from '@/components/form/index.js';
+import LayoutFooter from '@/layouts/components/footer.js';
+import LayoutLocale from '@/layouts/components/locale.js';
+import LayoutLogo from '@/layouts/components/logo.js';
 
 export default {
   components: { AppForm, LayoutLogo, LayoutLocale, LayoutFooter },

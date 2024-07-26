@@ -1,4 +1,4 @@
-import Md from '@/views/components/markdown/index.js';
+import Md from '@/components/markdown/index.js';
 import html from 'utils';
 import { ref } from 'vue';
 

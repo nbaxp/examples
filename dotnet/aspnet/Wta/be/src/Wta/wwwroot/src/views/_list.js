@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { normalize } from '@/utils/schema.js';
-import AppList from '@/views/components/list/index.js';
+import AppList from '@/components/list/index.js';
 
 export default {
   components: { AppList },

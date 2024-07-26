@@ -2,11 +2,11 @@ import { useAppStore, useTabsStore } from '@/store/index.js';
 import html from 'utils';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import LayoutBreadcrumb from './breadcrumb.js';
-import LayoutFooter from './footer.js';
-import LayoutHeader from './header.js';
-import LayoutMenu from './menu.js';
-import LayoutTabs from './tabs.js';
+import LayoutBreadcrumb from './components/breadcrumb.js';
+import LayoutFooter from './components/footer.js';
+import LayoutHeader from './components/header.js';
+import LayoutMenu from './components/menu.js';
+import LayoutTabs from './components/tabs.js';
 
 export default {
   components: {

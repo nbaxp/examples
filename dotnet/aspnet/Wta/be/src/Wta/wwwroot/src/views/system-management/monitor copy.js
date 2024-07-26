@@ -1,4 +1,4 @@
-import Chart from '@/views/components/chart/index.js';
+import Chart from '@/components/chart/index.js';
 import { dayjs } from 'element-plus';
 import html from 'utils';
 import { bytesFormat, persentFormat } from 'utils';

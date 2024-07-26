@@ -1,8 +1,8 @@
 import useSchema from '@/models/forgot-password.js';
 import { schemaToModel } from '@/utils/schema.js';
-import AppForm from '@/views/components/form/index.js';
-import LayoutFooter from '@/views/layout/footer.js';
-import LayoutLogo from '@/views/layout/logo.js';
+import AppForm from '@/components/form/index.js';
+import LayoutFooter from '~/src/layouts/components/footer.js';
+import LayoutLogo from '~/src/layouts/components/logo.js';
 import html from 'utils';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';

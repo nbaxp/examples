@@ -1,6 +1,6 @@
 import { useAppStore, useTabsStore } from '@/store/index.js';
-import Icon from '@/views/components/icon/index.js';
-import SvgIcon from '@/views/components/icon/index.js';
+import Icon from '@/components/icon/index.js';
+import SvgIcon from '@/components/icon/index.js';
 import html from 'utils';
 import { computed, nextTick, reactive, ref, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

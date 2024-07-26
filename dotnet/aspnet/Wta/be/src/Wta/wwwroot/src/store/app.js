@@ -2,7 +2,7 @@ import router from '@/router/index.js';
 import { getUrl } from '@/utils/request.js';
 import { defineStore } from 'pinia';
 import { listToTree, traverseTree } from 'utils';
-import settings from '../config/settings.js';
+import settings from '@/config/settings.js';
 
 const getRoutes = async () => {
   try {
@@ -89,7 +89,7 @@ export default defineStore('app', {
         name: key,
         path: '/',
         redirect: '/home',
-        component: () => import('../views/layout/index.js'),
+        component: () => import('@/layouts/index.js'),
         children: this.menus,
       });
     },

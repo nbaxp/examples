@@ -1,6 +1,7 @@
 import html from 'utils';
 import { onMounted, ref } from 'vue';
-import Cherry from '../../../../lib/cherry-markdown/cherry-markdown.esm.js';
+import Cherry from '~/lib/cherry-markdown/cherry-markdown.esm.js';
+import '~/lib/cherry-markdown/echarts/echarts.min.js';
 
 export default {
   template: html`<div ref="tplRef" style="width:100%;">

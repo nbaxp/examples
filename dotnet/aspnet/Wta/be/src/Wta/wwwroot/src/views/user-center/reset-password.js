@@ -1,6 +1,6 @@
 import request from '@/utils/request.js';
 import { normalize, schemaToModel } from '@/utils/schema.js';
-import AppForm from '@/views/components/form/index.js';
+import AppForm from '@/components/form/index.js';
 import { ElMessageBox } from 'element-plus';
 import html from 'utils';
 import { onMounted, ref } from 'vue';

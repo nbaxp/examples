@@ -1,5 +1,5 @@
-import config from '@/locale/config.js';
-import SvgIcon from '@/views/components/icon/index.js';
+import config from '~/src/locales/config.js';
+import SvgIcon from '@/components/icon/index.js';
 import html from 'utils';
 import { useI18n } from 'vue-i18n';
 

@@ -1,5 +1,5 @@
 import App from '@/app.js';
-import i18n from '@/locale/index.js';
+import i18n from '~/src/locales/index.js';
 import style from '@/mixins/style.js';
 import router from '@/router/index.js';
 import store from '@/store/index.js';

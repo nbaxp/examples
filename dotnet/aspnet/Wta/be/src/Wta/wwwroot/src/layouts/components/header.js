@@ -1,5 +1,5 @@
 import { useAppStore, useTabsStore, useTokenStore, useUserStore } from '@/store/index.js';
-import SvgIcon from '@/views/components/icon/index.js';
+import SvgIcon from '@/components/icon/index.js';
 import { useDark, useFullscreen, useToggle } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import html from 'utils';

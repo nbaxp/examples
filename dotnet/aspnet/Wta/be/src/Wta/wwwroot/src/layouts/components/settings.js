@@ -1,6 +1,6 @@
 import useSchema from '@/models/settings.js';
 import useAppStore from '@/store/app.js';
-import AppForm from '@/views/components/form/index.js';
+import AppForm from '@/components/form/index.js';
 import { useClipboard, useMediaQuery } from '@vueuse/core';
 import { ElMessage } from 'element-plus';
 import html from 'utils';

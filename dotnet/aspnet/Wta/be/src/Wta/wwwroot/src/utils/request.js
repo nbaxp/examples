@@ -1,5 +1,5 @@
 import settings from '@/config/settings.js';
-import i18n from '@/locale/index.js';
+import i18n from '~/src/locales/index.js';
 import useRouter from '@/router/index.js';
 import { getFileNameFromContentDisposition } from 'utils';
 import qs from '../../lib/qs/shim.js';

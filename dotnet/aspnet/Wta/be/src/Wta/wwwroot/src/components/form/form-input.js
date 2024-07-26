@@ -1,6 +1,6 @@
 import { bytesFormat, importFunction } from '@/utils/index.js';
 import request from '@/utils/request.js';
-import SvgIcon from '@/views/components/icon/index.js';
+import SvgIcon from '@/components/icon/index.js';
 import { dayjs } from 'element-plus';
 import { ElMessage, useFormItem } from 'element-plus';
 import html from 'utils';

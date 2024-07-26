@@ -11,9 +11,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-}
 
-#app>img.loading {
-    height: 2rem;
-    width: 2rem;
+    img.loading {
+        height: 2rem;
+        width: 2rem;
+    }
+
+    ul.menu li{
+        padding-left: 2em;
+    }
 }
