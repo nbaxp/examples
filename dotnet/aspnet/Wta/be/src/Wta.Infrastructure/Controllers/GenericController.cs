@@ -44,7 +44,16 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             query = SkipTake(query, model.PageIndex, model.PageSize);
         }
-        model.Items = query.ToList().Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
+        if(typeof(TEntity)==typeof(TModel))
+        {
+            model.Items = query.ToList().Cast<TModel>().ToList();
+
+        }
+        else
+        {
+            model.Items = query.ToList().Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
+
+        }
         return Json(model);
     }
 

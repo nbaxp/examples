@@ -10,66 +10,110 @@ public static class ModelMetadataExtensions
 {
     public static object GetSchema(this ModelMetadata meta, IServiceProvider serviceProvider, ModelMetadata? parent = null)
     {
-        var schema = new Dictionary<string, object>();
+        var result = new Dictionary<string, object>() { { "isRoot", parent == null } };
+        var modelMetaData = (meta as DefaultModelMetadata)!;
+        if (modelMetaData.ModelType.IsValueType)
+        {
+            var isNullableType = modelMetaData.ModelType.IsNullableType();
+            if (modelMetaData.ModelType.IsEnum)
+            {
+            }
+            else
+            {
+                if (modelMetaData.ModelType == typeof(Guid))
+                {
+                }
+                else
+                {
+                }
+            }
+        }
+        else
+        {
+            if (modelMetaData.ModelType.IsArray)
+            {
+            }
+            else if (modelMetaData.ModelType == typeof(string))
+            {
+            }
+            else if (modelMetaData.ModelType.IsGenericType)
+            {
+                if (modelMetaData.ModelType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    if (modelMetaData.ModelType.GetGenericArguments().First() == typeof(Guid))
+                    {
+                    }
+                    else
+                    {
+                    }
+                }
+                else
+                {
+                }
+            }
+            else
+            {
+            }
+        }
         var modelType = meta.UnderlyingOrModelType;
-        DefaultModelMetadata modelMeta = (meta as DefaultModelMetadata)!;
+
         if (meta.ContainerType == null && modelType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseTreeEntity<>)))
         {
-            schema.TryAdd("isTree", true);
+            result.TryAdd("isTree", true);
         }
         if (parent != null &&
             parent.ModelType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseTreeEntity<>)) &&
             meta.PropertyName == nameof(BaseTreeEntity<BaseEntity>.ParentId))
         {
-            schema.TryAdd("url", $"{parent.ModelType.Name.ToSlugify()}/search");
-            schema.TryAdd("value", "id");
-            schema.TryAdd("label", "name");
-            schema.TryAdd("input", "select");
+            result.TryAdd("url", $"{parent.ModelType.Name.ToSlugify()}/search");
+            result.TryAdd("value", "id");
+            result.TryAdd("label", "name");
+            result.TryAdd("input", "select");
         }
         var title = meta.ContainerType == null ? modelType.GetDisplayName() : meta.ContainerType?.GetProperty(meta.PropertyName!)?.GetDisplayName();
-        schema.Add("title", title!);
-        modelMeta.Attributes.Attributes?.ForEach(o =>
+        result.Add("title", title!);
+        modelMetaData.Attributes.Attributes?.ForEach(o =>
         {
             if (o is KeyValueAttribute keyValue)
             {
-                schema.TryAdd(keyValue.Key, keyValue.Value);
+                result.TryAdd(keyValue.Key, keyValue.Value);
             }
             else if (o is DataTypeAttribute dataType)
             {
                 if (dataType.DataType == DataType.Password)
                 {
-                    schema.TryAdd("input", "password");
+                    result.TryAdd("input", "password");
                 }
                 else if (dataType.DataType == DataType.Date)
                 {
-                    schema.TryAdd("input", "date");
+                    result.TryAdd("input", "date");
                 }
                 else if (dataType.DataType == DataType.DateTime)
                 {
-                    schema.TryAdd("input", "datetime");
+                    result.TryAdd("input", "datetime");
                 }
             }
         });
         var roles = meta.GetRules(serviceProvider, title!);
         if (roles.Any())
         {
-            schema.Add("rules", roles);
+            result.Add("rules", roles);
         }
         // array
         if (meta.IsEnumerableType)
         {
             if (modelType != meta.ElementMetadata!.ModelType.UnderlyingSystemType)
             {
-                schema.Add("type", "array");
-                schema.TryAdd("multiple", true);
-                schema.Add("items", meta.ElementMetadata.GetSchema(serviceProvider, meta));
+                result.Add("type", "array");
+                result.TryAdd("multiple", true);
+                result.Add("items", meta.ElementMetadata.GetSchema(serviceProvider, meta));
             }
         }
         else
         {
             if (!modelType.IsValueType && modelType != typeof(string))
             {
-                schema.Add("type", "object");
+                result.Add("type", "object");
                 var properties = new Dictionary<string, object>();
                 var getOrder = (ModelMetadata o) =>
                 {
@@ -82,7 +126,7 @@ public static class ModelMetadataExtensions
                     }
                     return order;
                 };
-                var ModelProperties = modelMeta.Properties.OrderBy(o => getOrder(o));
+                var ModelProperties = modelMetaData.Properties.OrderBy(o => getOrder(o));
                 foreach (var propertyMetadata in ModelProperties)
                 {
                     if (meta.ContainerType != propertyMetadata.ContainerType)
@@ -114,52 +158,52 @@ public static class ModelMetadataExtensions
                         properties.Add(propertyMetadata.Name!, propertyMetadata.GetSchema(serviceProvider, meta));
                     }
                 }
-                schema.Add(nameof(properties), properties);
+                result.Add(nameof(properties), properties);
             }
             else
             {
                 if (modelType.IsEnum)
                 {
-                    schema.TryAdd("options", Enum.GetNames(modelType).Select(o => new { Value = o, Label = ((Enum)Enum.Parse(modelType, o)).GetDisplayName() }).ToArray());
-                    schema.TryAdd("input", "select");
+                    result.TryAdd("options", Enum.GetNames(modelType).Select(o => new { Value = o, Label = ((Enum)Enum.Parse(modelType, o)).GetDisplayName() }).ToArray());
+                    result.TryAdd("input", "select");
                     if (modelType.HasAttribute<FlagsAttribute>())
                     {
-                        schema.TryAdd("multiple", true);
+                        result.TryAdd("multiple", true);
                     }
                 }
-                AddType(schema, modelType);
+                AddType(result, modelType);
                 if (meta.ModelType.IsNullableType())
                 {
-                    schema.Add("nullable", true);
+                    result.Add("nullable", true);
                 }
             }
         }
         if (meta.Description != null)
         {
-            schema.Add("description", meta.Description);
+            result.Add("description", meta.Description);
         }
         if (meta.DataTypeName != null)
         {
-            schema.Add("format", meta.DataTypeName?.ToLowerCamelCase()!);
+            result.Add("format", meta.DataTypeName?.ToLowerCamelCase()!);
         }
         if (meta.TemplateHint != null)
         {
-            schema.Add("input", meta.TemplateHint?.ToLowerCamelCase()!);
+            result.Add("input", meta.TemplateHint?.ToLowerCamelCase()!);
         }
         if (meta.TemplateHint == "select" && meta.IsEnumerableType && modelType.IsGenericType)
         {
-            schema.TryAdd("url", modelType.GetGenericArguments().First().Name.ToSlugify()!);
+            result.TryAdd("url", modelType.GetGenericArguments().First().Name.ToSlugify()!);
         }
-        if (modelMeta.Name == "Id"||modelMeta.Attributes.Attributes.Any(o => o.GetType() == typeof(HiddenAttribute)))
+        if (modelMetaData.Name == "Id" || modelMetaData.Attributes.Attributes!.Any(o => o.GetType() == typeof(HiddenAttribute)))
         {
-            schema.TryAdd("hidden", true);
+            result.TryAdd("hidden", true);
         }
-        var propertyName = modelMeta.Name;
+        var propertyName = modelMetaData.Name;
         if (propertyName != null)
         {
-            if (modelMeta.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(DefaultValueAttribute)) is DefaultValueAttribute defaultValue)
+            if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(DefaultValueAttribute)) is DefaultValueAttribute defaultValue)
             {
-                schema.Add("default", defaultValue.Value!);
+                result.Add("default", defaultValue.Value!);
             }
             //if (defaultModelMetadata.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(NavigationAttribute)) is NavigationAttribute navigationAttribute)
             //{
@@ -169,17 +213,17 @@ public static class ModelMetadataExtensions
             //    schema.Add("input", "select");
             //    schema.Add("url", propertyName[..^2].ToSlugify());
             //}
-            if (modelMeta.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(ScaffoldColumnAttribute)) is ScaffoldColumnAttribute scaffoldColumnAttribute
+            if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(ScaffoldColumnAttribute)) is ScaffoldColumnAttribute scaffoldColumnAttribute
                 && !scaffoldColumnAttribute.Scaffold)
             {
                 //列表、详情、新建、更新、查询都不显示
-                schema.Add("hidden", true);
+                result.Add("hidden", true);
             }
-            if (modelMeta.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(ReadOnlyAttribute)) is ReadOnlyAttribute readOnlyAttribute
+            if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(ReadOnlyAttribute)) is ReadOnlyAttribute readOnlyAttribute
                 && readOnlyAttribute.IsReadOnly)
             {
                 //列表、详情显示，编辑时不显示，查询时显示
-                schema.Add("readOnly", true);
+                result.Add("readOnly", true);
             }
             //if (defaultModelMetadata.Attributes.Attributes.Any(o => o.GetType() == typeof(DisplayOnlyAttribute)))
             //{
@@ -187,7 +231,7 @@ public static class ModelMetadataExtensions
             //    schema.Add("displayOnly", true);
             //}
         }
-        return schema;
+        return result;
     }
 
     public static List<Dictionary<string, object>> GetRules(this ModelMetadata meta, IServiceProvider serviceProvider, string title)

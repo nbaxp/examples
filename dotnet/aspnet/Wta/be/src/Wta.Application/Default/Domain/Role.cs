@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Wta.Application.Default.Domain;
 
 [SystemManagement, Display(Name = "角色", Order = 3)]
@@ -10,4 +12,14 @@ public class Role : Entity
     public List<UserRole> UserRoles { get; set; } = [];
     [Hidden]
     public List<RolePermission> RolePermissions { get; set; } = [];
+
+    [UIHint("select")]
+    [KeyValue("url", "permission/search")]
+    [KeyValue("value", "id")]
+    [KeyValue("label", "name")]
+    [NotMapped]
+    public List<Guid> Permissions
+    {
+        get { return RolePermissions.Select(o => o.PermissionId).ToList(); }
+    }
 }
