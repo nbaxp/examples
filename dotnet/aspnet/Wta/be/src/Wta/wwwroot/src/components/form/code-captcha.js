@@ -1,8 +1,7 @@
 import { delay } from '@/utils/index.js';
 import request from '@/utils/request.js';
-import SvgIcon from '@/components/icon/index.js';
 import html from 'utils';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 export default {
   components: {},

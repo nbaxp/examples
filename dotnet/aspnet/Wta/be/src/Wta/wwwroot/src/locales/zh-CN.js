@@ -13,9 +13,9 @@ export default {
   selectAll: '全选',
   selectInverse: '反选',
   userCenter: '用户中心',
-  create:'新建',
-  update:'编辑',
-  delete:'删除',
+  create: '新建',
+  update: '编辑',
+  delete: '删除',
   //
   RequiredAttribute: '{0}是必填项',
 };

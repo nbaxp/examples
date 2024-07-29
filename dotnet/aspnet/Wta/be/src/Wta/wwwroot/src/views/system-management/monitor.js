@@ -1,67 +1,45 @@
 import Chart from '@/components/chart/index.js';
-import { dayjs } from 'element-plus';
 import html from 'utils';
-import { bytesFormat, persentFormat } from 'utils';
-import { onActivated, onDeactivated, onMounted, onUnmounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { onActivated, onDeactivated, ref } from 'vue';
 
 export default {
   components: { Chart },
   template: html`<div class="container xl">
-  <el-row :gutter="20" class="mb-5">
-    <el-col :span="12">
-      <el-card>
-        <chart :option="cpuModel" height="300px" />
-      </el-card>
-    </el-col>
-    <el-col :span="12">
-      <el-card>
-        <chart :option="memoryModel" height="300px" />
-      </el-card>
-    </el-col>
-  </el-row>
-  <el-row :gutter="20">
-    <el-col :span="12">
-      <el-card>
-        <chart :option="networkModel" height="300px" />
-      </el-card>
-    </el-col>
-    <el-col :span="12">
-      <el-card>
-        <chart :option="diskModel" height="300px" />
-      </el-card>
-    </el-col>
-  </el-row>
-</div>`,
+    <el-row :gutter="20" class="mb-5">
+      <el-col :span="12">
+        <el-card>
+          <chart :option="cpuModel" height="300px" />
+        </el-card>
+      </el-col>
+      <el-col :span="12">
+        <el-card>
+          <chart :option="memoryModel" height="300px" />
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-card>
+          <chart :option="networkModel" height="300px" />
+        </el-card>
+      </el-col>
+      <el-col :span="12">
+        <el-card>
+          <chart :option="diskModel" height="300px" />
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>`,
   setup(prop) {
     const model = ref(null);
-    let timer = null;
+    const timer = ref(null);
     const seconds = 1;
-    const start = () => {
-      timer = setInterval(load, seconds * 1000);
-    };
-    const stop = () => {
-      clearInterval(timer);
-    };
-    onMounted(start);
-    onUnmounted(stop);
-    onActivated(start);
-    onDeactivated(stop);
+    onActivated(() => {
+      timer.value = setInterval(load, seconds * 1000);
+    });
+    onDeactivated(() => clearInterval(timer.value));
     //reduce
     const sum = (p, c) => p + c.value;
-
-    // const connect = () => {
-    //   const es = new EventSource('/api/monitor/index');
-    //   es.onmessage = (event) => {
-    //     update(JSON.parse(event.data));
-    //   };
-    //   es.onerror = (e) => {
-    //     es.close();
-    //     console.log(e);
-    //     setTimeout(connect, 5 * 1000);
-    //   };
-    // };
-
     //cpu
     const cpuModel = ref({
       title: {
@@ -95,7 +73,7 @@ export default {
       if (!cpuUsage1) {
         cpuUsage1 = cpuUsage2;
       } else {
-        const cpuUsage = cpuUsage2.idle / cpuUsage2.total; // (((cpuUsage2.idle - cpuUsage1.idle) / (cpuUsage2.total - cpuUsage1.total)) * 100).toFixed(2);
+        const cpuUsage = cpuUsage2.idle / cpuUsage2.total;
         if (cpuModel.value.series[0].data.length > 60) {
           cpuModel.value.series[0].data.shift();
         }
@@ -272,7 +250,7 @@ export default {
         lines
           .filter((o) => !o.startsWith('#'))
           .map((o) => {
-            const [, name, , label, value] = /^([^\{\}]+)(\{(.+)\})? (.+)$/.exec(o);
+            const [, name, , label, value] = /^([^{}]+)(\{(.+)\})? (.+)$/.exec(o);
             const result = {
               name,
               value: Number(value),
@@ -290,7 +268,7 @@ export default {
           }),
         (o) => o.name,
       );
-      //console.log(model.value);
+
       updateCpu();
       updateMemory();
       updateNetwork();
