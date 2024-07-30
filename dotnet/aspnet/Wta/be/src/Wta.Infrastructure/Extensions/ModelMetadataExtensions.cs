@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
@@ -10,53 +11,19 @@ public static class ModelMetadataExtensions
 {
     public static object GetSchema(this ModelMetadata meta, IServiceProvider serviceProvider, ModelMetadata? parent = null)
     {
-        var result = new Dictionary<string, object>() { { "isRoot", parent == null } };
+        var result = new Dictionary<string, object>();
         var modelMetaData = (meta as DefaultModelMetadata)!;
-        if (modelMetaData.ModelType.IsValueType)
-        {
-            var isNullableType = modelMetaData.ModelType.IsNullableType();
-            if (modelMetaData.ModelType.IsEnum)
-            {
-            }
-            else
-            {
-                if (modelMetaData.ModelType == typeof(Guid))
-                {
-                }
-                else
-                {
-                }
-            }
-        }
-        else
-        {
-            if (modelMetaData.ModelType.IsArray)
-            {
-            }
-            else if (modelMetaData.ModelType == typeof(string))
-            {
-            }
-            else if (modelMetaData.ModelType.IsGenericType)
-            {
-                if (modelMetaData.ModelType.GetGenericTypeDefinition() == typeof(List<>))
-                {
-                    if (modelMetaData.ModelType.GetGenericArguments().First() == typeof(Guid))
-                    {
-                    }
-                    else
-                    {
-                    }
-                }
-                else
-                {
-                }
-            }
-            else
-            {
-            }
-        }
         var modelType = meta.UnderlyingOrModelType;
-
+        var isValueType = modelMetaData.ModelType.IsValueType;
+        var isNullableType = modelMetaData.ModelType.IsNullableType() ||
+            modelMetaData.Attributes.Attributes.Any(o => o.GetType() == typeof(NullableAttribute));
+        result.TryAdd("isNullable", isNullableType);
+        //是否跟
+        if (parent == null)
+        {
+            result.Add("isRoot", true);
+        }
+        //是否树
         if (meta.ContainerType == null && modelType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseTreeEntity<>)))
         {
             result.TryAdd("isTree", true);
@@ -70,8 +37,21 @@ public static class ModelMetadataExtensions
             result.TryAdd("label", "name");
             result.TryAdd("input", "select");
         }
+        //标题
         var title = meta.ContainerType == null ? modelType.GetDisplayName() : meta.ContainerType?.GetProperty(meta.PropertyName!)?.GetDisplayName();
         result.Add("title", title!);
+        //简介
+        if (meta.Description != null)
+        {
+            result.Add("description", meta.Description);
+        }
+        //只读
+        if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(ReadOnlyAttribute)) is ReadOnlyAttribute readOnlyAttribute &&
+            readOnlyAttribute.IsReadOnly)
+        {
+            result.Add("readOnly", true);
+        }
+        //属性
         modelMetaData.Attributes.Attributes?.ForEach(o =>
         {
             if (o is KeyValueAttribute keyValue)
@@ -84,34 +64,84 @@ public static class ModelMetadataExtensions
                 {
                     result.TryAdd("input", "password");
                 }
-                else if (dataType.DataType == DataType.Date)
+            }
+        });
+        //输入
+        if (modelMetaData.Attributes.Attributes!.Any(o => o.GetType() == typeof(HiddenAttribute)))
+        {
+            result.TryAdd("hidden", true);
+        }
+        if (meta.TemplateHint != null)
+        {
+            result.TryAdd("input", meta.TemplateHint?.ToLowerCamelCase()!);
+        }
+        //类型
+        if (isValueType)//值类型
+        {
+            if (modelType.IsEnum)
+            {
+                if (modelMetaData.IsFlagsEnum)
                 {
-                    result.TryAdd("input", "date");
+                    result.TryAdd("multiple", true);
                 }
-                else if (dataType.DataType == DataType.DateTime)
+                result.TryAdd("input", "select");
+                var options = Enum.GetNames(modelType).Select(o => new
+                {
+                    Value = o,
+                    Label = ((Enum)Enum.Parse(modelType, o)).GetDisplayName()
+                }).ToArray();
+                result.TryAdd("options", options);
+            }
+            else if (modelType == typeof(bool))
+            {
+                result.Add("type", "boolean");
+                if (isNullableType)
+                {
+                    result.TryAdd("input", "select");
+                }
+                else
+                {
+                    result.TryAdd("input", "checkbox");
+                }
+            }
+            else if (modelType == typeof(DateTime))
+            {
+                result.Add("type", "string");
+                if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(DataTypeAttribute)) is not DataTypeAttribute dataType
+                    || dataType.DataType == DataType.DateTime)
                 {
                     result.TryAdd("input", "datetime");
                 }
+                else
+                {
+                    result.TryAdd("input", "date");
+                }
+                result.TryAdd("input", "date");
             }
-        });
-        var roles = meta.GetRules(serviceProvider, title!);
-        if (roles.Any())
-        {
-            result.Add("rules", roles);
-        }
-        // array
-        if (meta.IsEnumerableType)
-        {
-            if (modelType != meta.ElementMetadata!.ModelType.UnderlyingSystemType)
+            else
             {
-                result.Add("type", "array");
-                result.TryAdd("multiple", true);
-                result.Add("items", meta.ElementMetadata.GetSchema(serviceProvider, meta));
+                result.Add("type", "number");
             }
         }
-        else
+        else//引用类型
         {
-            if (!modelType.IsValueType && modelType != typeof(string))
+            if (modelMetaData.IsEnumerableType)//Guid
+            {
+                result.TryAdd("type", "array");
+                //if(modelMetaData.ElementType!.UnderlyingSystemType==typeof(Guid))
+                //{
+                //    result.TryAdd("multiple", true);
+                //}
+                if (parent == null)//modelMetaData.ElementType!.UnderlyingSystemType.IsClass && modelMetaData.ElementType.UnderlyingSystemType != typeof(string))
+                {
+                    result.TryAdd("items", modelMetaData.ElementMetadata!.GetSchema(serviceProvider, meta));
+                }
+            }
+            else if (modelMetaData.ModelType == typeof(string))
+            {
+                result.Add("type", "string");
+            }
+            else
             {
                 result.Add("type", "object");
                 var properties = new Dictionary<string, object>();
@@ -129,139 +159,32 @@ public static class ModelMetadataExtensions
                 var ModelProperties = modelMetaData.Properties.OrderBy(o => getOrder(o));
                 foreach (var propertyMetadata in ModelProperties)
                 {
-                    if (meta.ContainerType != propertyMetadata.ContainerType)
+                    if (meta.ContainerType == propertyMetadata.ContainerType)
                     {
-                        if (propertyMetadata.IsEnumerableType)
-                        {
-                            //array
-                            if (propertyMetadata.ElementType == propertyMetadata.ContainerType)
-                            {
-                                continue;
-                            }
-                        }
-                        else if (!propertyMetadata.ModelType.IsValueType && propertyMetadata.ModelType != typeof(string))
-                        {
-                            //object
-                            if (propertyMetadata.ModelType == propertyMetadata.ContainerType)
-                            {
-                                continue;
-                            }
-                            if (parent != null)
-                            {
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            //property
-                        }
-                        properties.Add(propertyMetadata.Name!, propertyMetadata.GetSchema(serviceProvider, meta));
+                        continue;
                     }
+                    properties.Add(propertyMetadata.Name!, propertyMetadata.GetSchema(serviceProvider, meta));
                 }
                 result.Add(nameof(properties), properties);
             }
-            else
-            {
-                if (modelType.IsEnum)
-                {
-                    result.TryAdd("options", Enum.GetNames(modelType).Select(o => new { Value = o, Label = ((Enum)Enum.Parse(modelType, o)).GetDisplayName() }).ToArray());
-                    result.TryAdd("input", "select");
-                    if (modelType.HasAttribute<FlagsAttribute>())
-                    {
-                        result.TryAdd("multiple", true);
-                    }
-                }
-                AddType(result, modelType);
-                if (meta.ModelType.IsNullableType())
-                {
-                    result.Add("nullable", true);
-                }
-            }
         }
-        if (meta.Description != null)
-        {
-            result.Add("description", meta.Description);
-        }
-        if (meta.DataTypeName != null)
-        {
-            result.Add("format", meta.DataTypeName?.ToLowerCamelCase()!);
-        }
-        if (meta.TemplateHint != null)
-        {
-            result.Add("input", meta.TemplateHint?.ToLowerCamelCase()!);
-        }
-        if (meta.TemplateHint == "select" && meta.IsEnumerableType && modelType.IsGenericType)
-        {
-            result.TryAdd("url", modelType.GetGenericArguments().First().Name.ToSlugify()!);
-        }
-        if (modelMetaData.Name == "Id" || modelMetaData.Attributes.Attributes!.Any(o => o.GetType() == typeof(HiddenAttribute)))
-        {
-            result.TryAdd("hidden", true);
-        }
-        var propertyName = modelMetaData.Name;
-        if (propertyName != null)
-        {
-            if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(DefaultValueAttribute)) is DefaultValueAttribute defaultValue)
-            {
-                result.Add("default", defaultValue.Value!);
-            }
-            //if (defaultModelMetadata.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(NavigationAttribute)) is NavigationAttribute navigationAttribute)
-            //{
-            //    var path = navigationAttribute.Property ?? $"{propertyName[..^2]}.Name";
-            //    path = string.Join('.', path.Split('.').Select(o => o.ToLowerCamelCase()));
-            //    schema.Add("navigation", path);
-            //    schema.Add("input", "select");
-            //    schema.Add("url", propertyName[..^2].ToSlugify());
-            //}
-            if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(ScaffoldColumnAttribute)) is ScaffoldColumnAttribute scaffoldColumnAttribute
-                && !scaffoldColumnAttribute.Scaffold)
-            {
-                //列表、详情、新建、更新、查询都不显示
-                result.Add("hidden", true);
-            }
-            if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(ReadOnlyAttribute)) is ReadOnlyAttribute readOnlyAttribute
-                && readOnlyAttribute.IsReadOnly)
-            {
-                //列表、详情显示，编辑时不显示，查询时显示
-                result.Add("readOnly", true);
-            }
-            //if (defaultModelMetadata.Attributes.Attributes.Any(o => o.GetType() == typeof(DisplayOnlyAttribute)))
-            //{
-            //    //列表、详情、编辑时都只显示，查询时显示
-            //    schema.Add("displayOnly", true);
-            //}
-        }
-        return result;
-    }
-
-    public static List<Dictionary<string, object>> GetRules(this ModelMetadata meta, IServiceProvider serviceProvider, string title)
-    {
-        var pm = (meta as DefaultModelMetadata)!;
-        var rules = new List<Dictionary<string, object>>();
+        //验证
         var validationProvider = serviceProvider.GetRequiredService<IValidationAttributeAdapterProvider>();
         var localizer = serviceProvider.GetRequiredService<IStringLocalizer>();
         var actionContext = new ActionContext { HttpContext = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext! };
         var provider = new EmptyModelMetadataProvider();
         var modelValidationContextBase = new ModelValidationContextBase(actionContext, meta, new EmptyModelMetadataProvider());
-        if (pm.IsRequired &&
-            !pm.IsNullableValueType &&
-            !pm.UnderlyingOrModelType.IsValueType &&
-            !pm.IsEnumerableType &&
-            !pm.Attributes.Attributes.Any(o => o.GetType() == typeof(RequiredAttribute))
-            )
+        var rules = new List<Dictionary<string, object>>();
+        //必填
+        if (!isNullableType || modelMetaData.IsRequired)
         {
-            var message = string.Format(CultureInfo.InvariantCulture, localizer.GetString(nameof(RequiredAttribute)).Value, title);
-            rules.Add(new Dictionary<string, object> { { "required", true }, { "message", message } });
+            if (modelType != typeof(bool))
+            {
+                var message = string.Format(CultureInfo.InvariantCulture, localizer.GetString(nameof(RequiredAttribute)).Value, title);
+                rules.Add(new Dictionary<string, object> { { "required", true }, { "message", message } });
+            }
         }
-        //if (pm.IsRequired)
-        //{
-        //    if (!pm.ModelType.IsValueType && pm.Attributes.Attributes.Any(o => o.GetType() == typeof(RequiredAttribute)))
-        //    {
-        //        var message = string.Format(CultureInfo.InvariantCulture, localizer.GetString(nameof(RequiredAttribute)).Value, title);
-        //        rules.Add(new Dictionary<string, object> { { "required", true }, { "message", message } });
-        //    }
-        //}
-        foreach (var item in pm.Attributes.Attributes)
+        foreach (var item in modelMetaData.Attributes.Attributes!)
         {
             if (item is ValidationAttribute attribute && !string.IsNullOrEmpty(attribute.ErrorMessage))
             {
@@ -344,7 +267,7 @@ public static class ModelMetadataExtensions
                 {
                     rule.Add("validator", "remote");
                     var attributes = new Dictionary<string, string>();
-                    remote.AddValidation(new ClientModelValidationContext(actionContext, pm, provider, attributes));
+                    remote.AddValidation(new ClientModelValidationContext(actionContext, modelMetaData, provider, attributes));
                     rule.Add("remote", attributes["data-val-remote-url"]);
                     //rule.Add("fields", remote.AdditionalFields.Split(',').Where(o => !string.IsNullOrEmpty(o)).Select(o => o.ToLowerCamelCase()).ToList());
                 }
@@ -374,38 +297,11 @@ public static class ModelMetadataExtensions
                 }
                 //rule.Add("trigger", "change");
             }
-            else
-            {
-                //Console.WriteLine($"{item.GetType().Name}");
-            }
         }
-        return rules;
-    }
-
-    private static void AddType(Dictionary<string, object> schema, Type modelType)
-    {
-        var type = "string";
-        if (modelType == typeof(bool))
+        if (rules.Any())
         {
-            type = "boolean";
+            result.TryAdd(nameof(rules), rules);
         }
-        else if (modelType == typeof(short) ||
-            modelType == typeof(int) ||
-            modelType == typeof(long))
-        {
-            type = "integer";
-        }
-        else if (
-            modelType == typeof(float) ||
-            modelType == typeof(double) ||
-            modelType == typeof(decimal))
-        {
-            type = "number";
-        }
-        schema.Add("type", type);
-        if (modelType.GetUnderlyingType() == typeof(DateTime))
-        {
-            schema.TryAdd("input", "datetime");
-        }
+        return result;
     }
 }

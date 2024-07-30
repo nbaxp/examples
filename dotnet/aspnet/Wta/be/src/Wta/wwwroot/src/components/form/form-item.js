@@ -1,5 +1,5 @@
-import { getRules } from '@/utils/validation.js';
 import AppFormInput from '@/components/form/form-input.js';
+import { getRules } from '@/utils/validation.js';
 import html from 'utils';
 import { computed, reactive, watch } from 'vue';
 

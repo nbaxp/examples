@@ -1,3 +1,4 @@
+import i18n from '@/locales/index.js';
 import { useI18n } from 'vue-i18n';
 import { format, getProp } from './index.js';
 import request from './request.js';
@@ -103,7 +104,7 @@ const validators = {
 
 //
 const getRules = (parentSchema, property, data, prop) => {
-  const { t } = useI18n();
+  const { t } = i18n.global;
   if (!property.rules) {
     return null;
   }

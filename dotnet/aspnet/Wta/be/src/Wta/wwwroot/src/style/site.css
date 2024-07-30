@@ -222,7 +222,11 @@ img.loading {
 /*Tabs多页签*/
 .router-tabs {
   .el-tabs__item {
-    padding: 15px !important;
+    padding: 0 15px 0 0 !important;
+  }
+
+  .el-tooltip__trigger {
+    padding: 15px 0 15px 15px;
   }
 
   .is-active {
@@ -243,6 +247,7 @@ img.loading {
     border-top: none !important;
     border-left: none !important;
   }
+
 }
 
 /*站内导航*/

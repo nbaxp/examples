@@ -9,10 +9,10 @@ public class CaptchaModel : IValidatableObject
     [KeyValue("url", "captcha/image")]
     public string? AuthCode { get; set; }
 
-    [Required, ScaffoldColumn(false)]
+    [Required, Hidden]
     public string? CodeHash { get; set; }
 
-    [ScaffoldColumn(false)]
+    [Hidden]
     public DateTime? Expires { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

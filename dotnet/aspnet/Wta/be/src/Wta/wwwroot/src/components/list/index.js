@@ -1,9 +1,9 @@
-import { useAppStore, useTokenStore } from '@/store/index.js';
-import request, { getUrl } from '@/utils/request.js';
-import { schemaToModel } from '@/utils/schema.js';
 import AppFormInput from '@/components/form/form-input.js';
 import AppForm from '@/components/form/index.js';
 import SvgIcon from '@/components/icon/index.js';
+import { useAppStore, useTokenStore } from '@/store/index.js';
+import request, { getUrl } from '@/utils/request.js';
+import { schemaToModel } from '@/utils/schema.js';
 import { useCssVar } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import * as jsondiffpatch from 'jsondiffpatch';
@@ -397,7 +397,7 @@ export default {
     // const buttons = ref(props.buttons ?? route.meta.children.filter((o) => o.meta.hasPermission));
     // 添加下行代码暂停权限验证
     const buttons = ref(props.schema.meta?.buttons ?? route.meta.children);
-    const queryModel = ref(schemaToModel(props.schema));
+    const queryModel = ref(schemaToModel(props.schema, true));
     watch(queryModel.value, async (value, oldValue, a) => {
       if (props.schema.autoSubmit) {
         await load();
@@ -1023,12 +1023,16 @@ export default {
       };
       const queryValue = [];
       for (const [key, value] of Object.entries(JSON.parse(JSON.stringify(queryModel.value)))) {
-        //const schema = props.schema.properties[key];
         if (Array.isArray(value)) {
           if (value.length) {
             queryValue.push([key, value]);
           }
-        } else if (value) {
+        } else if (value?.constructor === Object) {
+          // if(Object.keys(value).length)
+          // {
+          //   queryValue.push([key, value]);
+          // }
+        } else if (value || value?.constructor === Boolean) {
           queryValue.push([key, value]);
         }
       }

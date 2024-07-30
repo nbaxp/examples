@@ -8,7 +8,7 @@ export function schemaToModel(schema, isQueryForm = false) {
     const type = property.type;
     let value = null;
     if (type === 'object') {
-      value = schemaToModel(property);
+      value = schemaToModel(property,isQueryForm);
     } else if (!isQueryForm) {
       if (property.default) {
         value = property.default;

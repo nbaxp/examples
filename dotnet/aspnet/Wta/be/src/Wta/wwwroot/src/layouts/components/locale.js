@@ -1,7 +1,10 @@
-import config from '~/src/locales/config.js';
 import SvgIcon from '@/components/icon/index.js';
+import { useTabsStore } from '@/store/index.js';
 import html from 'utils';
+import { nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import config from '~/src/locales/config.js';
 
 export default {
   components: { SvgIcon },
@@ -24,10 +27,16 @@ export default {
   </el-dropdown>`,
   setup() {
     const i18n = useI18n();
+    const tabsStore = useTabsStore();
+    const router = useRouter();
     const change = (locale) => {
       i18n.locale.value = locale;
+      router.push({ path: router.currentRoute.value.fullPath });
+      tabsStore.isRefreshing = true;
+      nextTick(() => {
+        tabsStore.isRefreshing = false;
+      });
     };
-
     return {
       config,
       change,
