@@ -80,11 +80,12 @@ public static class ModelMetadataExtensions
         {
             if (modelType.IsEnum)
             {
+                result.Add("type", "number");
+                result.TryAdd("input", "select");
                 if (modelMetaData.IsFlagsEnum)
                 {
                     result.TryAdd("multiple", true);
                 }
-                result.TryAdd("input", "select");
                 var options = Enum.GetNames(modelType).Select(o => new
                 {
                     Value = o,
@@ -117,6 +118,12 @@ public static class ModelMetadataExtensions
                     result.TryAdd("input", "date");
                 }
                 result.TryAdd("input", "date");
+                result.TryAdd("format", "datetime");
+            }
+            else if (modelType == typeof(Guid))
+            {
+                result.Add("type", "string");
+                result.Add("format", "guid");
             }
             else
             {
@@ -182,6 +189,7 @@ public static class ModelMetadataExtensions
             {
                 var message = string.Format(CultureInfo.InvariantCulture, localizer.GetString(nameof(RequiredAttribute)).Value, title);
                 rules.Add(new Dictionary<string, object> { { "required", true }, { "message", message } });
+                result.Add("required", true);
             }
         }
         foreach (var item in modelMetaData.Attributes.Attributes!)

@@ -1,6 +1,6 @@
+import SvgIcon from '@/components/icon/index.js';
 import { bytesFormat, importFunction } from '@/utils/index.js';
 import request from '@/utils/request.js';
-import SvgIcon from '@/components/icon/index.js';
 import { dayjs } from 'element-plus';
 import { ElMessage, useFormItem } from 'element-plus';
 import html from 'utils';
@@ -69,7 +69,7 @@ export default {
       </el-option>
     </el-select>
   </template>
-  <template v-else-if="schema.input==='month'||schema.input==='datetime'||schema.input==='datetimerange'">
+  <template v-else-if="schema.input==='month'||schema.input==='datetime'">
     <el-date-picker
       v-model="model[prop]"
       :type="schema.input"
@@ -82,7 +82,7 @@ export default {
     <el-input
       :disabled="getDisabled()"
       :placeholder="schema.placeholder??schema.title"
-      v-model="model[prop]"
+      v-model.number="model[prop]"
       type="number"
     />
   </template>
@@ -96,7 +96,7 @@ export default {
   </template>
   <template v-else-if="schema.input==='switch'">
     <el-switch v-model="model[prop]" type="checked" />
-    <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}</span>
+    <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}111</span>
   </template>
   <template v-else-if="schema.input==='boolean'">
     <el-select
@@ -113,7 +113,7 @@ export default {
     </el-select>
     <template v-else>
       <el-switch v-model="model[prop]" type="checked" />
-      <span v-if="schema.showLabel" class="pl-4">{{schema.title}}</span>
+      <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}222</span>
     </template>
   </template>
   <template v-else-if="schema.input === 'image-captcha'">
@@ -186,7 +186,16 @@ export default {
     </el-upload>
   </template>
   <template v-else-if="schema.input==='checkbox'">
-    <el-checkbox v-model="model[prop]" :label="schema.title" size="large" />
+    <el-checkbox v-model="model[prop]" :label="schema.meta.showLabel?schema.title:''" />
+  </template>
+  <template v-else-if="schema.input==='daterange'||schema.input==='datetimerange'">
+    <el-date-picker
+      v-model="model[prop]"
+      :type="schema.input"
+      :label="schema.meta.showLabel?schema.title:''"
+      :value-format="schema.format??'YYYY-MM-DD HH:mm:ss'"
+      clearable
+    />
   </template>
   <template v-else>
     <el-input

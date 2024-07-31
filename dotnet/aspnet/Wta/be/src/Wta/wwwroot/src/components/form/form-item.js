@@ -12,7 +12,7 @@ export default {
     <template v-if="schema.type==='object'"></template>
     <template v-else-if="schema.type!=='array'||schema.items?.type!=='array'">
       <el-form-item
-        :label="parentSchema.meta?.labelWidth===0?null:schema.title"
+        :label="getLabel(prop)"
         :prop="getProp(prop)"
         :rules="rules"
         :error="mode==='query'?null:getError(prop)"
@@ -58,6 +58,16 @@ export default {
       return prop;
     };
     //
+    const getLabel = (prop) => {
+      if (props.parentSchema.meta?.labelWidth === 0) {
+        return 0;
+      }
+      if (props.schema.meta?.showLabel) {
+        return 0;
+      }
+      return props.schema.title;
+    };
+    //
     const getError = (prop) => {
       return props.errors[prop];
     };
@@ -73,6 +83,7 @@ export default {
       model,
       showItem,
       getProp,
+      getLabel,
       getError,
       getDisabled,
       rules,

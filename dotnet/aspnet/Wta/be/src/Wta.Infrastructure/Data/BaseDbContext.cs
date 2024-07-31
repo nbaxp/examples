@@ -86,6 +86,8 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                 {
                     entity.CreatedOn = now;
                     entity.CreatedBy = userName;
+                    entity.UpdatedOn = null;
+                    entity.UpdatedBy = null;
                 }
                 else if (item.State == EntityState.Modified)
                 {

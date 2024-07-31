@@ -3,7 +3,7 @@ import AppForm from '@/components/form/index.js';
 import SvgIcon from '@/components/icon/index.js';
 import { useAppStore, useTokenStore } from '@/store/index.js';
 import request, { getUrl } from '@/utils/request.js';
-import { schemaToModel } from '@/utils/schema.js';
+import { schemaToModel, toQuerySchema } from '@/utils/schema.js';
 import { useCssVar } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import * as jsondiffpatch from 'jsondiffpatch';
@@ -21,7 +21,7 @@ export default {
     AppFormInput,
     SvgIcon,
   },
-  template: html`<div class="pb-5" v-loading="loading">
+  template: html`<div class="pb-5" v-loading="loading" element-loading-text="Loading...">
   <el-card style="position: relative;">
     <div
       @click="()=>queryFormFold=!queryFormFold"
@@ -40,7 +40,7 @@ export default {
       ref="queryFormRef"
       inline
       mode="query"
-      :schema="schema"
+      :schema="querySchema"
       v-model="queryModel"
       @submit="load"
       :hideButton="true"
@@ -380,6 +380,8 @@ export default {
     const treeProps = reactive({
       children: 'children',
     });
+    const querySchema = ref(toQuerySchema(props.schema));
+    const queryModel = ref(schemaToModel(querySchema.value, true));
     const tableKey = ref(false);
     const tableRef = ref(null);
     const uploadRef = ref(null);
@@ -397,14 +399,7 @@ export default {
     // const buttons = ref(props.buttons ?? route.meta.children.filter((o) => o.meta.hasPermission));
     // 添加下行代码暂停权限验证
     const buttons = ref(props.schema.meta?.buttons ?? route.meta.children);
-    const queryModel = ref(schemaToModel(props.schema, true));
-    watch(queryModel.value, async (value, oldValue, a) => {
-      if (props.schema.autoSubmit) {
-        await load();
-      }
-    });
     const sortColumns = ref(new Map());
-    const querySchema = ref(props.querySchema);
     const filterList = ref([]);
     const tableSchema = ref({});
     const tableData = ref([]);
@@ -421,6 +416,11 @@ export default {
     const editFormButton = ref(null);
     const tempModel = ref(null);
     const versions = ref([]);
+    // watch(queryModel.value, async (value, oldValue, a) => {
+    //   if (props.schema.autoSubmit) {
+    //     await load();
+    //   }
+    // });
     const onClick = async (method, confirMmessage = '确认操作吗？', reload = true) => {
       try {
         if (confirMmessage) {
@@ -561,66 +561,31 @@ export default {
         if (editFormMode.value === 'create') {
           editFormModel.value = schemaToModel(editFormSchema.value);
         } else {
-          //const url = format(config.edit.detailsUrl, rows[0].id);
-          tempModel.value = JSON.parse(JSON.stringify(rows[0]), (k, v) => {
-            if (v === false && editFormSchema.value[k]?.type !== 'boolean') {
-              return null;
-            }
-            return v;
-          });
-          editFormModel.value = { ...tempModel.value };
-          //(await request(config.edit.detailsMethod ?? 'POST', url)).data;
+          const detailsButton = props.schema.meta.buttons.find((o) => o.meta.command === 'details');
+          const url = `/${detailsButton?.meta?.url}`;
+          const method = detailsButton.meta.method ?? 'POST';
+          const result = await request(method, url, rows[0].id);
+          editFormModel.value = result.data.data;
           editFormModel.value.id = rows[0].id;
         }
         editFormTitle.value = `${t(item.meta.command)}${editFormSchema.value.title}`;
         dialogVisible.value = true;
-      } else if (editFormMode.value === 'delete') {
+      } else if (
+        editFormMode.value === 'delete' ||
+        editFormMode.value === 'archive' ||
+        editFormMode.value === 'unarchive'
+      ) {
         try {
-          await ElMessageBox.confirm(format('确认删除选中的%s行数据吗？', rows.length), '提示', {
+          await ElMessageBox.confirm(format(`确认${t(item.meta.command)}}选中的%s行数据吗？`, rows.length), '提示', {
             type: 'warning',
           });
           tableLoading.value = true;
-          const url = item?.meta?.action;
-          const method = config.edit.deleteMethod ?? 'POST';
-          const data = unlink(
-            config.model,
-            rows.map((o) => o.id),
-          );
+          const url = `/${item?.meta?.url}`;
+          const method = item.meta.method ?? 'POST';
+          const data = rows.map((o) => o.id);
           const result = await request(method, url, data);
           if (!result.error) {
             pageModel.pageIndex = 1;
-            await reload();
-          } else {
-            ElMessageBox.alert(result.message, '提示', { type: 'error' });
-          }
-        } catch (error) {
-          if (error === 'cancel') {
-            ElMessage({
-              type: 'info',
-              message: '操作取消',
-            });
-          }
-        } finally {
-          tableLoading.value = false;
-        }
-      } else if (editFormMode.value === 'archive' || editFormMode.value === 'unarchive') {
-        try {
-          await ElMessageBox.confirm(
-            `确认${editFormMode.value === 'archive' ? '归档' : '激活'}选中的${rows.length}行数据吗？`,
-            '提示',
-            {
-              type: 'warning',
-            },
-          );
-          tableLoading.value = true;
-          const url = item?.meta?.action;
-          const method = config.edit.deleteMethod ?? 'POST';
-          const data = (item.path === 'archive' ? action_archive : action_unarchive)(
-            config.model,
-            rows.map((o) => o.id),
-          );
-          const result = await request(method, url, data);
-          if (!result.error) {
             await reload();
           } else {
             ElMessageBox.alert(result.message, '提示', { type: 'error' });
@@ -732,6 +697,8 @@ export default {
     const submit = async () => {
       if (editFormMode.value === 'create' || editFormMode.value === 'update') {
         try {
+          // await editFormRef.value.submit();
+          // return;
           const valid = await editFormRef.value.validate();
           if (valid) {
             await onClick(
@@ -746,7 +713,12 @@ export default {
                   editFormMode.value = null;
                   await reload();
                 } else {
-                  ElMessageBox.alert(result.message, '提示', { type: 'error' });
+                  if (result.code === 400) {
+                    const modelErrors = JSON.parse(JSON.stringify(result.data));
+                    editFormRef.value.setErrors(modelErrors);
+                  } else {
+                    ElMessageBox.alert(result.message, '提示', { type: 'error' });
+                  }
                 }
               },
               null,
@@ -1020,12 +992,34 @@ export default {
     function buildQuery() {
       const data = {
         includeAll: !!props.schema.meta.isTree,
+        filters: [],
       };
       const queryValue = [];
       for (const [key, value] of Object.entries(JSON.parse(JSON.stringify(queryModel.value)))) {
+        const propSchema = querySchema.value.properties[key];
         if (Array.isArray(value)) {
           if (value.length) {
-            queryValue.push([key, value]);
+            if (propSchema.input === 'daterange' || propSchema.input === 'datetimerange') {
+              data.filters.push({
+                logic: 'and',
+                property: key,
+                operator: '>=',
+                value: value[0],
+              });
+              data.filters.push({
+                logic: 'and',
+                property: key,
+                operator: '<',
+                value: value[1],
+              });
+            } else {
+              data.filters.push({
+                logic: 'and',
+                property: key,
+                operator: 'in',
+                value: value,
+              });
+            }
           }
         } else if (value?.constructor === Object) {
           // if(Object.keys(value).length)
@@ -1033,7 +1027,12 @@ export default {
           //   queryValue.push([key, value]);
           // }
         } else if (value || value?.constructor === Boolean) {
-          queryValue.push([key, value]);
+          data.filters.push({
+            logic: 'and',
+            property: key,
+            operator: '==',
+            value: value,
+          });
         }
       }
       if (queryValue.length) {
@@ -1098,6 +1097,7 @@ export default {
       queryFormRef.value.reset();
       await reload();
     };
+    const errors = ref({});
     return {
       appStore,
       loading,
@@ -1155,6 +1155,7 @@ export default {
       queryFormFold,
       queryStyle,
       resetColumns,
+      errors,
     };
   },
 };

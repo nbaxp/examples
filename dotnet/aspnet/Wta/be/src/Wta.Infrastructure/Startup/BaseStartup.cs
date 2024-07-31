@@ -160,7 +160,8 @@ public abstract class BaseStartup : IStartup
                         "Sqlite";
                     if (dbContextProvider == "MySql")
                     {
-                        optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+                        var serverVersion = ServerVersion.AutoDetect(connectionString);
+                        optionsBuilder.UseMySql(connectionString, serverVersion, b => b.UseNetTopologySuite());
                     }
                     else if (dbContextProvider == "Npgsql")
                     {
@@ -176,7 +177,7 @@ public abstract class BaseStartup : IStartup
                     }
                     else
                     {
-                        optionsBuilder.UseSqlite(connectionString);
+                        optionsBuilder.UseSqlite(connectionString, b => b.UseNetTopologySuite());
                     }
                 };
                 typeof(EntityFrameworkServiceCollectionExtensions)
@@ -452,6 +453,7 @@ public abstract class BaseStartup : IStartup
             containerBuilder.RegisterModule(new ConfigurationModule(builder.Configuration));
         }));
     }
+
     /// <summary>
     /// 添加 SignalR
     /// </summary>
@@ -469,6 +471,7 @@ public abstract class BaseStartup : IStartup
             signalRServerBuilder.AddStackExchangeRedis(redisConnectionString);
         }
     }
+
     /// <summary>
     /// 2.配置应用程序
     /// https://learn.microsoft.com/zh-cn/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0&tabs=aspnetcore2x#middleware-order
@@ -686,6 +689,7 @@ public abstract class BaseStartup : IStartup
         //    });
         //});
     }
+
     /// <summary>
     /// 8.配置 SignalR
     /// </summary>

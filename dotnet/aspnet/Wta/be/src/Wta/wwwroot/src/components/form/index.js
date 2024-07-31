@@ -103,7 +103,14 @@ export default {
     const getProperties = (properties) => {
       return Object.fromEntries(Object.entries(properties).sort(([, a], [, b]) => a.order - b.order));
     };
-    context.expose({ validate, reset });
+    const setErrors = (modelErrors) => {
+      errors.value = {};
+      nextTick(() => {
+        errors.value = modelErrors;
+        //Object.assign(errors.value, result.data);
+      });
+    };
+    context.expose({ reset, validate, submit, setErrors });
     return {
       model,
       formRef,

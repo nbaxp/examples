@@ -31,6 +31,8 @@ msgid "Copyright"
 msgstr "Copyright © {0}"
 
 #通用属性
+msgid "IsDeleted"
+msgstr "已归档"
 msgid "AuthCode"
 msgstr "验证码"
 msgid "ParentId"

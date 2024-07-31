@@ -13,8 +13,6 @@ public class QueryModel<TModel>
     [DefaultValue(null)]
     public string? OrderBy { get; set; }
 
-    public TModel? Query { get; set; }
-
     public bool IncludeAll { get; set; }
 
     public List<QueryFilter> Filters { get; set; } = new List<QueryFilter>();
