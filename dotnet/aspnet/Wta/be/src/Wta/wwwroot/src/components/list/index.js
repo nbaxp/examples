@@ -50,22 +50,13 @@ export default {
       class="query"
       label-position="right"
       :style="queryStyle"
-    >
-      <template v-for="item in filterList.filter(o=>!o.hidden&&o.readOnly)">
-        <template v-if="schema.properties[item.column]?.title">
-          <el-form-item :label="item.title??schema.properties[item.column].title">
-            <app-form-input v-model="item" :schema="schema.properties[item.column]" prop="value" mode="query" />
-          </el-form-item>
-        </template>
-        <div v-else>{{item.column}}</div>
-      </template>
-    </app-form>
+    />
     <el-row class="flex justify-between">
       <div>
         <template v-for="item in buttons">
           <el-button
             v-if="!item.meta.hidden&&item.meta.buttonType==='table'"
-            @click="click(item,selectedRows)"
+            @click="buttonClick(item,selectedRows)"
             :class="item.meta.htmlClass??'el-button--primary'"
             v-show="!item.meta.show||item.meta.show(selectedRows,queryModel)"
             :disabled="getButtonDisabled(item)"
@@ -76,7 +67,7 @@ export default {
             <span>{{item.meta.title}}</span>
           </el-button>
         </template>
-        <el-button v-if="false" @click="click('filter',selectedRows)">
+        <el-button v-if="false" @click="buttonClick('filter',selectedRows)">
           <el-icon><ep-filter /></el-icon>
           <span>{{$t('筛选')}}</span>
         </el-button>
@@ -84,7 +75,7 @@ export default {
       </div>
       <div>
         <el-button
-          @click="click(buttons.find(o=>o.meta.command==='search'),selectedRows)"
+          @click="buttonClick(buttons.find(o=>o.meta.command==='search'),selectedRows)"
           class="el-button--primary mb-5"
         >
           查询
@@ -130,7 +121,7 @@ export default {
         <template v-else-if="item.link">
           <el-table-column :prop="key" :label="item.title">
             <template #default="scope">
-              <el-link type="primary" @click="click({path:key},[scope.row])">
+              <el-link type="primary" @click="buttonClick({path:key},[scope.row])">
                 {{scope.row[key]}}
               </el-link>
             </template>
@@ -178,7 +169,7 @@ export default {
                 :class="item.meta.htmlClass??'is-plan'"
                 v-if="!item.meta.hidden&&item.meta.buttonType==='row'"
                 v-show="!item.meta.show||item.meta.show(scope.row,queryModel)"
-                @click="click(item,[scope.row])"
+                @click="buttonClick(item,[scope.row])"
                 :disabled="item.meta.disabled && item.meta.disabled(scope.row)"
               >
                 <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
@@ -247,7 +238,7 @@ export default {
   <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
   <template #footer>
     <span class="dialog-footer">
-      <el-button type="primary" @click="submit">{{$t('confirm')}}</el-button>
+      <el-button type="primary" @click="editFormSubmit">{{$t('confirm')}}</el-button>
     </span>
   </template>
   <el-row v-loading="editFormloading">
@@ -257,7 +248,7 @@ export default {
           <template v-for="item in buttons">
             <el-button
               v-if="item.meta.command==='import-template'"
-              @click="click(item,selectedRows)"
+              @click="buttonClick(item,selectedRows)"
               :class="item.meta.htmlClass??'el-button--primary'"
               v-show="!item.meta.show||item.meta.show(selectedRows,queryModel)"
               :disabled="getButtonDisabled(item)"
@@ -291,7 +282,6 @@ export default {
     const appStore = useAppStore();
     const tokenStore = useTokenStore();
     const loading = ref(true);
-    const listScrollbarRef = ref(null);
     // 分页
     const pageModel = reactive({
       sizeList: [10, 100, 1000],
@@ -320,7 +310,6 @@ export default {
     // 添加下行代码暂停权限验证
     const buttons = ref(props.schema.meta?.buttons ?? route.meta.children);
     const sortColumns = ref(new Map());
-    const filterList = ref([]);
     const tableSchema = ref({});
     const tableData = ref([]);
     const editFormRef = ref(null);
@@ -334,8 +323,6 @@ export default {
     const editFormSchema = ref(null);
     const editFormModel = ref(null);
     const editFormButton = ref(null);
-    const tempModel = ref(null);
-    const versions = ref([]);
     // watch(queryModel.value, async (value, oldValue, a) => {
     //   if (props.schema.autoSubmit) {
     //     await load();
@@ -417,15 +404,6 @@ export default {
     const showColumn = (item, prop) => {
       return columns.value.some((o) => o.name === prop && o.checked);
     };
-    const getFilters = (item, prop) => {
-      if (item.input === 'select' && item.options) {
-        return item.options.map((o) => ({ text: o.label, value: o.value }));
-      }
-      return null;
-    };
-    const filterHandler = (value, row, column) => {
-      return row[column.property] === value;
-    };
     const handleSelectionChange = (rows) => {
       selectedRows.value = rows;
     };
@@ -452,7 +430,6 @@ export default {
         tableKey.value = !tableKey.value;
         // nextTick(() => {
         //   tableRef.value.doLayout();
-        //   nextTick(() => listScrollbarRef.value.update());
         // });
       } catch (error) {
         console.log(error);
@@ -469,7 +446,7 @@ export default {
     const onPageSizeChange = async () => {
       await reload();
     };
-    const click = async (item, rows) => {
+    const buttonClick = async (item, rows) => {
       editFormMode.value = item.meta.command;
       const showForm = ['create', 'update', 'details', 'import', 'export'].some((o) => o === item.meta.command);
       try {
@@ -540,7 +517,7 @@ export default {
         }
       }
     };
-    const submit = async () => {
+    const editFormSubmit = async () => {
       if (editFormMode.value === 'create' || editFormMode.value === 'update') {
         try {
           // await editFormRef.value.submit();
@@ -780,70 +757,6 @@ export default {
       }
       return false;
     };
-    const pushfilterList = () => {
-      filterList.value.push({
-        logic: 'and',
-        column: '',
-        action: '=',
-        value: null,
-      });
-    };
-    const operators = [
-      {
-        value: '=',
-        label: '等于',
-      },
-      {
-        value: '!=',
-        label: '不等于',
-      },
-      {
-        value: '>',
-        label: '大于',
-      },
-      {
-        value: '<',
-        label: '小于',
-      },
-      {
-        value: '>=',
-        label: '大于等于',
-      },
-      {
-        value: '<=',
-        label: '小于等于',
-      },
-      {
-        value: 'ilike',
-        label: '包含',
-      },
-      {
-        value: 'not ilike',
-        label: '不包含',
-      },
-      {
-        value: 'in',
-        label: '在',
-      },
-      {
-        value: 'not in',
-        label: '不在',
-      },
-    ];
-    const getOperators = (schema) => {
-      const values = ['=', '!='];
-      if (schema.type === 'string') {
-        values.push('ilike', 'not ilike');
-        if (schema.input && ['year', 'month', 'date', 'datetime'].includes(schema.input)) {
-          values.push('>', '<', '>=', '<=');
-        }
-      } else if (schema.type === 'array') {
-        values.push('in', 'not in');
-      } else {
-        values.push('>', '<', '>=', '<=');
-      }
-      return operators;
-    };
     function buildQuery() {
       const data = {
         includeAll: !!props.schema.meta.isTree,
@@ -915,12 +828,6 @@ export default {
       if (!props.schema.meta.isTree) {
         getSortModel(queryModel.value);
       }
-      filterList.value = props.schema.meta?.filters ?? [];
-      for (const o of filterList.value) {
-        if (o.default) {
-          o.value = o.default.constructor === Function ? o.default() : o.default;
-        }
-      }
       originalColumns = getColumns(props.schema);
       columns.value = JSON.parse(JSON.stringify(originalColumns));
       // if (props.query) {
@@ -952,62 +859,53 @@ export default {
       queryFormRef.value.reset();
       await reload();
     };
-    const errors = ref({});
     return {
       appStore,
+      buttons,
+      getButtonDisabled,
+      //查询表单
       loading,
-      queryFormRef,
-      listScrollbarRef,
       reset,
+      load,
       reload,
-      onClick,
+      querySchema,
       queryModel,
-      pageModel,
+      queryFormRef,
+      queryStyle,
+      queryFormFold,
+      //列表
+      tableData,
+      tableSchema,
       treeProps,
       tableKey,
       tableRef,
-      columns,
-      showColumn,
-      filterDrawer,
-      subDrawer,
-      dialogVisible,
-      selectedRows,
-      querySchema,
-      filterList,
-      tableSchema,
-      buttons,
-      tableData,
-      getClass,
       sortChange,
-      getProp,
-      importFormRef,
+      buttonClick,
+      showColumn,
+      selectedRows,
+      handleSelectionChange,
+      getClass,
+      //分页
+      pageModel,
+      onPageSizeChange,
+      onPageIndexChange,
+      //对话框
+      dialogVisible,
       editFormRef,
       editFormloading,
       editFormMode,
       editFormTitle,
       editFormSchema,
       editFormModel,
-      exportModel,
-      importModel,
-      onPageSizeChange,
-      onPageIndexChange,
-      handleSelectionChange,
-      load,
-      click,
-      submit,
+      editFormSubmit,
+      //抽屉
+      filterDrawer,
+      columns,
+      resetColumns,
+      subDrawer,
+      getProp,
       showList,
       subListQuery,
-      getButtonDisabled,
-      versions,
-      pushfilterList,
-      getOperators,
-      getFilters,
-      filterHandler,
-      tempModel,
-      queryFormFold,
-      queryStyle,
-      resetColumns,
-      errors,
     };
   },
 };
