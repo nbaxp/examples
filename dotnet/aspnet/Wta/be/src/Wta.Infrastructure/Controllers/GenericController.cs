@@ -32,6 +32,10 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     public virtual ApiResult<QueryModel<TModel>> Search(QueryModel<TModel> model)
     {
         model ??= new QueryModel<TModel>();
+        if (model.Filters.Any(o => o.Property == "IsDeleted".ToLowerCamelCase() && o.Value != null && o.Value is JsonElement jsonElement && jsonElement.GetBoolean()))
+        {
+            repository.DisableSoftDeleteFilter();
+        }
         var query = Where(model);
         model.TotalCount = query.Count();
         query = OrderBy(query, model.OrderBy);
@@ -44,15 +48,13 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             query = SkipTake(query, model.PageIndex, model.PageSize);
         }
-        if(typeof(TEntity)==typeof(TModel))
+        if (typeof(TEntity) == typeof(TModel))
         {
             model.Items = query.ToList().Cast<TModel>().ToList();
-
         }
         else
         {
             model.Items = query.ToList().Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
-
         }
         return Json(model);
     }
@@ -180,7 +182,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(true);
     }
 
-    [Display(Name = "存档", Order = 8)]
+    [Display(Name = "归档", Order = 8)]
     public virtual ApiResult<bool> Archive([FromBody] Guid[] items)
     {
         foreach (var id in items)
@@ -198,6 +200,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     [Display(Name = "解档", Order = 9)]
     public virtual ApiResult<bool> Unarchive([FromBody] Guid[] items)
     {
+        Repository.DisableSoftDeleteFilter();
         foreach (var id in items)
         {
             var entity = Repository.Query().FirstOrDefault(o => o.Id == id);
@@ -213,11 +216,16 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     [Display(Name = "删除", Order = 10)]
     public virtual ApiResult<bool> Delete([FromBody] Guid[] items)
     {
+        Repository.DisableSoftDeleteFilter();
         foreach (var id in items)
         {
             var entity = Repository.Query().FirstOrDefault(o => o.Id == id);
             if (entity != null)
             {
+                if(!entity.IsDeleted)
+                {
+                    throw new ProblemException("无法删除未归档的数据");
+                }
                 Repository.Remove(entity);
                 if (typeof(TEntity).IsAssignableTo(typeof(BaseTreeEntity<TEntity>)))
                 {

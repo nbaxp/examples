@@ -1,6 +1,8 @@
 import AppFormInput from '@/components/form/form-input.js';
 import AppForm from '@/components/form/index.js';
 import SvgIcon from '@/components/icon/index.js';
+import useExport from '@/models/export.js';
+import useImport from '@/models/import.js';
 import { useAppStore, useTokenStore } from '@/store/index.js';
 import request, { getUrl } from '@/utils/request.js';
 import { schemaToModel, toQuerySchema } from '@/utils/schema.js';
@@ -9,7 +11,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import * as jsondiffpatch from 'jsondiffpatch';
 import { camelCase, capitalize } from 'lodash';
 import { downloadFile, format, importFunction } from 'utils';
-import html, { getProp, listToTree } from 'utils';
+import html, { getProp, delay, listToTree } from 'utils';
 import { computed, nextTick, onMounted, reactive, ref, unref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
@@ -135,8 +137,12 @@ export default {
           </el-table-column>
         </template>
         <template v-else-if="item.type!=='object'&&!item.meta.hidden">
-          <template v-if="!item.hideForList&&showColumn(item,key)">
-            <el-table-column :prop="key" :sortable="schema.meta?.isTree?false:'custom'" :sort-orders="['descending', 'ascending', null]">
+          <template v-if="!item.meta.hideForList&&showColumn(item,key)">
+            <el-table-column
+              :prop="key"
+              :sortable="schema.meta?.isTree?false:'custom'"
+              :sort-orders="['descending', 'ascending', null]"
+            >
               <template #header="scope">{{item.title}}</template>
               <template #default="scope">
                 <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
@@ -200,7 +206,7 @@ export default {
     />
   </el-card>
 </div>
-<!--列过滤抽屉-->
+<!--列筛选抽屉-->
 <el-drawer v-model="filterDrawer" destroy-on-close @close="tableRef.doLayout()">
   <template #header><span class="el-dialog__title">{{$t('filter')}}</span></template>
   <el-scrollbar>
@@ -229,7 +235,7 @@ export default {
     </span>
   </template>
 </el-drawer>
-<!--编辑表单-->
+<!--通用对话框-->
 <el-dialog
   v-model="dialogVisible"
   align-center
@@ -247,121 +253,37 @@ export default {
   <el-row v-loading="editFormloading">
     <el-col>
       <el-scrollbar>
-        <template v-if="editFormMode==='create'||editFormMode==='update'||editFormMode==='details'">
-          <app-form
-            :disabled="editFormMode==='details'"
-            :mode="editFormMode"
-            ref="editFormRef"
-            inline
-            label-position="right"
-            :hideButton="true"
-            :schema="editFormSchema"
-            v-model="editFormModel"
-            style="height:100%;"
-          />
+        <template v-if="editFormModel==='import'">
+          <template v-for="item in buttons">
+            <el-button
+              v-if="item.meta.command==='import-template'"
+              @click="click(item,selectedRows)"
+              :class="item.meta.htmlClass??'el-button--primary'"
+              v-show="!item.meta.show||item.meta.show(selectedRows,queryModel)"
+              :disabled="getButtonDisabled(item)"
+              class="mb-5 mr-3"
+              style="margin-left:0;"
+            >
+              <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
+              <span>{{item.meta.title}}</span>
+            </el-button>
+          </template>
         </template>
-        <template v-else-if="editFormMode==='export'">
-          <app-form
-            ref="exportFormRef"
-            mode="update"
-            label-position="left"
-            :schema="config.export?.schema"
-            v-model="exportModel"
-            :hideButton="true"
-            :isQueryForm="true"
-            style="height:100%;"
-          ></app-form>
-        </template>
-        <template v-else-if="editFormMode==='import'">
-          <app-form
-            ref="importFormRef"
-            mode="update"
-            label-position="left"
-            :schema="config.import?.schema"
-            v-model="importModel"
-            :hideButton="true"
-            :isQueryForm="true"
-            style="height:100%;"
-          ></app-form>
-        </template>
-        <template v-else-if="editFormMode==='filter'">
-          <el-form :model="filterList" inline class="filter">
-            <el-row v-for="(item,index) in filterList.filter(o=>!o.hidden)">
-              <el-col :span="6">
-                <el-select clearable :disabled="item.readOnly" v-model="item.column" :placeholder="$t('字段')">
-                  <template v-for="(value, prop) in config.query.schema.properties">
-                    <el-option :value="prop" :label="value.title" />
-                  </template>
-                </el-select>
-              </el-col>
-              <el-col :span="6" v-if="item.column">
-                <el-select clearable :disabled="item.readOnly" v-model="item.action" :placeholder="$t('操作符')">
-                  <el-option
-                    v-for="item in getOperators(config.edit.schema.properties[item.column])"
-                    :value="item.value"
-                    :label="item.label"
-                  />
-                </el-select>
-              </el-col>
-              <el-col :span="10" v-if="item.column">
-                <app-form-input v-model="item" :schema="config.edit.schema.properties[item.column]" prop="value" />
-              </el-col>
-              <el-col :span="2" v-if="!item.readOnly&&item.action">
-                <el-button circle @click="filterList.splice(index, 1)">
-                  <template #icon>
-                    <ep-close />
-                  </template>
-                </el-button>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col>
-                <el-button circle @click="pushfilterList">
-                  <template #icon>
-                    <ep-plus />
-                  </template>
-                </el-button>
-              </el-col>
-            </el-row>
-          </el-form>
-        </template>
-        <template v-else>
-          <app-form
-            ref="editFormRef"
-            mode="editFormMode"
-            label-position="left"
-            :schema="editFormSchema"
-            v-model="editFormModel"
-            :hideButton="true"
-            inline
-            style="height:100%;"
-          ></app-form>
-        </template>
+        <app-form
+          :disabled="editFormMode==='details'"
+          :mode="editFormMode"
+          ref="editFormRef"
+          inline
+          label-position="right"
+          :hideButton="true"
+          :schema="editFormSchema"
+          v-model="editFormModel"
+          style="height:100%;"
+        />
       </el-scrollbar>
     </el-col>
   </el-row>
 </el-dialog>`,
-  styles: html`<style>
-    /* .el-form.filter .el-col {
-      padding: 5px;
-    }
-    dl.upload {
-      min-height: 100%;
-    }
-    dl.upload dt {
-      font-weight: bold;
-      line-height: 3em;
-    }
-    dl.upload dd {
-      line-height: 2em;
-    }
-    dl.upload .el-form-item {
-      width: 300px;
-    }
-    div.upload {
-      width: 100%;
-    } */
-  </style>`,
   props: ['schema'],
   emits: ['command'],
   setup(props, context) {
@@ -384,12 +306,10 @@ export default {
     const queryModel = ref(schemaToModel(querySchema.value, true));
     const tableKey = ref(false);
     const tableRef = ref(null);
-    const uploadRef = ref(null);
     const columns = ref([]);
     const filterDrawer = ref(false);
     const subDrawer = ref(false);
     const subListQuery = ref(props.query ?? {});
-    const tableLoading = ref(false);
     const selectedRows = ref([]);
     const dialogVisible = ref(false);
     const route = useRoute();
@@ -428,7 +348,7 @@ export default {
             type: 'warning',
           });
         }
-        tableLoading.value = true;
+        loading.value = true;
         let result = null;
         if (method.constructor.name === 'AsyncFunction') {
           result = await method();
@@ -447,7 +367,7 @@ export default {
           });
         }
       } finally {
-        tableLoading.value = false;
+        loading.value = false;
       }
     };
     const getSortModel = (model) => {
@@ -468,7 +388,7 @@ export default {
       const propertyNames = Object.keys(schema.properties ?? {});
       for (const propertyName of propertyNames) {
         const property = schema.properties[propertyName];
-        if (!property.meta?.hidden) {
+        if (!property.meta?.hidden && !property.meta.hideForList) {
           result.push({
             name: propertyName,
             title: property.title,
@@ -524,7 +444,7 @@ export default {
         }
         let items = data.data.items;
         if (props.schema.meta.isTree) {
-          items = listToTree(items, props.schema.meta.tree);
+          items = listToTree(items);
         }
         tableData.value = items;
         pageModel.total = data.data.items.length;
@@ -537,6 +457,7 @@ export default {
       } catch (error) {
         console.log(error);
       } finally {
+        await delay();
         loading.value = false;
       }
     };
@@ -549,150 +470,75 @@ export default {
       await reload();
     };
     const click = async (item, rows) => {
-      editFormButton.value = item;
-      editFormloading.value = true;
       editFormMode.value = item.meta.command;
-      if (editFormMode.value === 'search') {
-        //list
-        await load();
-      } else if (editFormMode.value === 'create' || editFormMode.value === 'update') {
-        editFormSchema.value = props.schema;
-        //create
-        if (editFormMode.value === 'create') {
+      const showForm = ['create', 'update', 'details', 'import', 'export'].some((o) => o === item.meta.command);
+      try {
+        if (showForm) {
+          editFormButton.value = item;
+          editFormloading.value = true;
+          editFormSchema.value = props.schema;
+        }
+        if (editFormMode.value === 'search') {
+          await load();
+        } else if (editFormMode.value === 'create') {
           editFormModel.value = schemaToModel(editFormSchema.value);
-        } else {
+        } else if (editFormMode.value === 'details' || editFormMode.value === 'update') {
           const detailsButton = props.schema.meta.buttons.find((o) => o.meta.command === 'details');
           const url = `/${detailsButton?.meta?.url}`;
           const method = detailsButton.meta.method ?? 'POST';
           const result = await request(method, url, rows[0].id);
           editFormModel.value = result.data.data;
-          editFormModel.value.id = rows[0].id;
-        }
-        editFormTitle.value = `${t(item.meta.command)}${editFormSchema.value.title}`;
-        dialogVisible.value = true;
-      } else if (
-        editFormMode.value === 'delete' ||
-        editFormMode.value === 'archive' ||
-        editFormMode.value === 'unarchive'
-      ) {
-        try {
-          await ElMessageBox.confirm(format(`确认${t(item.meta.command)}}选中的%s行数据吗？`, rows.length), '提示', {
-            type: 'warning',
-          });
-          tableLoading.value = true;
-          const url = `/${item?.meta?.url}`;
-          const method = item.meta.method ?? 'POST';
-          const data = rows.map((o) => o.id);
-          const result = await request(method, url, data);
-          if (!result.error) {
-            pageModel.pageIndex = 1;
-            await reload();
-          } else {
-            ElMessageBox.alert(result.message, '提示', { type: 'error' });
-          }
-        } catch (error) {
-          if (error === 'cancel') {
-            ElMessage({
-              type: 'info',
-              message: '操作取消',
-            });
-          }
-        } finally {
-          tableLoading.value = false;
-        }
-      } else if (editFormMode.value === 'export') {
-        // if (item.meta.pattern === 'paged') {
-        //   const url = config.edit.exportUrl;
-        //   const method = config.edit.exportMethod;
-        //   const postData = buildQuery();
-        //   await onClick(async () => {
-        //     const response = await request(method, url, postData);
-        //     if (!response.errors) {
-        //       window.open(getUrl(`settleaccount/getblobfile/download/${response.data}`));
-        //     }
-        //   }, '确认导出?');
-        // } else if (item.meta.pattern === 'file') {
-        //   window.open(getUrl(`settleaccount/getblobfile/download/${rows[0].downFileName}`));
-        // } else if (item.meta.pattern === 'row') {
-        //   const url = config.edit.exportUrl;
-        //   const method = config.edit.exportMethod ?? 'POST';
-        //   const postData = {
-        //     [item.meta.key]: rows[0][item.meta.key],
-        //   };
-        //   const response = await request(method, url, postData);
-        //   if (!response.errors) {
-        //     window.open(getUrl(`settleaccount/getblobfile/download/${response.data}`));
-        //   }
-        // } else {
-        //   console.log(item);
-        // }
-        //exportModel
-        try {
-          editFormSchema.value = config.export.schema;
-          exportModel.value = schemaToModel(editFormSchema.value);
-          editFormloading.value = true;
-          editFormTitle.value = `${t(item.path)}${editFormSchema.value.title}`;
-          dialogVisible.value = true;
-        } catch (e) {
-          console.log(e);
-        } finally {
-          editFormloading.value = false;
-        }
-      } else if (editFormMode.value === 'import') {
-        //import
-        try {
-          editFormSchema.value = config.import.schema;
-          importModel.value = schemaToModel(config.import.schema);
-          editFormloading.value = true;
-          editFormTitle.value = `${t(item.path)}${editFormSchema.value.title}`;
-          dialogVisible.value = true;
-        } catch (e) {
-          console.log(e);
-        } finally {
-          editFormloading.value = false;
-        }
-      } else if (editFormMode.value === 'details') {
-        editFormSchema.value = props.schema;
-        editFormTitle.value = t('详情');
-        const url = `/${item.meta.url}`;
-        const method = item.meta.method;
-        const result = await request(method, url, rows[0].id);
-        if (!result.error) {
-          editFormModel.value = result.data.data;
-        }
-        dialogVisible.value = true;
-      } else if (item === 'filter') {
-        editFormTitle.value = t('自定义查询');
-        dialogVisible.value = true;
-      } else if (props.schema[item.path]) {
-        try {
-          editFormloading.value = true;
-          editFormSchema.value = config[item.path].schema;
-          editFormMode.value = item.path;
-          editFormTitle.value = editFormSchema.value.title;
-          tempModel.value = JSON.parse(JSON.stringify(rows[0]), (k, v) => {
-            if (v === false && editFormSchema.value[k]?.type !== 'boolean') {
-              return null;
-            }
-            return v;
-          });
+        } else if (editFormMode.value === 'import') {
+          editFormSchema.value = useImport();
           editFormModel.value = schemaToModel(editFormSchema.value);
-          for (const prop in editFormModel.value) {
-            const from = editFormSchema.value.properties[prop].from ?? prop;
-            if (Object.hasOwn(tempModel.value, from)) {
-              editFormModel.value[prop] = tempModel.value[from];
+        } else if (editFormMode.value === 'export') {
+          editFormSchema.value = useExport();
+          editFormModel.value = schemaToModel(editFormSchema.value);
+        } else if (
+          editFormMode.value === 'delete' ||
+          editFormMode.value === 'archive' ||
+          editFormMode.value === 'unarchive'
+        ) {
+          try {
+            await ElMessageBox.confirm(format(`确认${t(item.meta.command)}选中的%s行数据吗？`, rows.length), '提示', {
+              type: 'warning',
+            });
+            loading.value = true;
+            const url = `/${item?.meta?.url}`;
+            const method = item.meta.method ?? 'POST';
+            const data = rows.map((o) => o.id);
+            const result = await request(method, url, data);
+            if (!result.error) {
+              pageModel.pageIndex = 1;
+              await reload();
+            } else {
+              ElMessageBox.alert(result.message, '提示', { type: 'error' });
             }
+          } catch (error) {
+            if (error === 'cancel') {
+              ElMessage({
+                type: 'info',
+                message: '操作取消',
+              });
+            }
+          } finally {
+            loading.value = false;
           }
+        } else {
+          context.emit('command', item, rows, load, showList);
+        }
+        if (showForm) {
+          editFormTitle.value = `${t(editFormMode.value)}${editFormSchema.value?.title}`;
           dialogVisible.value = true;
-        } catch (e) {
-          console.log(e);
-        } finally {
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        if (showForm) {
+          await delay();
           editFormloading.value = false;
         }
-      } else {
-        context.emit('command', item, rows, load, showList);
       }
-      editFormloading.value = false;
     };
     const submit = async () => {
       if (editFormMode.value === 'create' || editFormMode.value === 'update') {
@@ -735,14 +581,14 @@ export default {
         editFormMode.value = null;
       } else if (editFormMode.value === 'export') {
         try {
-          tableLoading.value = true;
+          loading.value = true;
           const url =
             config.buttons.find((o) => o.path === editFormMode.value)?.meta?.action +
             (exportModel.value.format ? 'csv' : 'xlsx');
           const method = 'POST';
           const queryData = buildQuery();
           const fields = Object.entries(props.schema.properties)
-            .filter((o) => !o[1].hideForTable)
+            .filter((o) => !o[1].meta.hideForList)
             .map((o) => {
               return { name: o[0], label: o[1].title };
             });
@@ -774,11 +620,11 @@ export default {
             });
           }
         } finally {
-          tableLoading.value = false;
+          loading.value = false;
         }
       } else if (editFormMode.value === 'import') {
         try {
-          const valid = await importFormRef.value.validate();
+          const valid = await editFormRef.value.validate();
           if (valid) {
             editFormloading.value = true;
             //
@@ -911,19 +757,28 @@ export default {
       window.URL.revokeObjectURL(downloadUrl);
     };
     const getButtonDisabled = (item) => {
-      if ('disabled' in item.meta) {
+      if (item.meta?.disabled) {
         if (item.meta.disabled.constructor === Function) {
           return item.meta.disabled(selectedRows.value, queryModel.value);
         }
         return item.meta.disabed;
       }
+      if (item.meta.command === 'delete' || item.meta.command === 'archive' || item.meta.command === 'unarchive') {
+        if (selectedRows.value.length === 0) {
+          return true;
+        }
+      }
+      if (item.meta.command === 'delete' || item.meta.command === 'unarchive') {
+        if (!queryModel.value.isDeleted) {
+          return true;
+        }
+      }
+      if (item.meta.command === 'archive') {
+        if (queryModel.value.isDeleted) {
+          return true;
+        }
+      }
       return false;
-      //   if (src) {
-      //     //item.meta.disabled && item.meta.disabled.constructor === Function && item.meta.disabled(selectedRows, queryModel);
-      //     const method = await importFunction(src);
-      //     return src.startsWith('async') ? await method(row) : method(row);
-      //   }
-      // return false;
     };
     const pushfilterList = () => {
       filterList.value.push({
@@ -1030,7 +885,7 @@ export default {
           data.filters.push({
             logic: 'and',
             property: key,
-            operator: '==',
+            operator: '=',
             value: value,
           });
         }
@@ -1107,13 +962,10 @@ export default {
       reload,
       onClick,
       queryModel,
-      buildQuery,
       pageModel,
       treeProps,
       tableKey,
       tableRef,
-      uploadRef,
-      tableLoading,
       columns,
       showColumn,
       filterDrawer,

@@ -15,18 +15,18 @@ export function schemaToModel(schema, isQueryForm = false) {
         value = property.default;
       } else {
         if (property.type === 'boolean') {
-          if (!property.meta.isNullable) {
+          if (!property.meta?.isNullable) {
             value = false;
           }
-        } else if (property.meta.hidden) {
-          if (property.meta.required) {
+        } else if (property.meta?.hidden) {
+          if (property.meta?.required) {
             if (type === 'array') {
               value = [];
             } else if (property.type === 'number') {
               value = 0;
             } else if (type === 'string') {
-              if (property.meta.hidden) {
-                if (property.meta.format === 'datetime') {
+              if (property.meta?.hidden) {
+                if (property.meta?.format === 'datetime') {
                   value = new Date().toISOString();
                 } else {
                   value = uuidv7();

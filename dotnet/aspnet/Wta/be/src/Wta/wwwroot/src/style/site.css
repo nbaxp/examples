@@ -197,6 +197,10 @@ img.loading {
   .el-upload img {
     height: var(--el-input-inner-height);
   }
+
+  .el-date-editor--datetimerange {
+    width: 540px;
+  }
 }
 
 .el-form--inline {

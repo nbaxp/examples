@@ -1,4 +1,5 @@
 import SvgIcon from '@/components/icon/index.js';
+import { DATETIME_DISPLAY_FORMAT, DATETIME_VALUE_FORMAT } from '@/constants/index.js';
 import { bytesFormat, importFunction } from '@/utils/index.js';
 import request from '@/utils/request.js';
 import { dayjs } from 'element-plus';
@@ -19,12 +20,12 @@ export default {
         <el-button v-if="schema.input==='select'" link type="primary">
           {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
         </el-button>
-        <el-switch v-else disabled v-model="model[prop]" type="checked" />
+        <el-checkbox v-else disabled v-model="model[prop]" type="checked" />
       </template>
       <template v-else-if="schema.input==='year'">{{dayjs(model[prop]).format('YYYY')}}</template>
       <template v-else-if="schema.input==='date'">{{dayjs(model[prop]).format('YYYY-MM-DD')}}</template>
       <template v-else-if="schema.input==='datetime'">
-        {{dayjs(model[prop]).format('YYYY-MM-DD HH:mm:ss')}}
+        {{dayjs(model[prop]).format(DATETIME_DISPLAY_FORMAT)}}
       </template>
       <template v-else-if="schema.input==='password'">******</template>
       <template v-else-if="schema.input==='select'">
@@ -69,12 +70,13 @@ export default {
       </el-option>
     </el-select>
   </template>
-  <template v-else-if="schema.input==='month'||schema.input==='datetime'">
+  <!--string:datetime-->
+  <template v-else-if="schema.input==='date'||schema.input==='datetime'||schema.input==='daterange'||schema.input==='datetimerange'">
     <el-date-picker
       v-model="model[prop]"
       :type="schema.input"
-      :value-format="schema.format??'YYYY-MM-DD HH:mm:ss'"
-      :placeholder="schema.placeholder??schema.title"
+      :label="schema.meta.showLabel?schema.title:''"
+      :value-format="DATETIME_VALUE_FORMAT"
       clearable
     />
   </template>
@@ -112,8 +114,8 @@ export default {
       <el-option prop="false" :value="false" :label="$t('false')" />
     </el-select>
     <template v-else>
-      <el-switch v-model="model[prop]" type="checked" />
-      <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}222</span>
+      <el-checkbox v-model="model[prop]" type="checked" />
+      <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}</span>
     </template>
   </template>
   <template v-else-if="schema.input === 'image-captcha'">
@@ -187,15 +189,6 @@ export default {
   </template>
   <template v-else-if="schema.input==='checkbox'">
     <el-checkbox v-model="model[prop]" :label="schema.meta.showLabel?schema.title:''" />
-  </template>
-  <template v-else-if="schema.input==='daterange'||schema.input==='datetimerange'">
-    <el-date-picker
-      v-model="model[prop]"
-      :type="schema.input"
-      :label="schema.meta.showLabel?schema.title:''"
-      :value-format="schema.format??'YYYY-MM-DD HH:mm:ss'"
-      clearable
-    />
   </template>
   <template v-else>
     <el-input
@@ -341,22 +334,29 @@ export default {
 
     //if (props.schema?.dependsOn) {
     watch(
-      () => model[props.schema.meta?.dependsOn],
+      () => {
+        if (props.schema.meta?.dependsOn) {
+          return model[props.schema.meta.dependsOn];
+        }
+        return '';
+      },
       async () => {
-        if (props.schema.meta?.options) {
-          options.value = props.schema.meta?.options;
-        } else if (props.schema.meta?.url && props.schema.input === 'select') {
-          if (!props.schema.meta?.dependsOn || model[props.schema.meta?.dependsOn]) {
-            await fetchOptions();
-          } else {
-            options.value = [];
+        if ('dependsOn' in props.schema.meta) {
+          if (props.schema.meta?.options) {
+            options.value = props.schema.meta?.options;
+          } else if (props.schema.meta?.url && props.schema.input === 'select') {
+            if (!props.schema.meta?.dependsOn || model[props.schema.meta?.dependsOn]) {
+              await fetchOptions();
+            } else {
+              options.value = [];
+            }
+            // if (
+            //   (model[props.prop] || model[props.prop] === false) &&
+            //   !options.value.find((o) => o.value === model[props.prop])
+            // ) {
+            //   model[props.prop] = null;
+            // }
           }
-          // if (
-          //   (model[props.prop] || model[props.prop] === false) &&
-          //   !options.value.find((o) => o.value === model[props.prop])
-          // ) {
-          //   model[props.prop] = null;
-          // }
         }
       },
       { immediate: true },
@@ -396,6 +396,8 @@ export default {
       fetchOptions,
       updateCodeHash,
       uploadOnChange,
+      DATETIME_DISPLAY_FORMAT,
+      DATETIME_VALUE_FORMAT,
     };
   },
 };

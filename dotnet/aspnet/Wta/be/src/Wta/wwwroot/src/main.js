@@ -1,5 +1,4 @@
 import App from '@/app.js';
-import i18n from '~/src/locales/index.js';
 import style from '@/mixins/style.js';
 import router from '@/router/index.js';
 import store from '@/store/index.js';
@@ -7,7 +6,8 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import ElementPlus from 'element-plus';
 import { delay } from 'utils';
 import { createApp } from 'vue';
-import useMock from '../mock/index.js';
+import useMock from '~/mock/index.js';
+import i18n from '~/src/locales/index.js';
 
 //useMock();
 const app = createApp(App);
@@ -19,5 +19,5 @@ app.use(ElementPlus);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(`Ep${key}`, component);
 }
-await delay(1000);
+await delay();
 app.mount('#app');

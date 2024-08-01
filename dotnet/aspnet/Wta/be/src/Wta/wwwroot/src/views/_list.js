@@ -2,8 +2,8 @@ import html from 'utils';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { normalize } from '@/utils/schema.js';
 import AppList from '@/components/list/index.js';
+import { normalize } from '@/utils/schema.js';
 
 export default {
   components: { AppList },
@@ -15,7 +15,7 @@ export default {
       console.log(item.path, item, rows);
     };
     onMounted(async () => {
-      const response = await import(`../models${route.meta.fullPath}.js`).catch((e) => {
+      const response = await import(`@/models${route.meta.fullPath}.js`).catch((e) => {
         console.log(e);
       });
       if (response) {

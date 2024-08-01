@@ -15,6 +15,7 @@ public abstract class BaseTreeEntity<T> : BaseEntity, IOrderedEntity where T : B
     [Hidden]
     public string Path { get; set; } = default!;
 
+    [KeyValue("hideForList", true)]
     public Guid? ParentId { get; set; }
 
     [Hidden]

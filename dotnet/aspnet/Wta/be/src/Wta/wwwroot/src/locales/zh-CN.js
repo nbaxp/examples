@@ -16,6 +16,8 @@ export default {
   create: '新建',
   update: '编辑',
   delete: '删除',
+  import: '导入',
+  export: '导出',
   //
   RequiredAttribute: '{0}是必填项',
 };

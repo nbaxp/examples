@@ -37,9 +37,9 @@ export default {
     /*start*/
     const showItem = () => {
       if (props.mode === 'query') {
-        return !props.schema.hideForQuery;
+        return !props.schema.meta.hideForQuery;
       }
-      if (props.schema.hideForEdit) {
+      if (props.schema.meta.hideForEdit) {
         return false;
       }
       return true;
@@ -48,7 +48,7 @@ export default {
       if (props.mode === 'details') {
         return true;
       }
-      if (props.mode === 'update' && props.schema.readOnly) {
+      if (props.mode === 'update' && props.schema.meta.readOnly) {
         return true;
       }
       return false;

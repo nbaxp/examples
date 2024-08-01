@@ -1,8 +1,8 @@
+import settings from '@/config/settings.js';
 import router from '@/router/index.js';
 import { getUrl } from '@/utils/request.js';
 import { defineStore } from 'pinia';
 import { listToTree, traverseTree } from 'utils';
-import settings from '@/config/settings.js';
 
 const getRoutes = async () => {
   try {
@@ -21,7 +21,7 @@ const getRoutes = async () => {
           meta,
         };
         if (route.component) {
-          const componentPath = `../views/${route.component}.js`;
+          const componentPath = `@/views/${route.component}.js`;
           route.component = () => import(componentPath);
         }
         return route;

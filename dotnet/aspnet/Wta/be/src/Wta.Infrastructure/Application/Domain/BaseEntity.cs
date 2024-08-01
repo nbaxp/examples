@@ -11,7 +11,7 @@ public abstract class BaseEntity : IResource
     public Guid Id { get; set; }
 
     [DisplayOrder(10000)]
-    //[Hidden]
+    [Hidden]
     public DateTime CreatedOn { get; set; }
 
     [DisplayOrder(10001)]
@@ -27,6 +27,7 @@ public abstract class BaseEntity : IResource
     public string? UpdatedBy { get; set; }
 
     [DisplayOrder(10004)]
+    [KeyValue("hideForEdit",true)]
     public bool IsDeleted { get; set; }
 
     [Hidden]

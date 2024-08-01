@@ -2,8 +2,8 @@ import settings from '@/config/settings.js';
 import i18n from '~/src/locales/index.js';
 import useRouter from '@/router/index.js';
 import { getFileNameFromContentDisposition } from 'utils';
-import qs from '../../lib/qs/shim.js';
-import { useTokenStore } from '../store/index.js';
+import qs from '~/lib/qs/shim.js';
+import { useTokenStore } from '@/store/index.js';
 
 const messages = new Map([
   [200, '操作成功'],

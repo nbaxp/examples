@@ -7,7 +7,7 @@ export function log(message) {
   }
 }
 
-export async function delay(ms) {
+export async function delay(ms = 1000) {
   return new Promise((resolve, _) => setTimeout(resolve, ms));
 }
 
@@ -73,29 +73,19 @@ export function format(template, ...args) {
   });
 }
 
-export function listToTree(list, config) {
-  const options = Object.assign(
-    {
-      parentId: 'parentId',
-      id: 'id',
-      children: 'children',
-      func: null,
-    },
-    config,
-  );
+export function listToTree(list) {
   const tree = [];
   for (const item of list) {
-    if (!item[options.parentId]) {
+    if (!item.parentId) {
       tree.push(item);
     } else {
-      const parent = list.find((node) => node[options.id] === item[options.parentId]);
+      const parent = list.find((node) => node.id === item.parentId);
       if (parent) {
-        parent[options.children] = parent[options.children] || [];
-        parent[options.children].push(item);
+        parent.children = parent.children || [];
+        parent.children.push(item);
+      } else {
+        tree.push(item);
       }
-    }
-    if (options.func) {
-      options.func(item);
     }
   }
   return tree;

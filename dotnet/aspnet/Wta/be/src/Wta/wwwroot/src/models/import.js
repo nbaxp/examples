@@ -1,5 +1,7 @@
+import { normalize } from '@/utils/schema.js';
+
 export default function () {
-  return {
+  return normalize({
     type: 'object',
     title: '导入',
     properties: {
@@ -14,7 +16,7 @@ export default function () {
         input: 'file',
         accept: '.xlsx',
         default: [],
-        limit: 10,
+        limit: 1,
         size: 100 * 1024 * 1024,
         rules: [
           {
@@ -24,5 +26,5 @@ export default function () {
         ],
       },
     },
-  };
+  });
 }
