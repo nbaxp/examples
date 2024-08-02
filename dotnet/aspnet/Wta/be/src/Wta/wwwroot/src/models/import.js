@@ -6,8 +6,13 @@ export default function () {
     title: '导入',
     properties: {
       update: {
-        title: '更新已存在',
-        type: 'boolean',
+        title: '已存在',
+        input: 'radio',
+        default: 'skip',
+        options: [
+          { label: '跳过', value: 'skip' },
+          { label: '更新', value: 'update' },
+        ],
       },
       files: {
         title: '文件',

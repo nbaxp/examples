@@ -5,13 +5,18 @@ export default function () {
     type: 'object',
     title: '导出',
     properties: {
-      exportAll: {
+      includeAll: {
         title: '全部记录',
         type: 'boolean',
       },
       format: {
-        title: 'csv格式',
-        type: 'boolean',
+        title: '格式',
+        input: 'radio',
+        default: 'xlsx',
+        options: [
+          { label: 'excel', value: 'xlsx' },
+          { label: 'csv', value: 'csv' },
+        ],
       },
     },
   });

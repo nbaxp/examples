@@ -245,20 +245,7 @@ export default {
     <el-col>
       <el-scrollbar>
         <template v-if="editFormModel==='import'">
-          <template v-for="item in buttons">
-            <el-button
-              v-if="item.meta.command==='import-template'"
-              @click="buttonClick(item,selectedRows)"
-              :class="item.meta.htmlClass??'el-button--primary'"
-              v-show="!item.meta.show||item.meta.show(selectedRows,queryModel)"
-              :disabled="getButtonDisabled(item)"
-              class="mb-5 mr-3"
-              style="margin-left:0;"
-            >
-              <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
-              <span>{{item.meta.title}}</span>
-            </el-button>
-          </template>
+          123123
         </template>
         <app-form
           :disabled="editFormMode==='details'"
@@ -396,9 +383,6 @@ export default {
       } else {
         sortColumns.value.set(prop, order);
       }
-      // queryModel.value.sorting = Array.from(sortColumns.value)
-      //   .map((o) => capitalize() + (o[1] === 'ascending' ? '' : ' DESC'))
-      //   .join(',');
       await load();
     };
     const showColumn = (item, prop) => {
@@ -471,6 +455,7 @@ export default {
         } else if (editFormMode.value === 'export') {
           editFormSchema.value = useExport();
           editFormModel.value = schemaToModel(editFormSchema.value);
+          editFormModel.value.includeAll = !!props.schema.meta.isTree;
         } else if (
           editFormMode.value === 'delete' ||
           editFormMode.value === 'archive' ||
@@ -505,7 +490,7 @@ export default {
           context.emit('command', item, rows, load, showList);
         }
         if (showForm) {
-          editFormTitle.value = `${t(editFormMode.value)}${editFormSchema.value?.title}`;
+          editFormTitle.value = `${t(editFormMode.value)}${props.schema?.title}`;
           dialogVisible.value = true;
         }
       } catch (error) {
@@ -518,170 +503,44 @@ export default {
       }
     };
     const editFormSubmit = async () => {
-      if (editFormMode.value === 'create' || editFormMode.value === 'update') {
-        try {
-          // await editFormRef.value.submit();
-          // return;
-          const valid = await editFormRef.value.validate();
-          if (valid) {
-            await onClick(
-              async () => {
-                const button = props.schema.meta.buttons.find((o) => o.meta.command === editFormMode.value);
-                const url = `/${button?.meta?.url}`;
-                const method = button.meta.method ?? 'POST';
-                const data = JSON.parse(JSON.stringify(editFormModel.value));
-                const result = await request(method, url, data);
-                if (!result.error) {
-                  dialogVisible.value = false;
-                  editFormMode.value = null;
-                  await reload();
-                } else {
-                  if (result.code === 400) {
-                    const modelErrors = JSON.parse(JSON.stringify(result.data));
-                    editFormRef.value.setErrors(modelErrors);
-                  } else {
-                    ElMessageBox.alert(result.message, '提示', { type: 'error' });
-                  }
-                }
-              },
-              null,
-              true,
-            );
+      try {
+        await editFormRef.value.validate();
+        const button = props.schema.meta.buttons.find((o) => o.meta.command === editFormMode.value);
+        const url = `/${button?.meta?.url}`;
+        const method = button.meta.method ?? 'POST';
+        let data = null;
+        if (editFormMode.value === 'search' || editFormMode.value === 'export') {
+          data = buildQuery();
+          if (editFormModel.value === 'export') {
+            Object.assign(data, editFormModel.value);
           }
-        } catch (error) {
-          console.log(error);
-        } finally {
-          editFormloading.value = false;
+        } else {
+          data = JSON.parse(JSON.stringify(editFormModel.value));
         }
-      } else if (editFormMode.value === 'details') {
-        dialogVisible.value = false;
-        editFormMode.value = null;
-      } else if (editFormMode.value === 'export') {
-        try {
-          loading.value = true;
-          const url =
-            config.buttons.find((o) => o.path === editFormMode.value)?.meta?.action +
-            (exportModel.value.format ? 'csv' : 'xlsx');
-          const method = 'POST';
-          const queryData = buildQuery();
-          const fields = Object.entries(props.schema.properties)
-            .filter((o) => !o[1].meta.hideForList)
-            .map((o) => {
-              return { name: o[0], label: o[1].title };
-            });
-          if (exportModel.value.import_compat) {
-            fields.unshift({ name: 'id', label: 'id' });
-          }
-          const data = export_data(
-            config.model,
-            queryData.params.kwargs.domain,
-            fields,
-            exportModel.value.import_compat,
-            exportModel.value.currentPage ? tableData.value.map((o) => o.id) : false,
-          );
-          const formData = new FormData();
-          formData.append('data', JSON.stringify(data));
-          formData.append('token', 'dummy-because-api-expects-one');
-          formData.append('csrf_token', tokenStore.csrfToken);
-          const result = await request(method, url, formData);
-          if (!result.error) {
-            downloadFile(result.data, result.name);
+        const result = await request(method, url, data);
+        if (!result.error) {
+          dialogVisible.value = false;
+          editFormMode.value = null;
+          await reload();
+        } else {
+          if (result.code === 400) {
+            const modelErrors = JSON.parse(JSON.stringify(result.data));
+            editFormRef.value.setErrors(modelErrors);
           } else {
             ElMessageBox.alert(result.message, '提示', { type: 'error' });
           }
-        } catch (error) {
-          if (error === 'cancel') {
-            ElMessage({
-              type: 'info',
-              message: '操作取消',
-            });
-          }
-        } finally {
-          loading.value = false;
         }
-      } else if (editFormMode.value === 'import') {
-        try {
-          const valid = await editFormRef.value.validate();
-          if (valid) {
-            editFormloading.value = true;
-            //
-            const createIdResult = await request(
-              'POST',
-              'web/dataset/call_kw/base_import.import/create',
-              import_id(config.model),
-            );
-            let importId = null;
-            if (!createIdResult.error) {
-              importId = createIdResult.data.result;
-            } else {
-              ElMessageBox.alert(createIdResult.message, '提示', { type: 'error' });
-            }
-            //
-            const url = config.buttons.find((o) => o.path === editFormMode.value)?.meta?.action;
-            const formData = new FormData();
-            formData.append('id', importId);
-            formData.append('model', config.model);
-            formData.append('csrf_token', tokenStore.csrfToken);
-            formData.append('ufile', importModel.value.fiels[0].raw);
-            const result = await request('POST', url, formData);
-            if (!result.error) {
-              const fields = Object.entries(props.schema.properties)
-                .filter((o) => !o[1].hideForTable)
-                .map((o) => {
-                  return o[0];
-                });
-              const result2 = await request(
-                'POST',
-                'web/dataset/call_kw/base_import.import/execute_import',
-                execute_import(importId, fields, fields, {
-                  has_headers: importModel.value.has_headers,
-                }),
-              );
-              if (!result2.error) {
-                editFormloading.value = false;
-                dialogVisible.value = false;
-                await load();
-              } else {
-                ElMessageBox.alert(result.message, '提示', { type: 'error' });
-              }
-            } else {
-              ElMessageBox.alert(result.message, '提示', { type: 'error' });
-            }
-          }
-        } catch (error) {
-          console.log(error);
-        } finally {
-          editFormloading.value = false;
-        }
-      } else if (editFormMode.value === 'filter') {
-        await load();
         dialogVisible.value = false;
-      } else {
-        try {
-          console.log(editFormMode.value);
-          const valid = await editFormRef.value.validate();
-          if (valid) {
-            editFormloading.value = true;
-            const url = config.buttons.find((o) => o.path === editFormMode.value)?.meta?.action;
-            let data = JSON.parse(JSON.stringify(editFormModel.value));
-            if (editFormButton.value.meta.prepare?.constructor) {
-              data = editFormButton.value.meta.prepare(data);
-            }
-            const result = await request('POST', url, data);
-            if (!result.error) {
-              ElMessage.success(result.message);
-              editFormloading.value = false;
-              dialogVisible.value = false;
-              await load();
-            } else {
-              ElMessageBox.alert(result.message, '提示', { type: 'error' });
-            }
-          }
-        } catch (error) {
-          console.log(error);
-        } finally {
-          editFormloading.value = false;
+        editFormMode.value = null;
+      } catch (error) {
+        if (error === 'cancel') {
+          ElMessage({
+            type: 'info',
+            message: '操作取消',
+          });
         }
+      } finally {
+        editFormloading.value = false;
       }
     };
 

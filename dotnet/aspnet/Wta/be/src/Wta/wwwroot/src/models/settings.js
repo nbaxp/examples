@@ -37,7 +37,8 @@ export default function () {
       },
       size: {
         title: '控件大小',
-        input: 'select',
+        input: 'radio',
+        default: 'default',
         options: [
           { value: 'large', label: '大' },
           { value: 'default', label: '默认' },
@@ -50,11 +51,12 @@ export default function () {
       },
       mode: {
         title: '主题模式',
-        input: 'select',
+        input: 'radio',
+        default: 'auto',
         options: [
-          { value: 'auto', label: '系统', icon: 'platform' },
-          { value: 'light', label: '浅色', icon: 'sunny' },
-          { value: 'dark', label: '深色', icon: 'moon' },
+          { value: 'auto', label: '跟随系统' },
+          { value: 'light', label: '浅色' },
+          { value: 'dark', label: '深色' },
         ],
       },
       useDarkNav: {

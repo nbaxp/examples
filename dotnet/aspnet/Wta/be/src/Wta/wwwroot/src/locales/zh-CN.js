@@ -14,6 +14,7 @@ export default {
   selectInverse: '反选',
   userCenter: '用户中心',
   create: '新建',
+  details: '查看',
   update: '编辑',
   delete: '删除',
   import: '导入',

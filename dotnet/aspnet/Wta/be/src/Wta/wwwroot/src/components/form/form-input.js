@@ -28,7 +28,7 @@ export default {
         {{dayjs(model[prop]).format(DATETIME_DISPLAY_FORMAT)}}
       </template>
       <template v-else-if="schema.input==='password'">******</template>
-      <template v-else-if="schema.input==='select'">
+      <template v-else-if="schema.input==='select'||schema.input==='radio'">
         <template v-if="!schema.meta?.multiple">
           <el-button link type="primary">
             {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
@@ -69,6 +69,11 @@ export default {
         </span>
       </el-option>
     </el-select>
+  </template>
+  <template v-else-if="schema.input==='radio'">
+    <el-radio-group v-model="model[prop]">
+      <el-radio-button v-for="item in options" :label="item.label" :value="item.value" />
+    </el-radio-group>
   </template>
   <!--string:datetime-->
   <template v-else-if="schema.input==='date'||schema.input==='datetime'||schema.input==='daterange'||schema.input==='datetimerange'">
@@ -334,28 +339,15 @@ export default {
 
     //if (props.schema?.dependsOn) {
     watch(
-      () => {
-        if (props.schema.meta?.dependsOn) {
-          return model[props.schema.meta.dependsOn];
-        }
-        return '';
-      },
+      () => model[props.schema.meta?.dependsOn],
       async () => {
-        if ('dependsOn' in props.schema.meta) {
-          if (props.schema.meta?.options) {
-            options.value = props.schema.meta?.options;
-          } else if (props.schema.meta?.url && props.schema.input === 'select') {
-            if (!props.schema.meta?.dependsOn || model[props.schema.meta?.dependsOn]) {
-              await fetchOptions();
-            } else {
-              options.value = [];
-            }
-            // if (
-            //   (model[props.prop] || model[props.prop] === false) &&
-            //   !options.value.find((o) => o.value === model[props.prop])
-            // ) {
-            //   model[props.prop] = null;
-            // }
+        if (props.schema.meta?.options) {
+          options.value = props.schema.meta?.options;
+        } else if (props.schema.meta?.url && props.schema.input === 'select') {
+          if (!props.schema.meta?.dependsOn || model[props.schema.meta?.dependsOn]) {
+            await fetchOptions();
+          } else {
+            options.value = [];
           }
         }
       },
