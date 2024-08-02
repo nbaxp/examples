@@ -105,13 +105,8 @@ export function getProp(instance, propPath) {
   return get(instance, propPath);
 }
 
-export function getFileNameFromContentDisposition(contentDisposition) {
-  const filenameRegex = /filename[^;\n]*=(UTF-\d['"]*)?((['"]).*?[.]$\2|[^;\n]*)?/gi;
-  const matches = filenameRegex.exec(contentDisposition);
-  if (matches?.[2]) {
-    return decodeURIComponent(matches?.[2]);
-  }
-  return null;
+export function getFileName(contentDisposition) {
+  return contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1].replace(/['"]/g, '');
 }
 
 async function importModule(input) {

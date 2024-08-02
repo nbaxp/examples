@@ -31,7 +31,6 @@ export default {
     const router = useRouter();
     const change = (locale) => {
       i18n.locale.value = locale;
-      router.push({ path: router.currentRoute.value.fullPath });
       tabsStore.isRefreshing = true;
       nextTick(() => {
         tabsStore.isRefreshing = false;

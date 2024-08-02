@@ -4,6 +4,7 @@ export default function () {
   return normalize({
     type: 'object',
     title: '导入',
+    width: '500px',
     properties: {
       update: {
         title: '已存在',
@@ -17,7 +18,7 @@ export default function () {
       files: {
         title: '文件',
         type: 'array',
-        multiple: true,
+        //multiple: true,
         input: 'file',
         accept: '.xlsx',
         default: [],

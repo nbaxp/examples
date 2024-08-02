@@ -4,6 +4,7 @@ export default function () {
   return normalize({
     type: 'object',
     title: '导出',
+    width: '500px',
     properties: {
       includeAll: {
         title: '全部记录',

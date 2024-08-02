@@ -168,7 +168,6 @@ export default {
               <el-button
                 :class="item.meta.htmlClass??'is-plan'"
                 v-if="!item.meta.hidden&&item.meta.buttonType==='row'"
-                v-show="!item.meta.show||item.meta.show(scope.row,queryModel)"
                 @click="buttonClick(item,[scope.row])"
                 :disabled="item.meta.disabled && item.meta.disabled(scope.row)"
               >
@@ -233,7 +232,7 @@ export default {
   append-to-body
   destroy-on-close
   :close-on-click-modal="false"
-  style="max-height:100%;width:700px;"
+  :style="{'max-height':'100%',width:editFormSchema?.meta?.width??'700px'}"
 >
   <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
   <template #footer>
@@ -244,12 +243,9 @@ export default {
   <el-row v-loading="editFormloading">
     <el-col>
       <el-scrollbar>
-        <template v-if="editFormModel==='import'">
-          123123
-        </template>
         <app-form
-          :disabled="editFormMode==='details'"
-          :mode="editFormMode"
+          :disabled="editFormCommand==='details'"
+          :mode="editFormCommand"
           ref="editFormRef"
           inline
           label-position="right"
@@ -257,7 +253,19 @@ export default {
           :schema="editFormSchema"
           v-model="editFormModel"
           style="height:100%;"
-        />
+        >
+          <!--下载导入母版-->
+          <template v-if="editFormCommand==='import'">
+            <template v-for="item in buttons.filter(o=>o.meta.hidden&&o.meta.command==='import-template')">
+              <el-form-item label=' '>
+                <el-button @click="buttonClick(item)">
+                  <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
+                  <span>{{item.meta.title}}</span>
+                </el-button>
+              </el-form-item>
+            </template>
+          </template>
+        </app-form>
       </el-scrollbar>
     </el-col>
   </el-row>
@@ -292,58 +300,19 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const { t } = useI18n();
-    // 注释一下代码暂停权限验证
+    // 停权限验证
     // const buttons = ref(props.buttons ?? route.meta.children.filter((o) => o.meta.hasPermission));
-    // 添加下行代码暂停权限验证
     const buttons = ref(props.schema.meta?.buttons ?? route.meta.children);
     const sortColumns = ref(new Map());
     const tableSchema = ref({});
     const tableData = ref([]);
     const editFormRef = ref(null);
-    const exportFormRef = ref(null);
-    const exportModel = ref({});
-    const importFormRef = ref(null);
-    const importModel = ref(null);
     const editFormloading = ref(false);
-    const editFormMode = ref(null);
+    const editFormCommand = ref(null);
     const editFormTitle = ref('');
     const editFormSchema = ref(null);
     const editFormModel = ref(null);
     const editFormButton = ref(null);
-    // watch(queryModel.value, async (value, oldValue, a) => {
-    //   if (props.schema.autoSubmit) {
-    //     await load();
-    //   }
-    // });
-    const onClick = async (method, confirMmessage = '确认操作吗？', reload = true) => {
-      try {
-        if (confirMmessage) {
-          await ElMessageBox.confirm(confirMmessage, '提示', {
-            type: 'warning',
-          });
-        }
-        loading.value = true;
-        let result = null;
-        if (method.constructor.name === 'AsyncFunction') {
-          result = await method();
-        } else {
-          result = method();
-        }
-        if (!result.error && reload) {
-          pageModel.pageIndex = 1;
-          await load();
-        }
-      } catch (error) {
-        if (error === 'cancel') {
-          ElMessage({
-            type: 'info',
-            message: '操作取消',
-          });
-        }
-      } finally {
-        loading.value = false;
-      }
-    };
     const getSortModel = (model) => {
       const orders = (props.schema.meta?.sorting ?? '')
         .split(',')
@@ -431,7 +400,7 @@ export default {
       await reload();
     };
     const buttonClick = async (item, rows) => {
-      editFormMode.value = item.meta.command;
+      editFormCommand.value = item.meta.command;
       const showForm = ['create', 'update', 'details', 'import', 'export'].some((o) => o === item.meta.command);
       try {
         if (showForm) {
@@ -439,27 +408,27 @@ export default {
           editFormloading.value = true;
           editFormSchema.value = props.schema;
         }
-        if (editFormMode.value === 'search') {
+        if (editFormCommand.value === 'search') {
           await load();
-        } else if (editFormMode.value === 'create') {
+        } else if (editFormCommand.value === 'create') {
           editFormModel.value = schemaToModel(editFormSchema.value);
-        } else if (editFormMode.value === 'details' || editFormMode.value === 'update') {
+        } else if (editFormCommand.value === 'details' || editFormCommand.value === 'update') {
           const detailsButton = props.schema.meta.buttons.find((o) => o.meta.command === 'details');
           const url = `/${detailsButton?.meta?.url}`;
           const method = detailsButton.meta.method ?? 'POST';
           const result = await request(method, url, rows[0].id);
           editFormModel.value = result.data.data;
-        } else if (editFormMode.value === 'import') {
+        } else if (editFormCommand.value === 'import') {
           editFormSchema.value = useImport();
           editFormModel.value = schemaToModel(editFormSchema.value);
-        } else if (editFormMode.value === 'export') {
+        } else if (editFormCommand.value === 'export') {
           editFormSchema.value = useExport();
           editFormModel.value = schemaToModel(editFormSchema.value);
           editFormModel.value.includeAll = !!props.schema.meta.isTree;
         } else if (
-          editFormMode.value === 'delete' ||
-          editFormMode.value === 'archive' ||
-          editFormMode.value === 'unarchive'
+          editFormCommand.value === 'delete' ||
+          editFormCommand.value === 'archive' ||
+          editFormCommand.value === 'unarchive'
         ) {
           try {
             await ElMessageBox.confirm(format(`确认${t(item.meta.command)}选中的%s行数据吗？`, rows.length), '提示', {
@@ -490,7 +459,7 @@ export default {
           context.emit('command', item, rows, load, showList);
         }
         if (showForm) {
-          editFormTitle.value = `${t(editFormMode.value)}${props.schema?.title}`;
+          editFormTitle.value = `${t(editFormCommand.value)}${props.schema?.title}`;
           dialogVisible.value = true;
         }
       } catch (error) {
@@ -505,23 +474,26 @@ export default {
     const editFormSubmit = async () => {
       try {
         await editFormRef.value.validate();
-        const button = props.schema.meta.buttons.find((o) => o.meta.command === editFormMode.value);
+        const button = props.schema.meta.buttons.find((o) => o.meta.command === editFormCommand.value);
         const url = `/${button?.meta?.url}`;
         const method = button.meta.method ?? 'POST';
+        const editFormData = JSON.parse(JSON.stringify(editFormModel.value));
         let data = null;
-        if (editFormMode.value === 'search' || editFormMode.value === 'export') {
+        if (editFormCommand.value === 'search' || editFormCommand.value === 'export') {
           data = buildQuery();
-          if (editFormModel.value === 'export') {
-            Object.assign(data, editFormModel.value);
+          if (editFormCommand.value === 'export') {
+            Object.assign(data, editFormData);
           }
         } else {
-          data = JSON.parse(JSON.stringify(editFormModel.value));
+          data = editFormData;
         }
         const result = await request(method, url, data);
         if (!result.error) {
           dialogVisible.value = false;
-          editFormMode.value = null;
           await reload();
+          if (editFormCommand.value === 'export') {
+            downloadFile(result.data, result.name);
+          }
         } else {
           if (result.code === 400) {
             const modelErrors = JSON.parse(JSON.stringify(result.data));
@@ -531,7 +503,6 @@ export default {
           }
         }
         dialogVisible.value = false;
-        editFormMode.value = null;
       } catch (error) {
         if (error === 'cancel') {
           ElMessage({
@@ -752,7 +723,7 @@ export default {
       dialogVisible,
       editFormRef,
       editFormloading,
-      editFormMode,
+      editFormCommand,
       editFormTitle,
       editFormSchema,
       editFormModel,

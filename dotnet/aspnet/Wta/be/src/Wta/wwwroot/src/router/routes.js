@@ -1,7 +1,10 @@
+import redirect from '@/views/redirect.js';
+
 export default [
   {
     name: 'default',
-    path: '',
+    path: '/',
+    redirect: '/home',
     component: () => import('@/layouts/blank.js'),
     children: [
       {

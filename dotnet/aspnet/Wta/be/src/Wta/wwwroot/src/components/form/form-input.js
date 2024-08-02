@@ -76,7 +76,9 @@ export default {
     </el-radio-group>
   </template>
   <!--string:datetime-->
-  <template v-else-if="schema.input==='date'||schema.input==='datetime'||schema.input==='daterange'||schema.input==='datetimerange'">
+  <template
+    v-else-if="schema.input==='date'||schema.input==='datetime'||schema.input==='daterange'||schema.input==='datetimerange'"
+  >
     <el-date-picker
       v-model="model[prop]"
       :type="schema.input"
@@ -101,27 +103,12 @@ export default {
       :precision="0"
     />
   </template>
+  <template v-else-if="schema.input==='checkbox'">
+    <el-checkbox v-model="model[prop]" :label="schema.meta.showLabel?schema.title:''" />
+  </template>
   <template v-else-if="schema.input==='switch'">
     <el-switch v-model="model[prop]" type="checked" />
-    <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}111</span>
-  </template>
-  <template v-else-if="schema.input==='boolean'">
-    <el-select
-      :value-on-clear="null"
-      clearable
-      :disabled="getDisabled()"
-      v-model="model[prop]"
-      :placeholder="schema.placeholder??schema.title"
-      v-if="schema.nullable"
-    >
-      <el-option prop="select" value="" :label="$t('select')" />
-      <el-option prop="true" :value="true" :label="$t('true')" />
-      <el-option prop="false" :value="false" :label="$t('false')" />
-    </el-select>
-    <template v-else>
-      <el-checkbox v-model="model[prop]" type="checked" />
-      <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}</span>
-    </template>
+    <span v-if="schema.meta.showLabel" class="pl-4">{{schema.title}}</span>
   </template>
   <template v-else-if="schema.input === 'image-captcha'">
     <image-captcha
@@ -145,7 +132,7 @@ export default {
       :regexp="schema.regexp"
     />
   </template>
-  <template v-else-if="schema.input==='image-upload'||schema.input==='image-inline'">
+  <template v-else-if="schema.input==='file'||schema.input==='image-upload'||schema.input==='image-inline'">
     <el-upload
       class="el-input__inner flex"
       :show-file-list="false"
@@ -159,41 +146,15 @@ export default {
         <el-icon v-if="!model[prop]"><ep-plus /></el-icon>
       </template>
       <template #tip>
-        <el-image v-if="model[prop]" :src="model[prop]" :preview-src-list="[model[prop]]" />
-        <el-icon v-if="model[prop]" class="cursor-pointer h-full" @click="()=>{model[prop]=null;fileList.value=[]}">
-          <ep-close />
-        </el-icon>
+        <template v-if="model[prop]">
+          <el-icon class="cursor-pointer h-full" @click="()=>{model[prop]=null;fileList.value=[]}">
+            <ep-close />
+          </el-icon>
+          <span v-if="schema.input==='file'">{{model[prop].name}}</span>
+          <el-image v-else :src="model[prop]" :preview-src-list="[model[prop]]" />
+        </template>
       </template>
     </el-upload>
-  </template>
-  <template v-else-if="schema.input==='file'">
-    <el-upload
-      v-model:file-list="model[prop]"
-      class="upload"
-      drag
-      :accept="schema.meta?.accept"
-      :multiple="schema.meta?.multiple"
-      :limit="limit"
-      :auto-upload="false"
-      :on-change="uploadOnChange"
-    >
-      <template #trigger>
-        <el-icon style="font-size:4em;">
-          <ep-upload-filled />
-        </el-icon>
-      </template>
-      <template #tip>
-        <div class="el-upload__tip">
-          <div>
-            单个文件大小限制：{{ bytesFormat(size) }}，上传数量限制：{{ limit }}
-            <template v-if="schema.meta?.accept">，上传文件类型：{{ schema.meta?.accept }}</template>
-          </div>
-        </div>
-      </template>
-    </el-upload>
-  </template>
-  <template v-else-if="schema.input==='checkbox'">
-    <el-checkbox v-model="model[prop]" :label="schema.meta.showLabel?schema.title:''" />
   </template>
   <template v-else>
     <el-input
@@ -247,6 +208,7 @@ export default {
     };
 
     //upload
+    const inputFileRef = ref(null);
     const fileList = ref([]);
     const limit = props.schema.meta?.multiple ? props.schema.meta?.limit ?? 5 : 1;
     const size = props.schema.meta?.size ?? 1024 * 1024;
@@ -278,14 +240,23 @@ export default {
           await formItem.validate();
         };
         reader.readAsDataURL(uploadFile.raw);
-      } else {
-        if (uploadFiles.length) {
-          model[props.prop] = props.schema.meta?.multiple ? uploadFiles : uploadFiles[0];
-        } else {
-          model[props.prop] = props.schema.meta?.multiple ? [] : null;
+      } else if (props.schema.input === 'file') {
+        // if (uploadFiles.length) {
+        //   model[props.prop] = props.schema.meta?.multiple ? uploadFiles : uploadFiles[0];
+        // } else {
+        //   model[props.prop] = props.schema.meta?.multiple ? [] : null;
+        // }
+        model[props.prop] = uploadFiles;
+        try {
+          await formItem.validate();
+        } catch (error) {
+          console.log(error);
         }
-        await formItem.validate();
       }
+    };
+
+    const selectFile = (file) => {
+      console.log(file);
     };
 
     //
@@ -385,6 +356,8 @@ export default {
       fileList,
       limit,
       size,
+      inputFileRef,
+      selectFile,
       fetchOptions,
       updateCodeHash,
       uploadOnChange,
