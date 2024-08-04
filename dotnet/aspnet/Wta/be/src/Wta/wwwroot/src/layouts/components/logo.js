@@ -6,7 +6,7 @@ export default {
   template: html`<a href="javascript:;" @click="reload" class="logo">
     <div class="flex h-full items-center">
       <img src="./src/assets/logo.svg" />
-      <h1 v-if="!appStore.settings.isMenuCollapse">{{$t('application')}}</h1>
+      <h1 v-if="!appStore.settings.isMenuCollapse">{{$t('应用名称')}}</h1>
     </div>
   </a>`,
   setup() {

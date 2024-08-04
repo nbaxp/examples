@@ -36,7 +36,7 @@ export default {
   <el-form-item v-if="!hideButton" :label-width="0" style="margin-bottom:0;" :label="schema.meta?.submitStyle?'':' '">
     <slot name="submit">
       <el-button type="primary" @click="submit" :disabled="loading" :style="schema.meta?.submitStyle">
-        {{$t('confirm')}}
+        {{$t('确定')}}
       </el-button>
       <el-button v-if="!schema.meta.hideReset" @click="reset" :disabled="loading">
         {{$t('reset')}}

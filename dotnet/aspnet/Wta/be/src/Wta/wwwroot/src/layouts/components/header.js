@@ -1,5 +1,5 @@
-import { useAppStore, useTabsStore, useTokenStore, useUserStore } from '@/store/index.js';
 import SvgIcon from '@/components/icon/index.js';
+import { useAppStore, useTabsStore, useTokenStore, useUserStore } from '@/store/index.js';
 import { useDark, useFullscreen, useToggle } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import html from 'utils';
@@ -79,12 +79,12 @@ export default {
             <el-dropdown-item>
               <router-link to="/user-center">
                 <el-icon><ep-user /></el-icon>
-                {{$t('userCenter')}}
+                {{$t('用户中心')}}
               </router-link>
             </el-dropdown-item>
             <el-dropdown-item divided @click="confirmLogout">
               <el-icon><ep-switch-button /></el-icon>
-              {{$t('logout')}}
+              {{$t('注销')}}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -153,7 +153,7 @@ export default {
     const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(document.documentElement);
     const confirmLogout = async () => {
       try {
-        await ElMessageBox.confirm(i18n.t('confirmLogout'), i18n.t('tip'), {
+        await ElMessageBox.confirm(i18n.t('确认退出'), i18n.t('提示'), {
           type: 'warning',
         });
         await tokenStore.clear();

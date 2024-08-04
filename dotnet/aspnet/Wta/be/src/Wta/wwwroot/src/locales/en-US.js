@@ -1,5 +1,20 @@
 export default {
-  application: 'WTA Application',
-  copyright: '© {0} All rights reserved',
-  confirm: 'Confirm',
+  应用名称: 'WTA Management System',
+  版权信息: 'Copyright © {0} All Rights Reserved',
+  确定: 'Confirm',
+  验证码: 'Captcha Code',
+  点击刷新: 'Click Refresh',
+  登录: 'Login',
+  注销: 'Logout',
+  注册: 'Register',
+  忘记密码: 'Forgot Password',
+  用户中心: 'User Center',
+  // 用户名: 'Username',
+  // 密码: 'Password',
+  // 发送验证码: 'Send Code',
+  // 发送验证码成功: 'Send Code Success',
+  // 发送验证码失败: 'Send Code Failed',
+  // 发送验证码失败请重试: 'Send Code Failed, Please Try Again',
+  // 发送验证码失败请稍后重试: 'Send Code Failed, Please Try Again Later',
+  // 发送验证码失败请稍后重试: 'Send Code Failed, Please Try Again
 };

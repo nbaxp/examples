@@ -1,24 +1,7 @@
+// 实体名称、属性、验证信息等由服务端提供，其他信息由前端定义
+// 默认使用中文 key，中文key一词多义的，使用英文Key
 export default {
-  application: '智慧工厂MES系统',
-  copyright: '© {0} 版权所有',
-  confirm: '确定',
-  tip: '提示',
-  logout: '退出',
-  confirmLogout: '确认退出',
-  'Page Settings': '页面配置',
-  rowIndex: '行号',
-  order: '序号',
-  operations: '操作',
-  filter: '过滤',
-  selectAll: '全选',
-  selectInverse: '反选',
-  userCenter: '用户中心',
-  create: '新建',
-  details: '查看',
-  update: '编辑',
-  delete: '删除',
-  import: '导入',
-  export: '导出',
-  //
+  应用名称: 'WTA 管理系统',
+  版权信息: 'Copyright © {0} 版权所有',
   RequiredAttribute: '{0}是必填项',
 };

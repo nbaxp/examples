@@ -221,7 +221,7 @@ export default {
   </el-scrollbar>
   <template #footer>
     <span class="dialog-footer">
-      <el-button type="primary" @click="filterDrawer=false">{{$t('confirm')}}</el-button>
+      <el-button type="primary" @click="filterDrawer=false">{{$t('确定')}}</el-button>
     </span>
   </template>
 </el-drawer>
@@ -237,7 +237,7 @@ export default {
   <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
   <template #footer>
     <span class="dialog-footer">
-      <el-button type="primary" @click="editFormSubmit">{{$t('confirm')}}</el-button>
+      <el-button type="primary" @click="editFormSubmit">{{$t('确定')}}</el-button>
     </span>
   </template>
   <el-row v-loading="editFormloading">

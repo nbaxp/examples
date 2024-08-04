@@ -1,3 +1,4 @@
+import i18n from '@/locales/index.js';
 import { useAppStore, useTabsStore, useTokenStore, useUserStore } from '@/store/index.js';
 import { useTitle } from '@vueuse/core';
 import NProgress from 'nprogress/nprogress.vite-esm.js';
@@ -35,7 +36,8 @@ const afterEach = (to, from) => {
       tabsStore.addRoute(to);
     }
     if (to.meta?.title) {
-      useTitle().value = to.meta.title;
+      const { t } = i18n.global;
+      useTitle().value = t(to.meta.title);
     }
   } finally {
     NProgress.done();

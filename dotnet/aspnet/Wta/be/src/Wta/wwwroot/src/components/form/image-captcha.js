@@ -1,5 +1,5 @@
-import request from '@/utils/request.js';
 import SvgIcon from '@/components/icon/index.js';
+import request from '@/utils/request.js';
 import html from 'utils';
 import { onMounted, ref, useModel, watch } from 'vue';
 
@@ -15,7 +15,7 @@ export default {
         </template>
       </el-input>
       <el-image
-        :title="$t('clickRefresh')"
+        :title="$t('点击刷新')"
         :src="src"
         @click="onClick"
         style="cursor: pointer; max-height: 30px; margin-left: 10px"

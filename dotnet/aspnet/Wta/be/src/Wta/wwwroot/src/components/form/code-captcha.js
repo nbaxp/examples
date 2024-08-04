@@ -12,13 +12,13 @@ export default {
       </template>
     </el-input>
     <el-button
-      :title="$t('clickRefresh')"
+      :title="$t('点击刷新')"
       @click="onClick"
       style="max-height: 30px; margin-left: 10px"
       :disabled="disabled"
     >
       <template v-if="!loading">{{ $t('发送验证码') }}</template>
-      <template v-else>{{ $t('resend', [seconds]) }}</template>
+      <template v-else>{{ $t('秒后重新发送', [seconds]) }}</template>
     </el-button>
   </div>`,
   props: ['modelValue', 'icon', 'method', 'url', 'code', 'codeHash', 'timeout', 'query', 'regexp'],
