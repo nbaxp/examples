@@ -27,6 +27,7 @@ export default {
   操作: 'Operation',
   搜索: 'Search',
   点击搜索: 'Click Search',
+  确认退出: 'Confirm Logout',
   //user
   重置密码: 'Reset Password',
   修改密码: 'Change Password',
