@@ -49,27 +49,19 @@ export function bytesFormat(bytes) {
 
 // string format
 export function format(template, ...args) {
-  const formatRegExp = /%[sdj%]/g;
-  let counter = 0;
-  return template.replace(formatRegExp, (match) => {
-    const index = counter;
-    counter += 1;
-    if (match === '%%') {
-      return '%';
+  if (typeof template !== 'string') {
+    throw new TypeError('Expected a string template');
+  }
+  if (args.length === 0) {
+    return template;
+  }
+  return template.replace(/{(\d+)}/g, (match, number) => {
+    const index = Number.parseInt(number, 10);
+    const param = args[index];
+    if (typeof param === 'string') {
+      return param.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
-    if (index > args.length - 1) {
-      return match;
-    }
-    if (match === '%s') {
-      return String(args[index]);
-    }
-    if (match === '%d') {
-      return Number(args[index]);
-    }
-    if (match === '%j') {
-      return JSON.stringify(args[index]);
-    }
-    return match;
+    return typeof param !== 'undefined' ? param : match;
   });
 }
 

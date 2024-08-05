@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
@@ -12,11 +11,10 @@ public static class ModelMetadataExtensions
     public static object GetSchema(this ModelMetadata meta, IServiceProvider serviceProvider, ModelMetadata? parent = null)
     {
         var result = new Dictionary<string, object>();
-        var modelMetaData = (meta as DefaultModelMetadata)!;
+        var metaData = (meta as DefaultModelMetadata)!;
         var modelType = meta.UnderlyingOrModelType;
-        var isValueType = modelMetaData.ModelType.IsValueType;
-        var isNullableType = modelMetaData.ModelType.IsNullableType() ||
-            modelMetaData.Attributes.Attributes.Any(o => o.GetType() == typeof(NullableAttribute));
+        var isValueType = metaData.ModelType.IsValueType;
+        var isNullableType = !metaData.IsRequired;
         result.TryAdd("isNullable", isNullableType);
         //是否跟
         if (parent == null)
@@ -46,13 +44,13 @@ public static class ModelMetadataExtensions
             result.Add("description", meta.Description);
         }
         //只读
-        if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(ReadOnlyAttribute)) is ReadOnlyAttribute readOnlyAttribute &&
+        if (metaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(ReadOnlyAttribute)) is ReadOnlyAttribute readOnlyAttribute &&
             readOnlyAttribute.IsReadOnly)
         {
             result.Add("readOnly", true);
         }
         //属性
-        modelMetaData.Attributes.Attributes?.ForEach(o =>
+        metaData.Attributes.Attributes?.ForEach(o =>
         {
             if (o is KeyValueAttribute keyValue)
             {
@@ -67,7 +65,7 @@ public static class ModelMetadataExtensions
             }
         });
         //输入
-        if (modelMetaData.Attributes.Attributes!.Any(o => o.GetType() == typeof(HiddenAttribute)))
+        if (metaData.Attributes.Attributes!.Any(o => o.GetType() == typeof(HiddenAttribute)))
         {
             result.TryAdd("hidden", true);
         }
@@ -82,7 +80,7 @@ public static class ModelMetadataExtensions
             {
                 result.Add("type", "number");
                 result.TryAdd("input", "select");
-                if (modelMetaData.IsFlagsEnum)
+                if (metaData.IsFlagsEnum)
                 {
                     result.TryAdd("multiple", true);
                 }
@@ -108,7 +106,7 @@ public static class ModelMetadataExtensions
             else if (modelType == typeof(DateTime))
             {
                 result.Add("type", "string");
-                if (modelMetaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(DataTypeAttribute)) is not DataTypeAttribute dataType
+                if (metaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(DataTypeAttribute)) is not DataTypeAttribute dataType
                     || dataType.DataType == DataType.DateTime)
                 {
                     result.TryAdd("input", "datetime");
@@ -132,7 +130,7 @@ public static class ModelMetadataExtensions
         }
         else//引用类型
         {
-            if (modelMetaData.IsEnumerableType)//Guid
+            if (metaData.IsEnumerableType)//Guid
             {
                 result.TryAdd("type", "array");
                 //if(modelMetaData.ElementType!.UnderlyingSystemType==typeof(Guid))
@@ -141,10 +139,10 @@ public static class ModelMetadataExtensions
                 //}
                 if (parent == null)//modelMetaData.ElementType!.UnderlyingSystemType.IsClass && modelMetaData.ElementType.UnderlyingSystemType != typeof(string))
                 {
-                    result.TryAdd("items", modelMetaData.ElementMetadata!.GetSchema(serviceProvider, meta));
+                    result.TryAdd("items", metaData.ElementMetadata!.GetSchema(serviceProvider, meta));
                 }
             }
-            else if (modelMetaData.ModelType == typeof(string))
+            else if (metaData.ModelType == typeof(string))
             {
                 result.Add("type", "string");
             }
@@ -163,7 +161,7 @@ public static class ModelMetadataExtensions
                     }
                     return order;
                 };
-                var ModelProperties = modelMetaData.Properties.OrderBy(o => getOrder(o));
+                var ModelProperties = metaData.Properties.OrderBy(o => getOrder(o));
                 foreach (var propertyMetadata in ModelProperties)
                 {
                     if (meta.ContainerType == propertyMetadata.ContainerType)
@@ -183,16 +181,15 @@ public static class ModelMetadataExtensions
         var modelValidationContextBase = new ModelValidationContextBase(actionContext, meta, new EmptyModelMetadataProvider());
         var rules = new List<Dictionary<string, object>>();
         //必填
-        if (!isNullableType || modelMetaData.IsRequired)
+        if (metaData.IsRequired)
         {
             if (modelType != typeof(bool))
             {
-                var message = string.Format(CultureInfo.InvariantCulture, localizer.GetString(nameof(RequiredAttribute)).Value, title);
-                rules.Add(new Dictionary<string, object> { { "required", true }, { "message", message } });
+                rules.Add(new Dictionary<string, object> { { "required", true } });
                 result.Add("required", true);
             }
         }
-        foreach (var item in modelMetaData.Attributes.Attributes!)
+        foreach (var item in metaData.Attributes.Attributes!)
         {
             if (item is ValidationAttribute attribute && !string.IsNullOrEmpty(attribute.ErrorMessage))
             {
@@ -228,7 +225,7 @@ public static class ModelMetadataExtensions
                 }
                 else if (attribute is RequiredAttribute)
                 {
-                    rule.Add("required", true);
+                    //rule.Add("required", true);
                 }
                 else if (attribute is CompareAttribute compare)//??
                 {
@@ -275,7 +272,7 @@ public static class ModelMetadataExtensions
                 {
                     rule.Add("validator", "remote");
                     var attributes = new Dictionary<string, string>();
-                    remote.AddValidation(new ClientModelValidationContext(actionContext, modelMetaData, provider, attributes));
+                    remote.AddValidation(new ClientModelValidationContext(actionContext, metaData, provider, attributes));
                     rule.Add("remote", attributes["data-val-remote-url"]);
                     //rule.Add("fields", remote.AdditionalFields.Split(',').Where(o => !string.IsNullOrEmpty(o)).Select(o => o.ToLowerCamelCase()).ToList());
                 }

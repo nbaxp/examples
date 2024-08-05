@@ -21,7 +21,6 @@ export default function () {
         //multiple: true,
         input: 'file',
         accept: '.xlsx',
-        default: [],
         limit: 1,
         size: 100 * 1024 * 1024,
         rules: [

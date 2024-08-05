@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import AppList from '@/components/list/index.js';
+import request from '@/utils/request.js';
 import { normalize } from '@/utils/schema.js';
 
 export default {
@@ -23,9 +24,8 @@ export default {
         schema.value = normalize(typeof useSchema === 'function' ? useSchema() : useSchema);
       } else {
         const url = route.meta.buttons.find((o) => o.meta.command === 'search').meta.url.replace(/search$/, 'schema');
-        const response = await fetch(url);
-        const result = await response.json();
-        schema.value = normalize(result.data);
+        const result = await request('GET', `/${url}`);
+        schema.value = normalize(result.data.data);
       }
       schema.value.meta.buttons = route.meta.buttons ?? [];
     });

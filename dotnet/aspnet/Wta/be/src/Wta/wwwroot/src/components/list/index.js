@@ -64,7 +64,7 @@ export default {
             style="margin-left:0;"
           >
             <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
-            <span>{{item.meta.title}}</span>
+            <span>{{$t(item.meta.title)}}</span>
           </el-button>
         </template>
         <el-button v-if="false" @click="buttonClick('filter',selectedRows)">
@@ -78,9 +78,9 @@ export default {
           @click="buttonClick(buttons.find(o=>o.meta.command==='search'),selectedRows)"
           class="el-button--primary mb-5"
         >
-          查询
+          {{$t('查询')}}
         </el-button>
-        <el-button @click="reset" class="mb-5 ml-3">重置</el-button>
+        <el-button @click="reset" class="mb-5 ml-3"> {{$t('重置')}}</el-button>
       </div>
     </el-row>
     <!--列表-->
@@ -98,7 +98,7 @@ export default {
       fit
     >
       <el-table-column v-if="!schema.disableSelection" fixed="left" type="selection" :selectable="schema.selectable" />
-      <el-table-column type="index" :label="$t('rowIndex')">
+      <el-table-column type="index" :label="$t('行号')">
         <template #default="scope">
           {{ (pageModel.pageIndex - 1) * pageModel.pageSize + scope.$index + 1 }}
         </template>
@@ -158,7 +158,7 @@ export default {
       <el-table-column fixed="right">
         <template #header>
           <el-button @click="filterDrawer = true">
-            {{$t('operations')}}
+            {{$t('操作')}}
             <el-icon class="el-icon--right"><ep-filter /></el-icon>
           </el-button>
         </template>
@@ -172,7 +172,7 @@ export default {
                 :disabled="item.meta.disabled && item.meta.disabled(scope.row)"
               >
                 <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
-                <span>{{item.meta.title}}</span>
+                <span>{{$t(item.meta.title)}}</span>
               </el-button>
             </template>
             <slot name="rowButtons" :rows="[scope.row]"></slot>
@@ -198,17 +198,17 @@ export default {
 </div>
 <!--列筛选抽屉-->
 <el-drawer v-model="filterDrawer" destroy-on-close @close="tableRef.doLayout()">
-  <template #header><span class="el-dialog__title">{{$t('filter')}}</span></template>
+  <template #header><span class="el-dialog__title">{{$t('过滤')}}</span></template>
   <el-scrollbar>
     <el-row>
       <el-col>
         <el-form inline>
           <div>
             <el-button type="primary" @click="columns.forEach(o=>o.checked=true)">
-              {{$t('selectAll')}}
+              {{$t('全选')}}
             </el-button>
             <el-button type="primary" @click="columns.forEach(o=>o.checked=!o.checked)">
-              {{$t('selectInverse')}}
+              {{$t('反选')}}
             </el-button>
             <el-button type="primary" @click="resetColumns">{{ $t('重置') }}</el-button>
           </div>
@@ -260,7 +260,7 @@ export default {
               <el-form-item label=' '>
                 <el-button @click="buttonClick(item)">
                   <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
-                  <span>{{item.meta.title}}</span>
+                  <span>{{$t(item.meta.title)}}</span>
                 </el-button>
               </el-form-item>
             </template>
@@ -431,7 +431,7 @@ export default {
           editFormCommand.value === 'unarchive'
         ) {
           try {
-            await ElMessageBox.confirm(format(`确认${t(item.meta.command)}选中的%s行数据吗？`, rows.length), '提示', {
+            await ElMessageBox.confirm(t('确认{0}选中的{1}行数据吗？', [t(item.meta.title), rows.length]), '提示', {
               type: 'warning',
             });
             loading.value = true;
@@ -449,7 +449,7 @@ export default {
             if (error === 'cancel') {
               ElMessage({
                 type: 'info',
-                message: '操作取消',
+                message: t('操作取消'),
               });
             }
           } finally {
@@ -499,7 +499,7 @@ export default {
             const modelErrors = JSON.parse(JSON.stringify(result.data));
             editFormRef.value.setErrors(modelErrors);
           } else {
-            ElMessageBox.alert(result.message, '提示', { type: 'error' });
+            ElMessageBox.alert(result.message, t('提示'), { type: 'error' });
           }
         }
         dialogVisible.value = false;
@@ -507,7 +507,7 @@ export default {
         if (error === 'cancel') {
           ElMessage({
             type: 'info',
-            message: '操作取消',
+            message: t('操作取消'),
           });
         }
       } finally {

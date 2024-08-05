@@ -8,9 +8,9 @@ const i18n = createI18n(config);
 const t = i18n.global.t;
 i18n.global.t = (...args) => {
   let result = t(...args);
-  const [key, ...params] = args;
-  if (result === key) {
-    result = format(result, params);
+  const [template, ...params] = args;
+  if (result === template && params?.length) {
+    result = format(template, ...args[1]);
   }
   return result;
 };

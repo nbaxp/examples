@@ -35,13 +35,13 @@ export default {
   </div>
   <div class="flex">
     <el-space :size="appStore.settings.size">
-      <el-icon class="cursor-pointer" @click="clickSearch" :title="$t('search-menu')">
+      <el-icon class="cursor-pointer" @click="clickSearch" :title="$t('点击搜索')">
         <ep-search />
       </el-icon>
       <el-select
         class="search"
         ref="searchRef"
-        placeholder="search"
+        :placeholder="$t('搜索')"
         v-show="showSearch"
         @blur="hideSearch"
         filterable

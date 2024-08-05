@@ -13,8 +13,7 @@ public class LoginRequestModel : CaptchaModel
     [KeyValue("label", "name")]
     public string? TenantNumber { get; set; }
 
-    [Required]
-    public string? UserName { get; set; }
+    public string UserName { get; set; } = null!;
 
     [Required]
     [DataType(DataType.Password)]
