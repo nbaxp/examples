@@ -106,21 +106,34 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             }
         });
         /// 设置分组上级
+
         groups.ForEach(groupType =>
         {
-            var number = groupType.Name.ToSlugify()!;
-            var group = list.FirstOrDefault(o => o.Number == number);
-            var current = group;
-            groupType.GetBaseClasses().Where(o => !o.IsAbstract).ForEach(type =>
+            var number = groupType.FullName?.TrimEnd("Attribute")!;
+            var group = list.FirstOrDefault(o => o.Number == number)!;
+            if (groupType.BaseType != null && !groupType.BaseType.IsAbstract)
             {
-                if (current != null)
-                {
-                    var number = type.FullName!;
-                    current.ParentId = list.FirstOrDefault(o => o.Number == number)?.Id;
-                    current = list.FirstOrDefault(o => o.Number == number);
-                }
-            });
+                var parentNumber = groupType.BaseType!.FullName!.TrimEnd("Attribute")!;
+                group.ParentId = list.FirstOrDefault(o => o.Number == parentNumber)?.Id;
+            }
         });
+
+        //groups.ForEach(groupType =>
+        //{
+        //    var number = groupType.FullName?.TrimEnd("Attribute")!;
+        //    var group = list.FirstOrDefault(o => o.Number == number);
+        //    var current = group;
+        //    groupType.GetBaseClasses().Where(o => !o.IsAbstract).ForEach(type =>
+        //    {
+        //        if (current != null)
+        //        {
+        //            var number = type.FullName!;
+        //            current.ParentId = list.FirstOrDefault(o => o.Number == number)?.Id;
+        //            current = list.FirstOrDefault(o => o.Number == number);
+        //        }
+        //    });
+        //});
+
         //添加资源菜单和资源操作按钮
         var order = 1;
         var actionDescriptors = actionProvider.ActionDescriptors.Items;

@@ -7,5 +7,6 @@ public abstract class Entity : BaseEntity, IConcurrencyStampEntity
         ConcurrencyStamp = Guid.NewGuid().ToString();
     }
 
+    [Hidden]
     public string ConcurrencyStamp { get; set; }
 }
