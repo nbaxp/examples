@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Http;
 
 namespace Wta.Infrastructure.Application.Models;
 
-public class ImportModel<T> : QueryModel<T>
+public class ImportModel<T>
 {
     public string Update { get; set; } = null!;
-    public List<IFormFile> Files { get; set; } = new List<IFormFile>();
+    public IFormFile File { get; set; } = null!;
 }

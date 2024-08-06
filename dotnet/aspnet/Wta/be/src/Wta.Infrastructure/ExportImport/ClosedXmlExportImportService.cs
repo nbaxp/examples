@@ -1,3 +1,4 @@
+using ClosedXML;
 using ClosedXML.Excel;
 using ClosedXML.Graphics;
 
@@ -42,7 +43,10 @@ public class ClosedXMLExportImportService() : IExportImportService
         using var workbook = new XLWorkbook();
         var name = type.GetDisplayName();
         var ws = workbook.Worksheets.Add(name);
-        var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty).ToList();
+        var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty)
+            .Where(o => !o.GetAttributes<HiddenAttribute>().Any())
+            .Where(o => o.PropertyType.UnderlyingSystemType.IsValueType || o.PropertyType == typeof(string))
+            .ToList();
         var rowIndex = 1;
         SetHeader(ws, properties, rowIndex);
         SetStyle(ws);
@@ -72,7 +76,7 @@ public class ClosedXMLExportImportService() : IExportImportService
                     var value = cell.Value.ToString().Trim();
                     if (!string.IsNullOrEmpty(value))
                     {
-                        var headerName = ws.Cell(0, columnIndex).Value.ToString().Trim();
+                        var headerName = ws.Cell(1, columnIndex).Value.ToString().Trim();
                         var property = properties.FirstOrDefault(o => o.GetDisplayName() == headerName);
                         if (property != null)
                         {
@@ -166,9 +170,9 @@ public class ClosedXMLExportImportService() : IExportImportService
         ws.RangeUsed().Style.Border.RightBorderColor =
         ws.RangeUsed().Style.Border.BottomBorderColor =
         ws.RangeUsed().Style.Border.LeftBorderColor = XLColor.Black;
-        //ws.RangeUsed().SetAutoFilter();
+        ws.RangeUsed().SetAutoFilter();
         ws.ColumnsUsed().AdjustToContents();
-        //ws.RowsUsed().AdjustToContents();
+        ws.RowsUsed().AdjustToContents();
     }
 
     private static byte[] GetResult(XLWorkbook workbook)

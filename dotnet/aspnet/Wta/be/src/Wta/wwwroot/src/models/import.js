@@ -1,4 +1,5 @@
 import { normalize } from '@/utils/schema.js';
+import validate from '~/lib/uuid/validate.js';
 
 export default function () {
   return normalize({
@@ -15,18 +16,15 @@ export default function () {
           { label: '更新', value: 'update' },
         ],
       },
-      files: {
+      file: {
         title: '文件',
-        type: 'array',
-        //multiple: true,
         input: 'file',
         accept: '.xlsx',
         limit: 1,
         size: 100 * 1024 * 1024,
         rules: [
           {
-            required: true,
-            trigger: 'change',
+            validator: 'file',
           },
         ],
       },

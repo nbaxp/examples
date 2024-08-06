@@ -147,7 +147,7 @@ export default {
       </template>
       <template #tip>
         <template v-if="model[prop]">
-          <el-icon class="cursor-pointer h-full" @click="()=>{model[prop]=null;fileList.value=[]}">
+          <el-icon class="cursor-pointer h-full" @click="removeFile">
             <ep-close />
           </el-icon>
           <span v-if="schema.input==='file'">{{model[prop].name}}</span>
@@ -218,7 +218,7 @@ export default {
     const uploadOnChange = async (uploadFile, uploadFiles) => {
       const ext = uploadFile.name.substr(uploadFile.name.lastIndexOf('.'));
       const index = uploadFiles.findIndex((o) => o.uid !== uploadFile.uid);
-      uploadFiles.splice(index, 1);
+      fileList.value = [uploadFile];
       if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
         ElMessage.error(`当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`);
         return false;
@@ -241,12 +241,7 @@ export default {
         };
         reader.readAsDataURL(uploadFile.raw);
       } else if (props.schema.input === 'file') {
-        // if (uploadFiles.length) {
-        //   model[props.prop] = props.schema.meta?.multiple ? uploadFiles : uploadFiles[0];
-        // } else {
-        //   model[props.prop] = props.schema.meta?.multiple ? [] : null;
-        // }
-        model[props.prop] = uploadFiles;
+        model[props.prop] = uploadFile.raw;
         try {
           await formItem.validate();
         } catch (error) {
@@ -255,12 +250,12 @@ export default {
       }
     };
 
-    const selectFile = (file) => {
-      console.log(file);
+    const removeFile = () => {
+      model[props.prop] = null;
+      fileList.value = [];
     };
 
-    //
-
+    //select
     const fetchOptions = async () => {
       route.meta.cache ||= new Map();
       const map = route.meta.cache;
@@ -308,7 +303,6 @@ export default {
       }
     };
 
-    //if (props.schema?.dependsOn) {
     watch(
       () => model[props.schema.meta?.dependsOn],
       async () => {
@@ -324,7 +318,6 @@ export default {
       },
       { immediate: true },
     );
-    //}
 
     //watch
     watch(
@@ -354,10 +347,10 @@ export default {
       options,
       bytesFormat,
       fileList,
+      removeFile,
       limit,
       size,
       inputFileRef,
-      selectFile,
       fetchOptions,
       updateCodeHash,
       uploadOnChange,

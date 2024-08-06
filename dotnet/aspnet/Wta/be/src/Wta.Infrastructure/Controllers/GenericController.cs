@@ -100,18 +100,16 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(true);
     }
 
+    [Consumes("multipart/form-data")]
     [Display(Name = "导入", Order = 5)]
-    public virtual ApiResult<bool> Import(ImportModel<TModel> model)
+    public virtual ApiResult<bool> Import([FromForm]ImportModel<TModel> model)
     {
-        foreach (var file in model.Files)
+        using var ms = new MemoryStream();
+        model.File.OpenReadStream().CopyTo(ms);
+        var models = exportImportService.Import<TModel>(ms.ToArray());
+        foreach (var item in models)
         {
-            using var ms = new MemoryStream();
-            file.OpenReadStream().CopyTo(ms);
-            var models = exportImportService.Import<TModel>(ms.ToArray());
-            foreach (var item in models)
-            {
-                Create(item);
-            }
+            Create(item);
         }
         return Json(true);
     }
@@ -126,10 +124,10 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             query = SkipTake(query, model.PageIndex, model.PageSize);
         }
         var items = query.ToList().Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
-        var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
+        var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[$".{model.Format}"];
         var result = new FileContentResult(exportImportService.Export(items), contentType)
         {
-            FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx"
+            FileDownloadName = (model.Name ?? $"{typeof(TModel).GetDisplayName()}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}") + "." + model.Format
         };
         return result;
     }
@@ -222,7 +220,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             var entity = Repository.Query().FirstOrDefault(o => o.Id == id);
             if (entity != null)
             {
-                if(!entity.IsDeleted)
+                if (!entity.IsDeleted)
                 {
                     throw new ProblemException("无法删除未归档的数据");
                 }

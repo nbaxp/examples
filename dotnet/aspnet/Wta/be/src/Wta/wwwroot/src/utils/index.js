@@ -98,7 +98,7 @@ export function getProp(instance, propPath) {
 }
 
 export function getFileName(contentDisposition) {
-  return contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1].replace(/['"]/g, '');
+  return decodeURIComponent(contentDisposition.match(/UTF-8''(.+)/)[1]);
 }
 
 async function importModule(input) {
@@ -128,7 +128,6 @@ export function downloadFile(file, name) {
     link.click();
   } finally {
     document.body.removeChild(link);
-    url.revokeObjectURL();
   }
 }
 

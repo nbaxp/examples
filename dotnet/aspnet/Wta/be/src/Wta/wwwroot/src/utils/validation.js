@@ -57,7 +57,10 @@ const messages = {
   compare: '{0} 和 {0} 输入必须一致',
   true: '{0}必须选中',
   remote: '{0}远程验证失败',
+  file: '{0}是必填项',
 };
+
+const { t } = i18n.global;
 
 const validators = {
   compare(rule, value, callback, source, options) {
@@ -99,11 +102,17 @@ const validators = {
         });
     }
   },
+  file(rule, value, callback, source, options) {
+    const errors = [];
+    if (!value) {
+      errors.push(new Error(t(messages.file, [rule.title])));
+    }
+    callback(errors);
+  },
 };
 
 //
 const getRules = (parentSchema, property, data, prop) => {
-  const { t } = i18n.global;
   if (!property.rules) {
     return null;
   }

@@ -19,6 +19,10 @@ export default function () {
           { label: 'csv', value: 'csv' },
         ],
       },
+      name: {
+        title: '文件名',
+        type: 'string',
+      },
     },
   });
 }

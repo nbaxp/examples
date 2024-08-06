@@ -1,6 +1,7 @@
 import AppFormInput from '@/components/form/form-input.js';
 import AppForm from '@/components/form/index.js';
 import SvgIcon from '@/components/icon/index.js';
+import { DATETIME_FILENAME_FORMAT } from '@/constants/index.js';
 import useExport from '@/models/export.js';
 import useImport from '@/models/import.js';
 import { useAppStore, useTokenStore } from '@/store/index.js';
@@ -8,9 +9,10 @@ import request, { getUrl } from '@/utils/request.js';
 import { schemaToModel, toQuerySchema } from '@/utils/schema.js';
 import { useCssVar } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { dayjs } from 'element-plus';
 import * as jsondiffpatch from 'jsondiffpatch';
 import { camelCase, capitalize } from 'lodash';
-import { downloadFile, format, importFunction } from 'utils';
+import { downloadFile, importFunction } from 'utils';
 import html, { getProp, delay, listToTree } from 'utils';
 import { computed, nextTick, onMounted, reactive, ref, unref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -80,7 +82,7 @@ export default {
         >
           {{$t('查询')}}
         </el-button>
-        <el-button @click="reset" class="mb-5 ml-3"> {{$t('重置')}}</el-button>
+        <el-button @click="reset(queryFormRef)" class="mb-5 ml-3"> {{$t('重置')}}</el-button>
       </div>
     </el-row>
     <!--列表-->
@@ -238,6 +240,7 @@ export default {
   <template #footer>
     <span class="dialog-footer">
       <el-button type="primary" @click="editFormSubmit">{{$t('确定')}}</el-button>
+      <el-button v-if="editFormCommand!=='details'" @click="reset(editFormRef)" class="ml-3"> {{$t('重置')}}</el-button>
     </span>
   </template>
   <el-row v-loading="editFormloading">
@@ -400,6 +403,13 @@ export default {
       await reload();
     };
     const buttonClick = async (item, rows) => {
+      if (item.meta.command === 'import-template') {
+        const result = await request(item.meta.method ?? 'POST', `/${item.meta.url}`);
+        if (!result.error) {
+          downloadFile(result.data, result.name);
+        }
+        return;
+      }
       editFormCommand.value = item.meta.command;
       const showForm = ['create', 'update', 'details', 'import', 'export'].some((o) => o === item.meta.command);
       try {
@@ -425,6 +435,7 @@ export default {
           editFormSchema.value = useExport();
           editFormModel.value = schemaToModel(editFormSchema.value);
           editFormModel.value.includeAll = !!props.schema.meta.isTree;
+          editFormModel.value.name = `${props.schema?.title}_${dayjs().format(DATETIME_FILENAME_FORMAT)}`;
         } else if (
           editFormCommand.value === 'delete' ||
           editFormCommand.value === 'archive' ||
@@ -459,7 +470,7 @@ export default {
           context.emit('command', item, rows, load, showList);
         }
         if (showForm) {
-          editFormTitle.value = `${t(editFormCommand.value)}${props.schema?.title}`;
+          editFormTitle.value = `${t(item.meta.title)}${props.schema?.title}`;
           dialogVisible.value = true;
         }
       } catch (error) {
@@ -472,20 +483,28 @@ export default {
       }
     };
     const editFormSubmit = async () => {
+      if (editFormCommand.value === 'details') {
+        dialogVisible.value = false;
+        return;
+      }
       try {
         await editFormRef.value.validate();
         const button = props.schema.meta.buttons.find((o) => o.meta.command === editFormCommand.value);
         const url = `/${button?.meta?.url}`;
         const method = button.meta.method ?? 'POST';
-        const editFormData = JSON.parse(JSON.stringify(editFormModel.value));
         let data = null;
         if (editFormCommand.value === 'search' || editFormCommand.value === 'export') {
           data = buildQuery();
           if (editFormCommand.value === 'export') {
-            Object.assign(data, editFormData);
+            Object.assign(data, editFormModel.value);
+          }
+        } else if (editFormCommand.value === 'import') {
+          data = new FormData();
+          for (const [key, value] of Object.entries(editFormModel.value)) {
+            data.append(key, value);
           }
         } else {
-          data = editFormData;
+          data = editFormModel.value;
         }
         const result = await request(method, url, data);
         if (!result.error) {
@@ -555,14 +574,7 @@ export default {
       }
       return config;
     };
-    const download = (url, filename) => {
-      const downloadUrl = window.URL.createObjectURL(url);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(downloadUrl);
-    };
+
     const getButtonDisabled = (item) => {
       if (item.meta?.disabled) {
         if (item.meta.disabled.constructor === Function) {
@@ -685,9 +697,11 @@ export default {
       }
     };
     const queryFormRef = ref(null);
-    const reset = async () => {
-      queryFormRef.value.reset();
-      await reload();
+    const reset = async (formRef) => {
+      formRef.reset();
+      if (!dialogVisible.value) {
+        await reload();
+      }
     };
     return {
       appStore,
