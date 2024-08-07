@@ -35,6 +35,7 @@ public static class ModelMetadataExtensions
             result.TryAdd("value", "id");
             result.TryAdd("label", "name");
             result.TryAdd("input", "select");
+            result.TryAdd("isTree", true);
         }
         //标题
         var title = meta.ContainerType == null ? modelType.GetDisplayName() : meta.ContainerType?.GetProperty(meta.PropertyName!)?.GetDisplayName();

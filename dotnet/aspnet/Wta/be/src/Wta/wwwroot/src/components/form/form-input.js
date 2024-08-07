@@ -1,6 +1,6 @@
 import SvgIcon from '@/components/icon/index.js';
 import { DATETIME_DISPLAY_FORMAT, DATETIME_VALUE_FORMAT } from '@/constants/index.js';
-import { bytesFormat, importFunction } from '@/utils/index.js';
+import { bytesFormat, importFunction, listToTree } from '@/utils/index.js';
 import request from '@/utils/request.js';
 import { dayjs } from 'element-plus';
 import { ElMessage, useFormItem } from 'element-plus';
@@ -18,7 +18,7 @@ export default {
     <template v-if="schema.type==='boolean'||model[prop]!==false">
       <template v-if="schema.type==='boolean'">
         <el-button v-if="schema.input==='select'" link type="primary">
-          {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
+          {{selectOptions?.find(o=>o.value==model[prop])?.label??model[prop]}}
         </el-button>
         <el-checkbox v-else disabled v-model="model[prop]" type="checked" />
       </template>
@@ -31,12 +31,12 @@ export default {
       <template v-else-if="schema.input==='select'||schema.input==='radio'">
         <template v-if="!schema.meta?.multiple">
           <el-button link type="primary">
-            {{options?.find(o=>o.value==model[prop])?.label??model[prop]}}
+            {{selectOptions?.find(o=>o.value==model[prop])?.label??model[prop]}}
           </el-button>
         </template>
         <template v-else>
           <el-button link type="primary" v-for="item in model[prop]" :key="item">
-            {{options?.find(o=>o.value==item)?.label??item}}
+            {{selectOptions?.find(o=>o.value==item)?.label??item}}
           </el-button>
         </template>
       </template>
@@ -53,26 +53,19 @@ export default {
     <el-color-picker v-model="model[prop]" />
   </template>
   <template v-else-if="schema.input==='select'">
-    <el-select
-      v-model="model[prop]"
+    <el-cascader
+      v-model="selectValues"
       :placeholder="schema.meta?.placeholder??schema.meta?.title"
-      :multiple="!!schema.meta?.multiple"
       :value-on-clear="null"
+      :options="selectOptions"
+      :props="selectProps"
+      @change="selectChange"
       clearable
-    >
-      <el-option v-for="item in options" :key="item.key" :label="item.label" :value="item.value">
-        <span style="display:flex;align-items:center;">
-          <el-icon v-if="item.icon" class="el-icon--left">
-            <svg-icon :name="item.icon" />
-          </el-icon>
-          {{item.label}}
-        </span>
-      </el-option>
-    </el-select>
+    />
   </template>
   <template v-else-if="schema.input==='radio'">
     <el-radio-group v-model="model[prop]">
-      <el-radio-button v-for="item in options" :label="item.label" :value="item.value" />
+      <el-radio-button v-for="item in selectOptions" :label="item.label" :value="item.value" />
     </el-radio-group>
   </template>
   <!--string:datetime-->
@@ -197,11 +190,6 @@ export default {
     };
     /*end*/
 
-    //options
-    const selectProps = ref({});
-    const selectValues = ref([]);
-    const options = ref([]);
-
     //
     const updateCodeHash = (data) => {
       model[props.schema.codeHash ?? 'codeHash'] = data;
@@ -256,6 +244,31 @@ export default {
     };
 
     //select
+    const selectValues = ref([]);
+    const selectOptions = ref([]);
+    const selectProps = ref({
+      multiple: props.schema.meta?.multiple ?? false,
+      // checkStrictly: !!props.schema.meta.checkStrictly,
+      // emitPath: !!props.schema.meta?.multiple,
+      value: props.schema.meta?.value ?? 'value',
+      label: props.schema.meta?.label ?? 'label',
+      children: props.schema.meta?.children ?? 'children',
+      expandTrigger: props.schema.meta?.trigger ?? 'click',
+    });
+    const selectChange = (values) => {
+      if (props.schema.meta?.multiple) {
+        model[props.prop] = values.flat();
+      } else {
+        model[props.prop] = values[0];
+      }
+    };
+    if (props.schema.input === 'select' && model[props.prop]) {
+      if (props.schema.meta?.multiple) {
+        selectValues.vlaue = model[props.prop];
+      } else {
+        selectValues.vlaue = [model[props.prop]];
+      }
+    }
     const fetchOptions = async () => {
       route.meta.cache ||= new Map();
       const map = route.meta.cache;
@@ -270,35 +283,27 @@ export default {
         url,
         postData,
       });
-      options.value = map.get(key);
-      if (!options.value) {
+      selectOptions.value = map.get(key);
+      if (!selectOptions.value) {
         const method = props.schema.meta?.method || 'POST';
         const data = (await request(method, url, postData)).data;
         if (!data.error) {
-          options.value = getProp(data, props.schema.meta?.path ?? 'data.items').map((o) => {
-            if (Array.isArray(o)) {
-              return {
-                value: o[0],
-                label: o[1],
-              };
-            }
-            if (o instanceof Object) {
-              return {
-                value: o[props.schema.meta?.value ?? 'value'],
-                label: o[props.schema.meta?.label ?? 'label'],
-              };
-            }
-            return {
-              value: o,
-              label: o,
+          const items = getProp(data, props.schema.meta?.path ?? 'data.items').map((o) => {
+            const result = {
+              id: o[props.schema.meta?.id ?? 'id'],
+              parentId: o[props.schema.meta?.parentId ?? 'parentId'],
+              value: o[props.schema.meta?.value ?? 'value'],
+              label: o[props.schema.meta?.label ?? 'label'],
             };
+            return result;
           });
-          map.set(key, options.value);
+          selectOptions.value = listToTree(items);
+          map.set(key, selectOptions.value);
         } else {
-          options.value = [];
+          selectOptions.value = [];
         }
-        if (!model[props.prop] && props.schema.meta.selected && options.value.length) {
-          model[props.prop] = options.value[0].value;
+        if (!model[props.prop] && props.schema.meta.selected && selectOptions.value.length) {
+          model[props.prop] = selectOptions.value[0].value;
         }
       }
     };
@@ -307,12 +312,12 @@ export default {
       () => model[props.schema.meta?.dependsOn],
       async () => {
         if (props.schema.meta?.options) {
-          options.value = props.schema.meta?.options;
+          selectOptions.value = props.schema.meta?.options;
         } else if (props.schema.meta?.url && props.schema.input === 'select') {
           if (!props.schema.meta?.dependsOn || model[props.schema.meta?.dependsOn]) {
             await fetchOptions();
           } else {
-            options.value = [];
+            selectOptions.value = [];
           }
         }
       },
@@ -344,7 +349,8 @@ export default {
       dayjs,
       selectProps,
       selectValues,
-      options,
+      selectOptions,
+      selectChange,
       bytesFormat,
       fileList,
       removeFile,

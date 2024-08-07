@@ -1,4 +1,5 @@
 import AppForm from '@/components/form/index.js';
+import settings from '@/config/settings.js';
 import useSchema from '@/models/settings.js';
 import useAppStore from '@/store/app.js';
 import { useClipboard, useMediaQuery } from '@vueuse/core';
@@ -40,7 +41,7 @@ export default {
       }
     };
     const reset = async () => {
-      await formRef.value.reset();
+      appStore.settings = { ...settings };
     };
     const save = () => {
       localStorage.setItem('settings', JSON.stringify(appStore.settings));

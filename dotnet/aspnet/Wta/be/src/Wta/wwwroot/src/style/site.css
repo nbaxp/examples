@@ -190,6 +190,10 @@ img.loading {
     min-height: 24px;
   }
 
+  .el-cascader {
+    width: 100%;
+  }
+
   .el-input__suffix-inner {
     width: 2em;
   }
