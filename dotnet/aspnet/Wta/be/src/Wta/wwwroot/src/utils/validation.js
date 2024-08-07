@@ -124,7 +124,9 @@ const getRules = (parentSchema, property, data, prop) => {
     rule.schema = parentSchema;
     rule.title ??= t(property.title ?? prop);
     if (!rule.type && property.type !== 'object') {
-      rule.type = property.type;
+      if (property.type !== 'number' || property.input !== 'select') {
+        rule.type = property.type;
+      }
     }
     if (rule.validator) {
       if (rule.validator.constructor === String) {

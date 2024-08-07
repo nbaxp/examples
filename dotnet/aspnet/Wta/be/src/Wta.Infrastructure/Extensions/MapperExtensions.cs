@@ -6,7 +6,7 @@ public static class MapperExtensions
 {
     public static TModel ToModel<TEntity, TModel>(this TEntity entity, Action<TEntity, TModel>? action = null)
     {
-        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig();
+        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig().PreserveReference(true);
         var model = entity.Adapt<TModel>(setter.Config);
         action?.Invoke(entity, model);
         return model;
@@ -14,7 +14,7 @@ public static class MapperExtensions
 
     public static TEntity FromModel<TEntity, TModel>(this TEntity entity, TModel model, Action<TEntity, TModel, bool>? action = null, bool isCreate = false)
     {
-        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig().Ignore(["Id"]);
+        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig().PreserveReference(true).Ignore(["Id"]);
         if (!isCreate)
         {
             setter.IgnoreAttribute(typeof(ReadOnlyAttribute));

@@ -15,6 +15,7 @@ public static class ModelMetadataExtensions
         var modelType = meta.UnderlyingOrModelType;
         var isValueType = metaData.ModelType.IsValueType;
         var isNullableType = !metaData.IsRequired;
+        var isHidden = metaData.Attributes.Attributes!.Any(o => o.GetType() == typeof(HiddenAttribute));
         result.TryAdd("isNullable", isNullableType);
         //是否跟
         if (parent == null)
@@ -65,7 +66,7 @@ public static class ModelMetadataExtensions
             }
         });
         //输入
-        if (metaData.Attributes.Attributes!.Any(o => o.GetType() == typeof(HiddenAttribute)))
+        if (isHidden)
         {
             result.TryAdd("hidden", true);
         }
@@ -86,7 +87,7 @@ public static class ModelMetadataExtensions
                 }
                 var options = Enum.GetNames(modelType).Select(o => new
                 {
-                    Value = o,
+                    Value = Enum.Parse(modelType, o),
                     Label = ((Enum)Enum.Parse(modelType, o)).GetDisplayName()
                 }).ToArray();
                 result.TryAdd("options", options);
@@ -130,23 +131,30 @@ public static class ModelMetadataExtensions
         }
         else//引用类型
         {
-            if (metaData.IsEnumerableType)//Guid
+            if (metaData.IsEnumerableType)//列表
             {
                 result.TryAdd("type", "array");
-                //if(modelMetaData.ElementType!.UnderlyingSystemType==typeof(Guid))
-                //{
-                //    result.TryAdd("multiple", true);
-                //}
-                if (parent == null)//modelMetaData.ElementType!.UnderlyingSystemType.IsClass && modelMetaData.ElementType.UnderlyingSystemType != typeof(string))
-                {
-                    result.TryAdd("items", metaData.ElementMetadata!.GetSchema(serviceProvider, meta));
+                if (metaData.ElementType!.IsValueType || metaData.ElementType == typeof(string))
+                {//简单类型
+                    if (metaData.ElementType == typeof(Guid))
+                    {
+                        result.TryAdd("multiple", true);
+                    }
+                    if (parent == null)//modelMetaData.ElementType!.UnderlyingSystemType.IsClass && modelMetaData.ElementType.UnderlyingSystemType != typeof(string))
+                    {
+                        result.TryAdd("items", metaData.ElementMetadata!.GetSchema(serviceProvider, meta));
+                    }
+                }
+                else if (parent == null && !isHidden)
+                {//对象类型
+                    //result.TryAdd("items", metaData.ElementMetadata!.GetSchema(serviceProvider, meta));
                 }
             }
             else if (metaData.ModelType == typeof(string))
             {
                 result.Add("type", "string");
             }
-            else
+            else if (parent == null)
             {
                 result.Add("type", "object");
                 var properties = new Dictionary<string, object>();

@@ -1,6 +1,6 @@
 namespace Wta.Application.Default.Domain;
 
-[SystemManagement, Display(Name = "用户", Order = 5)]
+[SystemManagement, Display(Name = "用户", Order = 3)]
 public class User : Entity
 {
     public string? Name { get; set; }
@@ -24,5 +24,8 @@ public class User : Entity
     public bool IsReadOnly { get; set; }
     public Guid? DepartmentId { get; set; }
     public Department? Department { get; set; }
+    public Guid? PostId { get; set; }
+    public Post? Post { get; set; }
+
     public List<UserRole> UserRoles { get; set; } = [];
 }

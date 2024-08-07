@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Wta.Application.Default.Domain;
 
-[SystemManagement, Display(Name = "角色", Order = 3)]
+[SystemManagement, Display(Name = "角色", Order = 4)]
 public class Role : Entity
 {
     public string Name { get; set; } = default!;
@@ -13,6 +13,7 @@ public class Role : Entity
     [Hidden]
     public List<RolePermission> RolePermissions { get; set; } = [];
 
+    [KeyValue("hideForList",true)]
     [UIHint("select")]
     [KeyValue("url", "permission/search")]
     [KeyValue("value", "id")]

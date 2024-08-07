@@ -170,6 +170,7 @@ export default {
     };
     const refresh = async () => {
       tabsStore.isRefreshing = true;
+      router.currentRoute.value.meta?.cache?.clear();
       nextTick(() => {
         tabsStore.isRefreshing = false;
       });

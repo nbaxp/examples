@@ -2,6 +2,7 @@ using Wta.Infrastructure.Scheduling;
 
 namespace Wta.Application.Default.Data;
 
+[Display(Order = -1)]
 public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider, IEncryptionService encryptionService, ITenantService tenantService) : IDbSeeder<DefaultDbContext>
 {
     public void Seed(DefaultDbContext context)
@@ -90,7 +91,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             var number = groupType.Name.ToSlugify()!;
             if (!list.Any(o => o.Number == number))
             {
-                list.Add(new Permission
+                var group = new Permission
                 {
                     Id = context.NewGuid(),
                     Type = MenuType.Group,
@@ -98,11 +99,12 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     Name = groupType.GetDisplayName(),
                     Number = groupType.FullName?.TrimEnd("Attribute")!,
                     RoutePath = groupType.Name.TrimEnd("Attribute").ToSlugify()!,
-                    Redirect = groupType.GetCustomAttributes<KeyValueAttribute>().FirstOrDefault(o => o.Key == "Redirect")?.Value.ToString(),
+                    Redirect = groupType.GetCustomAttributes<KeyValueAttribute>(false).FirstOrDefault(o => o.Key == "Redirect")?.Value.ToString(),
                     Icon = groupType.GetCustomAttribute<IconAttribute>()?.Icon ?? "folder",
                     Component = groupType.GetCustomAttribute<ViewAttribute>()?.Component,
                     Order = groupType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0
-                });
+                };
+                list.Add(group);
             }
         });
         /// 设置分组上级
@@ -161,7 +163,8 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                     Number = resourceType.FullName!,
                     RoutePath = resourceType.Name.TrimEnd("Model").ToSlugify()!,
                     Component = component,
-                    Schema = $"{resourceType.Name.ToSlugify()}",
+                    NoCache = controllerType.GetCustomAttribute<NoCacheAttribute>()?.NoCache ?? false,
+                    //Schema = $"{resourceType.Name.ToSlugify()}",
                     Icon = controllerType.GetCustomAttribute<IconAttribute>()?.Icon ?? "file",
                     Order = resourceType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? order++
                 };

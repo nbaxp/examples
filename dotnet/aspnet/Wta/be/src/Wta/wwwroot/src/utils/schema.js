@@ -18,19 +18,21 @@ export function schemaToModel(schema, isQueryForm = false) {
           if (!property.meta?.isNullable) {
             value = false;
           }
-        } else if (property.meta?.hidden) {
-          if (property.meta?.required) {
-            if (type === 'array') {
-              value = [];
-            } else if (property.type === 'number') {
+        } else if (property.meta?.required) {
+          if (type === 'array') {
+            value = [];
+          } else if (property.type === 'number') {
+            if (property.meta?.options) {
+              value = property.meta.options[0].value;
+            } else {
               value = 0;
-            } else if (type === 'string') {
-              if (property.meta?.hidden) {
-                if (property.meta?.format === 'datetime') {
-                  value = new Date().toISOString();
-                } else {
-                  value = uuidv7();
-                }
+            }
+          } else if (type === 'string') {
+            if (property.meta?.hidden) {
+              if (property.meta?.format === 'datetime') {
+                value = new Date().toISOString();
+              } else {
+                value = uuidv7();
               }
             }
           }

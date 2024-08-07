@@ -7,6 +7,7 @@ public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
     IEntityTypeConfiguration<Job>,
     IEntityTypeConfiguration<Dict>,
     IEntityTypeConfiguration<Department>,
+    IEntityTypeConfiguration<Post>,
     IEntityTypeConfiguration<User>,
     IEntityTypeConfiguration<Role>,
     IEntityTypeConfiguration<Permission>,
@@ -19,10 +20,11 @@ public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
         builder.Property(o => o.Number).IsRequired();
         builder.HasIndex(o => o.Number).IsUnique();
     }
+
     public void Configure(EntityTypeBuilder<Job> builder)
     {
-
     }
+
     public void Configure(EntityTypeBuilder<Dict> builder)
     {
     }
@@ -31,9 +33,14 @@ public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
     {
     }
 
+    public void Configure(EntityTypeBuilder<Post> builder)
+    {
+    }
+
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasOne(o => o.Department).WithMany(o => o.Users).HasForeignKey(o => o.DepartmentId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(o => o.Post).WithMany(o => o.Users).HasForeignKey(o => o.PostId).OnDelete(DeleteBehavior.SetNull);
         builder.HasIndex(o => new { o.TenantNumber, o.NormalizedUserName }).IsUnique();
         builder.Navigation(o => o.UserRoles).AutoInclude();
     }
@@ -61,5 +68,4 @@ public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
         builder.HasOne(o => o.Role).WithMany(o => o.RolePermissions).HasForeignKey(o => o.RoleId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(o => o.Permission).WithMany(o => o.RolePermissions).HasForeignKey(o => o.PermissionId).OnDelete(DeleteBehavior.Cascade);
     }
-
 }

@@ -89,6 +89,7 @@ export default {
         router.push({ path: route.fullPath });
       }
       tabsStore.isRefreshing = true;
+      route.meta?.cache?.clear();
       nextTick(() => {
         tabsStore.isRefreshing = false;
       });

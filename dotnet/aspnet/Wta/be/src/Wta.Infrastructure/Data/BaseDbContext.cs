@@ -119,6 +119,18 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var method = typeof(ModelBuilder).GetMethods().First(o => o.Name == nameof(modelBuilder.ApplyConfiguration));
+        //AppDomain.CurrentDomain.GetCustomerAssemblies()
+        //    .SelectMany(o => o.GetTypes())
+        //    .Where(o => o.IsClass && !o.IsAbstract && o.IsAssignableTo(typeof(BaseEntity)) && !o.HasAttribute<IgnoreAttribute>())
+        //    .ForEach(entityType =>
+        //    {
+        //        ConfigEntity(modelBuilder, entityType);
+        //        //var config = ServiceProvider.GetService(typeof(IEntityTypeConfiguration<>).MakeGenericType(entityType));
+        //        //if (config != null)
+        //        //{
+        //        //    method.MakeGenericMethod(entityType).Invoke(modelBuilder, [config]);
+        //        //}
+        //    });
         AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(o => o.IsClass && !o.IsAbstract && o.IsAssignableTo(typeof(BaseDbConfig<>).MakeGenericType(this.GetType())))
@@ -127,70 +139,75 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                 configType.GetInterfaces().Where(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)).ForEach(o =>
                 {
                     var entityType = o.GenericTypeArguments.First();
-                    //配置实体
-                    var entityModlerBuilder = modelBuilder.Entity(entityType);
-                    if (entityType.IsAssignableTo(typeof(BaseEntity)))
-                    {
-                        //配置软删除、多租户的全局过滤器
-                        GetType().GetMethod(nameof(this.CreateQueryFilter))?.MakeGenericMethod(entityType).Invoke(this, [modelBuilder]);
-                        //配置实体Id
-                        entityModlerBuilder.HasKey(nameof(BaseEntity.Id));
-                        entityModlerBuilder.Property(nameof(BaseEntity.Id)).ValueGeneratedNever();
-                        //配置实体行版本号
-                        if (entityType.IsAssignableTo(typeof(IConcurrencyStampEntity)))
-                        {
-                            entityModlerBuilder.Property(nameof(IConcurrencyStampEntity.ConcurrencyStamp)).ValueGeneratedNever();
-                        }
-                        //配置树形结构实体
-                        if (entityType.IsAssignableTo(typeof(BaseTreeEntity<>).MakeGenericType(entityType)))
-                        {
-                            entityModlerBuilder.Property(nameof(BaseTreeEntity<BaseEntity>.Name)).IsRequired();
-                            entityModlerBuilder.Property(nameof(BaseTreeEntity<BaseEntity>.Number)).IsRequired();
-                            entityModlerBuilder.HasIndex(nameof(BaseTreeEntity<BaseEntity>.TenantNumber), nameof(BaseTreeEntity<BaseEntity>.Number)).IsUnique();
-                            entityModlerBuilder.HasOne(nameof(BaseTreeEntity<BaseEntity>.Parent)).WithMany(nameof(BaseTreeEntity<BaseEntity>.Children)).HasForeignKey(nameof(BaseTreeEntity<BaseEntity>.ParentId)).OnDelete(DeleteBehavior.SetNull);
-                        }
-                    }
-                    //配置属性
-                    var properties = entityType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
-                    properties.ForEach(prop =>
-                    {
-                        //配置只读字段（创建后不可更新）
-                        if (prop.GetCustomAttributes<ReadOnlyAttribute>().Any())
-                        {
-                            entityModlerBuilder.Property(prop.Name).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-                        }
-                        //值对象非空
-                        if (prop.PropertyType.IsValueType && !prop.PropertyType.IsNullableType())
-                        {
-                            entityModlerBuilder.Property(prop.Name).IsRequired();
-                        }
-                        //配置枚举存储为字符串
-                        if (prop.PropertyType.GetUnderlyingType().IsEnum)
-                        {
-                            entityModlerBuilder.Property(prop.Name).HasConversion<string>();
-                        }
-                        //配置日期存取时为UTC时间
-                        if (prop.PropertyType.GetUnderlyingType() == typeof(DateTime))
-                        {
-                            if (prop.PropertyType.IsNullableType())
-                            {
-                                entityModlerBuilder.Property<DateTime?>(prop.Name).HasConversion(v =>
-                                v.HasValue ? v.Value.Kind == DateTimeKind.Utc ? v : v.Value.ToUniversalTime() : null,
-                                v => v == null ? null : DateTime.SpecifyKind(v.Value, DateTimeKind.Utc));
-                            }
-                            else
-                            {
-                                entityModlerBuilder.Property<DateTime>(prop.Name).HasConversion(v =>
-                                v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
-                                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
-                            }
-                        }
-                    });
+                    ConfigEntity(modelBuilder, entityType);
                     //自定义配置
                     var config = ServiceProvider.GetRequiredService(typeof(IEntityTypeConfiguration<>).MakeGenericType(entityType));
                     method.MakeGenericMethod(entityType).Invoke(modelBuilder, [config]);
                 });
             });
+    }
+
+    private void ConfigEntity(ModelBuilder modelBuilder, Type entityType)
+    {
+        //配置实体
+        var entityModlerBuilder = modelBuilder.Entity(entityType);
+        if (entityType.IsAssignableTo(typeof(BaseEntity)))
+        {
+            //配置软删除、多租户的全局过滤器
+            GetType().GetMethod(nameof(this.CreateQueryFilter))?.MakeGenericMethod(entityType).Invoke(this, [modelBuilder]);
+            //配置实体Id
+            entityModlerBuilder.HasKey(nameof(BaseEntity.Id));
+            entityModlerBuilder.Property(nameof(BaseEntity.Id)).ValueGeneratedNever();
+            //配置实体行版本号
+            if (entityType.IsAssignableTo(typeof(IConcurrencyStampEntity)))
+            {
+                entityModlerBuilder.Property(nameof(IConcurrencyStampEntity.ConcurrencyStamp)).ValueGeneratedNever();
+            }
+            //配置树形结构实体
+            if (entityType.IsAssignableTo(typeof(BaseTreeEntity<>).MakeGenericType(entityType)))
+            {
+                entityModlerBuilder.Property(nameof(BaseTreeEntity<BaseEntity>.Name)).IsRequired();
+                entityModlerBuilder.Property(nameof(BaseTreeEntity<BaseEntity>.Number)).IsRequired();
+                entityModlerBuilder.HasIndex(nameof(BaseTreeEntity<BaseEntity>.TenantNumber), nameof(BaseTreeEntity<BaseEntity>.Number)).IsUnique();
+                entityModlerBuilder.HasOne(nameof(BaseTreeEntity<BaseEntity>.Parent)).WithMany(nameof(BaseTreeEntity<BaseEntity>.Children)).HasForeignKey(nameof(BaseTreeEntity<BaseEntity>.ParentId)).OnDelete(DeleteBehavior.SetNull);
+            }
+        }
+        //配置属性
+        var properties = entityType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
+        properties.ForEach(prop =>
+        {
+            //配置只读字段（创建后不可更新）
+            if (prop.GetCustomAttributes<ReadOnlyAttribute>().Any())
+            {
+                entityModlerBuilder.Property(prop.Name).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            }
+            //值对象非空
+            if (prop.PropertyType.IsValueType && !prop.PropertyType.IsNullableType())
+            {
+                entityModlerBuilder.Property(prop.Name).IsRequired();
+            }
+            //配置枚举存储为字符串
+            if (prop.PropertyType.GetUnderlyingType().IsEnum)
+            {
+                entityModlerBuilder.Property(prop.Name).HasConversion<string>();
+            }
+            //配置日期存取时为UTC时间
+            if (prop.PropertyType.GetUnderlyingType() == typeof(DateTime))
+            {
+                if (prop.PropertyType.IsNullableType())
+                {
+                    entityModlerBuilder.Property<DateTime?>(prop.Name).HasConversion(v =>
+                    v.HasValue ? v.Value.Kind == DateTimeKind.Utc ? v : v.Value.ToUniversalTime() : null,
+                    v => v == null ? null : DateTime.SpecifyKind(v.Value, DateTimeKind.Utc));
+                }
+                else
+                {
+                    entityModlerBuilder.Property<DateTime>(prop.Name).HasConversion(v =>
+                    v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+                }
+            }
+        });
     }
 
     private List<EntityEntry> GetEntries()
