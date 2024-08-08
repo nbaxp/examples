@@ -1,12 +1,12 @@
 import SvgIcon from '@/components/icon/index.js';
 import { DATETIME_DISPLAY_FORMAT, DATETIME_VALUE_FORMAT } from '@/constants/index.js';
-import { bytesFormat, importFunction, listToTree } from '@/utils/index.js';
+import { bytesFormat, findPath, listToTree } from '@/utils/index.js';
 import request from '@/utils/request.js';
 import { dayjs } from 'element-plus';
 import { ElMessage, useFormItem } from 'element-plus';
 import html from 'utils';
 import { getProp } from 'utils';
-import { onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import CodeCaptcha from './code-captcha.js';
 import ImageCaptcha from './image-captcha.js';
@@ -29,19 +29,15 @@ export default {
       </template>
       <template v-else-if="schema.input==='password'">******</template>
       <template v-else-if="schema.input==='select'||schema.input==='radio'">
-        <template v-if="!schema.meta?.multiple">
-          <el-button link type="primary">
-            {{selectOptions?.find(o=>o.value==model[prop])?.label??model[prop]}}
-          </el-button>
-        </template>
-        <template v-else>
-          <el-button link type="primary" v-for="item in model[prop]" :key="item">
-            {{selectOptions?.find(o=>o.value==item)?.label??item}}
-          </el-button>
-        </template>
+          <el-breadcrumb v-for="item in displayOptions" separator="/">
+            <template v-for="option in item">
+              <el-breadcrumb-item v-if="option">{{option.label}}</el-breadcrumb-item>
+              <div v-else>{{option}}</div>
+              </template>
+          </el-breadcrumb>
       </template>
-      <template v-else-if="schema.input==='image-inline'">
-        <img :src="model[prop]" style="max-height:18px;" />
+      <template v-else-if="schema.input.startsWith('image-')">
+        <div class="el-input__inner flex"><el-image fit="fill" preview-teleported :src="model[prop]" :preview-src-list="[model[prop]]" /></div>
       </template>
       <template v-else><span>{{model[prop]}}</span></template>
     </template>
@@ -244,31 +240,31 @@ export default {
     };
 
     //select
-    const selectValues = ref([]);
+    const isMultiple = !!props.schema.meta?.multiple;
+    const selectValues = ref(isMultiple ? [] : null);
     const selectOptions = ref([]);
-    const selectProps = ref({
-      multiple: props.schema.meta?.multiple ?? false,
-      // checkStrictly: !!props.schema.meta.checkStrictly,
-      // emitPath: !!props.schema.meta?.multiple,
-      value: props.schema.meta?.value ?? 'value',
-      label: props.schema.meta?.label ?? 'label',
-      children: props.schema.meta?.children ?? 'children',
-      expandTrigger: props.schema.meta?.trigger ?? 'click',
+    const displayOptions = computed(() => {
+      if (props.schema.input === 'select' || props.schema.input === 'radio') {
+        if (props.schema.meta?.multiple) {
+          return model[props.prop].map((o) => findPath(selectOptions.value, (n) => n.value === o)).sort();
+        }
+        return [findPath(selectOptions.value, (n) => n.value === model[props.prop])];
+      }
+      return [];
     });
+    const selectProps = {
+      multiple: isMultiple,
+      checkStrictly: !isMultiple, //false
+      emitPath: false, //true
+    };
     const selectChange = (values) => {
-      if (props.schema.meta?.multiple) {
+      console.log(selectValues.value);
+      if (isMultiple) {
         model[props.prop] = values.flat();
       } else {
-        model[props.prop] = values[0];
+        model[props.prop] = values;
       }
     };
-    if (props.schema.input === 'select' && model[props.prop]) {
-      if (props.schema.meta?.multiple) {
-        selectValues.vlaue = model[props.prop];
-      } else {
-        selectValues.vlaue = [model[props.prop]];
-      }
-    }
     const fetchOptions = async () => {
       route.meta.cache ||= new Map();
       const map = route.meta.cache;
@@ -324,24 +320,14 @@ export default {
       { immediate: true },
     );
 
-    //watch
-    watch(
-      () => model[props.prop],
-      async (value) => {
-        if (props.schema.watch) {
-          console.log(value);
-          if (props.schema.watch?.constructor === String) {
-            props.schema.watch = await importFunction(props.schema.watch);
-          }
-          if (props.schema.watch?.constructor === Function) {
-            props.schema.watch(model, value);
-          }
-        }
-      },
-    );
-
     onMounted(async () => {
-      //await fetchOptions();
+      if (props.schema.input === 'select') {
+        if (isMultiple) {
+          selectValues.value = model[props.prop];
+        } else {
+          selectValues.value = model[props.prop];
+        }
+      }
     });
     return {
       model,
@@ -351,6 +337,7 @@ export default {
       selectValues,
       selectOptions,
       selectChange,
+      displayOptions,
       bytesFormat,
       fileList,
       removeFile,

@@ -160,3 +160,18 @@ export function toJSON(obj) {
     return val;
   });
 }
+
+export function findPath(tree, predicate, path = []) {
+  if (!tree) return [];
+  for (let i = 0; i < tree.length; i += 1) {
+    const node = tree[i];
+    path.push(node);
+    if (predicate(node)) return path;
+    if (node.children) {
+      const findChildren = findPath(node.children, predicate, path);
+      if (findChildren.length) return findChildren;
+    }
+    path.pop();
+  }
+  return [];
+}

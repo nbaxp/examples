@@ -42,6 +42,7 @@ public class UserModel
     [KeyValue("url", "post/search")]
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
+    [KeyValue("isTree", true)]
     [Display(Name = "岗位")]
     public Guid? PostId { get; set; }
 

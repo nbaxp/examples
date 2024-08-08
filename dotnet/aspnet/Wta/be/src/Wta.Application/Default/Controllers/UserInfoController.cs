@@ -9,7 +9,7 @@ public class UserInfoController(IRepository<User> repository) : BaseController, 
         return Json(typeof(UserInfoModel).GetMetadataForType());
     }
 
-    [HttpGet, Authorize, Ignore]
+    [HttpGet, AllowAnonymous, Ignore]
     public ApiResult<UserInfoModel> Index()
     {
         var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;

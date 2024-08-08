@@ -82,7 +82,7 @@ export default {
         >
           {{$t('查询')}}
         </el-button>
-        <el-button @click="reset(queryFormRef)" class="mb-5 ml-3"> {{$t('重置')}}</el-button>
+        <el-button @click="reset(queryFormRef)" class="mb-5 ml-3">{{$t('重置')}}</el-button>
       </div>
     </el-row>
     <!--列表-->
@@ -234,18 +234,18 @@ export default {
   append-to-body
   destroy-on-close
   :close-on-click-modal="false"
-  :style="{'max-height':'100%',width:editFormSchema?.meta?.width??'700px'}"
+  :style="{width:editFormSchema?.meta?.width??'700px'}"
 >
   <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
   <template #footer>
     <span class="dialog-footer">
       <el-button type="primary" @click="editFormSubmit">{{$t('确定')}}</el-button>
-      <el-button v-if="editFormCommand!=='details'" @click="reset(editFormRef)" class="ml-3"> {{$t('重置')}}</el-button>
+      <el-button v-if="editFormCommand!=='details'" @click="reset(editFormRef)" class="ml-3">{{$t('重置')}}</el-button>
     </span>
   </template>
-  <el-row v-loading="editFormloading">
-    <el-col>
-      <el-scrollbar>
+  <el-scrollbar>
+    <el-row v-loading="editFormloading">
+      <el-col style="max-height:calc(100vh - 180px);">
         <app-form
           :disabled="editFormCommand==='details'"
           :mode="editFormCommand"
@@ -260,7 +260,7 @@ export default {
           <!--下载导入母版-->
           <template v-if="editFormCommand==='import'">
             <template v-for="item in buttons.filter(o=>o.meta.hidden&&o.meta.command==='import-template')">
-              <el-form-item label=' '>
+              <el-form-item label=" ">
                 <el-button @click="buttonClick(item)">
                   <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
                   <span>{{$t(item.meta.title)}}</span>
@@ -269,9 +269,9 @@ export default {
             </template>
           </template>
         </app-form>
-      </el-scrollbar>
-    </el-col>
-  </el-row>
+      </el-col>
+    </el-row>
+  </el-scrollbar>
 </el-dialog>`,
   props: ['schema'],
   emits: ['command'],
