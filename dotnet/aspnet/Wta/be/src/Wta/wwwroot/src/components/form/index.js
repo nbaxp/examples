@@ -39,7 +39,7 @@ export default {
         {{$t('确定')}}
       </el-button>
       <el-button v-if="!schema.meta.hideReset" @click="reset" :disabled="loading">
-        {{$t('reset')}}
+        {{$t('重置')}}
       </el-button>
     </slot>
   </el-form-item>

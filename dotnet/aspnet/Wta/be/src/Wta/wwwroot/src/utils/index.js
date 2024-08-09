@@ -7,7 +7,7 @@ export function log(message) {
   }
 }
 
-export async function delay(ms = 1000) {
+export async function delay(ms = 500) {
   return new Promise((resolve, _) => setTimeout(resolve, ms));
 }
 

@@ -35,6 +35,7 @@ public class UserModel
     [KeyValue("url", "department/search")]
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
+    [KeyValue("isTree", true)]
     [Display(Name = "部门")]
     public Guid? DepartmentId { get; set; }
 
@@ -50,5 +51,6 @@ public class UserModel
     [KeyValue("url", "role/search")]
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
+    [KeyValue("hideForList", true)]
     public List<Guid> Roles { get; set; } = [];
 }

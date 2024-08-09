@@ -26,12 +26,6 @@ public class UserInfoModel : IResource
     [KeyValue("url", "file/upload")]
     public string? Avatar { get; set; }
 
-    [UIHint("image-inline")]
-    [KeyValue("accept", ".svg,.png")]
-    [KeyValue("url", "file/upload")]
-    [Required]
-    public string? Avatar2 { get; set; }
-
     [ReadOnly(true)]
     [UIHint("select")]
     [KeyValue("url", "department/search")]
@@ -45,4 +39,7 @@ public class UserInfoModel : IResource
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
     public List<Guid> Roles { get; set; } = [];
+
+    [Hidden]
+    public List<Guid> Permissions { get; set; } = [];
 }

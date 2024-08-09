@@ -29,15 +29,31 @@ export default {
       </template>
       <template v-else-if="schema.input==='password'">******</template>
       <template v-else-if="schema.input==='select'||schema.input==='radio'">
-          <el-breadcrumb v-for="item in displayOptions" separator="/">
-            <template v-for="option in item">
-              <el-breadcrumb-item v-if="option">{{option.label}}</el-breadcrumb-item>
-              <div v-else>{{option}}</div>
-              </template>
+        <template v-if="schema.meta?.isTree">
+          <template v-if="schema.meta?.multiple">
+            <el-tree
+              v-if="selectOptions?.length"
+              :props="selectProps"
+              node-key="value"
+              :data="selectOptions"
+              :default-checked-keys = "selectValues"
+              show-checkbox
+              disabled
+            />
+            <el-icon v-else v-loading="true"></el-icon>
+          </template>
+          <el-breadcrumb v-else v-for="item1 in displayOptions">
+            <el-breadcrumb-item v-for="item2 in item1">{{item2.label}}</el-breadcrumb-item>
           </el-breadcrumb>
+        </template>
+        <el-space v-else>
+          <el-tag v-for="item in selectOptions">{{item.label}}</el-tag>
+        </el-space>
       </template>
       <template v-else-if="schema.input.startsWith('image-')">
-        <div class="el-input__inner flex"><el-image fit="fill" preview-teleported :src="model[prop]" :preview-src-list="[model[prop]]" /></div>
+        <div class="el-input__inner flex">
+          <el-image fit="fill" preview-teleported :src="model[prop]" :preview-src-list="[model[prop]]" />
+        </div>
       </template>
       <template v-else><span>{{model[prop]}}</span></template>
     </template>
@@ -333,6 +349,7 @@ export default {
       model,
       getDisabled,
       dayjs,
+      isMultiple,
       selectProps,
       selectValues,
       selectOptions,

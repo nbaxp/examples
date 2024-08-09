@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Wta.Application.Default.Domain;
 
 [SystemManagement, Display(Name = "租户", Order = 7)]
@@ -10,4 +12,13 @@ public class Tenant : Entity
     public string Number { get; set; } = default!;
 
     public bool Disabled { get; set; }
+
+    [KeyValue("hideForList", true)]
+    [UIHint("select")]
+    [KeyValue("url", "permission/search")]
+    [KeyValue("value", "number")]
+    [KeyValue("label", "name")]
+    [KeyValue("isTree", true)]
+    [NotMapped]
+    public List<string> Permissions { get; set; } = [];
 }

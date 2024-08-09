@@ -4,11 +4,12 @@ public class RoleController(ILogger<Role> logger, IStringLocalizer stringLocaliz
 {
     protected override void ToModel(Role entity, Role model)
     {
-        //model.Permissions = entity.RolePermissions.Select(o => o.PermissionId).ToList();
+        model.Permissions = entity.RolePermissions.Select(o => o.PermissionId).ToList();
     }
+
     protected override void ToEntity(Role entity, Role model, bool isCreate)
     {
-        entity.RolePermissions.RemoveAll(o => !model.Permissions.Contains(o.PermissionId));
-        entity.RolePermissions.AddRange(model.Permissions.Where(o => !entity.RolePermissions.Any(p => p.PermissionId == o)).Select(o => new RolePermission { PermissionId = o }));
+        entity.RolePermissions.Clear();
+        entity.RolePermissions.AddRange(model.Permissions.Select(o => new RolePermission { PermissionId = o }));
     }
 }

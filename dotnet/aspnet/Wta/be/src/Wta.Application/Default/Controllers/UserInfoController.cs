@@ -22,6 +22,7 @@ public class UserInfoController(IRepository<User> repository) : BaseController, 
            .FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
         var model = result.ToModel<User, UserInfoModel>();
         model.Roles = result.UserRoles.Select(o => o.RoleId).ToList();
+        model.Permissions = result.UserRoles.SelectMany(o => o.Role!.RolePermissions.Select(o => o.PermissionId)).ToList();
         return Json(model);
     }
 

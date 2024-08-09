@@ -13,14 +13,12 @@ public class Role : Entity
     [Hidden]
     public List<RolePermission> RolePermissions { get; set; } = [];
 
-    [KeyValue("hideForList",true)]
+    [KeyValue("hideForList", true)]
     [UIHint("select")]
     [KeyValue("url", "permission/search")]
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
+    [KeyValue("isTree", true)]
     [NotMapped]
-    public List<Guid> Permissions
-    {
-        get { return RolePermissions.Select(o => o.PermissionId).ToList(); }
-    }
+    public List<Guid> Permissions { get; set; } = [];
 }

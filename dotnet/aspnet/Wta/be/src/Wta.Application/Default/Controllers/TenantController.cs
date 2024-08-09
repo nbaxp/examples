@@ -10,7 +10,7 @@ public class TenantController(ILogger<Tenant> logger,
     IRepository<Role> roleRepository,
     IRepository<Permission> permissionRepository,
     IExportImportService exportImportService,
-    IServiceProvider serviceProvider) : GenericController<Tenant, TenantModel>(logger, stringLocalizer, repository, eventPublisher, exportImportService)
+    IServiceProvider serviceProvider) : GenericController<Tenant, Tenant>(logger, stringLocalizer, repository, eventPublisher, exportImportService)
 {
     [Ignore]
     public override FileContentResult ImportTemplate()
@@ -19,13 +19,13 @@ public class TenantController(ILogger<Tenant> logger,
     }
 
     [Ignore]
-    public override ApiResult<bool> Import(ImportModel<TenantModel> model)
+    public override ApiResult<bool> Import(ImportModel<Tenant> model)
     {
         return base.Import(model);
     }
 
     [Ignore]
-    public override FileContentResult Export(ExportModel<TenantModel> model)
+    public override FileContentResult Export(ExportModel<Tenant> model)
     {
         return base.Export(model);
     }
@@ -37,12 +37,12 @@ public class TenantController(ILogger<Tenant> logger,
     }
 
     [AllowAnonymous]
-    public override ApiResult<QueryModel<TenantModel>> Search(QueryModel<TenantModel> model)
+    public override ApiResult<QueryModel<Tenant>> Search(QueryModel<Tenant> model)
     {
         return base.Search(model);
     }
 
-    public override ApiResult<bool> Create(TenantModel model)
+    public override ApiResult<bool> Create(Tenant model)
     {
         if (!ModelState.IsValid)
         {
@@ -75,14 +75,14 @@ public class TenantController(ILogger<Tenant> logger,
         return Json(true);
     }
 
-    public override ApiResult<TenantModel> Details([FromBody] Guid id)
+    public override ApiResult<Tenant> Details([FromBody] Guid id)
     {
         var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id);
         if (entity == null)
         {
             throw new ProblemException("NotFound");
         }
-        var model = entity.ToModel<Tenant, TenantModel>((entity, model) =>
+        var model = entity.ToModel<Tenant, Tenant>((entity, model) =>
         {
             roleRepository.DisableTenantFilter();
             var rolePermissions =
@@ -95,7 +95,7 @@ public class TenantController(ILogger<Tenant> logger,
         return Json(model);
     }
 
-    public override ApiResult<bool> Update([FromBody] TenantModel model)
+    public override ApiResult<bool> Update([FromBody] Tenant model)
     {
         if (!ModelState.IsValid)
         {
@@ -124,6 +124,11 @@ public class TenantController(ILogger<Tenant> logger,
         return Json(true);
     }
 
+    protected override void ToModel(Tenant entity, Tenant model)
+    {
+        model.Permissions = entity.Permissions;
+    }
+
     [AllowAnonymous, Ignore]
     public ApiResult<bool> NoName([FromForm] string name)
     {
@@ -135,4 +140,5 @@ public class TenantController(ILogger<Tenant> logger,
     {
         return Json(!Repository.AsNoTracking().Any(o => o.Number == number));
     }
+
 }

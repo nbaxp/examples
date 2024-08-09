@@ -95,7 +95,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
 
     [Consumes("multipart/form-data")]
     [Display(Name = "导入", Order = 5)]
-    public virtual ApiResult<bool> Import([FromForm]ImportModel<TModel> model)
+    public virtual ApiResult<bool> Import([FromForm] ImportModel<TModel> model)
     {
         using var ms = new MemoryStream();
         model.File.OpenReadStream().CopyTo(ms);
@@ -292,6 +292,14 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         if (!string.IsNullOrEmpty(orderBy))
         {
             query = query.OrderBy(orderBy);
+        }
+        else if (typeof(TEntity).IsAssignableTo(typeof(IOrderedEntity)))
+        {
+            query = query.OrderBy(nameof(IOrderedEntity.Order));
+        }
+        else
+        {
+            query = query.OrderByDescending(o => o.CreatedOn);
         }
         return query;
     }

@@ -137,10 +137,7 @@ public static class ModelMetadataExtensions
                 result.TryAdd("type", "array");
                 if (metaData.ElementType!.IsValueType || metaData.ElementType == typeof(string))
                 {//简单类型
-                    if (metaData.ElementType == typeof(Guid))
-                    {
-                        result.TryAdd("multiple", true);
-                    }
+                    result.TryAdd("multiple", true);
                     if (parent == null)//modelMetaData.ElementType!.UnderlyingSystemType.IsClass && modelMetaData.ElementType.UnderlyingSystemType != typeof(string))
                     {
                         result.TryAdd("items", metaData.ElementMetadata!.GetSchema(serviceProvider, meta));
