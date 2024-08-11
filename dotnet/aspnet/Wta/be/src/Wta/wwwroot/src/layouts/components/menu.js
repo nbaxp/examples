@@ -1,6 +1,6 @@
-import { useAppStore, useTabsStore } from '@/store/index.js';
 import Icon from '@/components/icon/index.js';
 import SvgIcon from '@/components/icon/index.js';
+import { useAppStore, useTabsStore, useUserStore } from '@/store/index.js';
 import html from 'utils';
 import { computed, nextTick, reactive, ref, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -61,7 +61,7 @@ export const HeadMenu = {
 export const MenuItem = {
   name: 'menuItem',
   components: { SvgIcon },
-  template: html`<template v-if="model&&!model.meta?.hideInMenu">
+  template: html`<template v-if="showItem(model)">
     <el-sub-menu
       :index="model.meta?.fullPath"
       v-if="model.children&&model.children.some(o=>!o.meta?.hideInMenu)"
@@ -96,6 +96,7 @@ export const MenuItem = {
   },
   setup(props, context) {
     const model = reactive(props.modelValue);
+    const userStore = useUserStore();
     watch(
       model,
       (value) => {
@@ -111,9 +112,19 @@ export const MenuItem = {
       }
     };
     //
+    const showItem = (model) => {
+      if (model.meta?.hideInMenu) {
+        return false;
+      }
+      if (model.meta?.authorize) {
+        return userStore.hasPermission(model.meta.authorize);
+      }
+      return true;
+    };
     return {
       model,
       onClick,
+      showItem,
     };
   },
 };

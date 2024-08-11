@@ -18,10 +18,11 @@ export default defineStore('user', {
       log('fetch user info');
       const tokenStore = useTokenStore();
       if (tokenStore.accessToken) {
-        const url = 'user/info';
-        const result = await request('POST', url);
-        if (result.ok) {
-          this.$patch(result.data);
+        const url = 'user-info/index';
+        const result = await request('GET', url);
+        if (!result.error) {
+          const state = result.data.data;
+          this.$patch(state);
         }
       }
     },

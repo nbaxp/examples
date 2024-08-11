@@ -120,22 +120,6 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             }
         });
 
-        //groups.ForEach(groupType =>
-        //{
-        //    var number = groupType.FullName?.TrimEnd("Attribute")!;
-        //    var group = list.FirstOrDefault(o => o.Number == number);
-        //    var current = group;
-        //    groupType.GetBaseClasses().Where(o => !o.IsAbstract).ForEach(type =>
-        //    {
-        //        if (current != null)
-        //        {
-        //            var number = type.FullName!;
-        //            current.ParentId = list.FirstOrDefault(o => o.Number == number)?.Id;
-        //            current = list.FirstOrDefault(o => o.Number == number);
-        //        }
-        //    });
-        //});
-
         //添加资源菜单和资源操作按钮
         var order = 1;
         var actionDescriptors = actionProvider.ActionDescriptors.Items;

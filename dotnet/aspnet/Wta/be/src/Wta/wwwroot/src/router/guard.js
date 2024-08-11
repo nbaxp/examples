@@ -9,10 +9,14 @@ const beforeEach = async (to, from, next) => {
   console.debug(`before route: ${from.fullPath}-->${to.fullPath}`);
   NProgress.start();
   const tokenStore = useTokenStore();
+  const userStore = useUserStore();
   const appStore = useAppStore();
   const isLogin = await tokenStore.isLogin();
   if (isLogin) {
-    if (!appStore.menus) {
+    if (!userStore.userName) {
+      await userStore.getUserInfo();
+      next({ path: to.fullPath });
+    } else if (!appStore.menus) {
       await appStore.refreshMenu();
       next({ path: to.fullPath });
     } else {
