@@ -4,6 +4,7 @@ namespace Wta.Application.Default.Domain;
 public class User : Entity
 {
     public string? Name { get; set; }
+    public Sex Sex { get; set; }
 
     [ReadOnly(true)]
     public string UserName { get; set; } = default!;

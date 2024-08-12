@@ -18,10 +18,10 @@ export function schemaToModel(schema, isQueryForm = false) {
           if (!property.meta?.isNullable) {
             value = false;
           }
+        } else if (type === 'array') {
+          value = [];
         } else if (property.meta?.required) {
-          if (type === 'array') {
-            value = [];
-          } else if (property.type === 'number') {
+          if (property.type === 'number') {
             if (property.meta?.options) {
               value = property.meta.options[0].value;
             } else {

@@ -150,6 +150,6 @@ public class UserController(ILogger<User> logger,
             entity.PasswordHash = encryptionService.HashPassword(model.Password, entity.SecurityStamp);
         }
         entity.UserRoles.RemoveAll(o => !model.Roles.Contains(o.RoleId));
-        entity.UserRoles.AddRange(model.Roles.Where(o => !entity.UserRoles.Any(p => p.RoleId == o)).Select(o => new UserRole { RoleId = o }));
+        entity.UserRoles.AddRange(model.Roles?.Where(o => !entity.UserRoles.Any(p => p.RoleId == o)).Select(o => new UserRole { RoleId = o }));
     }
 }

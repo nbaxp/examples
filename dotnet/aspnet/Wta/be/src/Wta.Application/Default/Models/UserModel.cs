@@ -12,6 +12,10 @@ public class UserModel
     [Display(Name = "用户名")]
     public string? Name { get; set; }
 
+    [UIHint("radio")]
+    [Display(Name = "性别")]
+    public Sex Sex { get; set; }
+
     [DataType(DataType.Password)]
     [KeyValue("placeholder", "保持为空则不更新")]
     [Display(Name = "密码")]
@@ -52,5 +56,5 @@ public class UserModel
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
     [KeyValue("hideForList", true)]
-    public List<Guid> Roles { get; set; } = [];
+    public List<Guid>? Roles { get; set; } = [];
 }

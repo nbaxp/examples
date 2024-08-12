@@ -27,8 +27,12 @@ public abstract class BaseEntity : IResource
     public string? UpdatedBy { get; set; }
 
     [DisplayOrder(10004)]
-    [KeyValue("hideForEdit",true)]
+    [KeyValue("hideForEdit", true)]
     public bool IsDeleted { get; set; }
+
+    [DataType(DataType.MultilineText)]
+    [DisplayOrder(10005)]
+    public string? Remark { get; set; }
 
     [Hidden]
     public string? TenantNumber { get; set; }

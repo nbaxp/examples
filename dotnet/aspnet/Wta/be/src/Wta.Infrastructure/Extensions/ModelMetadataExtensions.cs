@@ -80,7 +80,7 @@ public static class ModelMetadataExtensions
         {
             if (modelType.IsEnum)
             {
-                result.Add("type", "number");
+                result.Add("type", "string");
                 result.TryAdd("input", "select");
                 if (metaData.IsFlagsEnum)
                 {
@@ -189,7 +189,21 @@ public static class ModelMetadataExtensions
         //必填
         if (metaData.IsRequired)
         {
-            if (modelType != typeof(bool))
+            //if (modelType != typeof(bool))
+            //{
+            //    rules.Add(new Dictionary<string, object> { { "required", true } });
+            //    result.Add("required", true);
+            //}
+            var isRequired = true;
+            if (modelType == typeof(bool))
+            {
+                isRequired = false;
+            }
+            else if (metaData.IsEnumerableType && result.ContainsKey("multiple"))
+            {
+                isRequired = false;
+            }
+            if (isRequired)
             {
                 rules.Add(new Dictionary<string, object> { { "required", true } });
                 result.Add("required", true);
