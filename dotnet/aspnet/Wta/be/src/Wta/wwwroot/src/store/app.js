@@ -21,7 +21,7 @@ const getRoutes = async () => {
           meta,
         };
         if (route.component) {
-          const componentPath = `@/views/${route.component}.js`;
+          const componentPath = `../views/${route.component}.js`;
           route.component = () => import(componentPath);
         }
         return route;

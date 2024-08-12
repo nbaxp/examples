@@ -1,5 +1,5 @@
-import Mock from '../../lib/better-mock/mock.browser.esm.js';
-import jwt_decode from '../../lib/jwt-decode/jwt-decode.esm.js';
+import Mock from '~/lib/better-mock/mock.browser.esm.js';
+import jwt_decode from '~/lib/jwt-decode/jwt-decode.esm.js';
 
 export default function () {
   Mock.mock('/api/user/info', 'POST', (request) => {

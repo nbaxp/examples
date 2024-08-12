@@ -596,7 +596,7 @@ public abstract class BaseStartup : IStartup
     public virtual void UseMonitoring(WebApplication app)
     {
         app.MapHealthChecks("/hc");
-        app.UseMetricServer().UseHttpMetrics();
+        app.UseMetricServer("/api/metrics").UseHttpMetrics();
     }
 
     /// <summary>

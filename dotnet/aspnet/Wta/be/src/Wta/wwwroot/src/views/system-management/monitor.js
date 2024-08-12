@@ -214,7 +214,6 @@ export default {
     });
 
     const updateDisk = () => {
-      //model.value.node_filesystem_size_bytes node_filesystem_avail_bytes
       for (let i = 0; i < model.value.node_filesystem_avail_bytes.length; i++) {
         const item = model.value.node_filesystem_avail_bytes[i];
         if (!diskModel.value.series[i]) {
@@ -235,7 +234,7 @@ export default {
     };
 
     const load = async () => {
-      const response = await fetch('metrics');
+      const response = await fetch('/api/metrics');
       const result = await response.text();
       const lines = result.split('\n').filter((o) => o);
       const types = new Map(

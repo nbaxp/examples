@@ -1,4 +1,4 @@
-import Mock from '../../lib/better-mock/mock.browser.esm.js';
+import Mock from '~/lib/better-mock/mock.browser.esm.js';
 
 function isVideoFile(file) {
   return ['mp4'].some((o) => file.endsWith(o));

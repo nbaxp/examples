@@ -6,7 +6,7 @@ import LayoutLogo from '~/src/layouts/components/logo.js';
 import html from 'utils';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import LayoutLocale from '~/src/views/layout/locale.js';
+import LayoutLocale from '@/layouts/components/locale.js';
 
 export default {
   components: { AppForm, LayoutFooter, LayoutLocale, LayoutLogo },

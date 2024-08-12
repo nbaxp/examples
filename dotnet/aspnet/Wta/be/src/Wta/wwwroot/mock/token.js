@@ -1,6 +1,6 @@
-import Mock from '../../../lib/better-mock/mock.browser.esm.js';
-import CryptoJS from '../../../lib/crypto-js.js';
-import * as jose from '../../../lib/jose/index.js';
+import Mock from '~/lib/better-mock/mock.browser.esm.js';
+import CryptoJS from '~/lib/crypto-js.js';
+import * as jose from '~/lib/jose/index.js';
 
 const issuer = 'urn:example:issuer'; //发行方
 const audience = 'urn:example:audience'; //接收方

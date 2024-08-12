@@ -1,9 +1,9 @@
 import { useAppStore } from '@/store/index.js';
 import { ElConfigProvider } from 'element-plus';
-import en from 'element-plus/locale/en.min.js';
-import zh from 'element-plus/locale/zh-cn.min.js';
 import html from 'utils';
 import { ref } from 'vue';
+import en from '~/lib/element-plus/locale/en.min.js';
+import zh from '~/lib/element-plus/locale/zh-cn.min.js';
 
 export default {
   components: { ElConfigProvider },

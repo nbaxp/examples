@@ -1,5 +1,5 @@
 import settings from '@/config/settings.js';
-import Mock from '../../lib/better-mock/mock.browser.esm.js';
+import Mock from '~/lib/better-mock/mock.browser.esm.js';
 import useFile from './file.js';
 import useLocale from './locale.js';
 import useMenu from './menu.js';

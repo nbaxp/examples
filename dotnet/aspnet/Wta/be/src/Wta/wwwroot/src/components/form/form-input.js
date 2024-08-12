@@ -42,12 +42,14 @@ export default {
             />
             <el-icon v-else v-loading="true"></el-icon>
           </template>
-          <el-breadcrumb v-else v-for="item1 in displayOptions">
-            <el-breadcrumb-item v-for="item2 in item1">{{item2.label}}</el-breadcrumb-item>
+          <el-breadcrumb v-else v-for="item in displayOptions">
+            <el-breadcrumb-item v-for="item2 in item">{{item2.label}}</el-breadcrumb-item>
           </el-breadcrumb>
         </template>
         <el-space v-else>
-          <el-tag v-for="item in selectOptions">{{item.label}}</el-tag>
+          <template  v-for="item in displayOptions">
+            <el-tag v-for="item2 in item">{{item2.label}}</el-tag>
+          </template>
         </el-space>
       </template>
       <template v-else-if="schema.input.startsWith('image-')">

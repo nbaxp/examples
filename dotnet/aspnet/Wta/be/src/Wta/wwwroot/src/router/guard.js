@@ -1,7 +1,7 @@
 import i18n from '@/locales/index.js';
 import { useAppStore, useTabsStore, useTokenStore, useUserStore } from '@/store/index.js';
 import { useTitle } from '@vueuse/core';
-import NProgress from 'nprogress/nprogress.vite-esm.js';
+import NProgress from '~/lib/nprogress/nprogress.vite-esm.js';
 
 NProgress.configure({ showSpinner: false });
 
