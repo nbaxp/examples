@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Wta.Application.Default.Domain;
 
-[SystemManagement, Display(Name = "角色", Order = 4)]
+[PermissionManagement, Display(Name = "角色", Order = 4)]
 public class Role : Entity
 {
     public string Name { get; set; } = default!;

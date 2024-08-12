@@ -1,6 +1,6 @@
 namespace Wta.Application.Default.Domain;
 
-[SystemManagement]
+[OrganizationManagement]
 [Display(Name = "岗位", Order = 2)]
 public class Post : BaseTreeEntity<Post>
 {

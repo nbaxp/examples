@@ -3,7 +3,7 @@ namespace Wta.Application.Default.Domain;
 /// <summary>
 /// name=>meta.title,number=>meta.path
 /// </summary>
-[SystemManagement, Display(Name = "菜单", Order = 5)]
+[PermissionManagement, Display(Name = "菜单", Order = 5)]
 public class Permission : BaseTreeEntity<Permission>
 {
     /// <summary>

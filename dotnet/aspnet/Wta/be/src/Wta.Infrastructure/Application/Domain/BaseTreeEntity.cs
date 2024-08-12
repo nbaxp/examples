@@ -16,10 +16,11 @@ public abstract class BaseTreeEntity<T> : BaseEntity, IOrderedEntity where T : B
     public string Path { get; set; } = default!;
 
     [KeyValue("hideForList", true)]
-    public Guid? ParentId { get; set; }
+    public virtual Guid? ParentId { get; set; }
 
     [Hidden]
     public T? Parent { get; set; }
+
     [Hidden]
     public List<T> Children { get; set; } = [];
 }

@@ -1,6 +1,6 @@
 namespace Wta.Application.Default.Domain;
 
-[SystemManagement, Display(Name = "用户", Order = 3)]
+[PermissionManagement, Display(Name = "用户", Order = 3)]
 public class User : Entity
 {
     public string? Name { get; set; }
