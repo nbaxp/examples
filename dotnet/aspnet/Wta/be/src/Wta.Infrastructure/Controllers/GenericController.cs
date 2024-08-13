@@ -4,12 +4,14 @@ using Wta.Infrastructure.Application.Models;
 using Wta.Infrastructure.Auth;
 using Wta.Infrastructure.Exceptions;
 using Wta.Infrastructure.ImportExport;
+using Wta.Infrastructure.Mapper;
 
 namespace Wta.Infrastructure.Controllers;
 
 [GenericControllerNameConvention]
 public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     IStringLocalizer stringLocalizer,
+    IObjerctMapper objectMapper,
     IRepository<TEntity> repository,
     IEventPublisher eventPublisher,
     IExportImportService exportImportService) : BaseController, IResourceService<TEntity>
@@ -18,6 +20,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
 {
     public ILogger<TEntity> Logger { get; } = logger;
     public IStringLocalizer StringLocalizer = stringLocalizer;
+    public IObjerctMapper ObjectMapper { get; } = objectMapper;
     public IRepository<TEntity> Repository { get; } = repository;
     public IEventPublisher EventPublisher = eventPublisher;
 
@@ -48,7 +51,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             query = SkipTake(query, model.PageIndex, model.PageSize);
         }
-        model.Items = query.ToList().Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
+        model.Items = query.ToList().Select(o => ObjectMapper.ToModel<TEntity, TModel>(o, ToModel)).ToList();
         return Json(model);
     }
 
@@ -57,7 +60,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     public virtual ApiResult<TModel> Details([FromBody] Guid id)
     {
         var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id) ?? throw new ProblemException("NotFound");
-        var model = entity.ToModel<TEntity, TModel>(ToModel);
+        var model = ObjectMapper.ToModel<TEntity, TModel>(entity, ToModel);
         return Json(model);
     }
 
@@ -80,8 +83,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             throw new BadRequestException();
         }
-        var entity = Activator.CreateInstance<TEntity>();
-        entity.FromModel(model, ToEntity, true);
+        var entity = ObjectMapper.FromModel<TEntity, TModel>(null, model, ToEntity);
         if (entity is BaseTreeEntity<TEntity> node)
         {
             node.Parent = node.ParentId.HasValue ? Repository.Query().FirstOrDefault(o => o.Id == node.ParentId.Value) : null;
@@ -116,7 +118,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             query = SkipTake(query, model.PageIndex, model.PageSize);
         }
-        var items = query.ToList().Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
+        var items = query.ToList().Select(o => ObjectMapper.ToModel<TEntity, TModel>(o, ToModel)).ToList();
         var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[$".{model.Format}"];
         var result = new FileContentResult(exportImportService.Export(items), contentType)
         {
@@ -135,7 +137,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         }
         var id = (Guid)typeof(TModel).GetProperty("Id")!.GetValue(model)!;
         var entity = Repository.Query().First(o => o.Id == id);
-        entity.FromModel(model, ToEntity);
+        ObjectMapper.FromModel(entity, model, ToEntity);
         if (entity is BaseTreeEntity<TEntity> node)
         {
             var parentId = typeof(TModel).GetProperty(nameof(node.ParentId))?.GetValue(model) as Guid?;
@@ -247,7 +249,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
                 .Where(o => suffix.StartsWith(o.Path))
                 .ToList()
                 .Cast<TEntity>()
-                .Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
+                .Select(o => ObjectMapper.ToModel<TEntity, TModel>(o, ToModel)).ToList();
             return result;
         }
         throw new ProblemException("NotFound");
@@ -263,7 +265,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
                 .Where(o => o.Path.StartsWith(prefix))
                 .ToList()
                 .Cast<TEntity>()
-                .Select(o => o.ToModel<TEntity, TModel>(ToModel)).ToList();
+                .Select(o => ObjectMapper.ToModel<TEntity, TModel>(o, ToModel)).ToList();
             return result;
         }
         throw new ProblemException("NotFound");

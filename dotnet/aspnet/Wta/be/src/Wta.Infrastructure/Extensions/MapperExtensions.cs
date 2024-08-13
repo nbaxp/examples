@@ -1,28 +1,20 @@
-using Mapster;
-
 namespace Wta.Infrastructure.Extensions;
 
 public static class MapperExtensions
 {
-    public static TModel ToModel<TEntity, TModel>(this TEntity entity, Action<TEntity, TModel>? action = null)
-    {
-        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig();
-        setter.PreserveReference(true);
-        var model = entity.Adapt<TModel>(setter.Config);
-        action?.Invoke(entity, model);
-        return model;
-    }
+    //public static TModel ToModel<TEntity, TModel>(this TEntity entity, Action<TEntity, TModel>? action = null)
+    //{
+    //    var mapper = WtaApplication.Application.Services.GetRequiredService<IObjerctMapper>();
+    //    var model = mapper.ToModel<TEntity, TModel>(entity);
+    //    action?.Invoke(entity, model);
+    //    return model;
+    //}
 
-    public static TEntity FromModel<TEntity, TModel>(this TEntity entity, TModel model, Action<TEntity, TModel, bool>? action = null, bool isCreate = false)
-    {
-        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig().PreserveReference(true).Ignore(["Id"]);
-        if (!isCreate)
-        {
-            setter.IgnoreAttribute(typeof(ReadOnlyAttribute));
-        }
-        var config = setter.Config;
-        model.Adapt(entity, config);
-        action?.Invoke(entity, model, isCreate);
-        return entity;
-    }
+    //public static TEntity FromModel<TEntity, TModel>(this TEntity entity, TModel model, Action<TEntity, TModel, bool>? action = null, bool isCreate = false)
+    //{
+    //    var mapper = WtaApplication.Application.Services.GetRequiredService<IObjerctMapper>();
+    //    mapper.FromModel(entity, model);
+    //    action?.Invoke(entity, model, isCreate);
+    //    return entity;
+    //}
 }

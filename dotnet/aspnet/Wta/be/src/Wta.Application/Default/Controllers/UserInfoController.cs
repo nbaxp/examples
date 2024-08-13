@@ -1,7 +1,9 @@
+using Wta.Infrastructure.Mapper;
+
 namespace Wta.Application.Default.Controllers;
 
 [View("user-center/user-info")]
-public class UserInfoController(IRepository<User> repository) : BaseController, IResourceService<UserInfoModel>
+public class UserInfoController(IObjerctMapper mapper, IRepository<User> repository) : BaseController, IResourceService<UserInfoModel>
 {
     [HttpGet, AllowAnonymous, Ignore]
     public ApiResult<object> Schema()
@@ -20,7 +22,7 @@ public class UserInfoController(IRepository<User> repository) : BaseController, 
            .ThenInclude(o => o!.RolePermissions)
            .ThenInclude(o => o.Permission)
            .FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
-        var model = result.ToModel<User, UserInfoModel>();
+        var model = mapper.ToModel<User, UserInfoModel>(result);
         model.Roles = result.UserRoles.Select(o => o.RoleId).ToList();
         model.Permissions = result.UserRoles.SelectMany(o => o.Role!.RolePermissions.Select(o => o.PermissionId)).ToList();
         return Json(model);
@@ -40,7 +42,7 @@ public class UserInfoController(IRepository<User> repository) : BaseController, 
         }
         var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
         var user = repository.Query().FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
-        user.FromModel(model);
+        mapper.FromModel(user, model);
         repository.SaveChanges();
         return Json(true);
     }

@@ -1,6 +1,8 @@
+using Wta.Infrastructure.Mapper;
+
 namespace Wta.Application.Default.Controllers;
 
-public class RoleController(ILogger<Role> logger, IStringLocalizer stringLocalizer, IRepository<Role> repository, IEventPublisher eventPublisher, IExportImportService exportImportService) : GenericController<Role, Role>(logger, stringLocalizer, repository, eventPublisher, exportImportService)
+public class RoleController(ILogger<Role> logger, IStringLocalizer stringLocalizer, IObjerctMapper mapper, IRepository<Role> repository, IEventPublisher eventPublisher, IExportImportService exportImportService) : GenericController<Role, Role>(logger, stringLocalizer, mapper, repository, eventPublisher, exportImportService)
 {
     protected override void ToModel(Role entity, Role model)
     {

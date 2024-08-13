@@ -6,5 +6,5 @@ public class Department : BaseTreeEntity<Department>
 {
     [KeyValue("hideForList", true)]
     [Hidden]
-    public List<User> Users { get; set; } = new List<User>();
+    public List<User> Users { get; set; } = [];
 }

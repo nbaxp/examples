@@ -59,21 +59,19 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             Id = context.NewGuid(),
             Name = "语言",
             Number = "language",
-            Children = new List<Dict>
-            {
-                new Dict
-                {
+            Children =
+            [
+                new() {
                     Id= context.NewGuid(),
                     Name="简体中文",
                     Number="zh-CN"
                 },
-                new Dict
-                {
+                new() {
                     Id= context.NewGuid(),
                     Name="English",
                     Number="en-US"
                 }
-            }
+            ]
         }.UpdateNode());
     }
 
@@ -177,7 +175,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                         Method = (descriptor.ActionConstraints?.FirstOrDefault() as HttpMethodActionConstraint)?.HttpMethods.FirstOrDefault(),
                         Command = descriptor.ActionName.ToSlugify(),
                         ButtonType = descriptor.MethodInfo.GetCustomAttribute<ButtonAttribute>()?.Type ?? ButtonType.Table,
-                        Hidden = descriptor.MethodInfo.GetCustomAttribute<HiddenAttribute>() == null ? false : true,
+                        Hidden = descriptor.MethodInfo.GetCustomAttribute<HiddenAttribute>() != null,
                         Order = descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0
                     });
                 });
@@ -257,14 +255,13 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             SecurityStamp = salt,
             PasswordHash = passwordHash,
             IsReadOnly = true,
-            UserRoles = new List<UserRole> {
-                new UserRole
-                {
+            UserRoles = [
+                new() {
                     UserId=userId,
                     RoleId = context.Set<Role>().First(o=>o.Number=="admin").Id,
                     IsReadOnly = true
                 }
-            },
+            ],
             DepartmentId = context.Set<Department>().FirstOrDefault()?.Id
         });
         context.SaveChanges();

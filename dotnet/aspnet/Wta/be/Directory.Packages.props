@@ -71,5 +71,6 @@
     <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
     <PackageVersion Include="System.Runtime.WindowsRuntime" Version="4.7.0" />
+    <PackageVersion Include="ValueInjecter" Version="3.2.0" />
   </ItemGroup>
 </Project>

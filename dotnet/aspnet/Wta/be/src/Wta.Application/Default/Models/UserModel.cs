@@ -4,7 +4,7 @@ namespace Wta.Application.Default.Models;
 public class UserModel
 {
     [Hidden]
-    public Guid? Id { get; set; }
+    public Guid Id { get; set; }
 
     [Display(Name = "登录名")]
     public string? UserName { get; set; }

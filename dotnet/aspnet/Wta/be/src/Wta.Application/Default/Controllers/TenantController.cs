@@ -1,16 +1,17 @@
-using Mapster;
 using Wta.Infrastructure.Application.Models;
+using Wta.Infrastructure.Mapper;
 
 namespace Wta.Application.Default.Controllers;
 
 public class TenantController(ILogger<Tenant> logger,
     IStringLocalizer stringLocalizer,
+    IObjerctMapper mapper,
     IRepository<Tenant> repository,
     IEventPublisher eventPublisher,
     IRepository<Role> roleRepository,
     IRepository<Permission> permissionRepository,
     IExportImportService exportImportService,
-    IServiceProvider serviceProvider) : GenericController<Tenant, Tenant>(logger, stringLocalizer, repository, eventPublisher, exportImportService)
+    IServiceProvider serviceProvider) : GenericController<Tenant, Tenant>(logger, stringLocalizer, mapper, repository, eventPublisher, exportImportService)
 {
     [Ignore]
     public override FileContentResult ImportTemplate()
@@ -49,7 +50,7 @@ public class TenantController(ILogger<Tenant> logger,
             throw new BadRequestException();
         }
         //创建租户
-        var entity = new Tenant().FromModel(model, isCreate: true).SetIdBy(o => o.Number);
+        var entity = ObjectMapper.FromModel<Tenant, Tenant>(null, model).SetIdBy(o => o.Number);
         Repository.Add(entity);
         Repository.SaveChanges();
         //初始化租户
@@ -77,20 +78,15 @@ public class TenantController(ILogger<Tenant> logger,
 
     public override ApiResult<Tenant> Details([FromBody] Guid id)
     {
-        var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id);
-        if (entity == null)
-        {
-            throw new ProblemException("NotFound");
-        }
-        var model = entity.ToModel<Tenant, Tenant>((entity, model) =>
+        var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id) ?? throw new ProblemException("NotFound");
+        var model = ObjectMapper.ToModel<Tenant, Tenant>(entity, (entity, model) =>
         {
             roleRepository.DisableTenantFilter();
             var rolePermissions =
-            model.Permissions = roleRepository.AsNoTracking()
+            model.Permissions = [.. roleRepository.AsNoTracking()
             .Where(o => o.Number == "admin" && o.TenantNumber == entity.Number)
             .SelectMany(o => o.RolePermissions)
-            .Select(o => o.Permission!.Number)
-            .ToList();
+            .Select(o => o.Permission!.Number)];
         });
         return Json(model);
     }
@@ -102,7 +98,7 @@ public class TenantController(ILogger<Tenant> logger,
             throw new BadRequestException();
         }
         var entity = Repository.Query().First(o => o.Id == model.Id);
-        entity.FromModel(model);
+        ObjectMapper.FromModel(entity, model);
         permissionRepository.DisableTenantFilter();
         var permissions = permissionRepository.Query().Where(o => o.TenantNumber == entity.Number).ToList();
         roleRepository.DisableTenantFilter();
@@ -140,5 +136,4 @@ public class TenantController(ILogger<Tenant> logger,
     {
         return Json(!Repository.AsNoTracking().Any(o => o.Number == number));
     }
-
 }

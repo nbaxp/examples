@@ -1,13 +1,16 @@
+using Wta.Infrastructure.Mapper;
+
 namespace Wta.Application.Default.Controllers;
 
 [Service<IAuthService>(ServiceLifetime.Transient)]
 public class UserController(ILogger<User> logger,
     IStringLocalizer stringLocalizer,
+    IObjerctMapper mapper,
     IRepository<User> repository,
     IEventPublisher eventPublisher,
     IExportImportService exportImportService,
     IHttpContextAccessor httpContextAccessor,
-    IEncryptionService encryptionService) : GenericController<User, UserModel>(logger, stringLocalizer, repository, eventPublisher, exportImportService), IAuthService
+    IEncryptionService encryptionService) : GenericController<User, UserModel>(logger, stringLocalizer, mapper, repository, eventPublisher, exportImportService), IAuthService
 {
     [Authorize, Ignore]
     public bool HasPermission(string permission)
@@ -26,7 +29,7 @@ public class UserController(ILogger<User> logger,
             if (values[2] == model.EmailOrPhoneNumber)
             {
                 var user = new User();
-                user.FromModel(model);
+                ObjectMapper.FromModel(user, model);
                 user.NormalizedUserName = user.UserName.ToUpperInvariant();
                 user.SecurityStamp = encryptionService.CreateSalt();
                 user.PasswordHash = encryptionService.HashPassword(model.Password!, user.SecurityStamp);

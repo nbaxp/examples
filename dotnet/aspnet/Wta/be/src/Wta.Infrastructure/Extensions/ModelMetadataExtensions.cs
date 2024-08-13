@@ -156,18 +156,7 @@ public static class ModelMetadataExtensions
             {
                 result.Add("type", "object");
                 var properties = new Dictionary<string, object>();
-                var getOrder = (ModelMetadata o) =>
-                {
-                    var order = 0;
-                    var meta = (o as DefaultModelMetadata)!;
-                    var attribute = meta.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(DisplayOrderAttribute));
-                    if (attribute != null && attribute is DisplayOrderAttribute displayOrder)
-                    {
-                        order = displayOrder.Order;
-                    }
-                    return order;
-                };
-                var ModelProperties = metaData.Properties.OrderBy(o => getOrder(o));
+                var ModelProperties = metaData.Properties.OrderBy(GetOrder);
                 foreach (var propertyMetadata in ModelProperties)
                 {
                     if (meta.ContainerType == propertyMetadata.ContainerType)
@@ -323,10 +312,22 @@ public static class ModelMetadataExtensions
                 //rule.Add("trigger", "change");
             }
         }
-        if (rules.Any())
+        if (rules.Count != 0)
         {
             result.TryAdd(nameof(rules), rules);
         }
         return result;
+    }
+
+    private static int GetOrder(ModelMetadata o)
+    {
+        var order = 0;
+        var meta = (o as DefaultModelMetadata)!;
+        var attribute = meta.Attributes.Attributes.FirstOrDefault(o => o.GetType() == typeof(DisplayOrderAttribute));
+        if (attribute != null && attribute is DisplayOrderAttribute displayOrder)
+        {
+            order = displayOrder.Order;
+        }
+        return order;
     }
 }

@@ -13,7 +13,7 @@ public class Permission : BaseTreeEntity<Permission>
     /// Roles:"['role1','role2']"
     /// "Permission"
     /// </summary>
-    [Display(Name="验证方式")]
+    [Display(Name = "验证方式")]
     public string Authorize { get; set; } = default!;
 
     /// <summary>
