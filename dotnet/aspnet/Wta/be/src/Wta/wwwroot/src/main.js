@@ -19,5 +19,5 @@ app.use(ElementPlus);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(`Ep${key}`, component);
 }
-await delay();
+await delay(0);
 app.mount('#app');
