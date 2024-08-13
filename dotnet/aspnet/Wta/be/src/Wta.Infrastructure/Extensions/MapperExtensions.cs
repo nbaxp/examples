@@ -6,7 +6,8 @@ public static class MapperExtensions
 {
     public static TModel ToModel<TEntity, TModel>(this TEntity entity, Action<TEntity, TModel>? action = null)
     {
-        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig().PreserveReference(true);
+        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig();
+        setter.PreserveReference(true);
         var model = entity.Adapt<TModel>(setter.Config);
         action?.Invoke(entity, model);
         return model;

@@ -23,7 +23,7 @@ const getImports = () => {
   const file = path.resolve(process.cwd(), 'index.html');
   const html = fs.readFileSync(file, 'utf-8');
   const importmapContent = html.match(/<script[^<>]+importmap[^>]+>([^<>]+)<\/script>\n*/)[1];
-  const importmap = JSON.parse(importmapContent.replaceAll('./', '/'));
+  const importmap = JSON.parse(importmapContent);
   console.log('importmap:');
   console.log(importmap);
   return importmap;
@@ -33,6 +33,7 @@ const alias = {};
 Object.assign(alias, getImports().imports);
 
 export default defineConfig({
+  base: './',
   build: {
     target: 'esnext',
     module: 'esm',

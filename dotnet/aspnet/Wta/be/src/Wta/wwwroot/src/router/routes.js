@@ -36,6 +36,13 @@ export default [
         },
       },
       {
+        path: '/test',
+        component: () => import('@/views/test.js'),
+        meta: {
+          title: '测试',
+        },
+      },
+      {
         path: '/:pathMatch(.*)*',
         component: () => import('@/views/404.js'),
         meta: {
