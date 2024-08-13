@@ -9,7 +9,7 @@ public class ResetPasswordController(IRepository<User> repository, IEncryptionSe
         return Json(typeof(ResetPasswordModel).GetMetadataForType());
     }
 
-    [AllowAnonymous]
+    [Authorize, Ignore]
     public ApiResult<bool> Index(ResetPasswordModel model)
     {
         if (ModelState.IsValid)
