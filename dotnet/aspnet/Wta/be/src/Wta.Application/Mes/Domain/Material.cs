@@ -5,11 +5,6 @@ public class Material : Entity
 {
 }
 
-[BaseData, Display(Name = "产品", Order = 2)]
-public class Product : Entity
-{
-}
-
 [BaseData, Display(Name = "BOM", Order = 3)]
 public class Bom : Entity
 {

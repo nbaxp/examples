@@ -1,7 +1,7 @@
-namespace Wta.Application.Default.Domain;
+namespace Wta.Application.System.Domain;
 
-[Display(Name = "MES", Order = 1)]
-public class MesAttribute : SystemManagementAttribute
+[Display(Name = "MES", Order = 2)]
+public class MesAttribute : GroupAttribute
 {
 }
 
@@ -10,7 +10,7 @@ public class BaseDataAttribute : MesAttribute
 {
 }
 
-[Display(Name = "工业设计", Order = 2)]
+[Display(Name = "工艺设计", Order = 2)]
 public class TechnologyAttribute : MesAttribute
 {
 }

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Wta.Application.Default.Data;
+namespace Wta.Application.System.Data;
 
 public class DefaultDbContextFactory : IDesignTimeDbContextFactory<DefaultDbContext>
 {
