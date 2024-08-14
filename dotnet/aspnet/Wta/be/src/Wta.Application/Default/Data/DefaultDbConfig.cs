@@ -7,6 +7,8 @@ public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
     IEntityTypeConfiguration<Job>,
     IEntityTypeConfiguration<Dict>,
     IEntityTypeConfiguration<Department>,
+    IEntityTypeConfiguration<WorkGroup>,
+    IEntityTypeConfiguration<WorkGroupUser>,
     IEntityTypeConfiguration<Post>,
     IEntityTypeConfiguration<User>,
     IEntityTypeConfiguration<Role>,
@@ -31,6 +33,7 @@ public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
 
     public void Configure(EntityTypeBuilder<Department> builder)
     {
+        builder.HasOne(o => o.Manager).WithMany(o => o.Departments).HasForeignKey(o => o.ManagerId).OnDelete(DeleteBehavior.SetNull);
     }
 
     public void Configure(EntityTypeBuilder<Post> builder)
@@ -67,5 +70,17 @@ public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
         builder.HasKey(o => new { o.RoleId, o.PermissionId });
         builder.HasOne(o => o.Role).WithMany(o => o.RolePermissions).HasForeignKey(o => o.RoleId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(o => o.Permission).WithMany(o => o.RolePermissions).HasForeignKey(o => o.PermissionId).OnDelete(DeleteBehavior.Cascade);
+    }
+
+    public void Configure(EntityTypeBuilder<WorkGroup> builder)
+    {
+        builder.Navigation(o => o.WorkGroupUsers).AutoInclude();
+    }
+
+    public void Configure(EntityTypeBuilder<WorkGroupUser> builder)
+    {
+        builder.HasKey(o => new { o.WorkGroupId, o.UserId });
+        builder.HasOne(o => o.WorkGroup).WithMany(o => o.WorkGroupUsers).HasForeignKey(o => o.WorkGroupId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.User).WithMany(o => o.WorkGroupUsers).HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.Cascade);
     }
 }

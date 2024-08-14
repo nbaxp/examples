@@ -29,4 +29,6 @@ public class User : Entity
     public Post? Post { get; set; }
 
     public List<UserRole> UserRoles { get; set; } = [];
+    public List<WorkGroupUser> WorkGroupUsers { get; set; } = [];
+    public List<Department> Departments { get; set; } = [];
 }

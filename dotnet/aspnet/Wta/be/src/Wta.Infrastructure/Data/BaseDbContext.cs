@@ -171,6 +171,11 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                 entityModlerBuilder.HasIndex(nameof(BaseTreeEntity<BaseEntity>.TenantNumber), nameof(BaseTreeEntity<BaseEntity>.Number)).IsUnique();
                 entityModlerBuilder.HasOne(nameof(BaseTreeEntity<BaseEntity>.Parent)).WithMany(nameof(BaseTreeEntity<BaseEntity>.Children)).HasForeignKey(nameof(BaseTreeEntity<BaseEntity>.ParentId)).OnDelete(DeleteBehavior.SetNull);
             }
+            //配置父子结构
+            if (entityType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseChildTentity<>)))
+            {
+                entityModlerBuilder.HasOne(nameof(BaseChildTentity<BaseEntity>.Parent)).WithMany().HasForeignKey(nameof(BaseChildTentity<BaseEntity>.ParentId)).OnDelete(DeleteBehavior.Cascade);
+            }
         }
         //配置属性
         var properties = entityType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);

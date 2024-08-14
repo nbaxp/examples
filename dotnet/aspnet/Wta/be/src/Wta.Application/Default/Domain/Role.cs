@@ -10,6 +10,7 @@ public class Role : Entity
 
     [Hidden]
     public List<UserRole> UserRoles { get; set; } = [];
+
     [Hidden]
     public List<RolePermission> RolePermissions { get; set; } = [];
 
