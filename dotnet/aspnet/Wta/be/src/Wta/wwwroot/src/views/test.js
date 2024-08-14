@@ -1,13 +1,12 @@
+import QrCode from '@/components/form/qr-code.js';
 import html from 'utils';
 import { onMounted } from 'vue';
-import VueQrcode from 'vue-qrcode';
 import { useRouter } from 'vue-router';
 
 export default {
-  compoents: { VueQrcode },
-  template: html`<vue-qrcode
-    value="https://www.1stg.me"
-    @change="onDataUrlChange"
+  components: { QrCode },
+  template: html`<qr-code
+    v-model="https://www.1stg.me"
   />`,
   setup() {
     const router = useRouter();

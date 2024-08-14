@@ -10,9 +10,10 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import CodeCaptcha from './code-captcha.js';
 import ImageCaptcha from './image-captcha.js';
+import QrCode from './qr-code.js';
 
 export default {
-  components: { SvgIcon, ImageCaptcha, CodeCaptcha },
+  components: { SvgIcon, ImageCaptcha, CodeCaptcha, QrCode },
   template: html`<template v-if="getDisabled()">
   <template v-if="model[prop]!==null&&(schema.type!=='array'||model[prop].length>0)">
     <template v-if="schema.type==='boolean'||model[prop]!==false">
@@ -28,6 +29,9 @@ export default {
         {{dayjs(model[prop]).format(DATETIME_DISPLAY_FORMAT)}}
       </template>
       <template v-else-if="schema.input==='password'">******</template>
+      <template v-else-if="schema.input==='qrcode'">
+        <qr-code v-model="model[prop]" />
+      </template>
       <template v-else-if="schema.input==='select'||schema.input==='radio'">
         <template v-if="schema.meta?.isTree">
           <template v-if="schema.meta?.multiple">

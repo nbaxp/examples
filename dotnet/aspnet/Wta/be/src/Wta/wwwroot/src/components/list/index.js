@@ -14,7 +14,7 @@ import * as jsondiffpatch from 'jsondiffpatch';
 import { camelCase, capitalize } from 'lodash';
 import { downloadFile, importFunction } from 'utils';
 import html, { getProp, delay, listToTree } from 'utils';
-import { computed, nextTick, onMounted, reactive, ref, unref, watch } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -308,7 +308,7 @@ export default {
     const buttons = ref(props.schema.meta?.buttons ?? route.meta.children);
     const sortColumns = ref(new Map());
     const tableSchema = ref({});
-    const tableData = ref([]);
+    const tableData = shallowRef([]);
     const editFormRef = ref(null);
     const editFormloading = ref(false);
     const editFormCommand = ref(null);

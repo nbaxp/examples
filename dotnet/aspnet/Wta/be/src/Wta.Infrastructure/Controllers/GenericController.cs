@@ -239,7 +239,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         return Json(true);
     }
 
-    [Ignore]
+    [Authorize, Ignore]
     public List<TModel> Parents(string number)
     {
         var suffix = Repository.AsNoTracking().Cast<BaseTreeEntity<TEntity>>().Where(o => o.Number == number).Select(o => o.Path).FirstOrDefault();
@@ -255,7 +255,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         throw new ProblemException("NotFound");
     }
 
-    [Ignore]
+    [Authorize, Ignore]
     public List<TModel> Children(string number)
     {
         var prefix = Repository.AsNoTracking().Cast<BaseTreeEntity<TEntity>>().Where(o => o.Number == number).Select(o => o.Path).FirstOrDefault();

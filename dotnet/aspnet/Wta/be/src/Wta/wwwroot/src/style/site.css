@@ -148,6 +148,10 @@ img.loading {
   padding: 0;
 }
 
+.el-table {
+  content-visibility: auto;
+}
+
 .el-card {
   min-width: 300px;
   min-height: 100px;
