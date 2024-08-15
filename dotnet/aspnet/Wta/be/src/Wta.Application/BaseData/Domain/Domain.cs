@@ -1,5 +1,15 @@
 namespace Wta.Application.BaseData.Domain;
 
+[BaseDataGroup, Display(Name = "供应商", Order = 3)]
+public class Supplier : Entity
+{
+}
+
+[BaseDataGroup, Display(Name = "客户", Order = 4)]
+public class Customer : Entity
+{
+}
+
 [Product, Display(Name = "产品类型", Order = 1)]
 public class ProductType : BaseTreeEntity<ProductType>
 {
@@ -15,7 +25,7 @@ public class Product : Entity
 {
 }
 
-[Product, Display(Name = "仓库类型", Order = 1)]
+[Warehouse, Display(Name = "仓库类型", Order = 1)]
 public class WarehouseType : BaseTreeEntity<WarehouseType>
 {
 }

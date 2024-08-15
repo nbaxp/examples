@@ -15,7 +15,7 @@ public class BaseDataDbSeeder : IDbSeeder<DefaultDbContext>
             Number = "01"
         }.UpdateNode(),new ProductType(){
             Id = context.NewGuid(),
-            Name = "主料",
+            Name = "辅料",
             Number = "02"
         }.UpdateNode()]);
 

@@ -1,9 +1,9 @@
-import Md from '@/components/markdown/index.js';
+import VueMd from '@/components/markdown/index.js';
 import html from 'utils';
 import { ref } from 'vue';
 
 export default {
-  components: { Md },
+  components: { VueMd },
   template: html`<div class="container xl home">
   <el-row>
     <el-col class="pb-8">
@@ -81,8 +81,8 @@ export default {
       <el-tabs type="border-card" tab-position="top">
         <el-tab-pane v-for="(item1,index1) in list" :label="item1.label">
           <el-tabs tab-position="left">
-            <el-tab-pane v-for="(item2,index2) in item1.children" :label="item2.label">
-              <md :name="'flow/'+((index1+1)*10+index2+1)" />
+            <el-tab-pane lazy v-for="(item2,index2) in item1.children" :label="item2.label">
+              <vue-md :name="'flow/'+((index1+1)*10+index2+1)" />
             </el-tab-pane>
           </el-tabs>
         </el-tab-pane>
@@ -126,19 +126,27 @@ export default {
     const counter = ref(0);
     const list = [
       {
-        label: '技术管理',
+        label: '工业软件',
         children: [
           {
-            label: '产品信息',
+            label: '工业软件图谱',
           },
           {
-            label: '生产工序',
+            label: '工业软件介绍',
           },
           {
-            label: '产品BOM',
+            label: 'MES依赖关系',
+          },
+        ],
+      },
+      {
+        label: '业务模型',
+        children: [
+          {
+            label: '工业软件图谱',
           },
           {
-            label: '基础设置',
+            label: '工业软件介绍',
           },
         ],
       },

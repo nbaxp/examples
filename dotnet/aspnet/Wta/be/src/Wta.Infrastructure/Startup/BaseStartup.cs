@@ -149,7 +149,7 @@ public abstract class BaseStartup : IStartup
             .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t == typeof(DbContext)))
             .ForEach(dbContextType =>
             {
-                void action(DbContextOptionsBuilder optionsBuilder)
+                var action = (DbContextOptionsBuilder optionsBuilder) =>
                 {
                     var connectionStringName = dbContextType.GetCustomAttribute<ConnectionStringAttribute>()?.ConnectionString ?? dbContextType.Name.TrimEnd("DbContext");
                     var connectionString = builder.Configuration.GetConnectionString(connectionStringName) ??
@@ -179,7 +179,7 @@ public abstract class BaseStartup : IStartup
                     {
                         optionsBuilder.UseSqlite(connectionString, b => b.UseNetTopologySuite());
                     }
-                }
+                };
                 typeof(EntityFrameworkServiceCollectionExtensions)
                 .GetMethods()
                 .First(o => o.Name == nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext) && o.IsGenericMethod && o.GetGenericArguments().Length == 1 && o.GetParameters().Length == 4)

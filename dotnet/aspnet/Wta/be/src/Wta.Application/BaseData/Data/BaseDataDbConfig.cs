@@ -4,6 +4,8 @@ using Wta.Application.System.Data;
 namespace Wta.Application.BaseData.Data;
 
 public class BaseDataDbConfig : BaseDbConfig<DefaultDbContext>,
+    IEntityTypeConfiguration<Supplier>,
+    IEntityTypeConfiguration<Customer>,
     IEntityTypeConfiguration<ProductType>,
     IEntityTypeConfiguration<ProductCategory>,
     IEntityTypeConfiguration<Product>,
@@ -31,6 +33,14 @@ public class BaseDataDbConfig : BaseDbConfig<DefaultDbContext>,
     }
 
     public void Configure(EntityTypeBuilder<StorageArea> builder)
+    {
+    }
+
+    public void Configure(EntityTypeBuilder<Supplier> builder)
+    {
+    }
+
+    public void Configure(EntityTypeBuilder<Customer> builder)
     {
     }
 }
