@@ -39,7 +39,7 @@ export default {
       if (props.mode === 'query') {
         return !props.schema.meta.hideForQuery;
       }
-      if (props.schema.meta.hideForEdit) {
+      if (props.mode !== 'details' && props.schema.meta.hideForEdit) {
         return false;
       }
       return true;

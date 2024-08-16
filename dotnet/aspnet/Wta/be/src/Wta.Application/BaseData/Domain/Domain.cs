@@ -1,11 +1,21 @@
 namespace Wta.Application.BaseData.Domain;
 
-[BaseDataGroup, Display(Name = "供应商", Order = 3)]
+[Supplier, Display(Name = "供应商分类", Order = 3)]
+public class SupplierCategory : BaseTreeEntity<SupplierCategory>
+{
+}
+
+[Supplier, Display(Name = "供应商", Order = 4)]
 public class Supplier : Entity
 {
 }
 
-[BaseDataGroup, Display(Name = "客户", Order = 4)]
+[Customer, Display(Name = "客户分类", Order = 5)]
+public class CustomerCategory : BaseTreeEntity<CustomerCategory>
+{
+}
+
+[Customer, Display(Name = "客户", Order = 6)]
 public class Customer : Entity
 {
 }
@@ -29,8 +39,12 @@ public class Product : Entity
 public class WarehouseType : BaseTreeEntity<WarehouseType>
 {
 }
+[Product, Display(Name = "仓库分类", Order = 2)]
+public class WarehouseCategory : BaseTreeEntity<WarehouseCategory>
+{
+}
 
-[Warehouse, Display(Name = "仓库", Order = 2)]
+[Warehouse, Display(Name = "仓库", Order = 3)]
 public class Warehouse : BaseTreeEntity<Warehouse>
 {
     [Display(Name = "地址")]
@@ -46,7 +60,7 @@ public class Warehouse : BaseTreeEntity<Warehouse>
     public string? Contact { get; set; } = null!;
 }
 
-[Warehouse, Display(Name = "仓位", Order = 3)]
+[Warehouse, Display(Name = "仓位", Order = 4)]
 public class StorageArea : BaseTreeEntity<StorageArea>
 {
     [Display(Name = "容量")]

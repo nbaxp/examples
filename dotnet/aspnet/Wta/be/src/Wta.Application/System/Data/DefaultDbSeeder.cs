@@ -17,6 +17,8 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
         InitPermission(context);
         //添加角色
         InitRole(context);
+        //添加岗位
+        InitPost(context);
         //添加用户
         InitUser(context);
     }
@@ -38,16 +40,176 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
         context.Set<Department>().Add(new Department
         {
             Id = context.NewGuid(),
-            Name = "机构",
-            Number = "Organ",
+            Name = "工厂",
+            Number = "00",
             Children = [
-                    new Department
-                    {
-                        Id = context.NewGuid(),
-                        Name = "技术部",
-                        Number = "Technology"
-                    }
-                ]
+                new()
+                {
+                    Id = context.NewGuid(),
+                    Name = "市场营销中心",
+                    Number = "01",
+                    Children = [
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "市场部",
+                            Number = "0101",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "销售部",
+                            Number = "0102",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "电子商务部",
+                            Number = "0103",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "售前支持部",
+                            Number = "0104",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "售后支持部",
+                            Number = "0105",
+                        }
+                    ]
+                },
+                new()
+                {
+                    Id = context.NewGuid(),
+                    Name = "研发生产中心",
+                    Number = "02",
+                    Children = [
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "质量部",
+                            Number = "0201",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "计划部",
+                            Number = "0202",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "工程部",
+                            Number = "0203",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "研发部",
+                            Number = "0204",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "第一车间",
+                            Number = "0204",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "第二车间",
+                            Number = "0204",
+                        }
+                    ]
+                },
+                new()
+                {
+                    Id = context.NewGuid(),
+                    Name = "供应链管理中心",
+                    Number = "03",
+                    Children = [
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "采购部",
+                            Number = "0301",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "物流部",
+                            Number = "0302",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "物料库",
+                            Number = "0303",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "成品库",
+                            Number = "0304",
+                        }
+                    ]
+                },
+                new()
+                {
+                    Id = context.NewGuid(),
+                    Name = "技术保障中心",
+                    Number = "04",
+                    Children = [
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "设备部",
+                            Number = "0401",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "IT运维部",
+                            Number = "0402",
+                        },
+                    ]
+                },
+                new()
+                {
+                    Id = context.NewGuid(),
+                    Name = "管理保障中心",
+                    Number = "05",
+                    Children = [
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "财务部",
+                            Number = "0501",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "人事部",
+                            Number = "0502",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "行政部",
+                            Number = "0503",
+                        },
+                        new()
+                        {
+                            Id = context.NewGuid(),
+                            Name = "后勤安保部",
+                            Number = "0504",
+                        }
+                    ]
+                }
+            ]
         }.UpdateNode());
         context.SaveChanges();
     }
@@ -61,15 +223,17 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             Number = "language",
             Children =
             [
-                new() {
-                    Id= context.NewGuid(),
-                    Name="简体中文",
-                    Number="zh-CN"
+                new()
+                {
+                    Id = context.NewGuid(),
+                    Name = "简体中文",
+                    Number = "zh-CN"
                 },
-                new() {
-                    Id= context.NewGuid(),
-                    Name="English",
-                    Number="en-US"
+                new()
+                {
+                    Id = context.NewGuid(),
+                    Name = "English",
+                    Number = "en-US"
                 }
             ]
         }.UpdateNode());
@@ -224,12 +388,111 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 IsReadOnly = true
             }).ToList()
         });
-        context.Set<Role>().Add(new Role
+        context.Set<Role>().AddRange([new()
         {
             Id = context.NewGuid(),
             Name = "测试",
             Number = "test",
-        });
+        }]);
+        context.SaveChanges();
+    }
+
+    private static void InitPost(DbContext context)
+    {
+        var departmentId = context.Set<Department>().FirstOrDefault(o => o.Name == "研发生产中心")?.Id;
+        context.Set<Post>().AddRange([new Post()
+        {
+            Id = context.NewGuid(),
+            Name = "车间主任",
+            Number = "01",
+            DepartmentId = departmentId,
+        }.UpdateNode(),
+            new Post()
+            {
+                Id = context.NewGuid(),
+                Name = "生产管理员",
+                Number = "02",
+                DepartmentId = departmentId,
+            }.UpdateNode(),
+            new Post()
+            {
+                Id = context.NewGuid(),
+                Name = "物料管理员",
+                Number = "03",
+                DepartmentId = departmentId,
+            }.UpdateNode(),
+            new Post()
+            {
+                Id = context.NewGuid(),
+                Name = "质量管理员",
+                Number = "04",
+                DepartmentId = departmentId,
+            }.UpdateNode(),
+            new Post()
+            {
+                Id = context.NewGuid(),
+                Name = "机管员",
+                Number = "05",
+                DepartmentId = departmentId,
+            }.UpdateNode(),
+            new Post()
+            {
+                Id = context.NewGuid(),
+                Name = "技术调控员",
+                Number = "06",
+                DepartmentId = departmentId,
+            }.UpdateNode(),
+            new Post()
+            {
+                Id = context.NewGuid(),
+                Name = "过程调控员",
+                Number = "07",
+                DepartmentId = departmentId,
+            }.UpdateNode(),
+            new Post()
+            {
+                Id = context.NewGuid(),
+                Name = "作业组长",
+                Number = "08",
+                DepartmentId = departmentId,
+            }.UpdateNode(),
+            new Post()
+            {
+                Id = context.NewGuid(),
+                Name = "作业工",
+                Number = "09",
+                DepartmentId = departmentId,
+                Children = [
+                new Post()
+                {
+                    Id = context.NewGuid(),
+                    Name = "加工组作业工",
+                    Number = "0901",
+                    DepartmentId = departmentId,
+                }.UpdateNode(),
+                    new Post()
+                    {
+                        Id = context.NewGuid(),
+                        Name = "装配组作业工",
+                        Number = "0902",
+                        DepartmentId = departmentId,
+                    }.UpdateNode(),
+                    new Post()
+                    {
+                        Id = context.NewGuid(),
+                        Name = "包装组作业工",
+                        Number = "0903",
+                        DepartmentId = departmentId,
+                    }.UpdateNode(),
+                    new Post()
+                    {
+                        Id = context.NewGuid(),
+                        Name = "模具组作业工",
+                        Number = "0904",
+                        DepartmentId = departmentId,
+                    }.UpdateNode()
+            ]
+            }.UpdateNode()]);
         context.SaveChanges();
     }
 
@@ -256,9 +519,10 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             PasswordHash = passwordHash,
             IsReadOnly = true,
             UserRoles = [
-                new() {
-                    UserId=userId,
-                    RoleId = context.Set<Role>().First(o=>o.Number=="admin").Id,
+                new()
+                {
+                    UserId = userId,
+                    RoleId = context.Set<Role>().First(o => o.Number == "admin").Id,
                     IsReadOnly = true
                 }
             ],

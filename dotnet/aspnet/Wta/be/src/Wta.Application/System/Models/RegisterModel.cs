@@ -5,6 +5,7 @@ public class RegisterModel : CaptchaModel
     [Required]
     [RegularExpression(@"\w{4,64}")]
     [Remote("IsUserNameAvailable", "User")]
+    [KeyValue("remote","user/no-user")]
     public string? UserName { get; set; }
 
     [Required]

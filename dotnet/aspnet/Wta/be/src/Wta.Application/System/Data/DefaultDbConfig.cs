@@ -34,10 +34,12 @@ public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
     public void Configure(EntityTypeBuilder<Department> builder)
     {
         builder.HasOne(o => o.Manager).WithMany(o => o.Departments).HasForeignKey(o => o.ManagerId).OnDelete(DeleteBehavior.SetNull);
+        builder.Navigation(o => o.Users).AutoInclude();
     }
 
     public void Configure(EntityTypeBuilder<Post> builder)
     {
+        builder.HasOne(o => o.Department).WithMany(o => o.Posts).HasForeignKey(o => o.DepartmentId).OnDelete(DeleteBehavior.SetNull);
     }
 
     public void Configure(EntityTypeBuilder<User> builder)

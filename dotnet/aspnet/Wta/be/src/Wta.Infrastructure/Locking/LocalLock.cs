@@ -39,11 +39,11 @@ public class LocalLock : ILock, IDisposable
         }
     }
 
-    private class Release(SemaphoreSlim semaphoreSlim) : IDisposable
+    private sealed class Release(SemaphoreSlim semaphoreSlim) : IDisposable
     {
         private bool disposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

@@ -1,6 +1,8 @@
 using Autofac;
 using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using OrchardCore.Localization;
 using Prometheus;
 using Prometheus.SystemMetrics;
@@ -275,7 +277,7 @@ public abstract class BaseStartup : IStartup
     /// <param name="builder"></param>
     public virtual void AddJsonOptions(WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton(provider => provider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions);
+        builder.Services.AddSingleton(provider => provider.GetRequiredService<IOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>>().Value.SerializerOptions);
     }
 
     /// <summary>
@@ -375,6 +377,14 @@ public abstract class BaseStartup : IStartup
         })
         .ConfigureApplicationPartManager(o => o.FeatureProviders.Add(new GenericControllerFeatureProvider()))
         .AddControllersAsServices();//配置 controller 使用依赖注入创建
+
+        //add urlhelper
+        builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        builder.Services.AddScoped(o => {
+            var actionContext = o.GetRequiredService<IActionContextAccessor>().ActionContext;
+            var factory = o.GetRequiredService<IUrlHelperFactory>();
+            return factory.GetUrlHelper(actionContext!);
+        });
     }
 
     /// <summary>

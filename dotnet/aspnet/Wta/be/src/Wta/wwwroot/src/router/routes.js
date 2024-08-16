@@ -15,6 +15,13 @@ export default [
         },
       },
       {
+        path: '/register',
+        component: () => import('@/views/register.js'),
+        meta: {
+          title: '登录',
+        },
+      },
+      {
         path: '/forgot-password',
         component: () => import('@/views/forgot-password.js'),
         meta: {

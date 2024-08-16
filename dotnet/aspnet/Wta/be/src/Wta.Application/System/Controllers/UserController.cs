@@ -10,7 +10,7 @@ public class UserController(ILogger<User> logger,
     IEventPublisher eventPublisher,
     IExportImportService exportImportService,
     IHttpContextAccessor httpContextAccessor,
-    IEncryptionService encryptionService) : GenericController<User, UserModel>(logger, stringLocalizer, mapper, repository, eventPublisher, exportImportService), IAuthService
+    IEncryptionService encryptionService) : GenericController<User, User>(logger, stringLocalizer, mapper, repository, eventPublisher, exportImportService), IAuthService
 {
     [Authorize, Ignore]
     public bool HasPermission(string permission)
@@ -18,6 +18,12 @@ public class UserController(ILogger<User> logger,
         var normalizedUserName = httpContextAccessor.HttpContext?.User.Identity?.Name?.ToUpperInvariant()!;
         return Repository.AsNoTracking()
             .Any(o => o.NormalizedUserName == normalizedUserName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Number == permission)));
+    }
+
+    [HttpGet, AllowAnonymous, Ignore]
+    public ApiResult<object> Register()
+    {
+        return Json(typeof(RegisterModel).GetMetadataForType());
     }
 
     [AllowAnonymous, Ignore]
@@ -123,12 +129,7 @@ public class UserController(ILogger<User> logger,
         return result;
     }
 
-    protected override void ToModel(User entity, UserModel model)
-    {
-        model.Roles = entity.UserRoles.Select(o => o.RoleId).ToList();
-    }
-
-    protected override void ToEntity(User entity, UserModel model, bool isCreate)
+    protected override void ToEntity(User entity, User model, bool isCreate)
     {
         if (isCreate && string.IsNullOrEmpty(model.Password))
         {
@@ -152,7 +153,7 @@ public class UserController(ILogger<User> logger,
         {
             entity.PasswordHash = encryptionService.HashPassword(model.Password, entity.SecurityStamp);
         }
-        entity.UserRoles.RemoveAll(o => !model.Roles.Contains(o.RoleId));
-        entity.UserRoles.AddRange(model.Roles?.Where(o => !entity.UserRoles.Any(p => p.RoleId == o)).Select(o => new UserRole { RoleId = o }));
+        entity.UserRoles.Clear();
+        entity.UserRoles.AddRange(model.Roles.Select(o => new UserRole { RoleId = o }));
     }
 }

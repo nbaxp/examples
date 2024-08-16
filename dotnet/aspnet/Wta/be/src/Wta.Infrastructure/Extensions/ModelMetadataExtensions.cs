@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Routing;
 using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Extensions;
@@ -175,6 +177,10 @@ public static class ModelMetadataExtensions
         var provider = new EmptyModelMetadataProvider();
         var modelValidationContextBase = new ModelValidationContextBase(actionContext, meta, new EmptyModelMetadataProvider());
         var rules = new List<Dictionary<string, object>>();
+        if (result.TryGetValue("remote", out var url))
+        {
+            rules.Add(new Dictionary<string, object> { { "validator", "remote" }, { "url", url } });
+        }
         //必填
         if (metaData.IsRequired)
         {
@@ -277,14 +283,16 @@ public static class ModelMetadataExtensions
                     rule.Add("validator", "accept");
                     rule.Add("extensions", fileExtensions.Extensions);
                 }
-                else if (attribute is RemoteAttribute remote)
-                {
-                    rule.Add("validator", "remote");
-                    var attributes = new Dictionary<string, string>();
-                    remote.AddValidation(new ClientModelValidationContext(actionContext, metaData, provider, attributes));
-                    rule.Add("remote", attributes["data-val-remote-url"]);
-                    //rule.Add("fields", remote.AdditionalFields.Split(',').Where(o => !string.IsNullOrEmpty(o)).Select(o => o.ToLowerCamelCase()).ToList());
-                }
+                //else if (attribute is RemoteAttribute remote)
+                //{
+                //    rule.Add("validator", "remote");
+                //    var urlHelper = serviceProvider.GetRequiredService<IUrlHelper>();
+                //    //var url = urlHelper.Action();
+                //    var attributes = new Dictionary<string, string>();
+                //    remote.AddValidation(new ClientModelValidationContext(actionContext, metaData, provider, attributes));
+                //    rule.Add("remote", attributes["data-val-remote-url"]);
+                //    //rule.Add("fields", remote.AdditionalFields.Split(',').Where(o => !string.IsNullOrEmpty(o)).Select(o => o.ToLowerCamelCase()).ToList());
+                //}
                 else if (attribute is DataTypeAttribute dataType)
                 {
                     var name = dataType.GetDataTypeName();

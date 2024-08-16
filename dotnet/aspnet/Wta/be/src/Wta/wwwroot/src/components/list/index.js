@@ -133,7 +133,7 @@ export default {
           <template v-if="!item.meta.hideForList&&showColumn(item,key)">
             <el-table-column
               :prop="key"
-              :sortable="schema.meta?.isTree?false:'custom'"
+              :sortable="isSortable(item)"
               :sort-orders="['descending', 'ascending', null]"
             >
               <template #header="scope">{{item.title}}</template>
@@ -703,6 +703,15 @@ export default {
         await reload();
       }
     };
+    const isSortable = (item) => {
+      if (props.schema.meta?.isTree) {
+        return false;
+      }
+      if (item.meta.skipSorting) {
+        return false;
+      }
+      return 'custom';
+    };
     return {
       appStore,
       buttons,
@@ -750,6 +759,7 @@ export default {
       getProp,
       showList,
       subListQuery,
+      isSortable,
     };
   },
 };
