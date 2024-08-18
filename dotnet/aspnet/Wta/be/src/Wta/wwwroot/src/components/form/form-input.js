@@ -179,12 +179,6 @@ export default {
     />
   </template>
 </template>`,
-  styles: html`<style>
-    .form .el-tabs__header,
-    .form .el-tabs__item {
-      height: 24px;
-    }
-  </style>`,
   props: ['modelValue', 'schema', 'prop', 'isReadOnly', 'mode', 'errors'],
   emit: ['update:modelValue'],
   setup(props, context) {

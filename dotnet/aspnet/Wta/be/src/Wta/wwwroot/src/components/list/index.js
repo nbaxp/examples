@@ -105,7 +105,7 @@ export default {
           {{ (pageModel.pageIndex - 1) * pageModel.pageSize + scope.$index + 1 }}
         </template>
       </el-table-column>
-      <template v-for="(item,key) in schema.properties">
+      <template v-for="(item,key) in schema.properties" :key="key">
         <template v-if="item.navigation">
           <el-table-column :prop="key" :label="item.title">
             <template #default="scope">{{getProp(scope.row,item.navigation)}}</template>
