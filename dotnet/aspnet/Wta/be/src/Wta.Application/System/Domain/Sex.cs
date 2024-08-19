@@ -3,8 +3,8 @@ namespace Wta.Application.System.Domain;
 public enum Sex
 {
     [Display(Name = "男")]
-    MALE = 10,
+    MALE,
 
     [Display(Name = "女")]
-    FEMALE = 20
+    FEMALE
 }

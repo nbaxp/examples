@@ -84,7 +84,7 @@ export default {
       </template>
       <template v-else-if="schema.input==='radio'">
         <el-radio-group v-model="model[prop]">
-          <el-radio-button v-for="item in selectOptions" :label="item.label" :value="item.value" />
+          <el-radio v-for="item in selectOptions" :label="item.label" :value="item.value" />
         </el-radio-group>
       </template>
       <!--string:datetime-->

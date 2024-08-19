@@ -66,7 +66,12 @@ export default {
           <layout-locale />
           <el-dropdown class="cursor-pointer" v-if="tokenStore.accessToken">
             <span class="el-dropdown-link flex">
-              <el-avatar v-if="userStore.avatar" class="el-icon--left" :size="18" :src="'./assets/icons/avatar.svg'" />
+              <el-avatar
+                v-if="userStore.avatar"
+                class="el-icon--left"
+                :size="18"
+                :src="'./src/assets/icons/avatar.svg'"
+              />
               <el-icon v-else class="el-icon--left" :size="18">
                 <ep-user />
               </el-icon>

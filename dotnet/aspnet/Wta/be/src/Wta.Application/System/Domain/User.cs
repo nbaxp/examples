@@ -95,6 +95,7 @@ public class User : Entity
     public Post? Post { get; set; }
 
     [Hidden]
+    [JsonIgnore]
     public List<UserRole> UserRoles { get; set; } = [];
 
     [Hidden]
