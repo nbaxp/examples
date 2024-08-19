@@ -4,13 +4,18 @@ import html from 'utils';
 import { onMounted, ref } from 'vue';
 
 export default {
-  template: html`{{dayjs(vm.now).format(DATETIME_DISPLAY_FORMAT)}}`,
-  styles: html`<style>
-    .el-header,.el-footer{
-      display:none!important;
-    }
-  </style>`,
-  setup(prop) {
+  template: html`
+    {{dayjs(vm.now).format(DATETIME_DISPLAY_FORMAT)}}
+  `,
+  styles: html`
+    <style>
+      .el-header,
+      .el-footer {
+        display: none !important;
+      }
+    </style>
+  `,
+  setup() {
     const hasEventSource = !!window.EventSource;
     const vm = ref({});
     const update = (data) => {

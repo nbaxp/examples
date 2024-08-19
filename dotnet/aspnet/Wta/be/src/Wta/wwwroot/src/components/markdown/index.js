@@ -4,11 +4,15 @@ import Cherry from '~/lib/cherry-markdown/cherry-markdown.esm.js';
 import '~/lib/cherry-markdown/echarts/echarts.min.js';
 
 export default {
-  template: html`<div ref="tplRef" style="width:100%;">
-    <div class="source" style="display:none;"><slot /></div>
-    <div class="cherry-markdown"></div>
-  </div>`,
-  styles: html`<link rel="stylesheet" href="./lib/cherry-markdown/cherry-markdown.min.css" />`,
+  template: html`
+    <div ref="tplRef" style="width:100%;">
+      <div class="source" style="display:none;"><slot /></div>
+      <div class="cherry-markdown"></div>
+    </div>
+  `,
+  styles: html`
+    <link rel="stylesheet" href="./lib/cherry-markdown/cherry-markdown.min.css" />
+  `,
   props: {
     name: {
       default: null,

@@ -8,7 +8,9 @@ import { normalize } from '@/utils/schema.js';
 
 export default {
   components: { AppList },
-  template: html`<app-list v-if="schema" :schema="schema" @command="onCommand" />`,
+  template: html`
+    <app-list v-if="schema" :schema="schema" @command="onCommand" />
+  `,
   setup() {
     const route = useRoute();
     const schema = ref(null);

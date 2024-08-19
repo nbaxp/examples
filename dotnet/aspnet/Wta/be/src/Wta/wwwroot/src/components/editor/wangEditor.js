@@ -1,23 +1,27 @@
 import request from '@/utils/request.js';
 import html from 'utils';
-import { onBeforeUnmount, ref, shallowRef, watch, watchEffect } from 'vue';
+import { onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Editor, Toolbar } from '../../../../lib/@wangEditor/editor-for-vue/index.esm.js';
 import { i18nChangeLanguage } from '../../../../lib/@wangEditor/index.esm.js';
 
 export default {
   components: { Editor, Toolbar },
-  template: html` <div style="border: 1px solid #ccc;z-index:1000;">
-    <Toolbar style="border-bottom: 1px solid #ccc" :editor="editorRef" :defaultConfig="toolbarConfig" :mode="mode" />
-    <Editor
-      style="height: 500px; overflow-y: hidden;"
-      v-model="model"
-      :defaultConfig="editorConfig"
-      :mode="mode"
-      @onCreated="handleCreated"
-    />
-  </div>`,
-  styles: html`<link rel="stylesheet" href="./lib/@wangEditor/style.css" />`,
+  template: html`
+    <div style="border: 1px solid #ccc;z-index:1000;">
+      <Toolbar style="border-bottom: 1px solid #ccc" :editor="editorRef" :defaultConfig="toolbarConfig" :mode="mode" />
+      <Editor
+        style="height: 500px; overflow-y: hidden;"
+        v-model="model"
+        :defaultConfig="editorConfig"
+        :mode="mode"
+        @onCreated="handleCreated"
+      />
+    </div>
+  `,
+  styles: html`
+    <link rel="stylesheet" href="./lib/@wangEditor/style.css" />
+  `,
   props: {
     modelValue: {
       type: String,

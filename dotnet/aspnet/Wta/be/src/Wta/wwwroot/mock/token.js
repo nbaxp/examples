@@ -1,6 +1,5 @@
 import Mock from '~/lib/better-mock/mock.browser.esm.js';
 import CryptoJS from '~/lib/crypto-js.js';
-import * as jose from '~/lib/jose/index.js';
 
 const issuer = 'urn:example:issuer'; //发行方
 const audience = 'urn:example:audience'; //接收方
@@ -63,8 +62,8 @@ export default function () {
     };
   });
 
-  Mock.mock('/api/token/refresh', 'POST', (request) => {
-    const jwt = JSON.parse(request.body);
+  Mock.mock('/api/token/refresh', 'POST', () => {
+    // const jwt = JSON.parse(request.body);
     const claims = { user: 'admin' };
     return new Promise((resolve) => {
       resolve({

@@ -1,5 +1,3 @@
-import redirect from '@/views/redirect.js';
-
 export default [
   {
     name: 'default',

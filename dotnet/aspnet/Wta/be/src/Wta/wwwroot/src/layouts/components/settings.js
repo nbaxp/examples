@@ -9,17 +9,19 @@ import { ref, watchEffect } from 'vue';
 
 export default {
   components: { AppForm },
-  template: html`<el-icon v-model="show" :size="18" class="cursor-pointer" @click="show=!show">
-  <ep-setting />
-</el-icon>
-<el-drawer v-model="show" :title="$t('设置')" append-to-body destroy-on-close size="auto">
-  <app-form ref="formRef" :schema="schema" v-model="appStore.settings" :hide-button="true" />
-  <template #footer>
-    <el-button type="primary" @click="copySettings">{{$t('复制')}}</el-button>
-    <el-button type="primary" @click="reset">{{$t('重置')}}</el-button>
-    <el-button type="primary" @click="save">{{$t('保存')}}</el-button>
-  </template>
-</el-drawer>`,
+  template: html`
+    <el-icon v-model="show" :size="18" class="cursor-pointer" @click="show=!show">
+      <ep-setting />
+    </el-icon>
+    <el-drawer v-model="show" :title="$t('设置')" append-to-body destroy-on-close size="auto">
+      <app-form ref="formRef" :schema="schema" v-model="appStore.settings" :hide-button="true" />
+      <template #footer>
+        <el-button type="primary" @click="copySettings">{{$t('复制')}}</el-button>
+        <el-button type="primary" @click="reset">{{$t('重置')}}</el-button>
+        <el-button type="primary" @click="save">{{$t('保存')}}</el-button>
+      </template>
+    </el-drawer>
+  `,
   setup() {
     const show = ref(false);
     const formRef = ref(null);

@@ -1,5 +1,5 @@
 import i18n from '@/locales/index.js';
-import { format, getProp } from './index.js';
+import { format } from './index.js';
 import request from './request.js';
 
 const messages = {
@@ -63,7 +63,7 @@ const messages = {
 const { t } = i18n.global;
 
 const validators = {
-  compare(rule, value, callback, source, options) {
+  compare(rule, value, callback) {
     const errors = [];
     if (value && value !== rule.data[rule.compare]) {
       const message = format(messages.compare, rule.title, rule.schema.properties[rule.compare].title);
@@ -71,7 +71,7 @@ const validators = {
     }
     callback(errors);
   },
-  true(rule, value, callback, source, options) {
+  true(rule, value, callback) {
     const errors = [];
     if (!value) {
       const message = format(messages.true, rule.title);
@@ -79,9 +79,9 @@ const validators = {
     }
     callback(errors);
   },
-  remote(rule, value, callback, source, options) {
+  remote(rule, value, callback) {
     const errors = [];
-    const message = format(rule.message ?? messages.remote, rule.title);
+    //const message = format(rule.message ?? messages.remote, rule.title);
     if (!value) {
       callback(errors);
     } else {
@@ -102,7 +102,7 @@ const validators = {
         });
     }
   },
-  file(rule, value, callback, source, options) {
+  file(rule, value, callback) {
     const errors = [];
     if (!value) {
       errors.push(new Error(t(messages.file, [rule.title])));

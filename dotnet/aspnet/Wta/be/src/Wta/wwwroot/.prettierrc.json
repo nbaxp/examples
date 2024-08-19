@@ -4,6 +4,6 @@
   "printWidth": 120,
   "singleQuote": true,
   "quoteProps": "as-needed",
-  "htmlWhitespaceSensitivity": "strict",
+  "htmlWhitespaceSensitivity": "ignore",
   "vueIndentScriptAndStyle": true
 }

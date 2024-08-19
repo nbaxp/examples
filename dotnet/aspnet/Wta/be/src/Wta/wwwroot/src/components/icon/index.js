@@ -5,15 +5,17 @@ import { onMounted, ref } from 'vue';
 const cache = new Map();
 
 export default {
-  template: html`<template v-if="name.startsWith('data:image')">
-      <img :src="name" style="max-height:18px;"/>
+  template: html`
+    <template v-if="name.startsWith('data:image')">
+      <img :src="name" style="max-height:18px;" />
     </template>
     <template v-else-if="name.startsWith('ep-')">
       <component :is="name" />
     </template>
     <template v-else>
       <g v-html="svg" />
-    </template> `,
+    </template>
+  `,
   props: {
     name: {
       default: 'file',

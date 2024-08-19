@@ -6,7 +6,7 @@ import ElementPlus from 'element-plus';
 import { delay } from 'utils';
 import { createApp } from 'vue';
 import * as ElementPlusIconsVue from '~/lib/element-plus/icons-vue/index.min.js';
-import useMock from '~/mock/index.js';
+//import useMock from '~/mock/index.js';
 import i18n from '~/src/locales/index.js';
 
 //useMock();

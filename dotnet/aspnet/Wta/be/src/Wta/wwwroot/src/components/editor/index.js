@@ -5,7 +5,9 @@ import WangEditor from './wangEditor.js';
 
 export default {
   components: { WangEditor },
-  template: html`<wang-editor v-if="show" v-model="model" :mode="mode" />`,
+  template: html`
+    <wang-editor v-if="show" v-model="model" :mode="mode" />
+  `,
   props: {
     modelValue: {
       type: String,

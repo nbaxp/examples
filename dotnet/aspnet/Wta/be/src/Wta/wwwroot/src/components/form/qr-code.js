@@ -3,9 +3,11 @@ import { onMounted, ref } from 'vue';
 import QRCode from '~/lib/qrcode/index.esm.js';
 
 export default {
-  template: html` <div class="el-input__inner flex">
-          <el-image fit="fill" preview-teleported :src="model" :preview-src-list="[model]" />
-        </div>`,
+  template: html`
+    <div class="el-input__inner flex">
+      <el-image fit="fill" preview-teleported :src="model" :preview-src-list="[model]" />
+    </div>
+  `,
   props: ['modelValue'],
   setup(props) {
     const model = ref(null);

@@ -8,25 +8,21 @@ export default {
   components: {
     AppFormInput,
   },
-  template: html`<template v-if="!schema.meta?.hidden&&showItem()">
-    <template v-if="schema.type==='object'"></template>
-    <template v-else-if="schema.type!=='array'||schema.items?.type!=='array'">
-      <el-form-item
-        :label="getLabel(prop)"
-        :prop="getProp(prop)"
-        :rules="rules"
-        :error="mode==='query'?null:getError(prop)"
-      >
-        <app-form-input
-          :schema="schema"
-          :prop="prop"
-          v-model="model"
-          :mode="mode"
-          :errors="errors"
-        />
-      </el-form-item>
+  template: html`
+    <template v-if="!schema.meta?.hidden&&showItem()">
+      <template v-if="schema.type==='object'"></template>
+      <template v-else-if="schema.type!=='array'||schema.items?.type!=='array'">
+        <el-form-item
+          :label="getLabel(prop)"
+          :prop="getProp(prop)"
+          :rules="rules"
+          :error="mode==='query'?null:getError(prop)"
+        >
+          <app-form-input :schema="schema" :prop="prop" v-model="model" :mode="mode" :errors="errors" />
+        </el-form-item>
+      </template>
     </template>
-  </template>`,
+  `,
   props: ['modelValue', 'mode', 'parentSchema', 'schema', 'prop', 'errors'],
   emit: ['update:modelValue'],
   setup(props, context) {
@@ -58,7 +54,7 @@ export default {
       return prop;
     };
     //
-    const getLabel = (prop) => {
+    const getLabel = () => {
       if (props.parentSchema.meta?.labelWidth === 0) {
         return 0;
       }

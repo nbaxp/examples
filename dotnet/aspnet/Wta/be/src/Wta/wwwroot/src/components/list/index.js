@@ -4,17 +4,16 @@ import SvgIcon from '@/components/icon/index.js';
 import { DATETIME_FILENAME_FORMAT } from '@/constants/index.js';
 import useExport from '@/models/export.js';
 import useImport from '@/models/import.js';
-import { useAppStore, useTokenStore } from '@/store/index.js';
-import request, { getUrl } from '@/utils/request.js';
+import { useAppStore } from '@/store/index.js';
+import request from '@/utils/request.js';
 import { schemaToModel, toQuerySchema } from '@/utils/schema.js';
 import { useCssVar } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { dayjs } from 'element-plus';
-import * as jsondiffpatch from 'jsondiffpatch';
-import { camelCase, capitalize } from 'lodash';
+import { camelCase } from 'lodash';
 import { downloadFile, importFunction } from 'utils';
 import html, { getProp, delay, listToTree } from 'utils';
-import { computed, nextTick, onMounted, reactive, ref, shallowRef, watch } from 'vue';
+import { computed, onMounted, reactive, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -25,260 +24,263 @@ export default {
     AppFormInput,
     SvgIcon,
   },
-  template: html`<div class="pb-5" v-loading="loading" element-loading-text="Loading...">
-  <el-card style="position: relative;">
-    <div
-      @click="()=>queryFormFold=!queryFormFold"
-      class="cursor-pointer"
-      style="display:inline-block;position: absolute;top:20px;right:20px;"
-    >
-      <span style="line-height: 2em">
-        <el-icon>
-          <ep-arrow-up v-if="!queryFormFold" />
-          <ep-arrow-down v-else />
-        </el-icon>
-      </span>
-    </div>
-    <!--查询表单-->
-    <app-form
-      ref="queryFormRef"
-      inline
-      mode="query"
-      :schema="querySchema"
-      v-model="queryModel"
-      @submit="load"
-      :hideButton="true"
-      :isQueryForm="true"
-      class="query"
-      label-position="right"
-      :style="queryStyle"
-    />
-    <el-row class="flex justify-between">
-      <div>
-        <template v-for="item in buttons">
-          <el-button
-            v-if="!item.meta.hidden&&item.meta.buttonType==='table'"
-            @click="buttonClick(item,selectedRows)"
-            :class="item.meta.htmlClass??'el-button--primary'"
-            v-show="!item.meta.show||item.meta.show(selectedRows,queryModel)"
-            :disabled="getButtonDisabled(item)"
-            class="mb-5 mr-3"
-            style="margin-left:0;"
-          >
-            <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
-            <span>{{$t(item.meta.title)}}</span>
-          </el-button>
-        </template>
-        <el-button v-if="false" @click="buttonClick('filter',selectedRows)">
-          <el-icon><ep-filter /></el-icon>
-          <span>{{$t('筛选')}}</span>
-        </el-button>
-        <slot name="tableButtons" :rows="selectedRows"></slot>
-      </div>
-      <div>
-        <el-button
-          @click="buttonClick(buttons.find(o=>o.meta.command==='search'),selectedRows)"
-          class="el-button--primary mb-5"
+  template: html`
+    <div class="pb-5" v-loading="loading" element-loading-text="Loading...">
+      <el-card style="position: relative;">
+        <div
+          @click="()=>queryFormFold=!queryFormFold"
+          class="cursor-pointer"
+          style="display:inline-block;position: absolute;top:20px;right:20px;"
         >
-          {{$t('查询')}}
-        </el-button>
-        <el-button @click="reset(queryFormRef)" class="mb-5 ml-3">{{$t('重置')}}</el-button>
-      </div>
-    </el-row>
-    <!--列表-->
-    <el-table
-      :key="tableKey"
-      ref="tableRef"
-      :tree-props="treeProps"
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      :header-cell-class-name="getClass"
-      row-key="id"
-      table-layout="auto"
-      border
-      fit
-    >
-      <el-table-column v-if="!schema.disableSelection" fixed="left" type="selection" :selectable="schema.selectable" />
-      <el-table-column type="index" :label="$t('行号')">
-        <template #default="scope">
-          {{ (pageModel.pageIndex - 1) * pageModel.pageSize + scope.$index + 1 }}
-        </template>
-      </el-table-column>
-      <template v-for="(item,key) in schema.properties" :key="key">
-        <template v-if="item.navigation">
-          <el-table-column :prop="key" :label="item.title">
-            <template #default="scope">{{getProp(scope.row,item.navigation)}}</template>
-          </el-table-column>
-        </template>
-        <template v-else-if="item.oneToMany">
-          <el-table-column :prop="key" :label="item.title">
-            <template #default="scope">
-              <el-link type="primary" @click="showList({[key]:scope.row[key]},item.oneToMany,item.config)">
-                <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
-              </el-link>
-            </template>
-          </el-table-column>
-        </template>
-        <template v-else-if="item.link">
-          <el-table-column :prop="key" :label="item.title">
-            <template #default="scope">
-              <el-link type="primary" @click="buttonClick({path:key},[scope.row])">
-                {{scope.row[key]}}
-              </el-link>
-            </template>
-          </el-table-column>
-        </template>
-        <template v-else-if="item.type!=='object'&&!item.meta.hidden">
-          <template v-if="!item.meta.hideForList&&showColumn(item,key)">
-            <el-table-column
-              :prop="key"
-              :sortable="isSortable(item)"
-              :sort-orders="['descending', 'ascending', null]"
-            >
-              <template #header="scope">{{item.title}}</template>
-              <template #default="scope">
-                <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
-              </template>
-            </el-table-column>
-          </template>
-        </template>
-        <template v-if="item.type==='object'">
-          <template v-for="(item2,key2) in item['properties']">
-            <el-table-column :prop="key+'.'+key2">
-              <template #header="scope">{{item2.title}}</template>
-              <template #default="scope">
-                <template v-if="scope.row[key]">
-                  <app-form-input mode="details" :schema="item2" :prop="key2" v-model="scope.row[key]" />
-                </template>
-              </template>
-            </el-table-column>
-          </template>
-        </template>
-      </template>
-      <slot name="columns"></slot>
-      <el-table-column fixed="right">
-        <template #header>
-          <el-button @click="filterDrawer = true">
-            {{$t('操作')}}
-            <el-icon class="el-icon--right"><ep-filter /></el-icon>
-          </el-button>
-        </template>
-        <template #default="scope">
-          <div class="flex">
+          <span style="line-height: 2em">
+            <el-icon>
+              <ep-arrow-up v-if="!queryFormFold" />
+              <ep-arrow-down v-else />
+            </el-icon>
+          </span>
+        </div>
+        <!--查询表单-->
+        <app-form
+          ref="queryFormRef"
+          inline
+          mode="query"
+          :schema="querySchema"
+          v-model="queryModel"
+          @submit="load"
+          :hideButton="true"
+          :isQueryForm="true"
+          class="query"
+          label-position="right"
+          :style="queryStyle"
+        />
+        <el-row class="flex justify-between">
+          <div>
             <template v-for="item in buttons">
               <el-button
-                :class="item.meta.htmlClass??'is-plan'"
-                v-if="!item.meta.hidden&&item.meta.buttonType==='row'"
-                @click="buttonClick(item,[scope.row])"
-                :disabled="item.meta.disabled && item.meta.disabled(scope.row)"
+                v-if="!item.meta.hidden&&item.meta.buttonType==='table'"
+                @click="buttonClick(item,selectedRows)"
+                :class="item.meta.htmlClass??'el-button--primary'"
+                v-show="!item.meta.show||item.meta.show(selectedRows,queryModel)"
+                :disabled="getButtonDisabled(item)"
+                class="mb-5 mr-3"
+                style="margin-left:0;"
               >
                 <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
                 <span>{{$t(item.meta.title)}}</span>
               </el-button>
             </template>
-            <slot name="rowButtons" :rows="[scope.row]"></slot>
+            <el-button v-if="false" @click="buttonClick('filter',selectedRows)">
+              <el-icon><ep-filter /></el-icon>
+              <span>{{$t('筛选')}}</span>
+            </el-button>
+            <slot name="tableButtons" :rows="selectedRows"></slot>
           </div>
-        </template>
-      </el-table-column>
-    </el-table>
-    <!--分页-->
-    <el-pagination
-      v-if="tableData.length>pageModel.pageSize"
-      :size="appStore.size"
-      v-model:currentPage="pageModel.pageIndex"
-      v-model:page-size="pageModel.pageSize"
-      :total="pageModel.total"
-      :page-sizes="pageModel.sizeList"
-      :background="true"
-      layout="total, sizes, prev, pager, next, jumper"
-      @size-change="onPageSizeChange"
-      @current-change="onPageIndexChange"
-      class="pt-5"
-    />
-  </el-card>
-</div>
-<!--列筛选抽屉-->
-<el-drawer v-model="filterDrawer" destroy-on-close @close="tableRef.doLayout()">
-  <template #header><span class="el-dialog__title">{{$t('过滤')}}</span></template>
-  <el-scrollbar>
-    <el-row>
-      <el-col>
-        <el-form inline>
           <div>
-            <el-button type="primary" @click="columns.forEach(o=>o.checked=true)">
-              {{$t('全选')}}
+            <el-button
+              @click="buttonClick(buttons.find(o=>o.meta.command==='search'),selectedRows)"
+              class="el-button--primary mb-5"
+            >
+              {{$t('查询')}}
             </el-button>
-            <el-button type="primary" @click="columns.forEach(o=>o.checked=!o.checked)">
-              {{$t('反选')}}
-            </el-button>
-            <el-button type="primary" @click="resetColumns">{{ $t('重置') }}</el-button>
+            <el-button @click="reset(queryFormRef)" class="mb-5 ml-3">{{$t('重置')}}</el-button>
           </div>
-          <div v-for="item in columns" style="display:inline-block;padding:10px;width:50%;">
-            <el-checkbox v-model="item.checked" :label="item.title" size="large" />
-          </div>
-        </el-form>
-      </el-col>
-    </el-row>
-  </el-scrollbar>
-  <template #footer>
-    <span class="dialog-footer">
-      <el-button type="primary" @click="filterDrawer=false">{{$t('确定')}}</el-button>
-    </span>
-  </template>
-</el-drawer>
-<!--通用对话框-->
-<el-dialog
-  v-model="dialogVisible"
-  align-center
-  append-to-body
-  destroy-on-close
-  :close-on-click-modal="false"
-  :style="{width:editFormSchema?.meta?.width??'700px'}"
->
-  <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
-  <template #footer>
-    <span class="dialog-footer">
-      <el-button type="primary" @click="editFormSubmit">{{$t('确定')}}</el-button>
-      <el-button v-if="editFormCommand!=='details'" @click="reset(editFormRef)" class="ml-3">{{$t('重置')}}</el-button>
-    </span>
-  </template>
-  <el-scrollbar>
-    <el-row v-loading="editFormloading">
-      <el-col style="max-height:calc(100vh - 180px);">
-        <app-form
-          :disabled="editFormCommand==='details'"
-          :mode="editFormCommand"
-          ref="editFormRef"
-          inline
-          label-position="right"
-          :hideButton="true"
-          :schema="editFormSchema"
-          v-model="editFormModel"
-          style="height:100%;"
+        </el-row>
+        <!--列表-->
+        <el-table
+          :key="tableKey"
+          ref="tableRef"
+          :tree-props="treeProps"
+          :data="tableData"
+          @selection-change="handleSelectionChange"
+          @sort-change="sortChange"
+          :header-cell-class-name="getClass"
+          row-key="id"
+          table-layout="auto"
+          border
+          fit
         >
-          <!--下载导入母版-->
-          <template v-if="editFormCommand==='import'">
-            <template v-for="item in buttons.filter(o=>o.meta.hidden&&o.meta.command==='import-template')">
-              <el-form-item label=" ">
-                <el-button @click="buttonClick(item)">
-                  <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
-                  <span>{{$t(item.meta.title)}}</span>
-                </el-button>
-              </el-form-item>
+          <el-table-column
+            v-if="!schema.disableSelection"
+            fixed="left"
+            type="selection"
+            :selectable="schema.selectable"
+          />
+          <el-table-column type="index" :label="$t('行号')">
+            <template #default="scope">
+              {{ (pageModel.pageIndex - 1) * pageModel.pageSize + scope.$index + 1 }}
+            </template>
+          </el-table-column>
+          <template v-for="(item,key) in schema.properties" :key="key">
+            <template v-if="item.navigation">
+              <el-table-column :prop="key" :label="item.title">
+                <template #default="scope">{{getProp(scope.row,item.navigation)}}</template>
+              </el-table-column>
+            </template>
+            <template v-else-if="item.oneToMany">
+              <el-table-column :prop="key" :label="item.title">
+                <template #default="scope">
+                  <el-link type="primary" @click="showList({[key]:scope.row[key]},item.oneToMany,item.config)">
+                    <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
+                  </el-link>
+                </template>
+              </el-table-column>
+            </template>
+            <template v-else-if="item.link">
+              <el-table-column :prop="key" :label="item.title">
+                <template #default="scope">
+                  <el-link type="primary" @click="buttonClick({path:key},[scope.row])">{{scope.row[key]}}</el-link>
+                </template>
+              </el-table-column>
+            </template>
+            <template v-else-if="item.type!=='object'&&!item.meta.hidden">
+              <template v-if="!item.meta.hideForList&&showColumn(item,key)">
+                <el-table-column
+                  :prop="key"
+                  :sortable="isSortable(item)"
+                  :sort-orders="['descending', 'ascending', null]"
+                >
+                  <template #header="scope">{{item.title}}</template>
+                  <template #default="scope">
+                    <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
+                  </template>
+                </el-table-column>
+              </template>
+            </template>
+            <template v-if="item.type==='object'">
+              <template v-for="(item2,key2) in item['properties']">
+                <el-table-column :prop="key+'.'+key2">
+                  <template #header="scope">{{item2.title}}</template>
+                  <template #default="scope">
+                    <template v-if="scope.row[key]">
+                      <app-form-input mode="details" :schema="item2" :prop="key2" v-model="scope.row[key]" />
+                    </template>
+                  </template>
+                </el-table-column>
+              </template>
             </template>
           </template>
-        </app-form>
-      </el-col>
-    </el-row>
-  </el-scrollbar>
-</el-dialog>`,
+          <slot name="columns"></slot>
+          <el-table-column fixed="right">
+            <template #header>
+              <el-button @click="filterDrawer = true">
+                {{$t('操作')}}
+                <el-icon class="el-icon--right"><ep-filter /></el-icon>
+              </el-button>
+            </template>
+            <template #default="scope">
+              <div class="flex">
+                <template v-for="item in buttons">
+                  <el-button
+                    :class="item.meta.htmlClass??'is-plan'"
+                    v-if="!item.meta.hidden&&item.meta.buttonType==='row'"
+                    @click="buttonClick(item,[scope.row])"
+                    :disabled="item.meta.disabled && item.meta.disabled(scope.row)"
+                  >
+                    <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
+                    <span>{{$t(item.meta.title)}}</span>
+                  </el-button>
+                </template>
+                <slot name="rowButtons" :rows="[scope.row]"></slot>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!--分页-->
+        <el-pagination
+          v-if="tableData.length>pageModel.pageSize"
+          :size="appStore.size"
+          v-model:currentPage="pageModel.pageIndex"
+          v-model:page-size="pageModel.pageSize"
+          :total="pageModel.total"
+          :page-sizes="pageModel.sizeList"
+          :background="true"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="onPageSizeChange"
+          @current-change="onPageIndexChange"
+          class="pt-5"
+        />
+      </el-card>
+    </div>
+    <!--列筛选抽屉-->
+    <el-drawer v-model="filterDrawer" destroy-on-close @close="tableRef.doLayout()">
+      <template #header><span class="el-dialog__title">{{$t('过滤')}}</span></template>
+      <el-scrollbar>
+        <el-row>
+          <el-col>
+            <el-form inline>
+              <div>
+                <el-button type="primary" @click="columns.forEach(o=>o.checked=true)">{{$t('全选')}}</el-button>
+                <el-button type="primary" @click="columns.forEach(o=>o.checked=!o.checked)">{{$t('反选')}}</el-button>
+                <el-button type="primary" @click="resetColumns">{{ $t('重置') }}</el-button>
+              </div>
+              <div v-for="item in columns" style="display:inline-block;padding:10px;width:50%;">
+                <el-checkbox v-model="item.checked" :label="item.title" size="large" />
+              </div>
+            </el-form>
+          </el-col>
+        </el-row>
+      </el-scrollbar>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="filterDrawer=false">{{$t('确定')}}</el-button>
+        </span>
+      </template>
+    </el-drawer>
+    <!--通用对话框-->
+    <el-dialog
+      v-model="dialogVisible"
+      align-center
+      append-to-body
+      destroy-on-close
+      :close-on-click-modal="false"
+      :style="{width:editFormSchema?.meta?.width??'700px'}"
+    >
+      <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="editFormSubmit">{{$t('确定')}}</el-button>
+          <el-button v-if="editFormCommand!=='details'" @click="reset(editFormRef)" class="ml-3">
+            {{$t('重置')}}
+          </el-button>
+        </span>
+      </template>
+      <el-scrollbar>
+        <el-row v-loading="editFormloading">
+          <el-col style="max-height:calc(100vh - 180px);">
+            <app-form
+              :disabled="editFormCommand==='details'"
+              :mode="editFormCommand"
+              ref="editFormRef"
+              inline
+              label-position="right"
+              :hideButton="true"
+              :schema="editFormSchema"
+              v-model="editFormModel"
+              style="height:100%;"
+            >
+              <!--下载导入母版-->
+              <template v-if="editFormCommand==='import'">
+                <template v-for="item in buttons.filter(o=>o.meta.hidden&&o.meta.command==='import-template')">
+                  <el-form-item label=" ">
+                    <el-button @click="buttonClick(item)">
+                      <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
+                      <span>{{$t(item.meta.title)}}</span>
+                    </el-button>
+                  </el-form-item>
+                </template>
+              </template>
+            </app-form>
+          </el-col>
+        </el-row>
+      </el-scrollbar>
+    </el-dialog>
+  `,
   props: ['schema'],
   emits: ['command'],
   setup(props, context) {
     // 初始化
     const appStore = useAppStore();
-    const tokenStore = useTokenStore();
+    // const tokenStore = useTokenStore();
     const loading = ref(true);
     // 分页
     const pageModel = reactive({
@@ -316,7 +318,7 @@ export default {
     const editFormSchema = ref(null);
     const editFormModel = ref(null);
     const editFormButton = ref(null);
-    const getSortModel = (model) => {
+    const getSortModel = () => {
       const orders = (props.schema.meta?.sorting ?? '')
         .split(',')
         .map((o) => o.trim())
@@ -344,12 +346,12 @@ export default {
       }
       return result;
     };
-    const getClass = ({ row, column }) => {
+    const getClass = ({ column }) => {
       if (column.property) {
         column.order = sortColumns.value.get(column.property)?.toLowerCase() ?? '';
       }
     };
-    const sortChange = async ({ column, prop, order }) => {
+    const sortChange = async ({ prop, order }) => {
       if (order === null) {
         sortColumns.value.delete(prop);
       } else {

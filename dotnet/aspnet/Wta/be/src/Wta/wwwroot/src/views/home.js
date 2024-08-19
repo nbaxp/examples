@@ -4,96 +4,102 @@ import { ref } from 'vue';
 
 export default {
   components: { VueMd },
-  template: html`<div class="container xl home">
-  <el-row>
-    <el-col class="pb-8">
-      <el-carousel :interval="4000" type="card" height="240px">
-        <el-carousel-item>
-          <router-link to="/about">
-            <img src="./src/assets/images/1.png" />
-          </router-link>
-        </el-carousel-item>
-        <el-carousel-item>
-          <router-link to="/about">
-            <img src="./src/assets/images/2.png" />
-          </router-link>
-        </el-carousel-item>
-        <el-carousel-item>
-          <router-link to="/about">
-            <img src="./src/assets/images/3.png" />
-          </router-link>
-        </el-carousel-item>
-      </el-carousel>
-    </el-col>
-  </el-row>
-  <el-row style="flex: 1 0 50%;justify-content: space-between;">
-    <el-col :span="6" class="p-4">
-      <el-card shadow="always">
-        <el-result icon="success" title="对接原有ERP" sub-title="支持Excel导入、API接入，实时更新生产进度">
-          <template #extra>
-            <router-link to="/page1">
-              <el-button type="primary">了解更多</el-button>
-            </router-link>
-          </template>
-        </el-result>
-      </el-card>
-    </el-col>
-    <el-col :span="6" class="p-4">
-      <el-card shadow="always">
-        <el-result icon="success" title="有事扫一扫" sub-title="不管是员工报工、质检还是主管检查工作，扫码全搞定">
-          <template #extra>
-            <router-link to="/page2">
-              <el-button type="primary">了解更多</el-button>
-            </router-link>
-          </template>
-        </el-result>
-      </el-card>
-    </el-col>
-    <el-col :span="6" class="p-4">
-      <el-card shadow="always">
-        <el-result icon="success" title="全过程记录" sub-title="生产工序、产量、操作员信息等全部记录在案，随时可追溯">
-          <template #extra>
-            <router-link to="/page3">
-              <el-button type="primary">了解更多</el-button>
-            </router-link>
-          </template>
-        </el-result>
-      </el-card>
-    </el-col>
-    <el-col :span="6" class="p-4">
-      <el-card shadow="always">
-        <el-result
-          icon="success"
-          title="自动汇总报表"
-          sub-title="管理者可围绕自己关注的指标自定义报表，实时查看生产进度"
-        >
-          <template #extra>
-            <router-link to="/page4">
-              <el-button type="primary">了解更多</el-button>
-            </router-link>
-          </template>
-        </el-result>
-      </el-card>
-    </el-col>
-  </el-row>
-  <el-row>
-    <el-col class="py-8">
-      <el-tabs type="border-card" tab-position="top">
-        <el-tab-pane v-for="(item1,index1) in list" :label="item1.label">
-          <el-tabs tab-position="left">
-            <el-tab-pane lazy v-for="(item2,index2) in item1.children" :label="item2.label">
-              <vue-md :name="'flow/'+((index1+1)*10+index2+1)" />
+  template: html`
+    <div class="container xl home">
+      <el-row>
+        <el-col class="pb-8">
+          <el-carousel :interval="4000" type="card" height="240px">
+            <el-carousel-item>
+              <router-link to="/about">
+                <img src="./src/assets/images/1.png" />
+              </router-link>
+            </el-carousel-item>
+            <el-carousel-item>
+              <router-link to="/about">
+                <img src="./src/assets/images/2.png" />
+              </router-link>
+            </el-carousel-item>
+            <el-carousel-item>
+              <router-link to="/about">
+                <img src="./src/assets/images/3.png" />
+              </router-link>
+            </el-carousel-item>
+          </el-carousel>
+        </el-col>
+      </el-row>
+      <el-row style="flex: 1 0 50%;justify-content: space-between;">
+        <el-col :span="6" class="p-4">
+          <el-card shadow="always">
+            <el-result icon="success" title="对接原有ERP" sub-title="支持Excel导入、API接入，实时更新生产进度">
+              <template #extra>
+                <router-link to="/page1">
+                  <el-button type="primary">了解更多</el-button>
+                </router-link>
+              </template>
+            </el-result>
+          </el-card>
+        </el-col>
+        <el-col :span="6" class="p-4">
+          <el-card shadow="always">
+            <el-result icon="success" title="有事扫一扫" sub-title="不管是员工报工、质检还是主管检查工作，扫码全搞定">
+              <template #extra>
+                <router-link to="/page2">
+                  <el-button type="primary">了解更多</el-button>
+                </router-link>
+              </template>
+            </el-result>
+          </el-card>
+        </el-col>
+        <el-col :span="6" class="p-4">
+          <el-card shadow="always">
+            <el-result
+              icon="success"
+              title="全过程记录"
+              sub-title="生产工序、产量、操作员信息等全部记录在案，随时可追溯"
+            >
+              <template #extra>
+                <router-link to="/page3">
+                  <el-button type="primary">了解更多</el-button>
+                </router-link>
+              </template>
+            </el-result>
+          </el-card>
+        </el-col>
+        <el-col :span="6" class="p-4">
+          <el-card shadow="always">
+            <el-result
+              icon="success"
+              title="自动汇总报表"
+              sub-title="管理者可围绕自己关注的指标自定义报表，实时查看生产进度"
+            >
+              <template #extra>
+                <router-link to="/page4">
+                  <el-button type="primary">了解更多</el-button>
+                </router-link>
+              </template>
+            </el-result>
+          </el-card>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col class="py-8">
+          <el-tabs type="border-card" tab-position="top">
+            <el-tab-pane v-for="(item1,index1) in list" :label="item1.label">
+              <el-tabs tab-position="left">
+                <el-tab-pane lazy v-for="(item2,index2) in item1.children" :label="item2.label">
+                  <vue-md :name="'flow/'+((index1+1)*10+index2+1)" />
+                </el-tab-pane>
+              </el-tabs>
             </el-tab-pane>
           </el-tabs>
-        </el-tab-pane>
-      </el-tabs>
-    </el-col>
-  </el-row>
-</div>`,
+        </el-col>
+      </el-row>
+    </div>
+  `,
   styles: html`
     <style>
       .home {
-        margin:0 auto;
+        margin: 0 auto;
         .el-carousel__item h3 {
           color: #475669;
           opacity: 0.75;

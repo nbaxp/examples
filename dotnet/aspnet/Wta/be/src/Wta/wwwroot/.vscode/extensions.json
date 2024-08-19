@@ -1,6 +1,7 @@
 {
-    "recommendations": [
-        "vue.volar",
-        "davidanson.vscode-markdownlint"
-    ]
+  "recommendations": [
+    "davidanson.vscode-markdownlint",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
+  ]
 }

@@ -2,7 +2,7 @@ import AppForm from '@/components/form/index.js';
 import LayoutFooter from '@/layouts/components/footer.js';
 import LayoutLocale from '@/layouts/components/locale.js';
 import LayoutLogo from '@/layouts/components/logo.js';
-import { useTokenStore, useUserStore } from '@/store/index.js';
+import { useTokenStore } from '@/store/index.js';
 import request from '@/utils/request.js';
 import { normalize, schemaToModel } from '@/utils/schema.js';
 import html from 'utils';
@@ -11,24 +11,26 @@ import { useRouter } from 'vue-router';
 
 export default {
   components: { AppForm, LayoutLogo, LayoutLocale, LayoutFooter },
-  template: html`<el-container>
-  <el-main class="flex items-center justify-center">
-    <div style="min-width:333px;min-height:514px;">
-      <div class="flex items-center justify-center pb-4">
-        <layout-logo />
-        <layout-locale />
-      </div>
-      <el-card class="box-card">
-        <app-form v-if="schema" :schema="schema" v-model="model" @success="success" />
-        <div style="display: flex; align-items: center; justify-content: space-between; height: 50px">
-          <router-link style to="/register">{{ $t('注册') }}</router-link>
-          <router-link style to="/forgot-password">{{ $t('忘记密码') }}</router-link>
+  template: html`
+    <el-container>
+      <el-main class="flex items-center justify-center">
+        <div style="min-width:333px;min-height:514px;">
+          <div class="flex items-center justify-center pb-4">
+            <layout-logo />
+            <layout-locale />
+          </div>
+          <el-card class="box-card">
+            <app-form v-if="schema" :schema="schema" v-model="model" @success="success" />
+            <div style="display: flex; align-items: center; justify-content: space-between; height: 50px">
+              <router-link style to="/register">{{ $t('注册') }}</router-link>
+              <router-link style to="/forgot-password">{{ $t('忘记密码') }}</router-link>
+            </div>
+          </el-card>
+          <layout-footer />
         </div>
-      </el-card>
-      <layout-footer />
-    </div>
-  </el-main>
-</el-container>`,
+      </el-main>
+    </el-container>
+  `,
   setup() {
     const schema = ref(null);
     const model = ref(null);

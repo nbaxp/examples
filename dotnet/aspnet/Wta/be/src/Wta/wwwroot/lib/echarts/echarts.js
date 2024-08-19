@@ -741,7 +741,7 @@ function isDom(value) {
  * @return {boolean}
  */
 function eqNaN(value) {
-    /* eslint-disable-next-line no-self-compare */
+     
     return value !== value;
 }
 
@@ -886,11 +886,11 @@ HashMap.prototype = {
     // should not use the exposed keys, who are prefixed.
     each: function (cb, context) {
         context !== void 0 && (cb = bind(cb, context));
-        /* eslint-disable guard-for-in */
+         
         for (var key in this.data) {
             this.data.hasOwnProperty(key) && cb(this.data[key], key);
         }
-        /* eslint-enable guard-for-in */
+         
     },
     // Do not use this method if performance sensitive.
     removeKey: function (key) {
@@ -7529,8 +7529,8 @@ var Layer = function (id, painter, dpr) {
         domStyle['user-select'] = 'none';
         domStyle['-webkit-touch-callout'] = 'none';
         domStyle['-webkit-tap-highlight-color'] = 'rgba(0,0,0,0)';
-        domStyle['padding'] = 0; // eslint-disable-line dot-notation
-        domStyle['margin'] = 0; // eslint-disable-line dot-notation
+        domStyle['padding'] = 0;  
+        domStyle['margin'] = 0;  
         domStyle['border-width'] = 0;
     }
 
@@ -26566,12 +26566,12 @@ ecModelMock.eachComponent = function (cond) {
 };
 
 function mockMethods(target, Clz) {
-    /* eslint-disable */
+     
     for (var name in Clz.prototype) {
         // Do not use hasOwnProperty
         target[name] = noop;
     }
-    /* eslint-enable */
+     
 }
 
 /*
@@ -69941,9 +69941,9 @@ var AxisPointerModel = extendComponentModel({
 
         handle: {
             show: false,
-            /* eslint-disable */
+             
             icon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4h1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7v-1.2h6.6z M13.3,22H6.7v-1.2h6.6z M13.3,19.6H6.7v-1.2h6.6z', // jshint ignore:line
-            /* eslint-enable */
+             
             size: 45,
             // handle margin is from symbol center to axis, which is stable when circular move.
             margin: 50,
@@ -71299,7 +71299,7 @@ var ThemeRiverSeries = SeriesModel.extend({
      * @override
      */
     init: function (option) {
-        // eslint-disable-next-line
+         
         ThemeRiverSeries.superApply(this, 'init', arguments);
 
         // Put this function here is for the sake of consistency of code style.
@@ -78662,11 +78662,11 @@ MagicType.defaultOption = {
     type: [],
     // Icon group
     icon: {
-        /* eslint-disable */
+         
         line: 'M4.1,28.9h7.1l9.3-22l7.4,38l9.7-19.7l3,12.8h14.9M4.1,58h51.4',
         bar: 'M6.7,22.9h10V48h-10V22.9zM24.9,13h10v35h-10V13zM43.2,2h10v46h-10V2zM3.1,58h53.7',
         stack: 'M8.2,38.4l-8.4,4.1l30.6,15.3L60,42.5l-8.1-4.1l-21.5,11L8.2,38.4z M51.9,30l-8.1,4.2l-13.4,6.9l-13.9-6.9L8.2,30l-8.4,4.2l8.4,4.2l22.2,11l21.5-11l8.1-4.2L51.9,30z M51.9,21.7l-8.1,4.2L35.7,30l-5.3,2.8L24.9,30l-8.4-4.1l-8.3-4.2l-8.4,4.2L8.2,30l8.3,4.2l13.9,6.9l13.4-6.9l8.1-4.2l8.1-4.1L51.9,21.7zM30.4,2.2L-0.2,17.5l8.4,4.1l8.3,4.2l8.4,4.2l5.5,2.7l5.3-2.7l8.1-4.2l8.1-4.2l8.1-4.1L30.4,2.2z' // jshint ignore:line
-        /* eslint-enable */
+         
     },
     // `line`, `bar`, `stack`, `tiled`
     title: clone(magicTypeLang.title),
@@ -81827,9 +81827,9 @@ function Restore(model) {
 
 Restore.defaultOption = {
     show: true,
-    /* eslint-disable */
+     
     icon: 'M3.8,33.4 M47,18.9h9.8V8.7 M56.3,20.1 C52.1,9,40.5,0.6,26.8,2.1C12.6,3.7,1.6,16.2,2.1,30.6 M13,41.1H3.1v10.2 M3.7,39.9c4.2,11.1,15.8,19.5,29.5,18 c14.2-1.6,25.2-14.1,24.7-28.5',
-    /* eslint-enable */
+     
     title: restoreLang.title
 };
 
@@ -84484,14 +84484,14 @@ Brush.defaultOption = {
     show: true,
     type: ['rect', 'polygon', 'lineX', 'lineY', 'keep', 'clear'],
     icon: {
-        /* eslint-disable */
+         
         rect: 'M7.3,34.7 M0.4,10V-0.2h9.8 M89.6,10V-0.2h-9.8 M0.4,60v10.2h9.8 M89.6,60v10.2h-9.8 M12.3,22.4V10.5h13.1 M33.6,10.5h7.8 M49.1,10.5h7.8 M77.5,22.4V10.5h-13 M12.3,31.1v8.2 M77.7,31.1v8.2 M12.3,47.6v11.9h13.1 M33.6,59.5h7.6 M49.1,59.5 h7.7 M77.5,47.6v11.9h-13', // jshint ignore:line
         polygon: 'M55.2,34.9c1.7,0,3.1,1.4,3.1,3.1s-1.4,3.1-3.1,3.1 s-3.1-1.4-3.1-3.1S53.5,34.9,55.2,34.9z M50.4,51c1.7,0,3.1,1.4,3.1,3.1c0,1.7-1.4,3.1-3.1,3.1c-1.7,0-3.1-1.4-3.1-3.1 C47.3,52.4,48.7,51,50.4,51z M55.6,37.1l1.5-7.8 M60.1,13.5l1.6-8.7l-7.8,4 M59,19l-1,5.3 M24,16.1l6.4,4.9l6.4-3.3 M48.5,11.6 l-5.9,3.1 M19.1,12.8L9.7,5.1l1.1,7.7 M13.4,29.8l1,7.3l6.6,1.6 M11.6,18.4l1,6.1 M32.8,41.9 M26.6,40.4 M27.3,40.2l6.1,1.6 M49.9,52.1l-5.6-7.6l-4.9-1.2', // jshint ignore:line
         lineX: 'M15.2,30 M19.7,15.6V1.9H29 M34.8,1.9H40.4 M55.3,15.6V1.9H45.9 M19.7,44.4V58.1H29 M34.8,58.1H40.4 M55.3,44.4 V58.1H45.9 M12.5,20.3l-9.4,9.6l9.6,9.8 M3.1,29.9h16.5 M62.5,20.3l9.4,9.6L62.3,39.7 M71.9,29.9H55.4', // jshint ignore:line
         lineY: 'M38.8,7.7 M52.7,12h13.2v9 M65.9,26.6V32 M52.7,46.3h13.2v-9 M24.9,12H11.8v9 M11.8,26.6V32 M24.9,46.3H11.8v-9 M48.2,5.1l-9.3-9l-9.4,9.2 M38.9-3.9V12 M48.2,53.3l-9.3,9l-9.4-9.2 M38.9,62.3V46.4', // jshint ignore:line
         keep: 'M4,10.5V1h10.3 M20.7,1h6.1 M33,1h6.1 M55.4,10.5V1H45.2 M4,17.3v6.6 M55.6,17.3v6.6 M4,30.5V40h10.3 M20.7,40 h6.1 M33,40h6.1 M55.4,30.5V40H45.2 M21,18.9h62.9v48.6H21V18.9z', // jshint ignore:line
         clear: 'M22,14.7l30.9,31 M52.9,14.7L22,45.7 M4.7,16.8V4.2h13.1 M26,4.2h7.8 M41.6,4.2h7.8 M70.3,16.8V4.2H57.2 M4.7,25.9v8.6 M70.3,25.9v8.6 M4.7,43.2v12.6h13.1 M26,55.8h7.8 M41.6,55.8h7.8 M70.3,43.2v12.6H57.2' // jshint ignore:line
-        /* eslint-enable */
+         
     },
     // `rect`, `polygon`, `lineX`, `lineY`, `keep`, `clear`
     title: clone(brushLang.title)
@@ -84500,9 +84500,9 @@ Brush.defaultOption = {
 var proto$7 = Brush.prototype;
 
 // proto.updateLayout = function (featureModel, ecModel, api) {
-/* eslint-disable */
+ 
 proto$7.render =
-/* eslint-enable */
+ 
 proto$7.updateView = function (featureModel, ecModel, api) {
     var brushType;
     var brushMode;
@@ -89475,9 +89475,9 @@ var SliderZoomModel = DataZoomModel.extend({
         fillerColor: 'rgba(167,183,204,0.4)',     // Color of selected area.
         // handleColor: 'rgba(89,170,216,0.95)',     // Color of handle.
         // handleIcon: 'path://M4.9,17.8c0-1.4,4.5-10.5,5.5-12.4c0-0.1,0.6-1.1,0.9-1.1c0.4,0,0.9,1,0.9,1.1c1.1,2.2,5.4,11,5.4,12.4v17.8c0,1.5-0.6,2.1-1.3,2.1H6.1c-0.7,0-1.3-0.6-1.3-2.1V17.8z',
-        /* eslint-disable */
+         
         handleIcon: 'M8.2,13.6V3.9H6.3v9.7H3.1v14.9h3.3v9.7h1.8v-9.7h3.3V13.6H8.2z M9.7,24.4H4.8v-1.4h4.9V24.4z M9.7,19.1H4.8v-1.4h4.9V19.1z',
-        /* eslint-enable */
+         
         // Percent of the slider height
         handleSize: '100%',
 

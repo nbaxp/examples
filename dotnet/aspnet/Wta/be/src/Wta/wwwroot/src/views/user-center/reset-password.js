@@ -8,17 +8,19 @@ import { useI18n } from 'vue-i18n';
 
 export default {
   components: { AppForm },
-  template: html`<div class="flex100">
-  <el-card>
-    <app-form ref="formRef" v-if="model" v-model="model" :schema="schema" @success="success" />
-  </el-card>
-</div>`,
+  template: html`
+    <div class="flex100">
+      <el-card>
+        <app-form ref="formRef" v-if="model" v-model="model" :schema="schema" @success="success" />
+      </el-card>
+    </div>
+  `,
   setup() {
     const formRef = ref(null);
     const schema = ref(null);
     const model = ref(null);
     const { t } = useI18n();
-    const success = (result) => {
+    const success = () => {
       formRef.value.reset();
       ElMessageBox.alert(t('success'), t('tip'));
     };

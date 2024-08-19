@@ -4,33 +4,35 @@ import { onActivated, onDeactivated, ref } from 'vue';
 
 export default {
   components: { Chart },
-  template: html`<div class="container xl">
-    <el-row :gutter="20" class="mb-5">
-      <el-col :span="12">
-        <el-card>
-          <chart :option="cpuModel" height="300px" />
-        </el-card>
-      </el-col>
-      <el-col :span="12">
-        <el-card>
-          <chart :option="memoryModel" height="300px" />
-        </el-card>
-      </el-col>
-    </el-row>
-    <el-row :gutter="20">
-      <el-col :span="12">
-        <el-card>
-          <chart :option="networkModel" height="300px" />
-        </el-card>
-      </el-col>
-      <el-col :span="12">
-        <el-card>
-          <chart :option="diskModel" height="300px" />
-        </el-card>
-      </el-col>
-    </el-row>
-  </div>`,
-  setup(prop) {
+  template: html`
+    <div class="container xl">
+      <el-row :gutter="20" class="mb-5">
+        <el-col :span="12">
+          <el-card>
+            <chart :option="cpuModel" height="300px" />
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card>
+            <chart :option="memoryModel" height="300px" />
+          </el-card>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-card>
+            <chart :option="networkModel" height="300px" />
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card>
+            <chart :option="diskModel" height="300px" />
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+  `,
+  setup() {
     const model = ref(null);
     const timer = ref(null);
     const seconds = 1;

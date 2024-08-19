@@ -8,7 +8,7 @@ export function log(message) {
 }
 
 export async function delay(ms = 500) {
-  return new Promise((resolve, _) => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // format html`...` by vscode lit-html

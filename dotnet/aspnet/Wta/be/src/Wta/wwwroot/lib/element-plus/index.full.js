@@ -10345,7 +10345,7 @@ async function convertValueToCoords(middlewareArguments, value) {
   const isVertical = getMainAxisFromPlacement(placement) === 'x';
   const mainAxisMulti = ['left', 'top'].includes(side) ? -1 : 1;
   const crossAxisMulti = rtl && isVertical ? -1 : 1;
-  const rawValue = typeof value === 'function' ? value(middlewareArguments) : value; // eslint-disable-next-line prefer-const
+  const rawValue = typeof value === 'function' ? value(middlewareArguments) : value;  
 
   let {
     mainAxis,
@@ -58970,7 +58970,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
                       createElementVNode("div", {
                         class: normalizeClass(_ctx.ns.e("errormsg")),
                         style: normalizeStyle({
-                          visibility: !!_ctx.editorErrorMessage ? "visible" : "hidden"
+                          visibility: _ctx.editorErrorMessage ? "visible" : "hidden"
                         })
                       }, toDisplayString(_ctx.editorErrorMessage), 7)
                     ], 2), [
@@ -59332,7 +59332,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               }, null, 10, ["textContent"]),
               withDirectives(createElementVNode("div", {
                 class: normalizeClass(unref(ns).e("content")),
-                style: normalizeStyle(!!_ctx.title ? void 0 : { margin: 0 })
+                style: normalizeStyle(_ctx.title ? void 0 : { margin: 0 })
               }, [
                 renderSlot(_ctx.$slots, "default", {}, () => [
                   !_ctx.dangerouslyUseHTMLString ? (openBlock(), createElementBlock("p", { key: 0 }, toDisplayString(_ctx.message), 1)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [

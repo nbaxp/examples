@@ -1,5 +1,4 @@
 import { normalize } from '@/utils/schema.js';
-import validate from '~/lib/uuid/validate.js';
 
 export default function () {
   return normalize({

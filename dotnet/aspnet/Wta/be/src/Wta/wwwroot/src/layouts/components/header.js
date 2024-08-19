@@ -1,6 +1,6 @@
 import SvgIcon from '@/components/icon/index.js';
 import { useAppStore, useTabsStore, useTokenStore, useUserStore } from '@/store/index.js';
-import { useDark, useFullscreen, useToggle } from '@vueuse/core';
+import { useFullscreen } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import html from 'utils';
 import { nextTick, ref } from 'vue';
@@ -21,81 +21,83 @@ export default {
     ElMessageBox,
     HeadMenu,
   },
-  template: html`<div class="w-full flex justify-between">
-  <div class="flex items-center justify-center">
-    <layout-logo />
-    <el-icon @click="toggleMenuCollapse" class="collapse-button cursor-pointer mx-5" :size="18">
-      <svg-icon name="unfold" v-if="appStore.settings.isMenuCollapse" />
-      <svg-icon name="fold" v-else />
-    </el-icon>
-    <el-icon v-if="false" @click="refresh" class="collapse-button cursor-pointer mx-5" :size="18">
-      <ep-refresh />
-    </el-icon>
-    <head-menu />
-  </div>
-  <div class="flex">
-    <el-space :size="appStore.settings.size">
-      <el-icon class="cursor-pointer" @click="clickSearch" :title="$t('点击搜索')">
-        <ep-search />
-      </el-icon>
-      <el-select
-        class="search"
-        ref="searchRef"
-        :placeholder="$t('搜索')"
-        v-show="showSearch"
-        @blur="hideSearch"
-        filterable
-        remote
-        :remote-method="searchMenu"
-        v-model="searchModel"
-        :loading="searchLoading"
-      >
-        <el-option
-          v-for="item in searchOptions"
-          :key="item.path"
-          :value="item.path"
-          :label="item.meta.title"
-          @click="searchChange(item)"
-        />
-      </el-select>
-      <el-icon @click="toggleFullscreen" :size="18" class="cursor-pointer">
-        <svg-icon name="fullscreen-exit" v-if="isFullscreen" />
-        <svg-icon name="fullscreen" v-else />
-      </el-icon>
-      <layout-locale />
-      <el-dropdown class="cursor-pointer" v-if="tokenStore.accessToken">
-        <span class="el-dropdown-link flex">
-          <el-avatar v-if="userStore.avatar" class="el-icon--left" :size="18" :src="'./assets/icons/avatar.svg'" />
-          <el-icon v-else class="el-icon--left" :size="18">
-            <ep-user />
+  template: html`
+    <div class="w-full flex justify-between">
+      <div class="flex items-center justify-center">
+        <layout-logo />
+        <el-icon @click="toggleMenuCollapse" class="collapse-button cursor-pointer mx-5" :size="18">
+          <svg-icon name="unfold" v-if="appStore.settings.isMenuCollapse" />
+          <svg-icon name="fold" v-else />
+        </el-icon>
+        <el-icon v-if="false" @click="refresh" class="collapse-button cursor-pointer mx-5" :size="18">
+          <ep-refresh />
+        </el-icon>
+        <head-menu />
+      </div>
+      <div class="flex">
+        <el-space :size="appStore.settings.size">
+          <el-icon class="cursor-pointer" @click="clickSearch" :title="$t('点击搜索')">
+            <ep-search />
           </el-icon>
-          {{ tokenStore.name }}
-          <el-icon class="el-icon--right">
-            <ep-arrow-down />
+          <el-select
+            class="search"
+            ref="searchRef"
+            :placeholder="$t('搜索')"
+            v-show="showSearch"
+            @blur="hideSearch"
+            filterable
+            remote
+            :remote-method="searchMenu"
+            v-model="searchModel"
+            :loading="searchLoading"
+          >
+            <el-option
+              v-for="item in searchOptions"
+              :key="item.path"
+              :value="item.path"
+              :label="item.meta.title"
+              @click="searchChange(item)"
+            />
+          </el-select>
+          <el-icon @click="toggleFullscreen" :size="18" class="cursor-pointer">
+            <svg-icon name="fullscreen-exit" v-if="isFullscreen" />
+            <svg-icon name="fullscreen" v-else />
           </el-icon>
-        </span>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item>
-              <router-link to="/user-center">
-                <el-icon><ep-user /></el-icon>
-                {{$t('用户中心')}}
-              </router-link>
-            </el-dropdown-item>
-            <el-dropdown-item divided @click="confirmLogout">
-              <el-icon><ep-switch-button /></el-icon>
-              {{$t('注销')}}
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-      <el-link type="info" v-else>
-        <router-link to="/register">{{$t('register')}}</router-link>
-      </el-link>
-      <layout-settings />
-    </el-space>
-  </div>
-</div>`,
+          <layout-locale />
+          <el-dropdown class="cursor-pointer" v-if="tokenStore.accessToken">
+            <span class="el-dropdown-link flex">
+              <el-avatar v-if="userStore.avatar" class="el-icon--left" :size="18" :src="'./assets/icons/avatar.svg'" />
+              <el-icon v-else class="el-icon--left" :size="18">
+                <ep-user />
+              </el-icon>
+              {{ tokenStore.name }}
+              <el-icon class="el-icon--right">
+                <ep-arrow-down />
+              </el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item>
+                  <router-link to="/user-center">
+                    <el-icon><ep-user /></el-icon>
+                    {{$t('用户中心')}}
+                  </router-link>
+                </el-dropdown-item>
+                <el-dropdown-item divided @click="confirmLogout">
+                  <el-icon><ep-switch-button /></el-icon>
+                  {{$t('注销')}}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+          <el-link type="info" v-else>
+            <router-link to="/register">{{$t('register')}}</router-link>
+          </el-link>
+          <layout-settings />
+        </el-space>
+      </div>
+    </div>
+  `,
   setup() {
     const router = useRouter();
     const i18n = useI18n();

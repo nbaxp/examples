@@ -15,7 +15,10 @@ export default {
       <el-main style="display: flex; align-items: center; justify-content: center">
         <div class="login">
           <div class="flex items-center justify-center pb-4">
-            <el-space><layout-logo /> <layout-locale /></el-space>
+            <el-space>
+              <layout-logo />
+              <layout-locale />
+            </el-space>
           </div>
           <el-card class="box-card">
             <el-row :gutter="40">
@@ -37,7 +40,7 @@ export default {
     const schema = useSchema();
     const model = ref(schemaToModel(schema));
     const router = useRouter();
-    const success = (result) => {
+    const success = () => {
       router.push('/login');
     };
     return {

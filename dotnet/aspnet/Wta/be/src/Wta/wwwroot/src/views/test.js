@@ -1,37 +1,32 @@
 import html from 'utils';
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import table, { FlexRender, createColumnHelper, getCoreRowModel, useVueTable } from '~/lib/tanstack/table.js';
+import { ref } from 'vue';
+import { FlexRender, createColumnHelper, getCoreRowModel, useVueTable } from '~/lib/tanstack/table.js';
 
 export default {
   components: { FlexRender },
-  template: html` <table><thead>
-  <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-    <th v-for="header in headerGroup.headers" :key="header.id" :colSpan="header.colSpan">
-      <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
-    </th>
-  </tr>
-</thead>
- <tbody>
+  template: html`
+    <table>
+      <thead>
+        <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+          <th v-for="header in headerGroup.headers" :key="header.id" :colSpan="header.colSpan">
+            <FlexRender
+              v-if="!header.isPlaceholder"
+              :render="header.column.columnDef.header"
+              :props="header.getContext()"
+            />
+          </th>
+        </tr>
+      </thead>
+      <tbody>
         <tr v-for="row in table.getRowModel().rows" :key="row.id">
           <td v-for="cell in row.getVisibleCells()" :key="cell.id">
-            <FlexRender
-              :render="cell.column.columnDef.cell"
-              :props="cell.getContext()"
-            />
+            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
           </td>
         </tr>
       </tbody>
       <tfoot>
-        <tr
-          v-for="footerGroup in table.getFooterGroups()"
-          :key="footerGroup.id"
-        >
-          <th
-            v-for="header in footerGroup.headers"
-            :key="header.id"
-            :colSpan="header.colSpan"
-          >
+        <tr v-for="footerGroup in table.getFooterGroups()" :key="footerGroup.id">
+          <th v-for="header in footerGroup.headers" :key="header.id" :colSpan="header.colSpan">
             <FlexRender
               v-if="!header.isPlaceholder"
               :render="header.column.columnDef.footer"
@@ -39,7 +34,9 @@ export default {
             />
           </th>
         </tr>
-      </tfoot></table>`,
+      </tfoot>
+    </table>
+  `,
   setup() {
     const data = ref([
       {
