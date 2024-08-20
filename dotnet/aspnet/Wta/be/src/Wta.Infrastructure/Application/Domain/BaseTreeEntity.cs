@@ -10,7 +10,8 @@ public abstract class BaseTreeEntity<T> : BaseEntity, IOrderedEntity where T : B
     [DisplayOrder(-1)]
     public string Number { get; set; } = default!;
 
-    public int Order { get; set; }
+    [DefaultValue(0)]
+    public float Order { get; set; }
 
     [Hidden]
     public string Path { get; set; } = default!;

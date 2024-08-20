@@ -299,7 +299,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 var controllerType = actionDescriptors.Cast<ControllerActionDescriptor>()
                 .FirstOrDefault(o => o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType))?
                 .ControllerTypeInfo.AsType()!;
-                var component = resourceType.GetCustomAttribute<ViewAttribute>()?.Component ?? controllerType.GetCustomAttribute<ViewAttribute>()?.Component ?? "_list";
+                var component = resourceType.GetCustomAttribute<ViewAttribute>()?.Component ?? controllerType.GetCustomAttribute<ViewAttribute>()?.Component;
                 var resourcePermission = new Permission
                 {
                     Id = context.NewGuid(),

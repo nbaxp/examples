@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Routing;
 using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Extensions;
@@ -59,6 +57,10 @@ public static class ModelMetadataExtensions
             if (o is KeyValueAttribute keyValue)
             {
                 result.TryAdd(keyValue.Key, keyValue.Value);
+            }
+            else if (o is DefaultValueAttribute defaultValueAttribute && defaultValueAttribute.Value != null)
+            {
+                result.TryAdd("default", defaultValueAttribute.Value);
             }
             else if (o is DataTypeAttribute dataType)
             {

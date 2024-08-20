@@ -7,6 +7,6 @@ public abstract class BaseChildTentity<T> : BaseEntity, IOrderedEntity where T :
     [Hidden]
     public T? Parent { get; set; }
 
-    public int Order { get; set; }
+    [DefaultValue(0)]
+    public float Order { get; set; }
 }
-

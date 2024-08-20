@@ -17,7 +17,7 @@
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
   "[markdown]": {
-    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features"
@@ -30,5 +30,6 @@
   },
   "[json]": {
     "editor.defaultFormatter": "vscode.json-language-features"
-  }
+  },
+  "markdownlint.run": "onSave"
 }

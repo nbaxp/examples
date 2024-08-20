@@ -20,10 +20,10 @@ const getRoutes = async () => {
           component,
           meta,
         };
-        if (route.component) {
-          const componentPath = `../views/${route.component}.js`;
-          route.component = () => import(componentPath);
-        }
+        // if (route.component) {
+        //   const componentPath = `../views/${route.component}.js`;
+        //   route.component = () => import(componentPath);
+        // }
         return route;
       });
       const tree = listToTree(list);
@@ -52,7 +52,7 @@ export default defineStore('app', {
     async refreshMenu() {
       this.menus = await getRoutes();
       //
-      const populateFullPath = (list, parent = null) => {
+      const populateFullPath = async (list, parent = null) => {
         if (!list) return;
         for (const item of list) {
           item.meta ??= {};
@@ -74,12 +74,26 @@ export default defineStore('app', {
           }
           item.name = `route${item.meta.fullPath.replaceAll('/', '_')}`;
           console.log(item.meta.fullPath);
+          let viewPath = item.component;
+          if (!viewPath && item.meta.type === 'menu') {
+            const response = await fetch(`./src/views${item.meta.fullPath}.js`, { method: 'HEAD' }).catch((e) => {
+              console.log(e);
+            });
+            if (response.ok) {
+              viewPath = item.meta.fullPath.substring(1);
+            } else {
+              viewPath = '_list';
+            }
+          }
+          if (viewPath) {
+            item.component = () => import(`@/views/${viewPath}.js`);
+          }
           if (item.children?.length) {
-            populateFullPath(item.children, item);
+            await populateFullPath(item.children, item);
           }
         }
       };
-      populateFullPath(this.menus);
+      await populateFullPath(this.menus);
       //
       const key = 'root';
       if (router.getRoutes().some((o) => o.name === key)) {
