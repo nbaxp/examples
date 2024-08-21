@@ -163,19 +163,25 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
             {
                 entityModlerBuilder.Property(nameof(IConcurrencyStampEntity.ConcurrencyStamp)).ValueGeneratedNever();
             }
+            //配置NameNumber实体
+            if (entityType.IsAssignableTo(typeof(BaseNameNumberEntity)))
+            {
+                entityModlerBuilder.Property(nameof(BaseNameNumberEntity.Name)).IsRequired();
+                entityModlerBuilder.Property(nameof(BaseNameNumberEntity.Number)).IsRequired();
+                entityModlerBuilder.HasIndex(nameof(BaseNameNumberEntity.TenantNumber), nameof(BaseNameNumberEntity.Number)).IsUnique();
+            }
             //配置树形结构实体
             if (entityType.IsAssignableTo(typeof(BaseTreeEntity<>).MakeGenericType(entityType)))
             {
                 entityModlerBuilder.Property(nameof(BaseTreeEntity<BaseEntity>.Name)).IsRequired();
                 entityModlerBuilder.Property(nameof(BaseTreeEntity<BaseEntity>.Number)).IsRequired();
-                entityModlerBuilder.HasIndex(nameof(BaseTreeEntity<BaseEntity>.TenantNumber), nameof(BaseTreeEntity<BaseEntity>.Number)).IsUnique();
                 entityModlerBuilder.HasOne(nameof(BaseTreeEntity<BaseEntity>.Parent)).WithMany(nameof(BaseTreeEntity<BaseEntity>.Children)).HasForeignKey(nameof(BaseTreeEntity<BaseEntity>.ParentId)).OnDelete(DeleteBehavior.SetNull);
             }
-            //配置父子结构
-            if (entityType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseChildTentity<>)))
-            {
-                entityModlerBuilder.HasOne(nameof(BaseChildTentity<BaseEntity>.Parent)).WithMany().HasForeignKey(nameof(BaseChildTentity<BaseEntity>.ParentId)).OnDelete(DeleteBehavior.Cascade);
-            }
+            ////配置父子结构
+            //if (entityType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseChildTentity<>)))
+            //{
+            //    entityModlerBuilder.HasOne(nameof(BaseChildTentity<BaseEntity>.Parent)).WithMany().HasForeignKey(nameof(BaseChildTentity<BaseEntity>.ParentId)).OnDelete(DeleteBehavior.Cascade);
+            //}
         }
         //配置属性
         var properties = entityType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);

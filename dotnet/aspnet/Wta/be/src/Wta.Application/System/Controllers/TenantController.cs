@@ -70,7 +70,11 @@ public class TenantController(ILogger<Tenant> logger,
             if (scope.ServiceProvider.GetRequiredService(dbContextType) is DbContext dbContext)
             {
                 var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
-                scope.ServiceProvider.GetServices(dbSeedType).ForEach(o => dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]));
+                scope.ServiceProvider.GetServices(dbSeedType).ForEach(o =>
+                {
+                    dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]);
+                    (o as DbContext)?.SaveChanges();
+                });
             }
         });
         return Json(true);

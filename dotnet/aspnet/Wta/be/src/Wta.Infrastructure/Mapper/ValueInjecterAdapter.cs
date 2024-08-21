@@ -7,6 +7,10 @@ namespace Wta.Infrastructure.Mapper;
 [Service<IObjerctMapper>(ServiceLifetime.Singleton)]
 public class ValueInjecterAdapter : IObjerctMapper
 {
+    //static ValueInjecterAdapter()
+    //{
+    //    Omu.ValueInjecter.Mapper.Instance.DefaultMap = 
+    //}
     public TEntity FromModel<TEntity, TModel>(TEntity? entity, TModel model, Action<TEntity, TModel, bool>? action = null)
     {
         var isNew = entity == null;

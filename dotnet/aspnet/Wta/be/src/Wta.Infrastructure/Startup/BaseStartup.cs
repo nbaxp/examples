@@ -584,7 +584,10 @@ public abstract class BaseStartup : IStartup
                         var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
                         serviceProvider.GetServices(dbSeedType)
                         .OrderBy(o => o!.GetType().GetAttribute<DisplayAttribute>()?.GetOrder() ?? 0)
-                        .ForEach(o => dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]));
+                        .ForEach(o => {
+                            dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]);
+                            (o as DbContext)?.SaveChanges();
+                        });
                     }
                 }
             });

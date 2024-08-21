@@ -5,15 +5,10 @@ public class BaseAttribute : GroupAttribute
 {
 }
 
-[Display(Name = "产品", Order = 1)]
-public class ProductAttribute : BaseAttribute
-{
-}
-
-[Display(Name = "仓库", Order = 2)]
-public class WarehouseAttribute : BaseAttribute
-{
-}
+//[Display(Name = "仓库", Order = 2)]
+//public class WarehouseAttribute : BaseAttribute
+//{
+//}
 
 [Display(Name = "供应商", Order = 3)]
 public class SupplierAttribute : BaseAttribute
@@ -22,5 +17,10 @@ public class SupplierAttribute : BaseAttribute
 
 [Display(Name = "客户", Order = 4)]
 public class CustomerAttribute : BaseAttribute
+{
+}
+
+[Display(Name = "产品", Order = 1)]
+public class ProductAttribute : BaseAttribute
 {
 }
