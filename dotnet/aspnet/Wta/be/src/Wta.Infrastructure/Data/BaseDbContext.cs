@@ -188,7 +188,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         properties.ForEach(prop =>
         {
             //配置只读字段（创建后不可更新）
-            if (prop.GetCustomAttributes<ReadOnlyAttribute>().Any())
+            if (prop.Name != "Id" && prop.GetCustomAttributes<ReadOnlyAttribute>().Any())
             {
                 entityModlerBuilder.Property(prop.Name).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             }

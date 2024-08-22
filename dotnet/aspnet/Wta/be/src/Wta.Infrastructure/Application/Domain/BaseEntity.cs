@@ -8,14 +8,17 @@ public abstract class BaseEntity : IResource
     }
 
     [Hidden]
+    [ReadOnly(true)]
     public Guid Id { get; set; }
 
     [DisplayOrder(10000)]
     [Hidden]
+    [ReadOnly(true)]
     public DateTime CreatedOn { get; set; }
 
     [DisplayOrder(10001)]
     [Hidden]
+    [ReadOnly(true)]
     public string CreatedBy { get; set; } = default!;
 
     [DisplayOrder(10002)]
@@ -36,5 +39,6 @@ public abstract class BaseEntity : IResource
     public bool IsDeleted { get; set; }
 
     [Hidden]
+    [ReadOnly(true)]
     public string? TenantNumber { get; set; }
 }

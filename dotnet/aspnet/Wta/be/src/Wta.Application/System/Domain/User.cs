@@ -47,10 +47,11 @@ public class User : Entity
     public bool EmailConfirmed { get; set; }
 
     [Hidden]
+    [ReadOnly(true), IgnoreToModel]
     public string? PasswordHash { get; set; }
 
     [Hidden]
-    [ReadOnly(true)]
+    [ReadOnly(true), IgnoreToModel]
     public string SecurityStamp { get; set; } = default!;
 
     [Display(Name = "手机号")]

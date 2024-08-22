@@ -6,14 +6,10 @@ public class DataDbConfig : BaseDbConfig<DefaultDbContext>,
     IEntityTypeConfiguration<SupplierCategory>,
     IEntityTypeConfiguration<Supplier>,
     IEntityTypeConfiguration<CustomerCategory>,
-    IEntityTypeConfiguration<Customer>
-//IEntityTypeConfiguration<ProductType>,
-//IEntityTypeConfiguration<ProductCategory>,
-//IEntityTypeConfiguration<Product>,
-//IEntityTypeConfiguration<WarehouseCategory>,
-//IEntityTypeConfiguration<WarehouseType>,
-//IEntityTypeConfiguration<Warehouse>,
-//IEntityTypeConfiguration<StorageArea>
+    IEntityTypeConfiguration<Customer>,
+    IEntityTypeConfiguration<ProductType>,
+    IEntityTypeConfiguration<ProductCategory>,
+    IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Supplier> builder)
     {
@@ -35,17 +31,17 @@ public class DataDbConfig : BaseDbConfig<DefaultDbContext>,
     //{
     //}
 
-    //public void Configure(EntityTypeBuilder<ProductType> builder)
-    //{
-    //}
+    public void Configure(EntityTypeBuilder<ProductType> builder)
+    {
+    }
 
-    //public void Configure(EntityTypeBuilder<ProductCategory> builder)
-    //{
-    //}
+    public void Configure(EntityTypeBuilder<ProductCategory> builder)
+    {
+    }
 
-    //public void Configure(EntityTypeBuilder<Product> builder)
-    //{
-    //}
+    public void Configure(EntityTypeBuilder<Product> builder)
+    {
+    }
 
     //public void Configure(EntityTypeBuilder<WarehouseType> builder)
     //{

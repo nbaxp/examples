@@ -56,7 +56,8 @@ public class Inventory : BaseNameNumberEntity
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
     [Display(Name = "库位")]
-    [Required] public Guid? LocationId { get; internal set; }
+    [Required]
+    public Guid? LocationId { get; internal set; }
 
     [Hidden]
     public StorageLocation? Location { get; set; }
