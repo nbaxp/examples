@@ -35,24 +35,41 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
-        var entries = GetEntries();
-        BeforeSave(entries);
+        BeforeSave();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
-        var entries = GetEntries();
-        BeforeSave(entries);
+        BeforeSave();
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
-    protected virtual void BeforeSave(List<EntityEntry> entries)
+    protected virtual void BeforeSave()
     {
+        //本地事件
+        ChangeTracker.DetectChanges();
+        var entries = ChangeTracker.Entries().ToList();
+        var eventPublisher = ServiceProvider.GetRequiredService<IEventPublisher>();
+        var method = eventPublisher.GetType().GetMethod(nameof(eventPublisher.Publish))!;
+        entries.ForEach(o =>
+        {
+            if (o.State == EntityState.Modified)
+            {
+                var type = typeof(EntityUpdatedEvent<>).MakeGenericType(o.Entity.GetType());
+                var @event = Activator.CreateInstance(type, o.Entity);
+                method.MakeGenericMethod(type).Invoke(eventPublisher, [@event]);
+            }
+        });
+        //更新属性
         var userName = this.GetService<IHttpContextAccessor>().HttpContext?.User.Identity?.Name ?? "admin";
         var now = DateTime.UtcNow;
         foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
         {
+            if (item.Entity is Audit)
+            {
+                continue;
+            }
             //实体IsReadOnly属性为true的不可删除
             if (item.State == EntityState.Deleted)
             {
@@ -73,13 +90,12 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                         entity.TenantNumber = _tenantNumber;
                     }
                 }
-                //第一次删除为伪删除
+                //逻辑删除的才可以物理删除
                 if (item.State == EntityState.Deleted)
                 {
                     if (!entity.IsDeleted)
                     {
-                        item.State = EntityState.Modified;
-                        entity.IsDeleted = true;
+                        item.State = EntityState.Unchanged;
                     }
                 }
                 if (item.State == EntityState.Added)
@@ -101,6 +117,35 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                     {
                         concurrency.ConcurrencyStamp = Guid.NewGuid().ToString("N");
                     }
+                }
+            }
+        }
+        //添加实体历史记录
+        foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
+        {
+            if (item.Entity is not Audit && item.Entity is BaseEntity entity)
+            {
+                var audit = this.Set<Audit>().Add(new Audit
+                {
+                    Id = this.NewGuid(),
+                    EntityName = item.Entity.GetType().Name,
+                    EntityId = entity.Id,
+                    Action = item.State.ToString(),
+                    CreatedOn = now,
+                    CreatedBy = userName,
+                }).Entity;
+                if (item.State == EntityState.Added)
+                {
+                    audit.To = item.Entity.ToJson();
+                }
+                else if (item.State == EntityState.Modified)
+                {
+                    audit.From = item.OriginalValues.ToObject().ToJson();
+                    audit.To = item.Entity.ToJson();
+                }
+                else if (item.State == EntityState.Deleted)
+                {
+                    audit.From = item.Entity.ToJson();
                 }
             }
         }

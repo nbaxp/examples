@@ -1,3 +1,4 @@
+using ClosedXML;
 using Microsoft.AspNetCore.Mvc;
 using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Application.Models;
@@ -132,6 +133,9 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     [Button(Type = ButtonType.Row)]
     public virtual ApiResult<bool> Update([FromBody] TModel model)
     {
+        typeof(TModel).GetProperties(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance)
+            .Where(o => o.GetAttributes<IgnoreToModelAttribute>().Any())
+            .ForEach(o => ModelState.Remove(o.Name));
         if (!ModelState.IsValid)
         {
             throw new BadRequestException();

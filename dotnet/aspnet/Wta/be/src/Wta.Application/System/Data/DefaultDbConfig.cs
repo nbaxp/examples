@@ -3,6 +3,7 @@ using Wta.Infrastructure.Scheduling;
 namespace Wta.Application.System.Data;
 
 public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
+    IEntityTypeConfiguration<Audit>,
     IEntityTypeConfiguration<Tenant>,
     IEntityTypeConfiguration<Job>,
     IEntityTypeConfiguration<Dict>,
@@ -16,6 +17,13 @@ public class DefaultDbConfig : BaseDbConfig<DefaultDbContext>,
     IEntityTypeConfiguration<UserRole>,
     IEntityTypeConfiguration<RolePermission>
 {
+    public void Configure(EntityTypeBuilder<Audit> builder)
+    {
+        builder.HasKey(o => o.Id);
+        builder.HasIndex(o => o.EntityName);
+        builder.HasIndex(o => o.EntityId);
+    }
+
     public void Configure(EntityTypeBuilder<Tenant> builder)
     {
         builder.Property(o => o.Name).IsRequired();

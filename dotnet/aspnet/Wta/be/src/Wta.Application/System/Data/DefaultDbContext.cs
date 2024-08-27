@@ -1,4 +1,3 @@
-
 namespace Wta.Application.System.Data;
 
 [DependsOn<DefaultModule>]

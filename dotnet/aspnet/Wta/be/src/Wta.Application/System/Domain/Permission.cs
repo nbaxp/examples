@@ -79,6 +79,7 @@ public class Permission : BaseTreeEntity<Permission>
     /// <summary>
     /// 角色权限
     /// </summary>
+    [Hidden]
     public List<RolePermission> RolePermissions { get; set; } = [];
 
     [Display(Name = "前端路由Path")]

@@ -20,7 +20,7 @@ public class ResetPasswordController(IRepository<User> repository, IEncryptionSe
             {
                 if (user.PasswordHash != encryptionService.HashPassword(model.CurrentPassword!, user.SecurityStamp!))
                 {
-                    ModelState.AddModelError(nameof(model.CurrentPassword), "WrongPassword");
+                    ModelState.AddModelError(nameof(model.CurrentPassword), "当前密码输入错误");
                 }
                 else
                 {

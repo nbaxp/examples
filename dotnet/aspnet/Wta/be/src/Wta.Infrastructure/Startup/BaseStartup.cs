@@ -341,6 +341,16 @@ public abstract class BaseStartup : IStartup
 
     public virtual void AddMvc(WebApplicationBuilder builder)
     {
+        var configJson = (JsonSerializerOptions options) => {
+            options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            options.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+            options.WriteIndented = builder.Environment.IsDevelopment();
+            options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            options.Converters.Add(new JsonNullableGuidConverter());
+            options.Converters.Insert(0, new TrimJsonConverter());
+        };
+        builder.Services.Configure<JsonOptions>(o=>configJson(o.SerializerOptions));
         builder.Services.AddMvc(options =>
         {
             options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
@@ -362,14 +372,15 @@ public abstract class BaseStartup : IStartup
         })
         .AddJsonOptions(options =>
         {
-            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-            options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-            options.JsonSerializerOptions.WriteIndented = builder.Environment.IsDevelopment();
-            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-            options.JsonSerializerOptions.Converters.Add(new JsonNullableGuidConverter());
-            options.JsonSerializerOptions.Converters.Insert(0, new TrimJsonConverter());
+            configJson(options.JsonSerializerOptions);
+            //options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            //options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            //options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            //options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+            //options.JsonSerializerOptions.WriteIndented = builder.Environment.IsDevelopment();
+            //options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            //options.JsonSerializerOptions.Converters.Add(new JsonNullableGuidConverter());
+            //options.JsonSerializerOptions.Converters.Insert(0, new TrimJsonConverter());
         })
         .ConfigureApiBehaviorOptions(options =>
         {
@@ -519,7 +530,6 @@ public abstract class BaseStartup : IStartup
         AddContentProvider(builder);
         AddCors(builder);
         AddCache(builder);
-        AddDbContext(builder);
         AddRepository(builder);
         AddRouting(builder);
         AddSignalR(builder);
@@ -530,6 +540,7 @@ public abstract class BaseStartup : IStartup
         AddAuth(builder);
         AddScheduler(builder);
         AddDistributedLock(builder);
+        AddDbContext(builder);
     }
 
     public virtual IFileProvider GetFileProvider(WebApplicationBuilder builder)

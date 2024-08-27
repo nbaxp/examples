@@ -57,7 +57,7 @@ public class ValueInjecterAdapter : IObjerctMapper
 //    }
 //}
 
-public class NullableInjection : PropertyInjection
+public class NullableInjection : LoopInjection
 {
     public NullableInjection(string[] ignoredProps) : base(ignoredProps)
     {

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Mapster;
 
 namespace Wta.Infrastructure.Mapper;
@@ -5,9 +6,11 @@ namespace Wta.Infrastructure.Mapper;
 [Service<IObjerctMapper>(ServiceLifetime.Singleton)]
 public class MapsterAdapter : IObjerctMapper
 {
+    public static ConcurrentDictionary<string, object> Maps = new ConcurrentDictionary<string, object>();
+
     public TEntity FromModel<TEntity, TModel>(TEntity? entity, TModel model, Action<TEntity, TModel, bool>? action = null)
     {
-        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig().PreserveReference(true);
+        var setter = GetConfig<TModel, TEntity>();
         var isNew = entity == null;
         if (isNew)
         {
@@ -25,10 +28,17 @@ public class MapsterAdapter : IObjerctMapper
 
     public TModel ToModel<TEntity, TModel>(TEntity entity, Action<TEntity, TModel>? action = null)
     {
-        var setter = TypeAdapterConfig<TModel, TEntity>.NewConfig().PreserveReference(true);
+        var setter = GetConfig<TEntity, TModel>();
         setter.IgnoreAttribute(typeof(IgnoreToModelAttribute));
-        var model = entity.Adapt<TModel>(setter.Config);
+        var config = setter.Config;
+        var model = Activator.CreateInstance<TModel>();
+        model = entity.Adapt(model, setter.Config);
         action?.Invoke(entity, model);
         return model;
+    }
+
+    public static TypeAdapterSetter<TSource, TTarget> GetConfig<TSource, TTarget>(int depth = 3)
+    {
+        return TypeAdapterConfig<TSource, TTarget>.NewConfig().PreserveReference(true).MaxDepth(depth);
     }
 }
