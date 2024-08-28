@@ -1,6 +1,6 @@
 namespace Wta.Infrastructure.Application.Domain;
 
-public abstract class BaseEntity : IResource
+public abstract class BaseEntity : IResource, ITenantEntity
 {
     public BaseEntity()
     {

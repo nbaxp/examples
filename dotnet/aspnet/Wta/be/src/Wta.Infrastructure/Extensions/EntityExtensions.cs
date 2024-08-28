@@ -39,7 +39,7 @@ public static class EntityExtensions
     public static T UpdateNode<T>(this BaseTreeEntity<T> entity) where T : BaseEntity
     {
         entity.Path = $"{(entity.Parent as BaseTreeEntity<T>)?.Path}/{entity.Number}";
-        if (entity.Children.Any())
+        if (entity.Children != null && entity.Children.Any())
         {
             entity.Children.ForEach(o =>
             {

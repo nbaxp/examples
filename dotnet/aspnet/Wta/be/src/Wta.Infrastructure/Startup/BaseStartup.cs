@@ -154,26 +154,22 @@ public abstract class BaseStartup : IStartup
                 var action = (DbContextOptionsBuilder optionsBuilder) =>
                 {
                     var connectionStringName = dbContextType.GetCustomAttribute<ConnectionStringAttribute>()?.ConnectionString ?? dbContextType.Name.TrimEnd("DbContext");
-                    var connectionString = builder.Configuration.GetConnectionString(connectionStringName) ??
-                         builder.Configuration.GetConnectionString($"Default") ??
-                         "Data Source=wta.db";
-                    var dbContextProvider = builder.Configuration.GetValue<string>($"DbContext:{connectionStringName}") ??
-                        builder.Configuration.GetValue<string>($"DbContext:Default") ??
-                        "Sqlite";
-                    if (dbContextProvider == "MySql")
+                    var connectionString = builder.Configuration.GetConnectionString(connectionStringName);
+                    var dbContextProvider = builder.Configuration.GetValue<string>($"DbContextProvider:{connectionStringName}");
+                    if (dbContextProvider == "mysql")
                     {
                         var serverVersion = ServerVersion.AutoDetect(connectionString);
                         optionsBuilder.UseMySql(connectionString, serverVersion, b => b.UseNetTopologySuite());
                     }
-                    else if (dbContextProvider == "Npgsql")
+                    else if (dbContextProvider == "npgsql")
                     {
                         optionsBuilder.UseNpgsql(connectionString);
                     }
-                    else if (dbContextProvider == "SqlServer")
+                    else if (dbContextProvider == "sqlserver")
                     {
                         optionsBuilder.UseSqlServer(connectionString);
                     }
-                    else if (dbContextProvider == "Oracle")
+                    else if (dbContextProvider == "oracle")
                     {
                         optionsBuilder.UseOracle(connectionString);
                     }
@@ -341,16 +337,18 @@ public abstract class BaseStartup : IStartup
 
     public virtual void AddMvc(WebApplicationBuilder builder)
     {
-        var configJson = (JsonSerializerOptions options) => {
+        var configJson = (JsonSerializerOptions options) =>
+        {
             options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
             options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             options.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-            options.WriteIndented = builder.Environment.IsDevelopment();
+            options.DefaultBufferSize = options.DefaultBufferSize * 10;
+            options.WriteIndented = false;// builder.Environment.IsDevelopment();
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             options.Converters.Add(new JsonNullableGuidConverter());
             options.Converters.Insert(0, new TrimJsonConverter());
         };
-        builder.Services.Configure<JsonOptions>(o=>configJson(o.SerializerOptions));
+        builder.Services.Configure<JsonOptions>(o => configJson(o.SerializerOptions));
         builder.Services.AddMvc(options =>
         {
             options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
@@ -391,7 +389,8 @@ public abstract class BaseStartup : IStartup
 
         //add urlhelper
         builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-        builder.Services.AddScoped(o => {
+        builder.Services.AddScoped(o =>
+        {
             var actionContext = o.GetRequiredService<IActionContextAccessor>().ActionContext;
             var factory = o.GetRequiredService<IUrlHelperFactory>();
             return factory.GetUrlHelper(actionContext!);
@@ -595,9 +594,9 @@ public abstract class BaseStartup : IStartup
                         var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
                         serviceProvider.GetServices(dbSeedType)
                         .OrderBy(o => o!.GetType().GetAttribute<DisplayAttribute>()?.GetOrder() ?? 0)
-                        .ForEach(o => {
+                        .ForEach(o =>
+                        {
                             dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]);
-                            (o as DbContext)?.SaveChanges();
                         });
                     }
                 }

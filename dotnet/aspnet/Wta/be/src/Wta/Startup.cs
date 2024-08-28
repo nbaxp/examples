@@ -1,4 +1,4 @@
-using Wta.Application.System;
+using Wta.Application.BaseModule;
 using Wta.Infrastructure.Attributes;
 using Wta.Infrastructure.Startup;
 

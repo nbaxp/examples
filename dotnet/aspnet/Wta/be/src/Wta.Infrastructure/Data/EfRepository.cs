@@ -14,7 +14,7 @@ public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEn
         DbSet = Context.Set<TEntity>();
     }
 
-    protected DbContext Context { get; }
+    public DbContext Context { get; }
     protected DbSet<TEntity> DbSet { get; }
 
     public void Add(TEntity entity)

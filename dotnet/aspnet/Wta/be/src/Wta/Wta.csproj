@@ -8,16 +8,10 @@
     <ProjectReference Include="..\Wta.Application\Wta.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="logs\**" />
-    <Content Remove="logs\**" />
-    <EmbeddedResource Remove="logs\**" />
-    <EntityDeploy Remove="logs\**" />
-    <None Remove="logs\**" />
+    <Content Remove="appsettings.Development.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="upload\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Include="appsettings.Development.json" />
   </ItemGroup>
   <ItemGroup>
     <None Update="start.cmd">

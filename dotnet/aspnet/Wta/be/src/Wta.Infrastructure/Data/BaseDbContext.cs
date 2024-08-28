@@ -1,3 +1,4 @@
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -66,9 +67,18 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         var now = DateTime.UtcNow;
         foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
         {
-            if (item.Entity is Audit)
+            if (item.Entity is Audit audit)
             {
                 continue;
+            }
+            //设置租户
+            if (item.Entity is ITenantEntity tenantEntity && item.State == EntityState.Added)
+            {
+                if (_tenantNumber != null)
+                {
+                    tenantEntity.TenantNumber = _tenantNumber;
+                    System.Diagnostics.Debug.WriteLine(System.Text.Json.JsonSerializer.Serialize(item.Entity, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles, WriteIndented = true }));
+                }
             }
             //实体IsReadOnly属性为true的不可删除
             if (item.State == EntityState.Deleted)
@@ -82,14 +92,6 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
             //设置审计属性户
             if (item.Entity is BaseEntity entity)
             {
-                //设置租户
-                if (item.State == EntityState.Added)
-                {
-                    if (_tenantNumber != null)
-                    {
-                        entity.TenantNumber = _tenantNumber;
-                    }
-                }
                 //逻辑删除的才可以物理删除
                 if (item.State == EntityState.Deleted)
                 {
@@ -121,6 +123,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
             }
         }
         //添加实体历史记录
+        var jsonSerializerOptions = ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
         foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
         {
             if (item.Entity is not Audit && item.Entity is BaseEntity entity)
@@ -131,21 +134,23 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                     EntityName = item.Entity.GetType().Name,
                     EntityId = entity.Id,
                     Action = item.State.ToString(),
+                    TenantNumber = _tenantNumber,
                     CreatedOn = now,
                     CreatedBy = userName,
                 }).Entity;
                 if (item.State == EntityState.Added)
                 {
-                    audit.To = item.Entity.ToJson();
+                    audit.To = item.CurrentValues.ToObject().ToJson(jsonSerializerOptions);
                 }
                 else if (item.State == EntityState.Modified)
                 {
-                    audit.From = item.OriginalValues.ToObject().ToJson();
-                    audit.To = item.Entity.ToJson();
+                    audit.From = item.OriginalValues.ToObject().ToJson(jsonSerializerOptions);
+                    audit.To = item.CurrentValues.ToObject().ToJson(jsonSerializerOptions);
                 }
                 else if (item.State == EntityState.Deleted)
                 {
-                    audit.From = item.Entity.ToJson();
+                    audit.From = item.OriginalValues.ToObject().ToJson(jsonSerializerOptions);
+                    audit.To = item.CurrentValues.ToObject().ToJson(jsonSerializerOptions);
                 }
             }
         }
@@ -213,7 +218,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
             {
                 entityModlerBuilder.Property(nameof(BaseNameNumberEntity.Name)).IsRequired();
                 entityModlerBuilder.Property(nameof(BaseNameNumberEntity.Number)).IsRequired();
-                entityModlerBuilder.HasIndex(nameof(BaseNameNumberEntity.TenantNumber), nameof(BaseNameNumberEntity.Number)).IsUnique();
+                //entityModlerBuilder.HasIndex(nameof(BaseNameNumberEntity.TenantNumber), nameof(BaseNameNumberEntity.Number)).IsUnique();
             }
             //配置树形结构实体
             if (entityType.IsAssignableTo(typeof(BaseTreeEntity<>).MakeGenericType(entityType)))

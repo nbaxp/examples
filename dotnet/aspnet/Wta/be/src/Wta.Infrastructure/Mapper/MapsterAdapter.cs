@@ -37,7 +37,7 @@ public class MapsterAdapter : IObjerctMapper
         return model;
     }
 
-    public static TypeAdapterSetter<TSource, TTarget> GetConfig<TSource, TTarget>(int depth = 3)
+    public static TypeAdapterSetter<TSource, TTarget> GetConfig<TSource, TTarget>(int depth = 1)
     {
         return TypeAdapterConfig<TSource, TTarget>.NewConfig().PreserveReference(true).MaxDepth(depth);
     }

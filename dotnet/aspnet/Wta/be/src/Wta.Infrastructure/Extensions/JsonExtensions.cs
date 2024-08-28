@@ -2,26 +2,27 @@ namespace Wta.Infrastructure.Extensions;
 
 public static class JsonExtensions
 {
-    public static string? ToJson(this object? obj)
+    public static string? ToJson(this object? obj, JsonSerializerOptions? options = null)
     {
         if (obj == null)
         {
             return null;
         }
-        return JsonSerializer.Serialize(obj, GetJsonOptions());
+        return JsonSerializer.Serialize(obj, options ?? GetJsonOptions());
     }
 
-    public static T? FromJson<T>(this string? value)
+    public static T? FromJson<T>(this string? value, JsonSerializerOptions? options = null)
     {
         if (value == null)
         {
             return default;
         }
-        return JsonSerializer.Deserialize<T>(value, GetJsonOptions());
+        return JsonSerializer.Deserialize<T>(value, options ?? GetJsonOptions());
     }
 
     private static JsonSerializerOptions GetJsonOptions()
     {
-        return WtaApplication.Application.Services.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+        var options = WtaApplication.Application.Services.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+        return options;
     }
 }

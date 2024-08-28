@@ -26,8 +26,8 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Options;
 global using Microsoft.IdentityModel.Tokens;
 //
-global using Wta.Application.System.Domain;
-global using Wta.Application.System.Models;
+global using Wta.Application.BaseModule.Domain;
+global using Wta.Application.BaseModule.Models;
 global using Wta.Infrastructure.Application.Configuration;
 global using Wta.Infrastructure.Application.Domain;
 global using Wta.Infrastructure.Attributes;

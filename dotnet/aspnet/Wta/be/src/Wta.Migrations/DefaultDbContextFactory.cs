@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Wta.Application.System.Data;
+namespace Wta.Application.BaseModule.Data;
 
-public class DefaultDbContextFactory : IDesignTimeDbContextFactory<DefaultDbContext>
+public class DefaultDbContextFactory : IDesignTimeDbContextFactory<BaseDbContext>
 {
-    public DefaultDbContext CreateDbContext(string[] args)
+    public BaseDbContext CreateDbContext(string[] args)
     {
         //WtaApplication.Run<Startup>(args);
-        var optionsBuilder = new DbContextOptionsBuilder<DefaultDbContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<BaseDbContext>();
         optionsBuilder.UseSqlite("Data Source=wta.db");
         return new DefaultDbContext(optionsBuilder.Options);
     }

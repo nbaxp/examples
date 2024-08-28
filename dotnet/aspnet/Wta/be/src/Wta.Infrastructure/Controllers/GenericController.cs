@@ -134,7 +134,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     public virtual ApiResult<bool> Update([FromBody] TModel model)
     {
         typeof(TModel).GetProperties(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance)
-            .Where(o => o.GetAttributes<IgnoreToModelAttribute>().Any())
+            .Where(o => (o.PropertyType.IsGenericType && o.PropertyType.GetGenericTypeDefinition() == typeof(List<>)) || o.GetAttributes<IgnoreToModelAttribute>().Any())
             .ForEach(o => ModelState.Remove(o.Name));
         if (!ModelState.IsValid)
         {

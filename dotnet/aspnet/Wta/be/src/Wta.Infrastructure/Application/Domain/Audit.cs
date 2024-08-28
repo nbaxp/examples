@@ -1,4 +1,5 @@
 namespace Wta.Infrastructure.Application.Domain;
+
 public class Audit
 {
     public Guid Id { get; set; }
@@ -8,6 +9,7 @@ public class Audit
     public long EntityVersion { get; set; }
     public string? From { get; set; }
     public string? To { get; set; }
+    public string? TenantNumber { get; set; } = null!;
     public DateTime CreatedOn { get; set; }
     public string CreatedBy { get; set; } = default!;
 }

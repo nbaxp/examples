@@ -23,6 +23,7 @@
     "Url": "http://localhost:5000"
   },
   "DbContext": {
+    "System": "Npgsql"
     //"System": "MySql",
     //"System": "Npgsql"
   },
