@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Wta.Application.BaseModule.Domain;
 
 /// <summary>
@@ -14,7 +16,20 @@ public class Permission : BaseTreeEntity<Permission>
     /// "Permission"
     /// </summary>
     [Display(Name = "验证方式")]
-    public string Authorize { get; set; } = default!;
+    public AuthType AuthType { get; set; }
+
+    [Hidden]
+    [Display(Name = "角色")]
+    public string? Roles { get; set; }
+
+    [UIHint("select")]
+    [KeyValue("url", "role/search")]
+    [KeyValue("value", "number")]
+    [KeyValue("label", "name")]
+    [KeyValue("skipSorting", true)]
+    [NotMapped]
+    [Display(Name = "角色")]
+    public List<string>? RolesList { get; set; } = [];
 
     /// <summary>
     /// Vue Router Meta,按钮类型：table、row
@@ -85,17 +100,12 @@ public class Permission : BaseTreeEntity<Permission>
     [Display(Name = "前端路由Path")]
     public string RoutePath { get; set; } = default!;
 
-    ///// <summary>
-    ///// Vue Router Meta
-    ///// </summary>
-    //[Display(Name = "前端路由跳转")]
-    //public string? Schema { get; set; }
-
     /// <summary>
     /// Vue Router Meta,group\menu\button)
     /// </summary>
     [Display(Name = "类型")]
     public MenuType Type { get; set; }
+
     /// <summary>
     /// Vue Router Meta,请求地址
     /// </summary>

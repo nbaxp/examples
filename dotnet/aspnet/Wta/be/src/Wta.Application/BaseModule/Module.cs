@@ -1,6 +1,6 @@
 namespace Wta.Application.BaseModule;
 
-public class DefaultModule : IStartup
+public class Module : IStartup
 {
     public void Configure(WebApplication webApplication)
     {

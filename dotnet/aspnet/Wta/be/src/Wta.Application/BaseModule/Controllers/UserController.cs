@@ -17,7 +17,7 @@ public class UserController(ILogger<User> logger,
     {
         var normalizedUserName = httpContextAccessor.HttpContext?.User.Identity?.Name?.ToUpperInvariant()!;
         return Repository.AsNoTracking()
-            .Any(o => o.NormalizedUserName == normalizedUserName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Type == MenuType.Button && o.Permission!.Number == permission)));
+            .Any(o => o.NormalizedUserName == normalizedUserName && o.UserRoles.Any(o => o.Role!.RolePermissions.Any(o => o.Permission!.Number == permission)));
     }
 
     [HttpGet, AllowAnonymous, Ignore]

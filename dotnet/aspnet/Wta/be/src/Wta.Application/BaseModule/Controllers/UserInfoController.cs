@@ -23,8 +23,8 @@ public class UserInfoController(IObjerctMapper mapper, IRepository<User> reposit
            .ThenInclude(o => o.Permission)
            .FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
         var model = mapper.ToModel<User, UserInfoModel>(result);
-        model.Roles = result.UserRoles.Select(o => o.RoleId).ToList();
-        model.Permissions = result.UserRoles.SelectMany(o => o.Role!.RolePermissions.Select(o => o.PermissionId)).ToList();
+        model.Roles = result.UserRoles.Select(o => o.Role!.Number).ToList();
+        model.Permissions = result.UserRoles.SelectMany(o => o.Role!.RolePermissions.Select(o => o.Permission!.Number)).ToList();
         return Json(model);
     }
 

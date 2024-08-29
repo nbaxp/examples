@@ -36,10 +36,10 @@ public class UserInfoModel : IResource
     [ReadOnly(true)]
     [UIHint("select")]
     [KeyValue("url", "role/search")]
-    [KeyValue("value", "id")]
+    [KeyValue("value", "number")]
     [KeyValue("label", "name")]
-    public List<Guid> Roles { get; set; } = [];
+    public List<string> Roles { get; set; } = [];
 
     [Hidden]
-    public List<Guid> Permissions { get; set; } = [];
+    public List<string> Permissions { get; set; } = [];
 }

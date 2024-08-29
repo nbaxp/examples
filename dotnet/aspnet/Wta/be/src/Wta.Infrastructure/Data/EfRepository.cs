@@ -29,7 +29,7 @@ public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEn
 
     public IQueryable<TEntity> AsNoTracking()
     {
-        return DbSet.AsNoTracking();
+        return DbSet.AsNoTracking().AsSplitQuery();
     }
 
     public void BeginTransaction()

@@ -13,6 +13,27 @@ export default [
         },
       },
       {
+        path: '/logout',
+        component: () => import('@/views/login.js'),
+        meta: {
+          title: '登录',
+        },
+      },
+      {
+        path: '/403',
+        component: () => import('@/views/403.js'),
+        meta: {
+          title: '权限不足',
+        },
+      },
+      {
+        path: '/404',
+        component: () => import('@/views/404.js'),
+        meta: {
+          title: '未找到',
+        },
+      },
+      {
         path: '/register',
         component: () => import('@/views/register.js'),
         meta: {
@@ -27,10 +48,10 @@ export default [
         },
       },
       {
-        path: '/403',
-        component: () => import('@/views/403.js'),
+        path: '/test',
+        component: () => import('@/views/test.js'),
         meta: {
-          title: '权限不足',
+          title: '测试',
         },
       },
       {
@@ -38,13 +59,6 @@ export default [
         component: () => import('@/views/redirect.js'),
         meta: {
           title: '跳转',
-        },
-      },
-      {
-        path: '/test',
-        component: () => import('@/views/test.js'),
-        meta: {
-          title: '测试',
         },
       },
       {

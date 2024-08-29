@@ -2,14 +2,14 @@ using Wta.Application.Wms;
 
 namespace Wta.Application.WmsModule;
 
-[BaseData, Display(Name = "库位类型", Order = 1)]
+[WmsBaseData, Display(Name = "库位类型", Order = 1)]
 public class LocationType : BaseNameNumberEntity
 {
     [Hidden]
     public List<StorageLocation> Locations { get; set; } = [];
 }
 
-[BaseData, Display(Name = "库位管理", Order = 2)]
+[WmsBaseData, Display(Name = "库位管理", Order = 2)]
 public class StorageLocation : BaseTreeEntity<StorageLocation>
 {
     [UIHint("select")]
@@ -35,7 +35,7 @@ public enum InventoryDirection
     Out
 }
 
-[BaseData, Display(Name = "库存操作", Order = 3)]
+[WmsBaseData, Display(Name = "库存操作", Order = 3)]
 public class InventoryOperation : BaseNameNumberEntity
 {
     [Display(Name = "操作类型")]

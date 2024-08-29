@@ -4,7 +4,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Wta.Infrastructure.Mapper;
 
-//[Service<IObjerctMapper>(ServiceLifetime.Singleton)]
+[Service<IObjerctMapper>(ServiceLifetime.Singleton)]
 public class ValueInjecterAdapter : IObjerctMapper
 {
     public TEntity FromModel<TEntity, TModel>(TEntity? entity, TModel model, Action<TEntity, TModel, bool>? action = null)
@@ -32,30 +32,11 @@ public class ValueInjecterAdapter : IObjerctMapper
             .Select(o => o.Name)
             .ToArray();
         var model = Activator.CreateInstance<TModel>();
-        entity.InjectFrom(new NullableInjection(ignoreNames), model);
+        model.InjectFrom(new NullableInjection(ignoreNames), entity);
         action?.Invoke(entity, model);
         return model;
     }
 }
-
-//public class NullableInjection : FlatLoopInjection
-//{
-//    protected string[]? ignoredProps;
-
-//    public NullableInjection(string[]? ignoredProps = null)
-//    {
-//        this.ignoredProps = ignoredProps;
-//    }
-
-//    protected override bool Match(string propName, PropertyInfo unflatProp, PropertyInfo targetFlatProp)
-//    {
-//        if (ignoredProps != null && ignoredProps.Contains(propName))
-//        {
-//            return false;
-//        }
-//        return unflatProp.PropertyType.UnderlyingSystemType == targetFlatProp.PropertyType.UnderlyingSystemType && propName == unflatProp.Name && unflatProp.GetGetMethod() != null;
-//    }
-//}
 
 public class NullableInjection : LoopInjection
 {
@@ -63,15 +44,13 @@ public class NullableInjection : LoopInjection
     {
     }
 
-    protected override void Execute(PropertyInfo sp, object source, object target)
+    protected override bool MatchTypes(Type sourceType, Type targetType)
     {
-        if (sp.CanRead && sp.GetGetMethod() != null && (ignoredProps == null || !ignoredProps.Contains(sp.Name)))
-        {
-            var tp = target.GetType().GetProperty(sp.Name);
-            if (tp != null && tp.CanWrite && tp.PropertyType.UnderlyingSystemType == sp.PropertyType.UnderlyingSystemType && tp.GetSetMethod() != null)
-            {
-                tp.SetValue(target, sp.GetValue(source, null), null);
-            }
-        }
+        var snt = Nullable.GetUnderlyingType(sourceType);
+        var tnt = Nullable.GetUnderlyingType(targetType);
+
+        return sourceType == targetType
+               || sourceType == tnt
+               || targetType == snt;
     }
 }

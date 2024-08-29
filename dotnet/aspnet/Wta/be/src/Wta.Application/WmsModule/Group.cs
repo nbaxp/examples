@@ -6,7 +6,7 @@ public class WmsAttribute : GroupAttribute
 }
 
 [Display(Name = "基础数据", Order = 1)]
-public class BaseDataAttribute : WmsAttribute
+public class WmsBaseDataAttribute : WmsAttribute
 {
 }
 

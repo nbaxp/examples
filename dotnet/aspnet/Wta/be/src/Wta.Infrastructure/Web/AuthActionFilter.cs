@@ -111,30 +111,29 @@ public class AuthActionFilter(IConfiguration configuration) : IActionFilter
         if (requireAuth)
         {
             if (!context.HttpContext.User.Identity!.IsAuthenticated)
-            {
+            {//未登录
                 context.Result = new UnauthorizedResult();
             }
             else
-            {
+            {//已登录
                 var valid = false;
                 var roles = (controllerData.FirstOrDefault(o => o.AttributeType == typeof(AuthorizeAttribute))?.NamedArguments.FirstOrDefault() ??
-                    actionData.FirstOrDefault(o => o.AttributeType == typeof(AuthorizeAttribute))?
-                    .NamedArguments.FirstOrDefault())?.TypedValue.Value?.ToString();
+                    actionData.FirstOrDefault(o => o.AttributeType == typeof(AuthorizeAttribute))?.NamedArguments.FirstOrDefault())?.TypedValue.Value?.ToString();
                 if (!string.IsNullOrEmpty(roles))
-                {
+                {//角色验证，前端可以根据用户信息直接验证
                     var roleList = roles.Split(',');
                     var roleType = nameof(ClaimTypes.Role).ToLowerInvariant();
                     valid = context.HttpContext.User.Claims.Any(o => o.Type == roleType && roleList.Contains(o.Value));
                 }
                 else
-                {
+                {//权限验证
                     if (controllerData.Any(o => o.AttributeType == typeof(AuthorizeAttribute)) ||
                         actionData.Any(o => o.AttributeType == typeof(AuthorizeAttribute)))
-                    {
+                    {// 无参 AuthorizeAttribute 只验证登录
                         valid = true;
                     }
                     else
-                    {
+                    {// 无 AuthorizeAttribute 特性通过 IPrincipal(AuthClaimsPrincipal).IsInRole 方法验证
                         var operation = $"{descriptor.ControllerName}.{descriptor.ActionName}";
                         valid = context.HttpContext.User.IsInRole(operation);
                     }

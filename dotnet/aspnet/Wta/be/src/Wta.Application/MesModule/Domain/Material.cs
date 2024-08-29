@@ -1,11 +1,11 @@
 namespace Wta.Application.MesModule.Domain;
 
-[BaseData, Display(Name = "物料", Order = 1)]
+[MesBaseData, Display(Name = "物料", Order = 1)]
 public class Material : Entity
 {
 }
 
-[BaseData, Display(Name = "BOM", Order = 3)]
+[MesBaseData, Display(Name = "BOM", Order = 3)]
 public class Bom : Entity
 {
 }

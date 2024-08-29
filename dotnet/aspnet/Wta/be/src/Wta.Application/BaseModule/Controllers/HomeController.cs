@@ -1,6 +1,7 @@
 namespace Wta.Controllers;
 
-[AllowAnonymous, View("home"), Icon("home")]
+[View("home"), Icon("home")]
+[AllowAnonymous]
 public class HomeController : Controller, IResourceService<HomeModel>
 {
     [ResponseCache(NoStore = true), Ignore]

@@ -6,7 +6,7 @@ public class MesAttribute : GroupAttribute
 }
 
 [Display(Name = "基础数据", Order = 1)]
-public class BaseDataAttribute : MesAttribute
+public class MesBaseDataAttribute : MesAttribute
 {
 }
 

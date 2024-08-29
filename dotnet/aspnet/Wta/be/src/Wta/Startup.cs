@@ -4,7 +4,7 @@ using Wta.Infrastructure.Startup;
 
 namespace Wta.Application;
 
-[DependsOn<DefaultModule>]
+[DependsOn<BaseModule.Module>]
 public class Startup : BaseStartup
 {
 }

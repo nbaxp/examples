@@ -3,7 +3,7 @@ using Mapster;
 
 namespace Wta.Infrastructure.Mapper;
 
-[Service<IObjerctMapper>(ServiceLifetime.Singleton)]
+//[Service<IObjerctMapper>(ServiceLifetime.Singleton)]
 public class MapsterAdapter : IObjerctMapper
 {
     public static ConcurrentDictionary<string, object> Maps = new ConcurrentDictionary<string, object>();

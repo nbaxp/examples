@@ -28,8 +28,6 @@ export default {
       const result = await request('GET', 'reset-password/index');
       schema.value = normalize(result.data.data);
       model.value = schemaToModel(schema.value);
-      model.value.userName = 'admin';
-      model.value.password = '123456';
     });
     return {
       formRef,

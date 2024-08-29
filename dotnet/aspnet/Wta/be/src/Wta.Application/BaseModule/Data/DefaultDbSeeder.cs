@@ -1,3 +1,4 @@
+using ClosedXML;
 using Wta.Infrastructure.Scheduling;
 
 namespace Wta.Application.BaseModule.Data;
@@ -260,10 +261,10 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 {
                     Id = context.NewGuid(),
                     Type = MenuType.Group,
-                    Authorize = "Anonymous",
+                    AuthType = AuthType.Permission,
                     Name = groupType.GetDisplayName(),
-                    Number = groupType.FullName?.TrimEnd("Attribute")!,
-                    RoutePath = groupType.Name.TrimEnd("Attribute").ToSlugify()!,
+                    Number = groupType.Name?.TrimEnd("Attribute")!,
+                    RoutePath = groupType.Name?.TrimEnd("Attribute").ToSlugify()!,
                     Redirect = groupType.GetCustomAttributes<KeyValueAttribute>(false).FirstOrDefault(o => o.Key == "Redirect")?.Value.ToString(),
                     Icon = groupType.GetCustomAttribute<IconAttribute>()?.Icon ?? "folder",
                     Component = groupType.GetCustomAttribute<ViewAttribute>()?.Component,
@@ -273,14 +274,13 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             }
         });
         /// 设置分组上级
-
         groups.ForEach(groupType =>
         {
-            var number = groupType.FullName?.TrimEnd("Attribute")!;
+            var number = groupType.Name?.TrimEnd("Attribute")!;
             var group = list.FirstOrDefault(o => o.Number == number)!;
             if (groupType.BaseType != null && !groupType.BaseType.IsAbstract)
             {
-                var parentNumber = groupType.BaseType!.FullName!.TrimEnd("Attribute")!;
+                var parentNumber = groupType.BaseType!.Name!.TrimEnd("Attribute")!;
                 group.ParentId = list.FirstOrDefault(o => o.Number == parentNumber)?.Id;
             }
         });
@@ -307,9 +307,9 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 {
                     Id = context.NewGuid(),
                     Type = MenuType.Menu,
-                    Authorize = "Authenticated",
+                    AuthType = AuthType.Permission,
                     Name = resourceType.GetDisplayName(),
-                    Number = resourceType.FullName!,
+                    Number = resourceType.Name.TrimEnd("Model"),
                     RoutePath = resourceType.Name.TrimEnd("Model").ToSlugify()!,
                     Component = component,
                     NoCache = controllerType.GetCustomAttribute<NoCacheAttribute>()?.NoCache ?? false,
@@ -328,13 +328,13 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                         resourcePermission.Component = component;
                     }
                     var number = $"{descriptor.ControllerName}.{descriptor.ActionName}";
-
                     list.Add(new Permission
                     {
                         ParentId = resourcePermission.Id,
                         Id = context.NewGuid(),
                         Type = MenuType.Button,
-                        Authorize = number,
+                        AuthType = GetAuthType(descriptor),
+                        Roles = descriptor.MethodInfo.GetCustomAttribute<AuthorizeAttribute>()?.Roles,
                         Name = (descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName).ToLowerCamelCase(),
                         Number = number,
                         RoutePath = number,
@@ -350,7 +350,7 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 var groupAttribute = resourceType.GetCustomAttributes().FirstOrDefault(o => o.GetType().IsAssignableTo(typeof(GroupAttribute)));
                 if (groupAttribute != null && groupAttribute is GroupAttribute group)
                 {
-                    var number = group.GetType().FullName?.TrimEnd("Attribute")!;
+                    var number = group.GetType().Name?.TrimEnd("Attribute")!;
                     var groupPermission = list.FirstOrDefault(o => o.Number == number);
                     if (groupPermission != null)
                     {
@@ -370,6 +370,24 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 context.Set<Permission>().Add(o);
             });
         return list;
+    }
+
+    private static AuthType GetAuthType(ControllerActionDescriptor descriptor)
+    {
+        if (descriptor.MethodInfo.GetAttributes<AllowAnonymousAttribute>().Any())
+        {
+            return AuthType.Anonymous;
+        }
+        var attribute = descriptor.MethodInfo.GetAttribute<AuthorizeAttribute>();
+        if (attribute != null)
+        {
+            if (attribute.Roles != null)
+            {
+                return AuthType.Roles;
+            }
+            return AuthType.Authorize;
+        }
+        return AuthType.Permission;
     }
 
     private List<Role> InitRole(DbContext context, List<Permission> permissions)
