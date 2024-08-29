@@ -288,77 +288,81 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
         //添加资源菜单和资源操作按钮
         var order = 1;
         var actionDescriptors = actionProvider.ActionDescriptors.Items;
-        AppDomain.CurrentDomain.GetCustomerAssemblies()
+        var resourceTypeList = AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
-            .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(IResource)))
-            .ForEach(resourceType =>
+            .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(IResource)));
+        foreach (var resourceType in resourceTypeList)
+        {
+            if (tenantService.TenantNumber != null && resourceType == typeof(Tenant))
             {
-                if (tenantService.TenantNumber != null && resourceType == typeof(Tenant))
+                continue;
+            }
+            // 菜单
+            var resourceServiceType = typeof(IResourceService<>).MakeGenericType(resourceType);
+            var controllerType = actionDescriptors.Cast<ControllerActionDescriptor>()
+            .FirstOrDefault(o => o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType))?
+            .ControllerTypeInfo.AsType();
+            if (controllerType == null)
+            {
+                continue;
+            }
+            var component = resourceType.GetCustomAttribute<ViewAttribute>()?.Component ?? controllerType.GetCustomAttribute<ViewAttribute>()?.Component;
+            var resourcePermission = new Permission
+            {
+                Id = context.NewGuid(),
+                Type = MenuType.Menu,
+                AuthType = AuthType.Permission,
+                Name = resourceType.GetDisplayName(),
+                Number = resourceType.Name.TrimEnd("Model"),
+                RoutePath = resourceType.Name.TrimEnd("Model").ToSlugify()!,
+                Component = component,
+                NoCache = controllerType.GetCustomAttribute<NoCacheAttribute>()?.NoCache ?? false,
+                //Schema = $"{resourceType.Name.ToSlugify()}",
+                Icon = controllerType.GetCustomAttribute<IconAttribute>()?.Icon ?? "file",
+                Order = resourceType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? order++
+            };
+            // 按钮
+            actionDescriptors
+            .Select(o => (o as ControllerActionDescriptor)!)
+            .Where(o => o != null && o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType) && !o.MethodInfo.GetCustomAttributes<IgnoreAttribute>().Any())
+            .ForEach(descriptor =>
+            {
+                if (descriptor.ControllerTypeInfo.AsType().GetCustomAttribute<ViewAttribute>()?.Component is string component)
                 {
-                    return;
+                    resourcePermission.Component = component;
                 }
-                // 菜单
-                var resourceServiceType = typeof(IResourceService<>).MakeGenericType(resourceType);
-                var controllerType = actionDescriptors.Cast<ControllerActionDescriptor>()
-                .FirstOrDefault(o => o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType))?
-                .ControllerTypeInfo.AsType()!;
-                var component = resourceType.GetCustomAttribute<ViewAttribute>()?.Component ?? controllerType.GetCustomAttribute<ViewAttribute>()?.Component;
-                var resourcePermission = new Permission
+                var number = $"{descriptor.ControllerName}.{descriptor.ActionName}";
+                list.Add(new Permission
                 {
+                    ParentId = resourcePermission.Id,
                     Id = context.NewGuid(),
-                    Type = MenuType.Menu,
-                    AuthType = AuthType.Permission,
-                    Name = resourceType.GetDisplayName(),
-                    Number = resourceType.Name.TrimEnd("Model"),
-                    RoutePath = resourceType.Name.TrimEnd("Model").ToSlugify()!,
-                    Component = component,
-                    NoCache = controllerType.GetCustomAttribute<NoCacheAttribute>()?.NoCache ?? false,
-                    //Schema = $"{resourceType.Name.ToSlugify()}",
-                    Icon = controllerType.GetCustomAttribute<IconAttribute>()?.Icon ?? "file",
-                    Order = resourceType.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? order++
-                };
-                // 按钮
-                actionDescriptors
-                .Select(o => (o as ControllerActionDescriptor)!)
-                .Where(o => o != null && o.ControllerTypeInfo.AsType().IsAssignableTo(resourceServiceType) && !o.MethodInfo.GetCustomAttributes<IgnoreAttribute>().Any())
-                .ForEach(descriptor =>
-                {
-                    if (descriptor.ControllerTypeInfo.AsType().GetCustomAttribute<ViewAttribute>()?.Component is string component)
-                    {
-                        resourcePermission.Component = component;
-                    }
-                    var number = $"{descriptor.ControllerName}.{descriptor.ActionName}";
-                    list.Add(new Permission
-                    {
-                        ParentId = resourcePermission.Id,
-                        Id = context.NewGuid(),
-                        Type = MenuType.Button,
-                        AuthType = GetAuthType(descriptor),
-                        Roles = descriptor.MethodInfo.GetCustomAttribute<AuthorizeAttribute>()?.Roles,
-                        Name = (descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName).ToLowerCamelCase(),
-                        Number = number,
-                        RoutePath = number,
-                        Url = descriptor.AttributeRouteInfo?.Template,
-                        Method = (descriptor.ActionConstraints?.FirstOrDefault() as HttpMethodActionConstraint)?.HttpMethods.FirstOrDefault(),
-                        Command = descriptor.ActionName.ToSlugify(),
-                        ButtonType = descriptor.MethodInfo.GetCustomAttribute<ButtonAttribute>()?.Type ?? ButtonType.Table,
-                        Hidden = descriptor.MethodInfo.GetCustomAttribute<HiddenAttribute>() != null,
-                        Order = descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0
-                    });
+                    Type = MenuType.Button,
+                    AuthType = GetAuthType(descriptor),
+                    Roles = descriptor.MethodInfo.GetCustomAttribute<AuthorizeAttribute>()?.Roles,
+                    Name = (descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? descriptor.ActionName).ToLowerCamelCase(),
+                    Number = number,
+                    RoutePath = number,
+                    Url = descriptor.AttributeRouteInfo?.Template,
+                    Method = (descriptor.ActionConstraints?.FirstOrDefault() as HttpMethodActionConstraint)?.HttpMethods.FirstOrDefault(),
+                    Command = descriptor.ActionName.ToSlugify(),
+                    ButtonType = descriptor.MethodInfo.GetCustomAttribute<ButtonAttribute>()?.Type ?? ButtonType.Table,
+                    Hidden = descriptor.MethodInfo.GetCustomAttribute<HiddenAttribute>() != null,
+                    Order = descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? 0
                 });
-                // 设置菜单分组
-                var groupAttribute = resourceType.GetCustomAttributes().FirstOrDefault(o => o.GetType().IsAssignableTo(typeof(GroupAttribute)));
-                if (groupAttribute != null && groupAttribute is GroupAttribute group)
-                {
-                    var number = group.GetType().Name?.TrimEnd("Attribute")!;
-                    var groupPermission = list.FirstOrDefault(o => o.Number == number);
-                    if (groupPermission != null)
-                    {
-                        resourcePermission.ParentId = groupPermission.Id;
-                    }
-                }
-                list.Add(resourcePermission);
             });
+            // 设置菜单分组
+            var groupAttribute = resourceType.GetCustomAttributes().FirstOrDefault(o => o.GetType().IsAssignableTo(typeof(GroupAttribute)));
+            if (groupAttribute != null && groupAttribute is GroupAttribute group)
+            {
+                var number = group.GetType().Name?.TrimEnd("Attribute")!;
+                var groupPermission = list.FirstOrDefault(o => o.Number == number);
+                if (groupPermission != null)
+                {
+                    resourcePermission.ParentId = groupPermission.Id;
+                }
+            }
+            list.Add(resourcePermission);
+        }
         list.AsQueryable()
             .Cast<BaseTreeEntity<Permission>>()
             .ToList()

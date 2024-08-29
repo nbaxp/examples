@@ -25,7 +25,7 @@ export default {
     <div class="w-full flex justify-between">
       <div class="flex items-center justify-center">
         <layout-logo />
-        <el-icon @click="toggleMenuCollapse" class="collapse-button cursor-pointer mx-5" :size="18">
+        <el-icon v-if="!isPortal" @click="toggleMenuCollapse" class="collapse-button cursor-pointer mx-5" :size="18">
           <svg-icon name="unfold" v-if="appStore.settings.isMenuCollapse" />
           <svg-icon name="fold" v-else />
         </el-icon>
@@ -36,7 +36,7 @@ export default {
       </div>
       <div class="flex">
         <el-space :size="appStore.settings.size">
-          <el-icon class="cursor-pointer" @click="clickSearch" :title="$t('点击搜索')">
+          <el-icon v-if="!isPortal" class="cursor-pointer" @click="clickSearch" :title="$t('点击搜索')">
             <ep-search />
           </el-icon>
           <el-select
@@ -95,10 +95,15 @@ export default {
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-link type="info" v-else>
-            <router-link to="/register">{{$t('register')}}</router-link>
-          </el-link>
-          <layout-settings />
+          <template v-else>
+            <el-link type="info">
+              <router-link to="/register">{{$t('注册')}}</router-link>
+            </el-link>
+            <el-link type="info">
+              <router-link to="/login">{{$t('登录')}}</router-link>
+            </el-link>
+          </template>
+          <layout-settings v-if="!isPortal" />
         </el-space>
       </div>
     </div>
@@ -116,6 +121,7 @@ export default {
     const searchModel = ref('');
     const searchOptions = ref([]);
     const showSearch = ref(false);
+    const isPortal = ref(router.currentRoute.value.matched[0].name === 'portal');
 
     const hideSearch = () => {
       showSearch.value = false;
@@ -163,9 +169,10 @@ export default {
         await ElMessageBox.confirm(i18n.t('确认退出'), i18n.t('提示'), {
           type: 'warning',
         });
+        await userStore.logout();
         await tokenStore.clear();
         //router.push({ path: 'login', query: { redirect: router.currentRoute.value.fullPath } });
-        router.push(`/login?redirect=${router.currentRoute.value.fullPath}`);
+        router.push(`/logout?redirect=${router.currentRoute.value.fullPath}`);
       } catch (error) {
         if (error === 'cancel') {
           ElMessage({
@@ -201,6 +208,7 @@ export default {
       toggleFullscreen,
       confirmLogout,
       refresh,
+      isPortal,
     };
   },
 };

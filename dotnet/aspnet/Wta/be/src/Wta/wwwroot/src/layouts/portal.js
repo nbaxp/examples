@@ -17,24 +17,18 @@ export default {
     LayoutFooter,
   },
   template: html`
-    <el-container class="admin-layout" :class="{home:isHomePage}">
+    <el-container class="home">
       <el-header style="display:flex;flex:1;position:sticky;overflow:visible"><layout-header /></el-header>
       <el-container class="flex100 flex-direction-row">
         <el-aside v-if="!isHomePage" width="auto" class="flex1" :class="{open:!appStore.settings.isMenuCollapse}">
           <layout-menu />
         </el-aside>
         <el-container class="is-vertical main backtop flex100 flex-dir-col">
-          <layout-tabs v-if="!isHomePage&&appStore.settings.useTabs" />
           <el-main class="flex100 flex-dir-col">
             <div class="router-view flex100">
               <layout-breadcrumb v-if="!isHomePage&&appStore.settings.showBreadcrumb" />
               <div class="w-full h-full">
-                <router-view v-if="!tabsStore.isRefreshing" v-slot="{ Component, route }">
-                  <component :is="Component" v-if="route.meta?.noCache" :key="route.fullPath" />
-                  <keep-alive>
-                    <component :is="Component" v-if="!route.meta?.noCache" :key="route.fullPath" />
-                  </keep-alive>
-                </router-view>
+                <router-view v-if="!tabsStore.isRefreshing" />
               </div>
             </div>
             <el-footer v-if="appStore.settings.showCopyright" class="flex1 h-full overflow-visible align-center">

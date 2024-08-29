@@ -5,18 +5,24 @@ import html from 'utils';
 import { computed, nextTick, reactive, ref, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+const show = (menu) => {
+  if (menu.meta.hidden) {
+    return false;
+  }
+  if (!menu.meta?.authType) {
+    return true;
+  } else {
+    return useUserStore().hasPermission(menu.meta);
+  }
+};
+
 export const HeadMenu = {
   components: { SvgIcon },
   template: html`
     <el-menu mode="horizontal" :ellipsis="false" :default-active="active" router>
       <template v-if="appStore.settings.showTopMenu">
         <template v-for="route in routes">
-          <el-menu-item
-            v-if="!route.meta?.hideInMenu"
-            :key="route.meta.fullPath"
-            :index="route.meta.fullPath"
-            @click="onClick(route, $event)"
-          >
+          <el-menu-item v-if="show(route)" :index="route.meta?.fullPath" @click="onClick(route)">
             <template #title>
               <el-icon v-if="route.meta?.icon">
                 <svg-icon :name="route.meta.icon" />
@@ -28,12 +34,13 @@ export const HeadMenu = {
       </template>
     </el-menu>
   `,
-  setup(props) {
+  setup() {
     const appStore = useAppStore();
     const tabsStore = useTabsStore();
     const router = useRouter();
     const routes = computed(() => {
-      const root = router.getRoutes().find((o) => o.name === 'root');
+      const name = router.currentRoute.value.matched[0].name;
+      const root = router.getRoutes().find((o) => o.name === name);
       const result =
         router.currentRoute.value.matched[1].path === '/'
           ? root.children.find((o) => o.path === '/').children
@@ -43,9 +50,10 @@ export const HeadMenu = {
     const active = computed(() => {
       return router.currentRoute.value.matched[1].meta.fullPath;
     });
-    const onClick = (route) => {
+    const onClick = (route, e) => {
       if (route.path.startsWith('http')) {
-        window.open(props.node.path);
+        e?.preventDefault();
+        window.open(route.path);
       } else {
         const path = tabsStore.routes.findLast((o) => o.matched[1].path === route.path)?.path ?? route.path;
         router.push(path);
@@ -56,6 +64,7 @@ export const HeadMenu = {
       routes,
       active,
       onClick,
+      show,
     };
   },
 };
@@ -64,7 +73,7 @@ export const MenuItem = {
   name: 'menuItem',
   components: { SvgIcon },
   template: html`
-    <template v-if="showItem(model)">
+    <template v-if="show(model)">
       <el-sub-menu :index="model.meta?.fullPath" v-if="model.children&&model.children.some(o=>!o.meta?.hideInMenu)">
         <template #title>
           <el-icon><svg-icon :name="model.meta?.icon??'folder'" /></el-icon>
@@ -74,7 +83,7 @@ export const MenuItem = {
           <menu-item v-model="item" />
         </template>
       </el-sub-menu>
-      <el-menu-item v-else :index="model.meta?.fullPath" @click.native="onClick(model, $event)">
+      <el-menu-item v-else :index="model.meta?.fullPath" @click="onClick(model,$event)">
         <el-icon><svg-icon :name="model.meta?.icon??'file'" /></el-icon>
         <template #title>
           <span :title="model.meta?.fullPath">{{model.meta?.title??model.path}}</span>
@@ -89,7 +98,6 @@ export const MenuItem = {
   },
   setup(props, context) {
     const model = reactive(props.modelValue);
-    const userStore = useUserStore();
     watch(
       model,
       (value) => {
@@ -98,26 +106,19 @@ export const MenuItem = {
       { deep: true },
     );
     //
-    const onClick = (route, event) => {
+    const router = useRouter();
+    const onClick = (route, e) => {
       if (route.path.startsWith('http')) {
-        event.preventDefault();
-        window.open(props.node.path);
+        e?.preventDefault();
+        window.open(route.path);
+      } else {
+        router.push(route.meta.fullPath);
       }
-    };
-    //
-    const showItem = (model) => {
-      if (model.meta?.hideInMenu) {
-        return false;
-      }
-      if (model.meta?.authorize) {
-        return userStore.hasPermission(model.meta.authorize);
-      }
-      return true;
     };
     return {
       model,
       onClick,
-      showItem,
+      show,
     };
   },
 };
@@ -146,9 +147,10 @@ export default {
     const active = ref(null);
     watchEffect(() => {
       active.value = route.path;
+      const name = router.currentRoute.value.matched[0].name;
       list.value = appStore.settings.showTopMenu
         ? route.matched[1].children
-        : router.getRoutes().find((o) => o.name === 'root').children;
+        : router.getRoutes().find((o) => o.name === name).children;
     });
     watch(
       list,

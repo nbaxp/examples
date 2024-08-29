@@ -1,8 +1,24 @@
+import html from 'utils';
+import VueMd from '@/components/markdown/index.js';
+
+const view = (name) => {
+  return {
+    components: { VueMd },
+    template: html`
+      <vue-md :name="'${name}'" />
+    `,
+    setup() {
+      return {
+        name,
+      };
+    },
+  };
+};
+
 export default [
   {
-    name: 'default',
+    name: 'blank',
     path: '/',
-    redirect: '/home',
     component: () => import('@/layouts/blank.js'),
     children: [
       {
@@ -48,13 +64,6 @@ export default [
         },
       },
       {
-        path: '/test',
-        component: () => import('@/views/test.js'),
-        meta: {
-          title: '测试',
-        },
-      },
-      {
         path: '/redirect',
         component: () => import('@/views/redirect.js'),
         meta: {
@@ -67,6 +76,50 @@ export default [
         meta: {
           title: '无法找到',
         },
+      },
+    ],
+  },
+  {
+    name: 'portal',
+    path: '',
+    redirect: '/home',
+    component: () => import('@/layouts/portal.js'),
+    children: [
+      {
+        path: '/home',
+        component: () => import('@/views/home.js'),
+        meta: {
+          title: '首页',
+        },
+      },
+      {
+        path: '/docs',
+        redirect: '/docs/home',
+        meta: {
+          title: '文档',
+        },
+        children: [
+          {
+            path: 'home',
+            component: () => view('home'),
+            meta: {
+              title: '文档首页',
+            },
+          },
+          {
+            path: 'home1',
+            component: () => view('home'),
+            meta: {
+              title: '文档首页2',
+            },
+          },
+          {
+            path: 'https://element-plus.org/zh-CN/',
+            meta: {
+              title: 'Element Plus',
+            },
+          },
+        ],
       },
     ],
   },

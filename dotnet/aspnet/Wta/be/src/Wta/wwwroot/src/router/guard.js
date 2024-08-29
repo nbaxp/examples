@@ -35,7 +35,7 @@ const afterEach = (to, from) => {
   console.debug(`after route: ${to.name}: ${from.fullPath}-->${to.fullPath}`);
   try {
     const appStore = useAppStore();
-    if (appStore.settings.useTabs && to.matched[0].name === 'root' && !to.meta?.hideInMenu) {
+    if (appStore.settings.useTabs && to.matched[0].name === 'admin' && !to.meta?.hide) {
       const tabsStore = useTabsStore();
       tabsStore.addRoute(to);
     }

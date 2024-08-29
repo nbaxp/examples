@@ -1,8 +1,7 @@
 namespace Wta.Controllers;
 
-[View("home"), Icon("home")]
 [AllowAnonymous]
-public class HomeController : Controller, IResourceService<HomeModel>
+public class HomeController : Controller
 {
     [ResponseCache(NoStore = true), Ignore]
     public IActionResult Index()

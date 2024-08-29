@@ -1,7 +1,7 @@
 namespace Wta.Infrastructure.Application.Domain;
 public enum AuthType
 {
-    [Display(Name ="匿名")]
+    [Display(Name = "匿名")]
     Anonymous,
     [Display(Name = "已登录")]
     Authorize,

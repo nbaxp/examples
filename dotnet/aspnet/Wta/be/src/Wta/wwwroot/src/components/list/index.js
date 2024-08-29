@@ -4,7 +4,7 @@ import SvgIcon from '@/components/icon/index.js';
 import { DATETIME_FILENAME_FORMAT } from '@/constants/index.js';
 import useExport from '@/models/export.js';
 import useImport from '@/models/import.js';
-import { useAppStore } from '@/store/index.js';
+import { useAppStore, useUserStore } from '@/store/index.js';
 import request from '@/utils/request.js';
 import { schemaToModel, toQuerySchema } from '@/utils/schema.js';
 import { useCssVar } from '@vueuse/core';
@@ -280,6 +280,7 @@ export default {
   setup(props, context) {
     // 初始化
     const appStore = useAppStore();
+    const userStore = useUserStore();
     // const tokenStore = useTokenStore();
     const loading = ref(true);
     // 分页
@@ -305,9 +306,6 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const { t } = useI18n();
-    // 停权限验证
-    // const buttons = ref(props.buttons ?? route.meta.children.filter((o) => o.meta.hasPermission));
-    const buttons = ref(props.schema.meta?.buttons ?? route.meta.children);
     const sortColumns = ref(new Map());
     const tableSchema = ref({});
     const tableData = shallowRef([]);
@@ -318,6 +316,7 @@ export default {
     const editFormSchema = ref(null);
     const editFormModel = ref(null);
     const editFormButton = ref(null);
+    const buttons = ref(props.schema.meta?.buttons.filter((o) => userStore.hasPermission(o.meta)));
     const getSortModel = () => {
       const orders = (props.schema.meta?.sorting ?? '')
         .split(',')

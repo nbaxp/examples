@@ -14,6 +14,9 @@ export default defineStore('user', {
     permissions: [],
   }),
   actions: {
+    logout() {
+      this.$reset();
+    },
     async getUserInfo() {
       log('fetch user info');
       const tokenStore = useTokenStore();
@@ -26,20 +29,30 @@ export default defineStore('user', {
         }
       }
     },
-    hasPermission(permission) {
-      const userStore = useUserStore();
-      const tokenStore = useTokenStore();
-      if (/\[\]/.test(permission)) {
-        const roles = JSON.parse(permission);
-        return userStore.roles.some((o) => roles.includes(o));
+    hasPermission(meta) {
+      if (meta?.hidden) {
+        return false;
       }
-      if (permission === 'Anonymous') {
+      if (!meta?.authType) {
         return true;
+      } else {
+        if (meta?.authType === 'anonymous') {
+          return true;
+        } else if (meta?.authType === 'roles') {
+          const userStore = useUserStore();
+          const roles = meta?.roles.split(',');
+          if (!userStore.roles.some((o) => roles.includes(o))) {
+            return false;
+          }
+        } else if (meta?.authType === 'permission') {
+          const userStore = useUserStore();
+          const permission = meta?.number;
+          if (!userStore.permissions.some((o) => o === permission)) {
+            return false;
+          }
+        }
       }
-      if (permission === 'Authenticated') {
-        return tokenStore.isLogin();
-      }
-      return !permission || this.permissions?.some((o) => o === permission);
+      return true;
     },
   },
 });

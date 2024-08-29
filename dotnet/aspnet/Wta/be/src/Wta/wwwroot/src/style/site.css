@@ -4,11 +4,17 @@ html * {
 
 html,
 body {
-  width: 100%;
-  height: 100%;
   margin: 0;
   padding: 0;
+  outline: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
   text-rendering: optimizeLegibility;
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--el-scrollbar-bg-color, var(--el-text-color-secondary));
+  }
 }
 
 /*移除下划线*/
@@ -69,11 +75,6 @@ flex-dir-row {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--el-scrollbar-bg-color, var(--el-text-color-secondary));
-  }
 }
 
 img.loading {
@@ -81,7 +82,7 @@ img.loading {
   height: 3rem;
 }
 
-#app > .el-container {
+#app>.el-container {
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -113,7 +114,7 @@ img.loading {
   padding: 0;
 }
 
-.el-main > .router-view {
+.el-main>.router-view {
   flex-direction: column;
   padding: 20px;
 }
@@ -273,6 +274,7 @@ img.loading {
 /*暗色菜单*/
 
 html.dark-nav .admin-layout {
+
   .el-aside,
   .el-aside *,
   .el-header,

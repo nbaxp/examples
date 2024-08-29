@@ -18,7 +18,7 @@ export default [
   {
     path: '/docs',
     redirect: '/docs/home',
-    component: () => import('@/layouts/index.js'),
+    component: () => import('@/layouts/portal.js'),
     meta: {
       title: '帮助',
     },

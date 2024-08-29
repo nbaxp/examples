@@ -95,15 +95,14 @@ export default defineStore('app', {
       };
       await populateFullPath(this.menus);
       //
-      const key = 'root';
+      const key = 'admin';
       if (router.getRoutes().some((o) => o.name === key)) {
         router.removeRoute(key);
       }
       router.addRoute('/', {
         name: key,
-        path: '/',
-        redirect: '/home',
-        component: () => import('@/layouts/index.js'),
+        path: '/admin',
+        component: () => import('@/layouts/admin.js'),
         children: this.menus,
       });
     },
