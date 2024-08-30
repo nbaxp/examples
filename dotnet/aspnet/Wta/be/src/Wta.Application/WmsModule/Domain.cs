@@ -1,5 +1,3 @@
-using Wta.Application.Wms;
-
 namespace Wta.Application.WmsModule;
 
 [WmsBaseData, Display(Name = "库位类型", Order = 1)]
@@ -104,4 +102,59 @@ public class InventoryTransaction : BaseNameNumberEntity
 
     [Hidden]
     public List<InventoryTransaction> Transactiona { get; set; } = [];
+}
+
+public enum WmsAsnStatus
+{
+    [Display(Name = "待到货")]
+    Arrive = 0,
+
+    [Display(Name = "待卸货")]
+    Unload = 10,
+
+    [Display(Name = "待卸货")]
+    UnSort = 20,
+
+    [Display(Name = "待卸货")]
+    d = 30,
+
+    [Display(Name = "已分拣")]
+    e = 40
+}
+
+[Display(Name = "到货通知")]
+[ReceiptManagement]
+public class WmsAsn : Entity
+{
+    [UIHint("select")]
+    [KeyValue("url", "suppiler/search")]
+    [KeyValue("value", "number")]
+    [KeyValue("label", "name")]
+    [Display(Name = "供应商")]
+    public string Supplier { get; set; } = null!;
+
+    [Display(Name = "到货通知单号")]
+    public string Number { get; set; } = null!;
+
+    [Display(Name = "到货通知状态")]
+    public string Status { get; set; } = null!;
+
+    [Hidden]
+    public List<WmsAsnItem> Items { get; set; } = [];
+}
+
+[Display(Name = "到货通知详情")]
+[ReceiptManagement]
+public class WmsAsnItem : Entity
+{
+    [Display(Name = "到货通知单")]
+    public Guid AsnId { get; set; }
+
+    [Display(Name = "商品")]
+    public string Product { get; set; } = null!;
+
+    [Display(Name = "数量")]
+    public int Count { get; set; }
+
+    public WmsAsn? Asn { get; set; }
 }

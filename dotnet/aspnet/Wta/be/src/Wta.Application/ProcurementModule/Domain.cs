@@ -1,0 +1,2 @@
+namespace Wta.Application.ProcurementModule;
+

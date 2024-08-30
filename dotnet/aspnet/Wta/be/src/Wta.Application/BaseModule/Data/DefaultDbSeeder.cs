@@ -1,4 +1,5 @@
 using ClosedXML;
+using Wta.Application.BaseDataModule;
 using Wta.Infrastructure.Scheduling;
 
 namespace Wta.Application.BaseModule.Data;
@@ -423,6 +424,8 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
 
     private static void InitPost(DbContext context)
     {
+        context.Set<Supplier>().Add(new Supplier { Name = "测试供应商", Number = "0000" });
+        context.Set<Customer>().Add(new Customer { Name = "测试客户", Number = "9999" });
         var departmentId = context.Set<Department>().FirstOrDefault(o => o.Name == "研发生产中心")?.Id;
         context.Set<Post>().AddRange([new Post()
         {

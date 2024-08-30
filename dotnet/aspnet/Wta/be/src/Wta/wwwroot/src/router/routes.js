@@ -103,21 +103,97 @@ export default [
             path: 'home',
             component: () => view('home'),
             meta: {
-              title: '文档首页',
+              title: '智能工厂',
             },
           },
           {
-            path: 'home1',
-            component: () => view('home'),
+            path: 'wms',
+            component: () => view('wms'),
             meta: {
-              title: '文档首页2',
+              title: 'WMS',
             },
           },
           {
-            path: 'https://element-plus.org/zh-CN/',
+            path: 'js',
             meta: {
-              title: 'Element Plus',
+              title: 'JavaScript',
             },
+            children: [
+              {
+                path: 'https://lodash.com/',
+                meta: {
+                  title: 'Lodash',
+                },
+              },
+              {
+                path: 'https://echarts.apache.org/zh/index.html',
+                meta: {
+                  title: 'ECharts',
+                },
+              },
+              {
+                path: 'https://cn.vuejs.org/',
+                meta: {
+                  title: 'Vue',
+                },
+              },
+              {
+                path: 'https://router.vuejs.org/zh/',
+                meta: {
+                  title: 'Vue Router',
+                },
+              },
+              {
+                path: 'https://pinia.vuejs.org/zh/',
+                meta: {
+                  title: 'Pinia',
+                },
+              },
+              {
+                path: 'https://vueuse.org/',
+                meta: {
+                  title: 'VueUse',
+                },
+              },
+              {
+                path: 'https://vueuse.org/',
+                meta: {
+                  title: 'VueUse',
+                },
+              },
+              {
+                path: 'https://vue-i18n.intlify.dev/',
+                meta: {
+                  title: 'Vue I18n',
+                },
+              },
+              {
+                path: 'https://vue-echarts.dev/',
+                meta: {
+                  title: 'Vue ECharts',
+                },
+              },
+              {
+                path: 'https://element-plus.org/zh-CN/',
+                meta: {
+                  title: 'Element Plus',
+                },
+              },
+            ],
+          },
+          {
+            path: 'css',
+            meta: {
+              title: 'CSS',
+            },
+            children: [
+              {
+                path: 'https://tailwindcss.com/',
+                meta: {
+                  title: 'Tailwind CSS',
+                },
+              },
+            ],
           },
         ],
       },

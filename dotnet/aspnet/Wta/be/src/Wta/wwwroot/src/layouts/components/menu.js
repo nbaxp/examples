@@ -50,9 +50,8 @@ export const HeadMenu = {
     const active = computed(() => {
       return router.currentRoute.value.matched[1].meta.fullPath;
     });
-    const onClick = (route, e) => {
+    const onClick = (route) => {
       if (route.path.startsWith('http')) {
-        //e?.preventDefault();
         window.open(route.path);
       } else {
         const path = tabsStore.routes.findLast((o) => o.matched[1].path === route.path)?.path ?? route.path;
@@ -107,9 +106,8 @@ export const MenuItem = {
     );
     //
     const router = useRouter();
-    const onClick = (route, e) => {
+    const onClick = (route) => {
       if (route.path.startsWith('http')) {
-        //e?.preventDefault();
         window.open(route.path);
       } else {
         router.push(route.meta.fullPath);

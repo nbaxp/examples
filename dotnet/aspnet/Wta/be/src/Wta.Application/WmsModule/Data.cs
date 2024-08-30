@@ -7,8 +7,9 @@ public class DbConfig : BaseDbConfig<BaseDbContext>,
     IEntityTypeConfiguration<StorageLocation>,
     IEntityTypeConfiguration<InventoryOperation>,
     IEntityTypeConfiguration<Inventory>,
-    IEntityTypeConfiguration<InventoryTransaction>
-
+    IEntityTypeConfiguration<InventoryTransaction>,
+    IEntityTypeConfiguration<WmsAsn>,
+    IEntityTypeConfiguration<WmsAsnItem>
 {
     public void Configure(EntityTypeBuilder<LocationType> builder)
     {
@@ -32,6 +33,16 @@ public class DbConfig : BaseDbConfig<BaseDbContext>,
 
     public void Configure(EntityTypeBuilder<InventoryOperation> builder)
     {
+    }
+
+    public void Configure(EntityTypeBuilder<WmsAsn> builder)
+    {
+        builder.HasIndex(o => new { o.TenantNumber, o.Number }).IsUnique();
+    }
+
+    public void Configure(EntityTypeBuilder<WmsAsnItem> builder)
+    {
+        builder.HasOne(o => o.Asn).WithMany(o => o.Items).HasForeignKey(o => o.AsnId).OnDelete(DeleteBehavior.Cascade);
     }
 }
 
