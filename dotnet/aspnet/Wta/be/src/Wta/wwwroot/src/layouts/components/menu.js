@@ -52,7 +52,7 @@ export const HeadMenu = {
     });
     const onClick = (route, e) => {
       if (route.path.startsWith('http')) {
-        e?.preventDefault();
+        //e?.preventDefault();
         window.open(route.path);
       } else {
         const path = tabsStore.routes.findLast((o) => o.matched[1].path === route.path)?.path ?? route.path;
@@ -109,7 +109,7 @@ export const MenuItem = {
     const router = useRouter();
     const onClick = (route, e) => {
       if (route.path.startsWith('http')) {
-        e?.preventDefault();
+        //e?.preventDefault();
         window.open(route.path);
       } else {
         router.push(route.meta.fullPath);
@@ -130,7 +130,6 @@ export default {
       :collapse="appStore.settings.isMenuCollapse"
       :collapse-transition="false"
       :default-active="active"
-      router
       v-if="show"
     >
       <template v-for="item in list">
