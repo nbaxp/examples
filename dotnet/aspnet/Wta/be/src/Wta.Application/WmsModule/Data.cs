@@ -8,8 +8,8 @@ public class DbConfig : BaseDbConfig<BaseDbContext>,
     IEntityTypeConfiguration<InventoryOperation>,
     IEntityTypeConfiguration<Inventory>,
     IEntityTypeConfiguration<InventoryTransaction>,
-    IEntityTypeConfiguration<WmsAsn>,
-    IEntityTypeConfiguration<WmsAsnItem>
+    IEntityTypeConfiguration<AsnOrder>,
+    IEntityTypeConfiguration<AsnOrderItem>
 {
     public void Configure(EntityTypeBuilder<LocationType> builder)
     {
@@ -35,14 +35,12 @@ public class DbConfig : BaseDbConfig<BaseDbContext>,
     {
     }
 
-    public void Configure(EntityTypeBuilder<WmsAsn> builder)
+    public void Configure(EntityTypeBuilder<AsnOrder> builder)
     {
-        builder.HasIndex(o => new { o.TenantNumber, o.Number }).IsUnique();
     }
 
-    public void Configure(EntityTypeBuilder<WmsAsnItem> builder)
+    public void Configure(EntityTypeBuilder<AsnOrderItem> builder)
     {
-        builder.HasOne(o => o.Asn).WithMany(o => o.Items).HasForeignKey(o => o.AsnId).OnDelete(DeleteBehavior.Cascade);
     }
 }
 

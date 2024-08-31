@@ -1,4 +1,3 @@
-using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -77,7 +76,6 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                 if (_tenantNumber != null)
                 {
                     tenantEntity.TenantNumber = _tenantNumber;
-                    System.Diagnostics.Debug.WriteLine(System.Text.Json.JsonSerializer.Serialize(item.Entity, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles, WriteIndented = true }));
                 }
             }
             //实体IsReadOnly属性为true的不可删除
@@ -218,7 +216,17 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
             {
                 entityModlerBuilder.Property(nameof(BaseNameNumberEntity.Name)).IsRequired();
                 entityModlerBuilder.Property(nameof(BaseNameNumberEntity.Number)).IsRequired();
-                //entityModlerBuilder.HasIndex(nameof(BaseNameNumberEntity.TenantNumber), nameof(BaseNameNumberEntity.Number)).IsUnique();
+                entityModlerBuilder.HasIndex(nameof(ITenantEntity.TenantNumber), nameof(BaseNameNumberEntity.Number)).IsUnique();//?
+            }
+            //配置单据实体
+            if (entityType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseOrderEntity<>)))
+            {
+                entityModlerBuilder.Property(nameof(BaseOrderEntity<BaseEntity>.Number)).IsRequired();
+                entityModlerBuilder.HasIndex(nameof(ITenantEntity.TenantNumber), nameof(BaseOrderEntity<BaseEntity>.Number)).IsUnique();//?
+            }
+            if (entityType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseOrderItemEntity<>)))
+            {
+                entityModlerBuilder.HasOne(nameof(BaseOrderItemEntity<BaseEntity>.Order)).WithMany(nameof(BaseOrderEntity<BaseEntity>.Items)).HasForeignKey(nameof(BaseOrderItemEntity<BaseEntity>.OrderId)).OnDelete(DeleteBehavior.Cascade);
             }
             //配置树形结构实体
             if (entityType.IsAssignableTo(typeof(BaseTreeEntity<>).MakeGenericType(entityType)))

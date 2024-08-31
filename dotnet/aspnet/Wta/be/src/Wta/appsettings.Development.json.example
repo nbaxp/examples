@@ -23,11 +23,12 @@
     "Url": "http://localhost:5000"
   },
   "DbContext": {
-    "System": "Npgsql"
+    "Base": "sqlite"
     //"System": "MySql",
     //"System": "Npgsql"
   },
   "ConnectionStrings": {
+    "Base": "DataSource=wta.db"
     //"System": "Server=localhost;Port=3306;Database=wta;Uid=root;Pwd=aA123456!",
     //"System": "User ID=root;Host=cockroachdb;Port=26257;Database=wta;CommandTimeout=600;"
   },

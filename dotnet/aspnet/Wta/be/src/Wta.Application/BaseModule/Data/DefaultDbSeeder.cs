@@ -36,7 +36,6 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             {
                 context.Set<Job>().Add(new Job { Name = o.GetDisplayName(), Type = o.FullName!, Cron = o.GetCustomAttribute<CronAttribute>()!.Cron });
             });
-        //context.SaveChanges();
     }
 
     private static void InitDepartment(DbContext context)
@@ -216,7 +215,6 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
             ]
         }.UpdateNode();
         context.Set<Department>().Add(department);
-        context.SaveChanges();
     }
 
     private static void InitDict(DbContext context)
@@ -550,6 +548,5 @@ public class DefaultDbSeeder(IActionDescriptorCollectionProvider actionProvider,
                 }
             ],
         });
-        context.SaveChanges();
     }
 }

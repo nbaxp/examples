@@ -342,7 +342,7 @@ public abstract class BaseStartup : IStartup
             options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
             options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             options.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-            options.DefaultBufferSize = options.DefaultBufferSize * 10;
+            options.DefaultBufferSize *= 10;
             options.WriteIndented = false;// builder.Environment.IsDevelopment();
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             options.Converters.Add(new JsonNullableGuidConverter());

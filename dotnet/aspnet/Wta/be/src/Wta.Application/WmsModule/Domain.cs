@@ -124,37 +124,26 @@ public enum WmsAsnStatus
 
 [Display(Name = "到货通知")]
 [ReceiptManagement]
-public class WmsAsn : Entity
+public class AsnOrder : BaseOrderEntity<AsnOrderItem>
 {
     [UIHint("select")]
-    [KeyValue("url", "suppiler/search")]
+    [KeyValue("url", "supplier/search")]
     [KeyValue("value", "number")]
     [KeyValue("label", "name")]
     [Display(Name = "供应商")]
     public string Supplier { get; set; } = null!;
 
-    [Display(Name = "到货通知单号")]
-    public string Number { get; set; } = null!;
-
     [Display(Name = "到货通知状态")]
     public string Status { get; set; } = null!;
-
-    [Hidden]
-    public List<WmsAsnItem> Items { get; set; } = [];
 }
 
 [Display(Name = "到货通知详情")]
 [ReceiptManagement]
-public class WmsAsnItem : Entity
+public class AsnOrderItem : BaseOrderItemEntity<AsnOrder>
 {
-    [Display(Name = "到货通知单")]
-    public Guid AsnId { get; set; }
-
     [Display(Name = "商品")]
     public string Product { get; set; } = null!;
 
     [Display(Name = "数量")]
     public int Count { get; set; }
-
-    public WmsAsn? Asn { get; set; }
 }
