@@ -67,6 +67,10 @@ export function normalize(schema) {
       result.input = 'text';
     }
   }
+  if(meta.items?.type==='object')
+  {
+    meta.items = normalize(meta.items);
+  }
   for (const propertyName in properties) {
     properties[propertyName] = normalize(properties[propertyName]);
   }

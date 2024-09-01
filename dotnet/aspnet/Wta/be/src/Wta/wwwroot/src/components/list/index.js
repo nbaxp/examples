@@ -48,7 +48,6 @@ export default {
           v-model="queryModel"
           @submit="load"
           :hideButton="true"
-          :isQueryForm="true"
           class="query"
           label-position="right"
           :style="queryStyle"
@@ -233,7 +232,7 @@ export default {
       append-to-body
       destroy-on-close
       :close-on-click-modal="false"
-      :style="{width:editFormSchema?.meta?.width??'700px'}"
+      :style="{width:editFormSchema?.meta?.width??'710px'}"
     >
       <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
       <template #footer>

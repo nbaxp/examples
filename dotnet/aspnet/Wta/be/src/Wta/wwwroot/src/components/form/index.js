@@ -3,9 +3,12 @@ import { ElMessageBox } from 'element-plus';
 import html from 'utils';
 import { nextTick, reactive, ref, watch } from 'vue';
 import AppFormItem from './form-item.js';
+import SvgIcon from '@/components/icon/index.js';
+import { schemaToModel } from '@/utils/schema.js';
 
 export default {
   components: {
+    SvgIcon,
     AppFormItem,
   },
   name: 'AppForm',
@@ -23,7 +26,36 @@ export default {
       </el-form-item>
       <template v-if="schema && schema.properties">
         <template v-for="(value, prop) in getProperties(schema.properties)">
+          <!--对象属性-->
+          <template v-if="value.type==='object'"></template>
+          <!--对象列表-->
+          <template v-else-if="value.meta?.items?.type==='object'">
+            <el-form-item :label="value.title">
+              <el-icon v-if="mode!=='query'&&model[prop]?.length===0" class="cursor-pointer">
+                <svg-icon name="ep-plus" @click="addItem(prop,value.meta.items)" />
+              </el-icon>
+              <div class="el-form-content-2col pb-2" v-for="(item,index) in model[prop]">
+                <app-form
+                  inline
+                  :hideButton="true"
+                  :disabled="mode==='details'"
+                  :mode="mode"
+                  :schema="value.meta.items"
+                  v-model="model[prop][index]"
+                />
+                <el-icon>
+                  <svg-icon name="ep-plus" @click="addItem(prop,value.meta.items)" class="cursor-pointer" />
+                </el-icon>
+                <el-icon>
+                  <svg-icon name="ep-close" @click="removeItem(model[prop],index)" class="cursor-pointer" />
+                </el-icon>
+                <br />
+              </div>
+            </el-form-item>
+          </template>
+          <!--简单属性||简单属性列表-->
           <app-form-item
+            v-else
             :parentSchema="schema"
             :schema="value"
             v-model="model"
@@ -49,7 +81,7 @@ export default {
       </el-form-item>
     </el-form>
   `,
-  props: ['modelValue', 'inline', 'schema', 'action', 'hideButton', 'showReset', 'isQueryForm', 'mode'],
+  props: ['modelValue', 'inline', 'schema', 'action', 'hideButton', 'showReset', 'mode'],
   emits: ['update:modelValue', 'success', 'error'],
   setup(props, context) {
     // init
@@ -116,6 +148,12 @@ export default {
       });
     };
     context.expose({ reset, validate, submit, setErrors });
+    const addItem = (prop, schema) => {
+      model[prop].push(schemaToModel(schema));
+    };
+    const removeItem = (items, index) => {
+      items.splice(index, 1);
+    };
     return {
       model,
       formRef,
@@ -125,6 +163,8 @@ export default {
       errorMessage,
       reset,
       submit,
+      addItem,
+      removeItem,
     };
   },
 };

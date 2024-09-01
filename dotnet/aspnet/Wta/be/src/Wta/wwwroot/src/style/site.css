@@ -211,8 +211,10 @@ img.loading {
     width: 220px;
   }
 
-  .el-date-editor--datetimerange {
-    width: 540px;
+  .el-form-content-2col,
+  .el-date-editor--datetimerange,
+  .el-textarea {
+    width: 554px;
   }
 }
 

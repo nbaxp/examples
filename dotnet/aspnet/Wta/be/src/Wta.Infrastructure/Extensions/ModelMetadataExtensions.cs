@@ -8,7 +8,7 @@ namespace Wta.Infrastructure.Extensions;
 
 public static class ModelMetadataExtensions
 {
-    public static object GetSchema(this ModelMetadata meta, IServiceProvider serviceProvider, ModelMetadata? parent = null)
+    public static object GetSchema(this ModelMetadata meta, IServiceProvider serviceProvider, ModelMetadata? parent = null, int level = 0)
     {
         var result = new Dictionary<string, object>();
         var metaData = (meta as DefaultModelMetadata)!;
@@ -79,6 +79,13 @@ public static class ModelMetadataExtensions
         {
             result.TryAdd("input", meta.TemplateHint?.ToLowerCamelCase()!);
         }
+        if (meta.DataTypeName != null)
+        {
+            if (meta.DataTypeName == "MultilineText")
+            {
+                result.TryAdd("input", "textarea");
+            }
+        }
         //类型
         if (isValueType)//值类型
         {
@@ -147,16 +154,16 @@ public static class ModelMetadataExtensions
                         result.TryAdd("items", metaData.ElementMetadata!.GetSchema(serviceProvider, meta));
                     }
                 }
-                else if (parent == null && !isHidden)
+                else if (!isHidden && level <= 1)
                 {//对象类型
-                    //result.TryAdd("items", metaData.ElementMetadata!.GetSchema(serviceProvider, meta));
+                    result.TryAdd("items", metaData.ElementMetadata!.GetSchema(serviceProvider, meta, level + 1));
                 }
             }
             else if (metaData.ModelType == typeof(string))
             {
                 result.Add("type", "string");
             }
-            else if (parent == null)
+            else if (level <= 2)
             {
                 result.Add("type", "object");
                 var properties = new Dictionary<string, object>();
@@ -167,7 +174,7 @@ public static class ModelMetadataExtensions
                     {
                         continue;
                     }
-                    properties.Add(propertyMetadata.Name!, propertyMetadata.GetSchema(serviceProvider, meta));
+                    properties.Add(propertyMetadata.Name!, propertyMetadata.GetSchema(serviceProvider, meta, level + 1));
                 }
                 result.Add(nameof(properties), properties);
             }

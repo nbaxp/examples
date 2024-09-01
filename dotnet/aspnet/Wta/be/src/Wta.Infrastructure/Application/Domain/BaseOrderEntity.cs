@@ -14,6 +14,8 @@ public abstract class BaseOrderEntity<TOrderItem> : Entity
 
 public abstract class BaseOrderItemEntity<TOrder> : Entity
 {
+    [KeyValue("hideForEdit", true)]
     public Guid OrderId { get; set; }
+
     public TOrder? Order { get; set; }
 }

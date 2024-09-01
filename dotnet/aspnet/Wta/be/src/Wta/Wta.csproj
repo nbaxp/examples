@@ -8,12 +8,6 @@
     <ProjectReference Include="..\Wta.Application\Wta.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="appsettings.Development.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="appsettings.Development.json" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="start.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
