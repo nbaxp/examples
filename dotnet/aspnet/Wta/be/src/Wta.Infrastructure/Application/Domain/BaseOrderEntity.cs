@@ -8,7 +8,7 @@ public abstract class BaseOrderEntity<TOrderItem> : Entity
     [Display(Name = "创建时间")]
     public DateTime CreationTime { get; set; }
 
-    [Display(Name = "单据条目")]
+    [Display(Name = "单据明细")]
     public List<TOrderItem> Items { get; set; } = [];
 }
 
