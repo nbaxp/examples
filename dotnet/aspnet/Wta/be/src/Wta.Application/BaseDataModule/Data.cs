@@ -9,14 +9,17 @@ public class DataDbConfig : BaseDbConfig<BaseDbContext>,
     IEntityTypeConfiguration<Customer>,
     IEntityTypeConfiguration<ProductType>,
     IEntityTypeConfiguration<ProductCategory>,
+    IEntityTypeConfiguration<ProductUnit>,
     IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Supplier> builder)
     {
+        builder.HasOne(o => o.Category).WithMany().HasForeignKey(o => o.CategoryId).OnDelete(DeleteBehavior.Cascade);
     }
 
     public void Configure(EntityTypeBuilder<Customer> builder)
     {
+        builder.HasOne(o => o.Category).WithMany().HasForeignKey(o => o.CategoryId).OnDelete(DeleteBehavior.Cascade);
     }
 
     public void Configure(EntityTypeBuilder<SupplierCategory> builder)
@@ -41,6 +44,13 @@ public class DataDbConfig : BaseDbConfig<BaseDbContext>,
 
     public void Configure(EntityTypeBuilder<Product> builder)
     {
+        builder.HasOne(o => o.Type).WithMany().HasForeignKey(o => o.TypeId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.Category).WithMany().HasForeignKey(o => o.TypeId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.Unit).WithMany().HasForeignKey(o => o.TypeId).OnDelete(DeleteBehavior.Cascade);
+    }
+
+    public void Configure(EntityTypeBuilder<ProductUnit> builder)
+    {
     }
 
     //public void Configure(EntityTypeBuilder<WarehouseType> builder)
@@ -56,11 +66,34 @@ public class DataDbConfig : BaseDbConfig<BaseDbContext>,
     //}
 }
 
-
 public class Data : IDbSeeder<BaseDbContext>
 {
     public void Seed(BaseDbContext context)
     {
+        context.Set<Supplier>().Add(new Supplier
+        {
+            Category = new SupplierCategory
+            {
+                Name = "默认",
+                Number = "Default"
+            }.UpdateNode(),
+            Name = "测试供应商",
+            Number = "0000",
+            Contact = "联系人",
+            PhoneNumber = "13012345678"
+        });
+        context.Set<Customer>().Add(new Customer
+        {
+            Category = new CustomerCategory
+            {
+                Name = "默认",
+                Number = "Default"
+            }.UpdateNode(),
+            Name = "测试客户",
+            Number = "9999",
+            Contact = "联系人",
+            PhoneNumber = "13012345678"
+        });
         ////产品类型
         //context.Set<ProductType>().AddRange([new ProductType()
         //{
