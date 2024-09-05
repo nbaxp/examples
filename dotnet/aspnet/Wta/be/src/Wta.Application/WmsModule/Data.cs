@@ -1,8 +1,8 @@
-using Wta.Application.BaseModule.Data;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.WmsModule;
 
-public class DbConfig : BaseDbConfig<BaseDbContext>,
+public class DbConfig : BaseDbConfig<SystemDbContext>,
     IEntityTypeConfiguration<LocationType>,
     IEntityTypeConfiguration<StorageLocation>,
     IEntityTypeConfiguration<InventoryOperation>,
@@ -44,9 +44,9 @@ public class DbConfig : BaseDbConfig<BaseDbContext>,
     }
 }
 
-public class DataDbSeeder : IDbSeeder<BaseDbContext>
+public class DataDbSeeder : IDbSeeder<SystemDbContext>
 {
-    public void Seed(BaseDbContext context)
+    public void Seed(SystemDbContext context)
     {
         //库位类型
         context.Set<LocationType>().AddRange([

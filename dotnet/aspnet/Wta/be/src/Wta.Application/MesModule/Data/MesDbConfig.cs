@@ -1,9 +1,9 @@
 using Wta.Application.MesModule.Domain;
-using Wta.Application.BaseModule.Data;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.MesModule.Data;
 
-public class MesDbConfig : BaseDbConfig<BaseDbContext>,
+public class MesDbConfig : BaseDbConfig<SystemDbContext>,
     IEntityTypeConfiguration<Material>,
     IEntityTypeConfiguration<Bom>,
     IEntityTypeConfiguration<Technology>

@@ -124,7 +124,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         var jsonSerializerOptions = ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
         foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
         {
-            if (item.Entity is not Audit && item.Entity is BaseEntity entity)
+            if (item.Entity is not Audit && item.Entity is IAuditEntity && item.Entity is BaseEntity entity)
             {
                 var audit = this.Set<Audit>().Add(new Audit
                 {

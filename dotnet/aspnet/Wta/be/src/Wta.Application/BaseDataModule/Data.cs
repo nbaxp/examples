@@ -1,8 +1,8 @@
-using Wta.Application.BaseModule.Data;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.BaseDataModule;
 
-public class DataDbConfig : BaseDbConfig<BaseDbContext>,
+public class DataDbConfig : BaseDbConfig<SystemDbContext>,
     IEntityTypeConfiguration<SupplierCategory>,
     IEntityTypeConfiguration<Supplier>,
     IEntityTypeConfiguration<CustomerCategory>,
@@ -66,9 +66,9 @@ public class DataDbConfig : BaseDbConfig<BaseDbContext>,
     //}
 }
 
-public class Data : IDbSeeder<BaseDbContext>
+public class Data : IDbSeeder<SystemDbContext>
 {
-    public void Seed(BaseDbContext context)
+    public void Seed(SystemDbContext context)
     {
         context.Set<Supplier>().Add(new Supplier
         {

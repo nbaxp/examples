@@ -1,14 +1,14 @@
-using Wta.Application.BaseModule.Data;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.ProcurementModule;
 
-public class DbConfig : BaseDbConfig<BaseDbContext>
+public class DbConfig : BaseDbConfig<SystemDbContext>
 {
 }
 
-public class DataDbSeeder : IDbSeeder<BaseDbContext>
+public class DataDbSeeder : IDbSeeder<SystemDbContext>
 {
-    public void Seed(BaseDbContext context)
+    public void Seed(SystemDbContext context)
     {
     }
 }
