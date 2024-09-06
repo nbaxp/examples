@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.SystemModule.Domain;
 
 [SystemSettings, Display(Name = "租户", Order = 7)]
+[DependsOn<SystemDbContext>]
 public class Tenant : Entity
 {
     public string Name { get; set; } = default!;

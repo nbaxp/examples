@@ -1,9 +1,10 @@
-using Wta.Application.SystemModule.Domain;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.SystemModule.Domain;
 
 [OrganizationManagement]
 [Display(Name = "岗位", Order = 2)]
+[DependsOn<SystemDbContext>]
 public class Post : BaseTreeEntity<Post>
 {
     [UIHint("select")]

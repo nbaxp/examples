@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Wta.Application.SystemModule.Domain;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.SystemModule.Domain;
 
 [PermissionManagement, Display(Name = "用户", Order = 3)]
+[DependsOn<SystemDbContext>]
 public class User : Entity
 {
     [ReadOnly(true)]

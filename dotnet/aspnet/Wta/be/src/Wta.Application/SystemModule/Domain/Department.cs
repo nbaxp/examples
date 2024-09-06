@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.SystemModule.Domain;
 
 [OrganizationManagement, Display(Name = "部门", Order = 1)]
+[DependsOn<SystemDbContext>]
 public class Department : BaseTreeEntity<Department>
 {
     [UIHint("select")]

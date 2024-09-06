@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Wta.Application.SystemModule.Domain;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.SystemModule.Domain;
 
@@ -7,6 +7,7 @@ namespace Wta.Application.SystemModule.Domain;
 /// name=>meta.title,number=>meta.path
 /// </summary>
 [PermissionManagement, Display(Name = "权限", Order = 5)]
+[DependsOn<SystemDbContext>]
 public class Permission : BaseTreeEntity<Permission>
 {
     /// <summary>

@@ -166,32 +166,29 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        var type = this.GetType();
         var method = typeof(ModelBuilder).GetMethods().First(o => o.Name == nameof(modelBuilder.ApplyConfiguration));
-        //AppDomain.CurrentDomain.GetCustomerAssemblies()
-        //    .SelectMany(o => o.GetTypes())
-        //    .Where(o => o.IsClass && !o.IsAbstract && o.IsAssignableTo(typeof(BaseEntity)) && !o.HasAttribute<IgnoreAttribute>())
-        //    .ForEach(entityType =>
-        //    {
-        //        ConfigEntity(modelBuilder, entityType);
-        //        //var config = ServiceProvider.GetService(typeof(IEntityTypeConfiguration<>).MakeGenericType(entityType));
-        //        //if (config != null)
-        //        //{
-        //        //    method.MakeGenericMethod(entityType).Invoke(modelBuilder, [config]);
-        //        //}
-        //    });
+
+        //添加实体配置
         AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
-            .Where(o => o.IsClass && !o.IsAbstract && o.IsAssignableTo(typeof(BaseDbConfig<>).MakeGenericType(this.GetType())))
-            .ForEach(configType =>
+            .Where(o => !o.IsAbstract &&
+            o.IsAssignableTo(typeof(ITenantEntity)) &&
+            o.GetCustomAttributes(typeof(DependsOnAttribute<>)).Any(o => o.GetType().GenericTypeArguments.First().IsAssignableTo(typeof(DbContext))))
+            .ForEach(entityType =>
             {
-                configType.GetInterfaces().Where(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)).ForEach(o =>
+                var dbContextType = entityType.GetCustomAttribute(typeof(DependsOnAttribute<>))!.GetType().GenericTypeArguments.First();
+                if (dbContextType == type)
                 {
-                    var entityType = o.GenericTypeArguments.First();
+                    //通用配置
                     ConfigEntity(modelBuilder, entityType);
                     //自定义配置
-                    var config = ServiceProvider.GetRequiredService(typeof(IEntityTypeConfiguration<>).MakeGenericType(entityType));
-                    method.MakeGenericMethod(entityType).Invoke(modelBuilder, [config]);
-                });
+                    var config = ServiceProvider.GetService(typeof(IEntityTypeConfiguration<>).MakeGenericType(entityType));
+                    if (config != null)
+                    {
+                        method.MakeGenericMethod(entityType).Invoke(modelBuilder, [config]);
+                    }
+                }
             });
     }
 

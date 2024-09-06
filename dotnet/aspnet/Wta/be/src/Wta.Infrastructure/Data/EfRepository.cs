@@ -6,10 +6,7 @@ public class EfRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEn
 {
     public EfRepository(IServiceProvider serviceProvider)
     {
-        var configType = serviceProvider.GetRequiredService(typeof(IEntityTypeConfiguration<>).MakeGenericType(typeof(TEntity)));
-        var dbContextType = configType.GetType()
-            .GetBaseClasses()
-            .First(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseDbConfig<>)).GenericTypeArguments.First();
+        var dbContextType = typeof(TEntity).GetCustomAttribute(typeof(DependsOnAttribute<>))!.GetType().GenericTypeArguments.First();
         Context = (serviceProvider.GetRequiredService(dbContextType) as DbContext)!;
         DbSet = Context.Set<TEntity>();
     }

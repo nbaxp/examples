@@ -1,5 +1,8 @@
+using Wta.Application.SystemModule.Data;
+
 namespace Wta.Application.SystemModule.Domain;
 
+[DependsOn<SystemDbContext>]
 public class UserRole : ITenantEntity
 {
     public Guid UserId { get; set; }

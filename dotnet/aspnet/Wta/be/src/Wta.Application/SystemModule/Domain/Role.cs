@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.SystemModule.Domain;
 
 [PermissionManagement, Display(Name = "角色", Order = 4)]
+[DependsOn<SystemDbContext>]
 public class Role : Entity
 {
     public string Name { get; set; } = default!;

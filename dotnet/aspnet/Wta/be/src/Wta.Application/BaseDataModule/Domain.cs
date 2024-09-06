@@ -1,11 +1,15 @@
+using Wta.Application.SystemModule.Data;
+
 namespace Wta.Application.BaseDataModule;
 
 [Supplier, Display(Name = "供应商分类", Order = 3)]
+[DependsOn<SystemDbContext>]
 public class SupplierCategory : BaseTreeEntity<SupplierCategory>
 {
 }
 
 [Supplier, Display(Name = "供应商", Order = 4)]
+[DependsOn<SystemDbContext>]
 public class Supplier : BaseNameNumberEntity
 {
     public Guid CategoryId { get; set; }
@@ -23,11 +27,13 @@ public class Supplier : BaseNameNumberEntity
 }
 
 [Customer, Display(Name = "客户分类", Order = 5)]
+[DependsOn<SystemDbContext>]
 public class CustomerCategory : BaseTreeEntity<CustomerCategory>
 {
 }
 
 [Customer, Display(Name = "客户", Order = 6)]
+[DependsOn<SystemDbContext>]
 public class Customer : BaseNameNumberEntity
 {
     public Guid CategoryId { get; set; }
@@ -45,21 +51,25 @@ public class Customer : BaseNameNumberEntity
 }
 
 [Product, Display(Name = "产品类型", Order = 10)]
+[DependsOn<SystemDbContext>]
 public class ProductType : BaseNameNumberEntity
 {
 }
 
 [Product, Display(Name = "产品分类", Order = 20)]
+[DependsOn<SystemDbContext>]
 public class ProductCategory : BaseTreeEntity<ProductCategory>
 {
 }
 
 [Product, Display(Name = "产品单位", Order = 30)]
+[DependsOn<SystemDbContext>]
 public class ProductUnit : BaseNameNumberEntity
 {
 }
 
 [Product, Display(Name = "产品", Order = 40)]
+[DependsOn<SystemDbContext>]
 public class Product : BaseNameNumberEntity
 {
     [UIHint("select")]

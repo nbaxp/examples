@@ -1,6 +1,9 @@
+using Wta.Application.SystemModule.Data;
+
 namespace Wta.Application.WmsModule;
 
 [WmsBaseData, Display(Name = "库位类型", Order = 1)]
+[DependsOn<SystemDbContext>]
 public class LocationType : BaseNameNumberEntity
 {
     [Hidden]
@@ -8,6 +11,7 @@ public class LocationType : BaseNameNumberEntity
 }
 
 [WmsBaseData, Display(Name = "库位管理", Order = 2)]
+[DependsOn<SystemDbContext>]
 public class StorageLocation : BaseTreeEntity<StorageLocation>
 {
     [UIHint("select")]
@@ -34,6 +38,7 @@ public enum InventoryDirection
 }
 
 [WmsBaseData, Display(Name = "库存操作", Order = 3)]
+[DependsOn<SystemDbContext>]
 public class InventoryOperation : BaseNameNumberEntity
 {
     [Display(Name = "操作类型")]
@@ -44,6 +49,7 @@ public class InventoryOperation : BaseNameNumberEntity
 }
 
 [Inventory, Display(Name = "库存管理", Order = 1)]
+[DependsOn<SystemDbContext>]
 public class Inventory : BaseNameNumberEntity
 {
     [Display(Name = "数量")]
@@ -62,6 +68,7 @@ public class Inventory : BaseNameNumberEntity
 }
 
 [Inventory, Display(Name = "库存事务", Order = 2)]
+[DependsOn<SystemDbContext>]
 public class InventoryTransaction : BaseNameNumberEntity
 {
     [Display(Name = "来源")]
@@ -124,6 +131,7 @@ public enum WmsAsnStatus
 
 [Display(Name = "到货通知")]
 [ReceiptManagement]
+[DependsOn<SystemDbContext>]
 public class AsnOrder : BaseOrderEntity<AsnOrderItem>
 {
     [UIHint("select")]
@@ -139,6 +147,7 @@ public class AsnOrder : BaseOrderEntity<AsnOrderItem>
 
 [Display(Name = "到货通知详情")]
 [ReceiptManagement]
+[DependsOn<SystemDbContext>]
 public class AsnOrderItem : BaseOrderItemEntity<AsnOrder>
 {
     [Display(Name = "商品")]
