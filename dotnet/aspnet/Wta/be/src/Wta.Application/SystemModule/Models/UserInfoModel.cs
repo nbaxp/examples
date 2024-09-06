@@ -1,7 +1,6 @@
 namespace Wta.Application.SystemModule.Models;
 
-[UserCenter]
-[Display(Name = "用户信息", Order = 1)]
+[UserCenter, Display(Name = "用户信息", Order = 20)]
 [KeyValue("url", "user-info/index")]
 public class UserInfoModel : IResource
 {

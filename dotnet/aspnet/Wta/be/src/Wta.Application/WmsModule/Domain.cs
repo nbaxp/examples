@@ -2,157 +2,42 @@ using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.WmsModule;
 
-[WmsBaseData, Display(Name = "库位类型", Order = 1)]
-[DependsOn<SystemDbContext>]
-public class LocationType : BaseNameNumberEntity
+[DependsOn<SystemDbContext>, WareHouseManagement, Display(Name = "仓库信息", Order = 10)]
+public class WareHouseInfo : Entity
 {
-    [Hidden]
-    public List<StorageLocation> Locations { get; set; } = [];
 }
 
-[WmsBaseData, Display(Name = "库位管理", Order = 2)]
-[DependsOn<SystemDbContext>]
-public class StorageLocation : BaseTreeEntity<StorageLocation>
+[DependsOn<SystemDbContext>, WareHouseManagement, Display(Name = "仓位信息", Order = 20)]
+public class WarehouseLocationInfo : Entity
 {
-    [UIHint("select")]
-    [KeyValue("url", "location-type/search")]
-    [KeyValue("value", "id")]
-    [KeyValue("label", "name")]
-    [Display(Name = "类型")]
-    [Required]
-    public Guid? TypeId { get; set; }
-
-    public LocationType? Type { get; set; }
-
-    public List<InventoryTransaction> Transactions { get; set; } = [];
-    public List<Inventory> Inventories { get; set; } = [];
 }
 
-public enum InventoryDirection
+[DependsOn<SystemDbContext>, WareHouseManagement, Display(Name = "期初期末", Order = 30)]
+public class PeriodStartEnd : Entity
 {
-    [Display(Name = "入库")]
-    In,
-
-    [Display(Name = "出库")]
-    Out
 }
 
-[WmsBaseData, Display(Name = "库存操作", Order = 3)]
-[DependsOn<SystemDbContext>]
-public class InventoryOperation : BaseNameNumberEntity
+[DependsOn<SystemDbContext>, Wms, Display(Name = "其他入库单", Order = 10)]
+public class OtherInboundOrder : Entity
 {
-    [Display(Name = "操作类型")]
-    public InventoryDirection Direction { get; set; }
-
-    [Hidden]
-    public List<InventoryTransaction> Transactions { get; set; } = [];
 }
 
-[Inventory, Display(Name = "库存管理", Order = 1)]
-[DependsOn<SystemDbContext>]
-public class Inventory : BaseNameNumberEntity
+[DependsOn<SystemDbContext>, Wms, Display(Name = "其他出库单", Order = 20)]
+public class OtherOutboundOrder : Entity
 {
-    [Display(Name = "数量")]
-    public int Quantity { get; internal set; }
-
-    [UIHint("select")]
-    [KeyValue("url", "storage-location/search")]
-    [KeyValue("value", "id")]
-    [KeyValue("label", "name")]
-    [Display(Name = "库位")]
-    [Required]
-    public Guid? LocationId { get; internal set; }
-
-    [Hidden]
-    public StorageLocation? Location { get; set; }
 }
 
-[Inventory, Display(Name = "库存事务", Order = 2)]
-[DependsOn<SystemDbContext>]
-public class InventoryTransaction : BaseNameNumberEntity
+[DependsOn<SystemDbContext>, Wms, Display(Name = "库存调拨", Order = 30)]
+public class InventoryAllocation : Entity
 {
-    [Display(Name = "来源")]
-    public string? From { get; set; }
-
-    [Display(Name = "目标")]
-    public string? To { get; set; }
-
-    [Display(Name = "分组")]
-    public string? Group { get; set; }
-
-    [Display(Name = "操作类型")]
-    public InventoryDirection Direction { get; set; }
-
-    [UIHint("select")]
-    [KeyValue("url", "inventory-operation/search")]
-    [KeyValue("value", "id")]
-    [KeyValue("label", "name")]
-    [Display(Name = "操作")]
-    [Required]
-    public Guid? OperationId { get; set; }
-
-    [Hidden]
-    public InventoryOperation? Operation { get; set; }
-
-    [UIHint("select")]
-    [KeyValue("url", "storage-location/search")]
-    [KeyValue("value", "id")]
-    [KeyValue("label", "name")]
-    [Display(Name = "库位")]
-    [Required] public Guid? LocationId { get; internal set; }
-
-    [Display(Name = "数量")]
-    public int Quantity { get; internal set; }
-
-    [Hidden]
-    public StorageLocation? Location { get; set; }
-
-    [Hidden]
-    public List<InventoryTransaction> Transactiona { get; set; } = [];
 }
 
-public enum WmsAsnStatus
+[DependsOn<SystemDbContext>, Wms, Display(Name = "库存盘点", Order = 40)]
+public class InventoryCheck : Entity
 {
-    [Display(Name = "待到货")]
-    Arrive = 0,
-
-    [Display(Name = "待卸货")]
-    Unload = 10,
-
-    [Display(Name = "待卸货")]
-    UnSort = 20,
-
-    [Display(Name = "待卸货")]
-    d = 30,
-
-    [Display(Name = "已分拣")]
-    e = 40
 }
 
-[Display(Name = "到货通知")]
-[ReceiptManagement]
-[DependsOn<SystemDbContext>]
-public class AsnOrder : BaseOrderEntity<AsnOrderItem>
+[DependsOn<SystemDbContext>, Wms, Display(Name = "出入库统计", Order = 50)]
+public class InventoryInOutStatistics : Entity
 {
-    [UIHint("select")]
-    [KeyValue("url", "supplier/search")]
-    [KeyValue("value", "number")]
-    [KeyValue("label", "name")]
-    [Display(Name = "供应商")]
-    public string Supplier { get; set; } = null!;
-
-    [Display(Name = "到货通知状态")]
-    public string Status { get; set; } = null!;
-}
-
-[Display(Name = "到货通知详情")]
-[ReceiptManagement]
-[DependsOn<SystemDbContext>]
-public class AsnOrderItem : BaseOrderItemEntity<AsnOrder>
-{
-    [Display(Name = "商品")]
-    public string Product { get; set; } = null!;
-
-    [Display(Name = "数量")]
-    public int Count { get; set; }
 }

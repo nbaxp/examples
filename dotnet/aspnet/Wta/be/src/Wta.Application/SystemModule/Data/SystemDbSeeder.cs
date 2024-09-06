@@ -280,10 +280,12 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
             if (groupType.BaseType != null && !groupType.BaseType.IsAbstract)
             {
                 var parentNumber = groupType.BaseType!.Name!.TrimEnd("Attribute")!;
-                group.ParentId = list.FirstOrDefault(o => o.Number == parentNumber)?.Id;
+                var parent = list.FirstOrDefault(o => o.Number == parentNumber);
+                group.ParentId = parent?.Id;
+                group.Parent = parent;
+                parent?.Children.Add(group);
             }
         });
-
         //添加资源菜单和资源操作按钮
         var order = 1;
         var actionDescriptors = actionProvider.ActionDescriptors.Items;
@@ -358,10 +360,24 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
                 if (groupPermission != null)
                 {
                     resourcePermission.ParentId = groupPermission.Id;
+                    resourcePermission.Parent = groupPermission;
+                    groupPermission.Children.Add(resourcePermission);
                 }
             }
             list.Add(resourcePermission);
         }
+
+        //设置分组首页
+        list.Where(o => o.ParentId == null).ForEach(o =>
+        {
+            var page = o.Children.Where(o => o.Type == MenuType.Menu).OrderBy(o => o.Order).FirstOrDefault();
+            if (page != null)
+            {
+                o.Redirect = $"/{o.Number.ToSlugify()}/{page.Number.ToSlugify()}";
+            }
+        });
+
+        //更新路径
         list.AsQueryable()
             .Cast<BaseTreeEntity<Permission>>()
             .ToList()

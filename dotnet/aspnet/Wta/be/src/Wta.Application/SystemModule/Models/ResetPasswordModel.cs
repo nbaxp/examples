@@ -1,9 +1,7 @@
 namespace Wta.Application.SystemModule.Models;
 
-[UserCenter]
-[Display(Name = "修改密码", Order = 2)]
+[UserCenter, Display(Name = "修改密码", Order = 30)]
 [KeyValue("url", "reset-password/index")]
-
 public class ResetPasswordModel : IResource
 {
     [Required]

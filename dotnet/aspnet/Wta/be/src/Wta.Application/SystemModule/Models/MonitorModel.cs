@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using Wta.Application.SystemModule;
+using Wta.Application;
 
 namespace Wta.Infrastructure.Monitoring;
 

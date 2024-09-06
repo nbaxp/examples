@@ -1,4 +1,4 @@
-using Wta.Application.SystemModule;
+using Wta.Application;
 using Wta.Application.SystemModule.Data;
 
 namespace Wta.Infrastructure.Scheduling;

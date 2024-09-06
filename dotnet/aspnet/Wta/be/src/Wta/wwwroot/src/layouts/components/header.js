@@ -23,7 +23,7 @@ export default {
   },
   template: html`
     <div class="w-full flex justify-between">
-      <div class="flex items-center justify-center">
+      <div class="flex items-center justify-center row">
         <layout-logo />
         <el-icon v-if="!isPortal" @click="toggleMenuCollapse" class="collapse-button cursor-pointer mx-5" :size="18">
           <svg-icon name="unfold" v-if="appStore.settings.isMenuCollapse" />
