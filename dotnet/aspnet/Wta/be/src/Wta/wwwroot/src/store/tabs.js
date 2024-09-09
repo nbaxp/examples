@@ -16,5 +16,8 @@ export default defineStore('tabs', {
         }
       }
     },
+    clear() {
+      this.$reset();
+    },
   },
 });

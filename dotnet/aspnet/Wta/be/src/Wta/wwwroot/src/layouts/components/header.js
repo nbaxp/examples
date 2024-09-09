@@ -85,7 +85,7 @@ export default {
                 <el-dropdown-item>
                   <router-link to="/user-center">
                     <el-icon><ep-user /></el-icon>
-                    {{$t('用户中心')}}
+                    {{$t('我的')}}
                   </router-link>
                 </el-dropdown-item>
                 <el-dropdown-item divided @click="confirmLogout">
@@ -171,6 +171,7 @@ export default {
         });
         await userStore.logout();
         await tokenStore.clear();
+        tabsStore.clear();
         //router.push({ path: 'login', query: { redirect: router.currentRoute.value.fullPath } });
         router.push(`/logout?redirect=${router.currentRoute.value.fullPath}`);
       } catch (error) {

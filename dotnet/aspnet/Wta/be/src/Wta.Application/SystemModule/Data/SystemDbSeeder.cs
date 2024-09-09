@@ -118,13 +118,13 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
                         {
                             Id = context.NewGuid(),
                             Name = "第一车间",
-                            Number = "0204",
+                            Number = "0205",
                         },
                         new()
                         {
                             Id = context.NewGuid(),
                             Name = "第二车间",
-                            Number = "0204",
+                            Number = "0206",
                         }
                     ]
                 },

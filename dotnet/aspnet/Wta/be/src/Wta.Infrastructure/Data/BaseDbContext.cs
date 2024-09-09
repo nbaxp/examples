@@ -64,6 +64,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         //更新属性
         var userName = this.GetService<IHttpContextAccessor>().HttpContext?.User.Identity?.Name ?? "admin";
         var now = DateTime.UtcNow;
+        var list = new List<string>();
         foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
         {
             if (item.Entity is Audit audit)
@@ -77,6 +78,10 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                 {
                     tenantEntity.TenantNumber = _tenantNumber;
                 }
+            }
+            else
+            {
+
             }
             //实体IsReadOnly属性为true的不可删除
             if (item.State == EntityState.Deleted)
