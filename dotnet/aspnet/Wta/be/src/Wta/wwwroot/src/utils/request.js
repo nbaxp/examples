@@ -1,9 +1,9 @@
 import settings from '@/config/settings.js';
-import useRouter from '@/router/index.js';
 import { useTokenStore } from '@/store/index.js';
 import { getFileName } from 'utils';
 import qs from '~/lib/qs/shim.js';
 import i18n from '~/src/locales/index.js';
+import router from '@/router/index.js';
 
 const messages = new Map([
   [200, '操作成功'],
@@ -101,7 +101,6 @@ async function getResult(response) {
       code: response.status,
       message: messages.get(response.status) ?? response.statusText,
     };
-    const router = await useRouter();
     router.push({
       path: '/login',
       query: { redirect: router.currentRoute.value.fullPath },
@@ -112,7 +111,6 @@ async function getResult(response) {
       code: response.status,
       message: messages.get(response.status) ?? response.statusText,
     };
-    const router = await useRouter();
     router.push({
       path: '/403',
       query: { redirect: router.currentRoute.value.fullPath },

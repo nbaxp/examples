@@ -285,7 +285,7 @@ export default {
     };
     const fetchOptions = async () => {
       route.meta.cache ||= new Map();
-      const map = route.meta.cache;
+      const cache = route.meta.cache;
       const url = `${props.schema.meta.url}`;
       let postData = props.schema.meta?.data ?? {
         includeAll: true,
@@ -297,7 +297,7 @@ export default {
         url,
         postData,
       });
-      selectOptions.value = map.get(key);
+      selectOptions.value = cache.get(key);
       if (!selectOptions.value) {
         const method = props.schema.meta?.method || 'POST';
         const data = (await request(method, url, postData)).data;
@@ -312,7 +312,7 @@ export default {
             return result;
           });
           selectOptions.value = listToTree(items);
-          map.set(key, selectOptions.value);
+          cache.set(key, selectOptions.value);
         } else {
           selectOptions.value = [];
         }

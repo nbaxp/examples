@@ -30,9 +30,6 @@ export default defineStore('user', {
       }
     },
     hasPermission(meta) {
-      if (meta?.hidden) {
-        return false;
-      }
       if (!meta?.authType) {
         return true;
       } else {

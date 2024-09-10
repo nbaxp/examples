@@ -12,7 +12,7 @@ const show = (menu) => {
   if (!menu.meta?.authType) {
     return true;
   } else {
-    return useUserStore().hasPermission(menu.meta);
+    return !menu.meta?.hidden && useUserStore().hasPermission(menu.meta);
   }
 };
 

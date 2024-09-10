@@ -59,6 +59,11 @@ public static class WtaApplication
         var modules = ModuleDbContexts.Keys.Select(o => Activator.CreateInstance(o) as IStartup);
         Console.WriteLine("Configuring web host...");
         Builder = WebApplication.CreateBuilder(args);
+        if (Builder.Configuration.GetValue("DOTNET_RUNNING_IN_CONTAINER", false))
+        {
+            Builder.Configuration.AddJsonFile("appsettings.Container.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{Builder.Environment.EnvironmentName}.Container.json", optional: false, reloadOnChange: true);
+        }
         startup.ConfigureServices(Builder);
         modules.ForEach(o => o!.ConfigureServices(Builder));
         Application = Builder.Build();
