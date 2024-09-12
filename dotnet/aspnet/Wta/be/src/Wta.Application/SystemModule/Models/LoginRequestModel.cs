@@ -21,4 +21,13 @@ public class LoginRequestModel : CaptchaModel
 
     [KeyValue("showLabel", true)]
     public bool RememberMe { get; set; }
+
+    [Hidden]
+    public string? client_id { get; set; }
+
+    [Hidden]
+    public string? return_to { get; set; }
+
+    [Hidden]
+    public string? anti_token { get; set; }
 }

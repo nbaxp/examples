@@ -13,7 +13,7 @@ public static class JsonExtensions
 
     public static T? FromJson<T>(this string? value, JsonSerializerOptions? options = null)
     {
-        if (value == null)
+        if (string.IsNullOrWhiteSpace(value))
         {
             return default;
         }

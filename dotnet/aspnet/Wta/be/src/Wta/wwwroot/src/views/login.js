@@ -37,6 +37,9 @@ export default {
     const router = useRouter();
     const success = async (result) => {
       const data = result.data;
+      if (result.isRedirect) {
+        window.location = result.location;
+      }
       const tokenStore = useTokenStore();
       tokenStore.update(data.access_token, data.refresh_token);
       const redirect = router.currentRoute.value.query?.redirect ?? '/';
@@ -48,6 +51,10 @@ export default {
       model.value = schemaToModel(schema.value);
       //
       schema.value.meta.hideReset = true;
+      const params = new URLSearchParams(window.location.search);
+      model.value.client_id = params.get('client_id');
+      model.value.return_to = params.get('return_to');
+      model.value.anti_token = params.get('anti_token');
       model.value.userName = 'admin';
       model.value.password = '123456';
     });

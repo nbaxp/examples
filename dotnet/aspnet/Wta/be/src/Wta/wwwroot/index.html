@@ -49,7 +49,10 @@
           "sortablejs": "./lib/sortablejs/sortable.esm.js"
         }
       }
-    </script>
+  </script>
+  <script>
+    window.process = { env: { NODE_ENV: "production" } };
+  </script>
   <script type="module" src="./src/main.js"></script>
 </body>
 

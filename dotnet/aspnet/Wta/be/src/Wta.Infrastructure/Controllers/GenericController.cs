@@ -1,4 +1,5 @@
 using ClosedXML;
+using DocumentFormat.OpenXml.Presentation;
 using Microsoft.AspNetCore.Mvc;
 using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Application.Models;
@@ -276,7 +277,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         throw new ProblemException("NotFound");
     }
 
-    protected IQueryable<TEntity> Where(QueryModel<TModel> model)
+    protected virtual IQueryable<TEntity> Where(QueryModel<TModel> model)
     {
         var query = Repository.AsNoTracking();
         if (model != null)

@@ -10,4 +10,9 @@ public class BaseController : ControllerBase
     {
         return new ApiResult<T> { Data = data, Code = code, Message = message };
     }
+
+    protected ApiResult<T> Redirect<T>(string url)
+    {
+        return new ApiResult<T> { IsRedirect = true, Location = url };
+    }
 }

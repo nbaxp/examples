@@ -1,4 +1,3 @@
-using Wta.Application.SystemModule.Domain;
 using Wta.Infrastructure.Scheduling;
 
 namespace Wta.Application.SystemModule.Data;
@@ -16,7 +15,8 @@ public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
     IEntityTypeConfiguration<Role>,
     IEntityTypeConfiguration<Permission>,
     IEntityTypeConfiguration<UserRole>,
-    IEntityTypeConfiguration<RolePermission>
+    IEntityTypeConfiguration<RolePermission>,
+    IEntityTypeConfiguration<ExternalApp>
 {
     public void Configure(EntityTypeBuilder<Audit> builder)
     {
@@ -93,5 +93,11 @@ public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
         builder.HasKey(o => new { o.WorkGroupId, o.UserId });
         builder.HasOne(o => o.WorkGroup).WithMany(o => o.WorkGroupUsers).HasForeignKey(o => o.WorkGroupId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(o => o.User).WithMany(o => o.WorkGroupUsers).HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.Cascade);
+    }
+
+    public void Configure(EntityTypeBuilder<ExternalApp> builder)
+    {
+        builder.HasIndex(o => new { o.TenantNumber, o.Name }).IsUnique();
+        builder.HasOne(o => o.User).WithMany(o=>o.Apps).HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.Cascade);
     }
 }

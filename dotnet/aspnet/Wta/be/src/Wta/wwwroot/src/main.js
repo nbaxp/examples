@@ -1,4 +1,4 @@
-import App from '@/app.js';
+import App from './app.js';
 import style from '@/mixins/style.js';
 import router from '@/router/index.js';
 import store from '@/store/index.js';

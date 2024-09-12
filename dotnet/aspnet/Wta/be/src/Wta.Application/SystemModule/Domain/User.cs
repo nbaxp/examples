@@ -124,4 +124,7 @@ public class User : Entity
             this.UserRoles = value?.Select(o => new UserRole { RoleId = o }).ToList() ?? [];
         }
     }
+
+    [Hidden]
+    public List<ExternalApp> Apps { get; set; } = [];
 }

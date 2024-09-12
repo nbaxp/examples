@@ -28,6 +28,7 @@
     <PackageReference Include="DistributedLock.Redis" />
     <PackageReference Include="DynamicExpresso.Core" />
     <PackageReference Include="EntityFramework.DynamicLinq" />
+    <PackageReference Include="Flurl" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />

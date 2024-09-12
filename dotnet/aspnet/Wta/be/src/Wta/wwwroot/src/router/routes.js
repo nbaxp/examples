@@ -1,19 +1,4 @@
-import html from 'utils';
-import VueMd from '@/components/markdown/index.js';
-
-const view = (name) => {
-  return {
-    components: { VueMd },
-    template: html`
-      <vue-md :name="'${name}'" />
-    `,
-    setup() {
-      return {
-        name,
-      };
-    },
-  };
-};
+import docs from './docs.js';
 
 export default [
   {
@@ -26,6 +11,13 @@ export default [
         component: () => import('@/views/login.js'),
         meta: {
           title: '登录',
+        },
+      },
+      {
+        path: '/oauth/login',
+        component: () => import('@/views/oauth-login.js'),
+        meta: {
+          title: '三方登录',
         },
       },
       {
@@ -92,111 +84,14 @@ export default [
           title: '首页',
         },
       },
-      {
-        path: '/docs',
-        redirect: '/docs/home',
-        meta: {
-          title: '文档',
-        },
-        children: [
-          {
-            path: 'home',
-            component: () => view('home'),
-            meta: {
-              title: '智能工厂',
-            },
-          },
-          {
-            path: 'wms',
-            component: () => view('wms'),
-            meta: {
-              title: 'WMS',
-            },
-          },
-          {
-            path: 'js',
-            meta: {
-              title: 'JavaScript',
-            },
-            children: [
-              {
-                path: 'https://lodash.com/',
-                meta: {
-                  title: 'Lodash',
-                },
-              },
-              {
-                path: 'https://echarts.apache.org/zh/index.html',
-                meta: {
-                  title: 'ECharts',
-                },
-              },
-              {
-                path: 'https://cn.vuejs.org/',
-                meta: {
-                  title: 'Vue',
-                },
-              },
-              {
-                path: 'https://router.vuejs.org/zh/',
-                meta: {
-                  title: 'Vue Router',
-                },
-              },
-              {
-                path: 'https://pinia.vuejs.org/zh/',
-                meta: {
-                  title: 'Pinia',
-                },
-              },
-              {
-                path: 'https://vueuse.org/',
-                meta: {
-                  title: 'VueUse',
-                },
-              },
-              {
-                path: 'https://vueuse.org/',
-                meta: {
-                  title: 'VueUse',
-                },
-              },
-              {
-                path: 'https://vue-i18n.intlify.dev/',
-                meta: {
-                  title: 'Vue I18n',
-                },
-              },
-              {
-                path: 'https://vue-echarts.dev/',
-                meta: {
-                  title: 'Vue ECharts',
-                },
-              },
-              {
-                path: 'https://element-plus.org/zh-CN/',
-                meta: {
-                  title: 'Element Plus',
-                },
-              },
-            ],
-          },
-          {
-            path: 'css',
-            meta: {
-              title: 'CSS',
-            },
-            children: [
-              {
-                path: 'https://tailwindcss.com/',
-                meta: {
-                  title: 'Tailwind CSS',
-                },
-              },
-            ],
-          },
-        ],
-      },
+      docs,
     ],
+  },
+  {
+    path: '/pda',
+    component: () => import('@/views/pda.js'),
+    meta: {
+      title: 'pda',
+    },
   },
 ];

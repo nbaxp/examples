@@ -1,3 +1,7 @@
+using Flurl;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Caching.Distributed;
+
 namespace Wta.Application.SystemModule.Controllers;
 
 public class TokenController(ILogger<TokenController> logger,
@@ -7,8 +11,92 @@ public class TokenController(ILogger<TokenController> logger,
     JwtOptions jwtOptions,
     IEncryptionService passwordHasher,
     IStringLocalizer stringLocalizer,
-    IRepository<User> userRepository) : BaseController
+    IRepository<User> userRepository,
+    IDistributedCache cache, IRepository<ExternalApp> repository) : BaseController
 {
+    [ApiExplorerSettings(GroupName = "OAuth2"), Route("/api/oauth/[action]")]
+    [HttpGet, AllowAnonymous, Ignore]
+    public IActionResult Authorize(string client_id, string? state, string? redirect_uri)
+    {
+        var app = repository.AsNoTracking().FirstOrDefault(o => o.ClientId == client_id);
+        if (app == null)
+        {
+            return Problem("应用不存在");
+        }
+        else if (!app.Enabled)
+        {
+            return Problem("应用已禁用");
+        }
+        var return_to = Request.GetDisplayUrl();
+        //return RedirectToAction("Login", new { client_id, return_to });
+        var anti_token = Guid.NewGuid().ToString("N");
+        cache.Set(anti_token, anti_token);
+        var url = this.Url.Content("~/")
+            .SetQueryParam("client_name", app.Name)
+            .SetQueryParam("client_id", client_id)
+            .SetQueryParam("return_to", return_to)
+            .SetQueryParam("anti_token", anti_token)
+            .SetFragment("/login");
+        return Redirect(url);
+    }
+
+    [ApiExplorerSettings(GroupName = "OAuth2"), Route("/api/oauth/[action]")]
+    [HttpPost, AllowAnonymous, Ignore]
+    public IActionResult Token(string client_id, string client_secret, string code)
+    {
+        var app = repository.AsNoTracking().FirstOrDefault(o => o.ClientId == client_id);
+        if (app == null)
+        {
+            return Problem("应用不存在");
+        }
+        else if (!app.Enabled)
+        {
+            return Problem("应用已禁用");
+        }
+        else if (app.ClientSecret != client_secret)
+        {
+            return Problem("client_secret无效");
+        }
+        var normalizedUserName = cache.Get<string>(code);
+        if (string.IsNullOrEmpty(normalizedUserName))
+        {
+            return Problem("code已过期");
+        }
+        var user = userRepository.AsNoTracking().FirstOrDefault(o => o.NormalizedUserName == normalizedUserName);
+        if (user == null)
+        {
+            return Problem("用户不存在");
+        }
+        else if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value >= DateTime.UtcNow)
+        {
+            return Problem("用户已锁定");
+        }
+        var additionalClaims = new List<Claim>();
+        if (user.TenantNumber != null)
+        {
+            additionalClaims.Add(new Claim("TenantNumber", user.TenantNumber));
+        }
+        var roles = userRepository.AsNoTracking()
+            .Where(o => o.NormalizedUserName == normalizedUserName)
+            .SelectMany(o => o.UserRoles)
+            .Select(o => o.Role!.Number)
+            .ToList()
+            .Select(o => new Claim(tokenValidationParameters.RoleClaimType, o!));
+        additionalClaims.AddRange(roles);
+        var subject = CreateSubject(user.UserName!, additionalClaims);
+        var token = this.CreateToken(subject, jwtOptions.AccessTokenExpires);
+        return Content($"access_token={token}&token_type=bearer");
+    }
+
+    [ApiExplorerSettings(GroupName = "OAuth2"), Route("/api/oauth/[action]")]
+    [HttpGet, Ignore]
+    public IActionResult UserInfo()
+    {
+        var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
+        var user = userRepository.AsNoTracking().FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
+        return new JsonResult(user);
+    }
+
     [HttpGet, AllowAnonymous, Ignore]
     public ApiResult<object> Create()
     {
@@ -89,6 +177,35 @@ public class TokenController(ILogger<TokenController> logger,
                 RefreshToken = CreateToken(subject, model.RememberMe ? TimeSpan.FromDays(365) : jwtOptions.RefreshTokenExpires),
                 ExpiresIn = (long)jwtOptions.AccessTokenExpires.TotalSeconds
             };
+            if (!string.IsNullOrEmpty(model.client_id))
+            {//oauth2
+                if (model.anti_token == null)
+                {
+                    throw new ProblemException("anti_token不能为空");
+                }
+                var antiToken = cache.Get<string>(model.anti_token);
+                if (antiToken == null)
+                {
+                    throw new ProblemException("anti_token已过期");
+                }
+                var app = repository.AsNoTracking().FirstOrDefault(o => o.ClientId == model.client_id);
+                if (app == null)
+                {
+                    throw new ProblemException("应用不存在");
+                }
+                else if (!app.Enabled)
+                {
+                    throw new ProblemException("应用已禁用");
+                }
+                var code = Guid.NewGuid().ToString("N");
+                cache.Set(code, user.NormalizedUserName);
+                var returnUrl = new Url(model.return_to);
+                var redirect_uri = returnUrl.QueryParams.FirstOrDefault("redirect_uri")?.ToString();
+                var url = (redirect_uri != null && redirect_uri.StartsWith(new Url(app.Callback).Root) ? redirect_uri : app.Callback)
+                    .SetQueryParam("code", code)
+                    .SetQueryParam("state", returnUrl.QueryParams.FirstOrDefault("state"));
+                return Redirect<LoginResponseModel>(url);
+            }
             return Json(result);
         }
         throw new BadRequestException();

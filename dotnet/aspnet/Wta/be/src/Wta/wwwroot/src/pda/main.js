@@ -1,0 +1,20 @@
+import App from './app.js';
+import style from '@/mixins/style.js';
+import router from './router.js';
+import store from '@/store/index.js';
+import Vant from 'vant';
+import { delay } from 'utils';
+import { createApp } from 'vue';
+//import * as ElementPlusIconsVue from '~/lib/element-plus/icons-vue/index.min.js';
+//import useMock from '~/mock/index.js';
+import i18n from '~/src/locales/index.js';
+
+//useMock();
+const app = createApp(App);
+app.mixin(style);
+app.use(store);
+app.use(i18n);
+app.use(router);
+app.use(Vant);
+await delay(0);
+app.mount('#app');
