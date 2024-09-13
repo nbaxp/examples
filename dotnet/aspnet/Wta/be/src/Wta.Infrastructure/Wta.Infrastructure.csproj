@@ -29,6 +29,7 @@
     <PackageReference Include="DynamicExpresso.Core" />
     <PackageReference Include="EntityFramework.DynamicLinq" />
     <PackageReference Include="Flurl" />
+    <PackageReference Include="Flurl.Http" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />

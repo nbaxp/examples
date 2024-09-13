@@ -12,45 +12,20 @@ import { useRouter } from 'vue-router';
 export default {
   components: { AppForm, LayoutLogo, LayoutLocale, LayoutFooter },
   template: html`
-    <el-container>
-      <el-main class="flex items-center justify-center">
-        <div>
-          <div class="flex items-center justify-center pb-4">
-            <layout-logo />
-            <layout-locale />
-          </div>
-          <el-card class="box-card">
-            <app-form v-if="schema" :schema="schema" v-model="model" @success="success" />
-          </el-card>
-          <layout-footer />
-        </div>
-      </el-main>
-    </el-container>
+    <div class="el-loading-mask">
+      <div class="el-loading-spinner">
+        <svg class="circular" viewBox="0 0 50 50">
+          <circle class="path" cx="25" cy="25" r="20" fill="none"></circle>
+        </svg>
+        <p class="el-loading-text">Loading...</p>
+      </div>
+    </div>
   `,
   setup() {
-    const schema = ref(null);
-    const model = ref(null);
     const router = useRouter();
-    const success = async (result) => {
-      const data = result.data;
-      const tokenStore = useTokenStore();
-      tokenStore.update(data.access_token, data.refresh_token);
-      const redirect = router.currentRoute.value.query?.redirect ?? '/';
-      router.push({ path: '/redirect', query: { redirect } });
-    };
-    onMounted(async () => {
-      const result = await request('GET', 'token/create');
-      schema.value = normalize(result.data.data);
-      model.value = schemaToModel(schema.value);
-      //
-      schema.value.meta.hideReset = true;
-      model.value.userName = 'admin';
-      model.value.password = '123456';
-    });
-    return {
-      schema,
-      model,
-      success,
-    };
+    const params = new URLSearchParams(window.location.search);
+    const tokenStore = useTokenStore();
+    tokenStore.update(params.get('access_token'), params.get('access_token'));
+    router.push('/');
   },
 };

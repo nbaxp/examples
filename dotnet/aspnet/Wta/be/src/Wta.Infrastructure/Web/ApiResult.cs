@@ -18,8 +18,6 @@ public class ApiResult<T>
     public T? Data { get; set; }
 
     public bool IsRedirect { get; set; }
-
-    public string? Location { get; set; }
 }
 
 public class ApiResult : ApiResult<object>

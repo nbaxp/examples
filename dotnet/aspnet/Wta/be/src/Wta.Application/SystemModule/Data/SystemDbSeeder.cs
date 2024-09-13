@@ -1,5 +1,4 @@
 using ClosedXML;
-using Wta.Application.SystemModule.Domain;
 using Wta.Infrastructure.Scheduling;
 
 namespace Wta.Application.SystemModule.Data;
@@ -561,6 +560,20 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
                     IsReadOnly = true
                 }
             ],
+            Apps = new List<ExternalApp>
+            {
+                new ExternalApp
+                {
+                    Name = "test",
+                    Logo="api/file/avatar.svg",
+                    Home = "http://localhost:5000",
+                    Description="shelf test",
+                    ClientId="123",
+                    ClientSecret="456",
+                    Callback="http://localhost:5000/api/oauth/oauth-callback/wta",
+                    Enabled = true
+                }
+            }
         });
     }
 }

@@ -16,6 +16,7 @@ public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
     IEntityTypeConfiguration<Permission>,
     IEntityTypeConfiguration<UserRole>,
     IEntityTypeConfiguration<RolePermission>,
+    IEntityTypeConfiguration<UserLogin>,
     IEntityTypeConfiguration<ExternalApp>
 {
     public void Configure(EntityTypeBuilder<Audit> builder)
@@ -99,5 +100,10 @@ public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
     {
         builder.HasIndex(o => new { o.TenantNumber, o.Name }).IsUnique();
         builder.HasOne(o => o.User).WithMany(o=>o.Apps).HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.Cascade);
+    }
+
+    public void Configure(EntityTypeBuilder<UserLogin> builder)
+    {
+        builder.HasOne(o=>o.User).WithMany(o=>o.UserLogins).HasForeignKey(o=>o.UserId).OnDelete(DeleteBehavior.Cascade);
     }
 }

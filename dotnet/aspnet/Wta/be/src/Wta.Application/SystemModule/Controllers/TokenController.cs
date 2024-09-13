@@ -1,10 +1,12 @@
 using Flurl;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Caching.Distributed;
+using Wta.Infrastructure.OAuth2;
 
 namespace Wta.Application.SystemModule.Controllers;
 
 public class TokenController(ILogger<TokenController> logger,
+    OAuthService oauthService,
     TokenValidationParameters tokenValidationParameters,
     SigningCredentials signingCredentials,
     JwtSecurityTokenHandler jwtSecurityTokenHandler,
@@ -12,20 +14,25 @@ public class TokenController(ILogger<TokenController> logger,
     IEncryptionService passwordHasher,
     IStringLocalizer stringLocalizer,
     IRepository<User> userRepository,
+    IRepository<UserLogin> userLoginRepository,
     IDistributedCache cache, IRepository<ExternalApp> repository) : BaseController
 {
-    [ApiExplorerSettings(GroupName = "OAuth2"), Route("/api/oauth/[action]")]
+    [ApiExplorerSettings(GroupName = "OAuth2 Server API"), Route("/api/oauth/[action]")]
     [HttpGet, AllowAnonymous, Ignore]
     public IActionResult Authorize(string client_id, string? state, string? redirect_uri)
     {
         var app = repository.AsNoTracking().FirstOrDefault(o => o.ClientId == client_id);
         if (app == null)
         {
-            return Problem("应用不存在");
+            throw new ProblemException("应用不存在");
         }
         else if (!app.Enabled)
         {
-            return Problem("应用已禁用");
+            throw new ProblemException("应用已禁用");
+        }
+        if (redirect_uri != null && !redirect_uri.StartsWith(new Url(app.Callback).Root))
+        {
+            throw new ProblemException("redirect_uri不匹配");
         }
         var return_to = Request.GetDisplayUrl();
         //return RedirectToAction("Login", new { client_id, return_to });
@@ -40,7 +47,7 @@ public class TokenController(ILogger<TokenController> logger,
         return Redirect(url);
     }
 
-    [ApiExplorerSettings(GroupName = "OAuth2"), Route("/api/oauth/[action]")]
+    [ApiExplorerSettings(GroupName = "OAuth2 Server API"), Route("/api/oauth/[action]")]
     [HttpPost, AllowAnonymous, Ignore]
     public IActionResult Token(string client_id, string client_secret, string code)
     {
@@ -88,13 +95,90 @@ public class TokenController(ILogger<TokenController> logger,
         return Content($"access_token={token}&token_type=bearer");
     }
 
-    [ApiExplorerSettings(GroupName = "OAuth2"), Route("/api/oauth/[action]")]
-    [HttpGet, Ignore]
+    [ApiExplorerSettings(GroupName = "OAuth2 Server API"), Route("/api/oauth/[action]")]
+    [HttpGet, Authorize, Ignore]
     public IActionResult UserInfo()
     {
         var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
-        var user = userRepository.AsNoTracking().FirstOrDefault(o => o.NormalizedUserName == normalizedUserName)!;
+        var user = userRepository
+            .AsNoTracking()
+            .Where(o => o.NormalizedUserName == normalizedUserName).Select(o => new
+            {
+                o.Id,
+                o.UserName,
+                o.Avatar,
+                o.Email,
+                o.PhoneNumber,
+                o.TenantNumber,
+                Roles = o.UserRoles.Select(ur => ur.Role).Select(r => new { r!.Number, r!.Name })
+            }).FirstOrDefault();
         return new JsonResult(user);
+    }
+
+    [ApiExplorerSettings(GroupName = "OAuth2 Client API"), Route("/api/oauth/[action]")]
+    [HttpGet, AllowAnonymous, Ignore]
+    public ApiResult<string> ExternalLogin(string provider, string returnUrl)
+    {
+        var url = oauthService.GetAuthorizationUrl(provider);
+        var result = Json(url);
+        result.IsRedirect = true;
+        return result;
+    }
+
+    [ApiExplorerSettings(GroupName = "OAuth2 Client API"), Route("/api/oauth/[action]")]
+    [HttpGet, AllowAnonymous, Ignore]
+    public ApiResult<List<object>> Providers(string provider, string returnUrl)
+    {
+        return Json(oauthService.Options.Providers.Select(o => new { o.Name } as object).ToList());
+    }
+
+    [ApiExplorerSettings(GroupName = "OAuth2 Client API"), Route("/api/oauth/[action]/{provider}")]
+    [HttpGet, AllowAnonymous, Ignore]
+    public async Task<IActionResult> OAuthCallback(string provider, string code)
+    {
+        var openId = await oauthService.GetOpenId(provider, code).ConfigureAwait(false);
+        if (User.Identity!.IsAuthenticated)// 已登录增加三方登录
+        {
+            if (!userLoginRepository.AsNoTracking().Any(o => o.LoginProvider == provider && o.ProviderKey == openId))// 没有 openid 增加 openid 并关联当前用户
+            {
+                var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
+                var user = userRepository.Query().First(o => o.NormalizedUserName == normalizedUserName);
+                user.UserLogins.Add(new UserLogin { LoginProvider = provider, ProviderKey = openId! });
+                userRepository.SaveChanges();
+            }
+            return Ok();
+        }
+        else//未登录确认用户名并登录
+        {
+            var loginUser = userLoginRepository.AsNoTracking().Include(o => o.User).FirstOrDefault(o => o.LoginProvider == provider && o.ProviderKey == openId);
+            if (loginUser == null) // 没有 openid 确认登录名
+            {
+                var url = Url.Content("~/").SetQueryParam("provider", provider).SetQueryParam("openId", openId).SetQueryParam("userName", $"{provider}_{openId}").SetFragment("/oauth2-register");
+                return Redirect(url);
+            }
+            else
+            {
+                var user = loginUser.User;
+                var additionalClaims = new List<Claim>();
+                if (user.TenantNumber != null)
+                {
+                    additionalClaims.Add(new Claim("TenantNumber", user.TenantNumber));
+                }
+                var normalizedUserName = user.NormalizedUserName;
+                var roles = userRepository.AsNoTracking()
+                    .Where(o => o.NormalizedUserName == normalizedUserName)
+                    .SelectMany(o => o.UserRoles)
+                    .Select(o => o.Role!.Number)
+                    .ToList()
+                    .Select(o => new Claim(tokenValidationParameters.RoleClaimType, o!));
+                additionalClaims.AddRange(roles);
+                var subject = CreateSubject(user.UserName!, additionalClaims);
+                var access_token = CreateToken(subject, jwtOptions.AccessTokenExpires);
+                var refresh_token = CreateToken(subject, jwtOptions.RefreshTokenExpires);
+                var url = Url.Content("~/").SetQueryParam("access_token", access_token).SetQueryParam("refresh_token", refresh_token).SetFragment("/oauth2-login");
+                return Redirect(url);
+            }
+        }
     }
 
     [HttpGet, AllowAnonymous, Ignore]
@@ -105,7 +189,7 @@ public class TokenController(ILogger<TokenController> logger,
 
     [HttpPost]
     [AllowAnonymous]
-    public ApiResult<LoginResponseModel> Create(LoginRequestModel model)
+    public ApiResult<object> Create(LoginRequestModel model)
     {
         userRepository.DisableTenantFilter();
         if (ModelState.IsValid)
@@ -197,16 +281,22 @@ public class TokenController(ILogger<TokenController> logger,
                 {
                     throw new ProblemException("应用已禁用");
                 }
-                var code = Guid.NewGuid().ToString("N");
-                cache.Set(code, user.NormalizedUserName);
                 var returnUrl = new Url(model.return_to);
                 var redirect_uri = returnUrl.QueryParams.FirstOrDefault("redirect_uri")?.ToString();
-                var url = (redirect_uri != null && redirect_uri.StartsWith(new Url(app.Callback).Root) ? redirect_uri : app.Callback)
-                    .SetQueryParam("code", code)
-                    .SetQueryParam("state", returnUrl.QueryParams.FirstOrDefault("state"));
-                return Redirect<LoginResponseModel>(url);
+                var state = returnUrl.QueryParams.FirstOrDefault("state");
+                if (redirect_uri != null && !redirect_uri.StartsWith(new Url(app.Callback).Root))
+                {
+                    throw new ProblemException("redirect_uri不匹配");
+                }
+                redirect_uri ??= app.Callback;
+                var code = Guid.NewGuid().ToString("N");
+                cache.Set(code, user.NormalizedUserName);
+                var url = redirect_uri.SetQueryParam("code", code).SetQueryParam("state", state).ToString();
+                var oauthResult = Json(url as object);
+                oauthResult.IsRedirect = true;
+                return oauthResult;
             }
-            return Json(result);
+            return Json(result as object);
         }
         throw new BadRequestException();
     }

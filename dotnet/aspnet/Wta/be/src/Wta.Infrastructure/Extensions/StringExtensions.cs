@@ -99,6 +99,22 @@ public static partial class StringExtensions
         return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
     }
 
+    public static Dictionary<string, string> JsonTextToDictionary(this string value)
+    {
+        return JsonSerializer.Deserialize<Dictionary<string, object>>(value)!.ToDictionary(o => o.Key, o => o.Value?.ToString() ?? "");
+    }
+
+    public static Dictionary<string, string> QueryStringToDictionary(this string queryString)
+    {
+        if (string.IsNullOrWhiteSpace(queryString))
+        {
+            return new Dictionary<string, string>();
+        }
+        return queryString
+            .Split('&')
+            .ToDictionary(o => o.Split('=')[0].Trim(), o => o.Split('=')[1].Trim());
+    }
+
     [GeneratedRegex("([a-z])([A-Z])")]
     private static partial Regex SlugifyRegex();
 }

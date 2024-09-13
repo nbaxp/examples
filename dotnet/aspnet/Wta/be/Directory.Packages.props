@@ -22,6 +22,7 @@
     <PackageVersion Include="DynamicExpresso.Core" Version="2.16.1" />
     <PackageVersion Include="EntityFramework.DynamicLinq" Version="1.4.5" />
     <PackageVersion Include="Flurl" Version="4.0.0" />
+    <PackageVersion Include="Flurl.Http" Version="4.0.2" />
     <PackageVersion Include="Hardware.Info" Version="100.0.1.1" />
     <PackageVersion Include="MailKit" Version="4.7.1.1" />
     <PackageVersion Include="Mapster" Version="7.4.0" />

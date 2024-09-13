@@ -126,5 +126,8 @@ public class User : Entity
     }
 
     [Hidden]
+    public List<UserLogin> UserLogins { get; set; } = [];
+
+    [Hidden]
     public List<ExternalApp> Apps { get; set; } = [];
 }
