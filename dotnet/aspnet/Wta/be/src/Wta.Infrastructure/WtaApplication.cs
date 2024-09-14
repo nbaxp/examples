@@ -62,7 +62,7 @@ public static class WtaApplication
         if (Builder.Configuration.GetValue("DOTNET_RUNNING_IN_CONTAINER", false))
         {
             Builder.Configuration.AddJsonFile("appsettings.Container.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Builder.Environment.EnvironmentName}.Container.json", optional: false, reloadOnChange: true);
+                .AddJsonFile($"appsettings.Container.{Builder.Environment.EnvironmentName}.json", optional: false, reloadOnChange: true);
         }
         startup.ConfigureServices(Builder);
         modules.ForEach(o => o!.ConfigureServices(Builder));

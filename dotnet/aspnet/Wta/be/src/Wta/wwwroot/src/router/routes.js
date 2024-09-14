@@ -14,13 +14,6 @@ export default [
         },
       },
       {
-        path: '/oauth/login',
-        component: () => import('@/views/oauth-login.js'),
-        meta: {
-          title: '三方登录',
-        },
-      },
-      {
         path: '/logout',
         component: () => import('@/views/login.js'),
         meta: {

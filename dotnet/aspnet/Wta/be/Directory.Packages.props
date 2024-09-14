@@ -24,6 +24,7 @@
     <PackageVersion Include="Flurl" Version="4.0.0" />
     <PackageVersion Include="Flurl.Http" Version="4.0.2" />
     <PackageVersion Include="Hardware.Info" Version="100.0.1.1" />
+    <PackageVersion Include="HttpClientToCurl" Version="2.0.6" />
     <PackageVersion Include="MailKit" Version="4.7.1.1" />
     <PackageVersion Include="Mapster" Version="7.4.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />

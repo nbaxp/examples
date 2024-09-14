@@ -20,6 +20,9 @@ export default {
             <layout-locale />
           </div>
           <el-card class="box-card">
+            <template v-if="model?.provider" #header>
+              <el-alert type="warning" show-icon :closable="false">{{model?.provider}} {{$t('创建绑定账号')}}</el-alert>
+            </template>
             <app-form v-if="schema" :schema="schema" v-model="model" @success="success" />
             <div style="display: flex; align-items: center; justify-content: space-between; height: 50px">
               <router-link style to="/login">{{ $t('登录') }}</router-link>
@@ -37,6 +40,11 @@ export default {
     const router = useRouter();
     const success = async (result) => {
       const data = result.data;
+      if (data.isRedirect) {
+      }
+      else if (result.isRedirect) {
+        window.location = result.data;
+      }
       const tokenStore = useTokenStore();
       tokenStore.update(data.access_token, data.refresh_token);
       const redirect = router.currentRoute.value.query?.redirect ?? '/';
@@ -48,8 +56,11 @@ export default {
       model.value = schemaToModel(schema.value);
       //
       schema.value.meta.hideReset = true;
-      model.value.userName = 'admin';
-      model.value.password = '123456';
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('provider')) {
+        model.value.provider = params.get('provider');
+        model.value.open_id = params.get('open_id');
+      }
     });
     return {
       schema,

@@ -564,13 +564,24 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
             {
                 new ExternalApp
                 {
-                    Name = "test",
+                    Name = "localhost",
                     Logo="api/file/avatar.svg",
                     Home = "http://localhost:5000",
                     Description="shelf test",
                     ClientId="123",
                     ClientSecret="456",
                     Callback="http://localhost:5000/api/oauth/oauth-callback/wta",
+                    Enabled = true
+                },
+                new ExternalApp
+                {
+                    Name = "lan",
+                    Logo="api/file/avatar.svg",
+                    Home = "http://192.168.0.223:5000",
+                    Description="shelf test",
+                    ClientId="123",
+                    ClientSecret="456",
+                    Callback="http://192.168.0.223:5000/api/oauth/oauth-callback/wta",
                     Enabled = true
                 }
             }

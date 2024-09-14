@@ -26,36 +26,67 @@ public class UserController(ILogger<User> logger,
         return Json(typeof(RegisterModel).GetMetadataForType());
     }
 
+    //[AllowAnonymous, Ignore]
+    //public ApiResult<bool> Register(RegisterModel model)
+    //{
+    //    if (ModelState.IsValid)
+    //    {
+    //        var values = encryptionService.DecryptText(model.CodeHash!).Split(',');
+    //        if (values[2] == model.EmailOrPhoneNumber)
+    //        {
+    //            var user = new User();
+    //            ObjectMapper.FromModel(user, model);
+    //            user.NormalizedUserName = user.UserName.ToUpperInvariant();
+    //            user.SecurityStamp = encryptionService.CreateSalt();
+    //            user.PasswordHash = encryptionService.HashPassword(model.Password!, user.SecurityStamp);
+    //            var isEmail = Regex.IsMatch(model.EmailOrPhoneNumber, @"\w+@\w+\.\w+");
+    //            if (isEmail)
+    //            {
+    //                user.Email = model.EmailOrPhoneNumber;
+    //                user.NormalizedEmail = model.EmailOrPhoneNumber.ToUpperInvariant();
+    //                user.EmailConfirmed = true;
+    //            }
+    //            else
+    //            {
+    //                user.PhoneNumber = model.EmailOrPhoneNumber;
+    //                user.PhoneNumberConfirmed = true;
+    //            }
+    //            Repository.Add(user);
+    //            Repository.SaveChanges();
+    //            return Json(true);
+    //        }
+    //        ModelState.AddModelError(nameof(model.EmailOrPhoneNumber), "EmailOrPhoneNumberNotMatch");
+    //    }
+    //    throw new BadRequestException();
+    //}
+
     [AllowAnonymous, Ignore]
-    public ApiResult<bool> Register(RegisterModel model)
+    public ApiResult<object> Register(RegisterModel model)
     {
         if (ModelState.IsValid)
         {
-            var values = encryptionService.DecryptText(model.CodeHash!).Split(',');
-            if (values[2] == model.EmailOrPhoneNumber)
+            var user = new User();
+            ObjectMapper.FromModel(user, model);
+            user.NormalizedUserName = user.UserName.ToUpperInvariant();
+            user.SecurityStamp = encryptionService.CreateSalt();
+            user.PasswordHash = encryptionService.HashPassword(model.Password!, user.SecurityStamp);
+            if (!string.IsNullOrWhiteSpace(model.Email))
             {
-                var user = new User();
-                ObjectMapper.FromModel(user, model);
-                user.NormalizedUserName = user.UserName.ToUpperInvariant();
-                user.SecurityStamp = encryptionService.CreateSalt();
-                user.PasswordHash = encryptionService.HashPassword(model.Password!, user.SecurityStamp);
-                var isEmail = Regex.IsMatch(model.EmailOrPhoneNumber, @"\w+@\w+\.\w+");
-                if (isEmail)
-                {
-                    user.Email = model.EmailOrPhoneNumber;
-                    user.NormalizedEmail = model.EmailOrPhoneNumber.ToUpperInvariant();
-                    user.EmailConfirmed = true;
-                }
-                else
-                {
-                    user.PhoneNumber = model.EmailOrPhoneNumber;
-                    user.PhoneNumberConfirmed = true;
-                }
-                Repository.Add(user);
-                Repository.SaveChanges();
-                return Json(true);
+                user.NormalizedEmail = model.Email!.ToUpperInvariant();
+                user.EmailConfirmed = true;
             }
-            ModelState.AddModelError(nameof(model.EmailOrPhoneNumber), "EmailOrPhoneNumberNotMatch");
+            if (!string.IsNullOrWhiteSpace(model.PhoneNumber))
+            {
+                user.EmailConfirmed = true;
+            }
+            Repository.Add(user);
+            Repository.SaveChanges();
+            if (!string.IsNullOrEmpty(model.provider))
+            {
+                var url = Url.Content("~/login");
+                return Json(url as object, isRedirect: true);
+            }
+            return Json(true as object);
         }
         throw new BadRequestException();
     }

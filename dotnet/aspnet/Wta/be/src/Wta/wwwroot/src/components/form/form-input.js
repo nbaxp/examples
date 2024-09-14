@@ -137,7 +137,7 @@ export default {
         <code-captcha
           v-model="model[prop]"
           :icon="schema.icon"
-          :url="schema.url"
+          :url="schema.meta?.url"
           :codeHash="schema.codeHash"
           @callback="updateCodeHash"
           :query="model[schema.query]"

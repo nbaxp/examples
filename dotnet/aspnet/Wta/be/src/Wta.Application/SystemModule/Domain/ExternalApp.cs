@@ -25,6 +25,9 @@ public class ExternalApp : Entity
     [Display(Name = "应用回调地址")]
     public string Callback { get; set; } = null!;
 
+    [Display(Name = "应用注销地址")]
+    public string? Logout { get; set; }
+
     [Display(Name = "Client Id")]
     [ReadOnly(true)]
     public string ClientId { get; set; } = null!;

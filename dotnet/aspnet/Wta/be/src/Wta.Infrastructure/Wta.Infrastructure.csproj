@@ -30,6 +30,7 @@
     <PackageReference Include="EntityFramework.DynamicLinq" />
     <PackageReference Include="Flurl" />
     <PackageReference Include="Flurl.Http" />
+    <PackageReference Include="HttpClientToCurl" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />

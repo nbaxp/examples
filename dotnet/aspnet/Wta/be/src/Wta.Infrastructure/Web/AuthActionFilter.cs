@@ -13,6 +13,10 @@ public class AuthActionFilter(IConfiguration configuration) : IActionFilter
     /// <param name="context"></param>
     public void OnActionExecuted(ActionExecutedContext context)
     {
+        if (context.ActionDescriptor.EndpointMetadata.Any(o => o.GetType() == typeof(RawActionAttribute)))
+        {
+            return;
+        }
         if (context.Exception != null)
         {
             if (context.Exception is BadRequestException badRequestException)
