@@ -67,4 +67,7 @@ services:
   #    - 2881:2881
   #   volumes:
   #    - ./data/oceanbase:/root/ob
-
+  doris-be:
+    image: selectdb/doris.be-ubuntu:3.0.0
+  doris-fe:
+    image: selectdb/doris.fe-ubuntu:3.0.0

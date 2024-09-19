@@ -1,0 +1,11 @@
+networks:
+  wta_network_01:
+    external: true
+
+services:
+  doris-be:
+    networks: ["wta_network_01"]
+    image: selectdb/doris.be-ubuntu:3.0.0
+  doris-fe:
+    networks: ["wta_network_01"]
+    image: selectdb/doris.fe-ubuntu:3.0.0

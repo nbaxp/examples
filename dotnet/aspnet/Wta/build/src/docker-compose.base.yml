@@ -1,0 +1,14 @@
+networks:
+  network_01:
+    driver: bridge
+
+services:
+  portainer:
+    networks: [ "network_01" ]
+    image: ${HUB}/portainer:2.18.2
+    ports:
+      - 8000:8000
+      - 9443:9443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATA}/portainer:/data

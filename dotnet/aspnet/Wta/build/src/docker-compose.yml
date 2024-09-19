@@ -1,0 +1,106 @@
+networks:
+  wta_network_01:
+    external: true
+
+services:
+  minio:
+    networks: [ "wta_network_01" ]
+    image: ${HUB}/minio:2024
+    environment:
+      - /etc/localtime:/etc/localtime:ro
+      - MINIO_DATA_DIR=/data
+      - MINIO_DEFAULT_BUCKETS=default
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA}/minio:/data
+    healthcheck:
+      test: [ "CMD", "mc", "ready", "local" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis:
+    networks: [ "wta_network_01" ]
+    image: ${HUB}/redis:7.4.0
+    environment:
+      - /etc/localtime:/etc/localtime:ro
+      - REDIS_PASSWORD=aA123456!
+    ports:
+      - 6379:6379
+    volumes:
+      - ./apps/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ${DATA}/redis:/data
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+  redisinsight:
+    networks: [ "wta_network_01" ]
+    image: ${HUB}/redisinsight:2.56.0
+    environment:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 5540:5540
+    volumes:
+      - ${DATA}/redisinsight:/data
+    depends_on:
+      - redis
+  mysql:
+    networks: [ "wta_network_01" ]
+    image: ${HUB}/mysql:8.4.2
+    environment:
+      - /etc/localtime:/etc/localtime:ro
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - 3306:3306
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./apps/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ${DATA}/mysql:/var/lib/mysql
+      - ${LOGS}/mysql:/var/log/mysql
+    command: bash -c "chmod 644 /etc/mysql/conf.d/my.cnf && docker-entrypoint.sh --default-authentication-plugin=mysql_native_password"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+  mysql2:
+    networks: [ "wta_network_01" ]
+    image: ${HUB}/mysql:8.4.2
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - 3307:3306
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./apps/mysql2/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./apps/mysql2/initdb.d:/docker-entrypoint-initdb.d
+      - ${DATA2}/mysql2:/var/lib/mysql
+      - ${LOGS2}/mysql2:/var/log/mysql
+    command: bash -c "chmod 644 /etc/mysql/conf.d/my.cnf && docker-entrypoint.sh --default-authentication-plugin=mysql_native_password"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - mysql
+  phpmyadmin:
+    networks: [ "wta_network_01" ]
+    image: ${HUB}/phpmyadmin:5.2.1
+    environment:
+      - /etc/localtime:/etc/localtime:ro
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMA_PORT=330
+      - PMA_ABSOLUTE_URI=http://localhost/
+      - PMA_USER=root
+      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - 5541:80
+    depends_on:
+      - mysql
