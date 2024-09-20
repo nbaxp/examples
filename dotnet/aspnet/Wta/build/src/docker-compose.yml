@@ -47,22 +47,25 @@ services:
     depends_on:
       - redis
   mysql:
+    # RAID10
     networks: [ "wta_network_01" ]
     image: ${HUB}/mysql:8.4.2
     environment:
       - /etc/localtime:/etc/localtime:ro
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
     ports:
       - 3306:3306
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - ./apps/mysql/start.sh:/usr/local/bin/start.sh
       - ./apps/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
       - ${DATA}/mysql:/var/lib/mysql
-      - ${LOGS}/mysql:/var/log/mysql
-    command: bash -c "chmod 644 /etc/mysql/conf.d/my.cnf && docker-entrypoint.sh --default-authentication-plugin=mysql_native_password"
+      - ${LOGS}/mysql:/var/log/mysqld
+    entrypoint: [ "/usr/local/bin/start.sh" ]
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: [ "CMD", "mysql", "-u", "root", "-p$MYSQL_ROOT_PASSWORD", "-e", "SHOW VARIABLES LIKE 'rpl_semi_sync_source_enabled';" ]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -76,11 +79,12 @@ services:
       - 3307:3306
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - ./apps/mysql2/start.sh:/usr/local/bin/start.sh
       - ./apps/mysql2/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./apps/mysql2/initdb.d:/docker-entrypoint-initdb.d
       - ${DATA2}/mysql2:/var/lib/mysql
       - ${LOGS2}/mysql2:/var/log/mysql
-    command: bash -c "chmod 644 /etc/mysql/conf.d/my.cnf && docker-entrypoint.sh --default-authentication-plugin=mysql_native_password"
+    entrypoint: [ "/usr/local/bin/start.sh" ]
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
@@ -88,7 +92,8 @@ services:
       retries: 10
       start_period: 10s
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
   phpmyadmin:
     networks: [ "wta_network_01" ]
     image: ${HUB}/phpmyadmin:5.2.1
@@ -103,4 +108,5 @@ services:
     ports:
       - 5541:80
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
