@@ -3,110 +3,18 @@ networks:
     external: true
 
 services:
-  minio:
-    networks: [ "wta_network_01" ]
-    image: ${HUB}/minio:2024
+  jobmanager:
+    networks: ["wta_network_01"]
+    image: ${HUB}/flink:scala_2.12
     environment:
       - /etc/localtime:/etc/localtime:ro
-      - MINIO_DATA_DIR=/data
-      - MINIO_DEFAULT_BUCKETS=default
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
     ports:
-      - 9000:9000
-      - 9001:9001
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${DATA}/minio:/data
-    healthcheck:
-      test: [ "CMD", "mc", "ready", "local" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-  redis:
-    networks: [ "wta_network_01" ]
-    image: ${HUB}/redis:7.4.0
-    environment:
-      - /etc/localtime:/etc/localtime:ro
-      - REDIS_PASSWORD=aA123456!
-    ports:
-      - 6379:6379
-    volumes:
-      - ./apps/redis/redis.conf:/usr/local/etc/redis/redis.conf
-      - ${DATA}/redis:/data
-    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
-  redisinsight:
-    networks: [ "wta_network_01" ]
-    image: ${HUB}/redisinsight:2.56.0
-    environment:
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - 5540:5540
-    volumes:
-      - ${DATA}/redisinsight:/data
+      - 8081:8081
+    command: jobmanager
+  taskmanager:
+    networks: ["wta_network_01"]
+    image: ${HUB}/flink:scala_2.12
+    command: taskmanager
     depends_on:
-      - redis
-  mysql:
-    # RAID10
-    networks: [ "wta_network_01" ]
-    image: ${HUB}/mysql:8.4.2
-    environment:
-      - /etc/localtime:/etc/localtime:ro
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-
-    ports:
-      - 3306:3306
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ./apps/mysql/start.sh:/usr/local/bin/start.sh
-      - ./apps/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
-      - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
-      - ${DATA}/mysql:/var/lib/mysql
-      - ${LOGS}/mysql:/var/log/mysqld
-    entrypoint: [ "/usr/local/bin/start.sh" ]
-    healthcheck:
-      test: [ "CMD", "mysql", "-u", "root", "-p$MYSQL_ROOT_PASSWORD", "-e", "SHOW VARIABLES LIKE 'rpl_semi_sync_source_enabled';" ]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 10s
-  mysql2:
-    networks: [ "wta_network_01" ]
-    image: ${HUB}/mysql:8.4.2
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    ports:
-      - 3307:3306
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ./apps/mysql2/start.sh:/usr/local/bin/start.sh
-      - ./apps/mysql2/my.cnf:/etc/mysql/conf.d/my.cnf
-      - ./apps/mysql2/initdb.d:/docker-entrypoint-initdb.d
-      - ${DATA2}/mysql2:/var/lib/mysql
-      - ${LOGS2}/mysql2:/var/log/mysql
-    entrypoint: [ "/usr/local/bin/start.sh" ]
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 10s
-    depends_on:
-      mysql:
-        condition: service_healthy
-  phpmyadmin:
-    networks: [ "wta_network_01" ]
-    image: ${HUB}/phpmyadmin:5.2.1
-    environment:
-      - /etc/localtime:/etc/localtime:ro
-      - PMA_ARBITRARY=1
-      - PMA_HOST=mysql
-      - PMA_PORT=330
-      - PMA_ABSOLUTE_URI=http://localhost/
-      - PMA_USER=root
-      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    ports:
-      - 5541:80
-    depends_on:
-      mysql:
-        condition: service_healthy
+      - jobmanager

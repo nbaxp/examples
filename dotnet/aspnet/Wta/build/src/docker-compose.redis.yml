@@ -1,0 +1,34 @@
+networks:
+  wta_network_01:
+    external: true
+
+services:
+  redis:
+    networks: ["wta_network_01"]
+    image: ${HUB}/redis:7.4.0
+    environment:
+      - /etc/localtime:/etc/localtime:ro
+      - REDIS_PASSWORD=aA123456!
+    ports:
+      - 6379:6379
+    volumes:
+      - ./apps/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ${DATA}/redis:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  redisinsight:
+    networks: ["wta_network_01"]
+    image: ${HUB}/redisinsight:2.56.0
+    environment:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 5540:5540
+    volumes:
+      - ${DATA}/redisinsight:/data
+    depends_on:
+      redis:
+        condition: service_healthy

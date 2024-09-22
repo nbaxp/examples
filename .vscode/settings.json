@@ -26,4 +26,7 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "formatSelectionAsHtml.formatter": "prettier",
+  "[dockercompose]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
 }
