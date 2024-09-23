@@ -1,20 +1,19 @@
-networks:
-  wta_network_01:
-    external: true
+include: [ "docker-compose.include.yml" ]
 
 services:
-  jobmanager:
-    networks: ["wta_network_01"]
-    image: ${HUB}/flink:scala_2.12
-    environment:
-      - /etc/localtime:/etc/localtime:ro
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+  nginx:
+    image: ${NGINX}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${NGINX_IP}
     ports:
-      - 8081:8081
-    command: jobmanager
-  taskmanager:
-    networks: ["wta_network_01"]
-    image: ${HUB}/flink:scala_2.12
-    command: taskmanager
-    depends_on:
-      - jobmanager
+      - ${NGINX_PORT_HTTP}:80
+      - ${NGINX_PORT_HTTPS}:443
+    volumes:
+      - ./apps/nginx/html:/usr/share/nginx/html
+      - ./apps/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./apps/nginx/conf.d:/etc/nginx/conf.d
+      - ./apps/nginx/certs:/etc/nginx/certs

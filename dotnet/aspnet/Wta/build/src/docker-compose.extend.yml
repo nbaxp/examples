@@ -1,0 +1,7 @@
+services:
+  base:
+    restart: always
+    environment:
+      - name=value
+    volumes:
+      - /etc/localtime:/etc/localtime:ro

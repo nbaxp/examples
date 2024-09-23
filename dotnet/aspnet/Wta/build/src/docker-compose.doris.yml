@@ -1,11 +1,31 @@
 networks:
-  wta_network_01:
+  wta_net:
     external: true
 
 services:
-  doris-be:
-    networks: ["wta_network_01"]
-    image: selectdb/doris.be-ubuntu:3.0.0
   doris-fe:
-    networks: ["wta_network_01"]
+    networks: [ "wta_net" ]
     image: selectdb/doris.fe-ubuntu:3.0.0
+    environment:
+      - /etc/localtime=/etc/localtime:ro
+      - FE_SERVERS=fe:172.20.80.2:9010
+      - FE_ID=1
+    ports:
+      - 8030:8030
+      - 9030:9030
+    volumes:
+      - ${DATA}/doris-fe/doris-meta:/opt/apache-doris/fe/doris-meta
+      - ${LOGS}/doris-fe/:/opt/apache-doris/fe/log
+  doris-be:
+    networks: [ "wta_net" ]
+    image: selectdb/doris.be-ubuntu:3.0.0
+    environment:
+      - FE_SERVERS=fe1:${当前机器的内网IP}:9010
+      - BE_ADDR=${当前机器的内网IP}:9050
+    ports:
+      - 8040:8040
+    volumes:
+      - ${DATA}/doris-be:/opt/apache-doris/be/storage
+      # - /data/be/script/:/docker-entrypoint-initdb.d
+    depends_on:
+      - doris-fe

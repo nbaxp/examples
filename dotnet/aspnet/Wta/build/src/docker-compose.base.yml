@@ -1,14 +1,20 @@
 networks:
-  network_01:
+  net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: ${SUBNET}
 
 services:
   portainer:
-    networks: [ "network_01" ]
-    image: ${HUB}/portainer:2.18.2
+    image: ${PORTAINER}
+    networks:
+      net:
+        ipv4_address: ${PORTAINER_IP}
     ports:
       - 8000:8000
       - 9443:9443
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - ${DATA}/portainer:/data

@@ -1,16 +1,18 @@
-networks:
-  wta_network_01:
-    external: true
+include: [ "docker-compose.include.yml" ]
 
 services:
   redis:
-    networks: ["wta_network_01"]
-    image: ${HUB}/redis:7.4.0
+    image: ${REDIS}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${REDIS_IP}
     environment:
-      - /etc/localtime:/etc/localtime:ro
       - REDIS_PASSWORD=aA123456!
     ports:
-      - 6379:6379
+      - ${REDIS_PORT}:6379
     volumes:
       - ./apps/redis/redis.conf:/usr/local/etc/redis/redis.conf
       - ${DATA}/redis:/data
@@ -21,10 +23,13 @@ services:
       timeout: 10s
       retries: 5
   redisinsight:
-    networks: ["wta_network_01"]
-    image: ${HUB}/redisinsight:2.56.0
-    environment:
-      - /etc/localtime:/etc/localtime:ro
+    image: ${REDISINSIGHT}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${REDISINSIGHT_IP}
     ports:
       - 5540:5540
     volumes:

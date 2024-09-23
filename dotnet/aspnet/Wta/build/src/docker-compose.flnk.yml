@@ -1,0 +1,20 @@
+networks:
+  wta_net:
+    external: true
+
+services:
+  jobmanager:
+    networks: ["wta_net"]
+    image: ${HUB}/flink:scala_2.12
+    environment:
+      - /etc/localtime:/etc/localtime:ro
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    ports:
+      - 8081:8081
+    command: jobmanager
+  taskmanager:
+    networks: ["wta_net"]
+    image: ${HUB}/flink:scala_2.12
+    command: taskmanager
+    depends_on:
+      - jobmanager

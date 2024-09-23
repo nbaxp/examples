@@ -1,25 +1,26 @@
-networks:
-  wta_network_01:
-    external: true
+include: [ "docker-compose.include.yml" ]
 
 services:
   minio:
-    networks: ["wta_network_01"]
-    image: ${HUB}/minio:2024
+    image: ${MINIO}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${MINIO_IP}
     environment:
-      - /etc/localtime:/etc/localtime:ro
       - MINIO_DATA_DIR=/data
       - MINIO_DEFAULT_BUCKETS=default
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     ports:
-      - 9000:9000
-      - 9001:9001
+      - ${MINIO_PORT_UI}:9000
+      - ${MINIO_PORT_API}:9001
     volumes:
-      - /etc/localtime:/etc/localtime:ro
       - ${DATA}/minio:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: [ "CMD", "mc", "ready", "local" ]
       interval: 5s
       timeout: 5s
       retries: 5

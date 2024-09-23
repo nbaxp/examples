@@ -1,63 +1,72 @@
-networks:
-  wta_network_01:
-    external: true
+include: [ "docker-compose.include.yml" ]
 
 services:
   mysql:
     # RAID10
-    networks: ["wta_network_01"]
-    image: ${HUB}/mysql:8.4.2
+    image: ${MYSQL}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${MYSQL_IP}
     environment:
-      - /etc/localtime:/etc/localtime:ro
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
-      - 3306:3306
+      - ${MYSQL_PORT}:3306
     volumes:
-      - /etc/localtime:/etc/localtime:ro
       - ./apps/mysql/start.sh:/usr/local/bin/start.sh
       - ./apps/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
       - ${DATA}/mysql:/var/lib/mysql
       - ${LOGS}/mysql:/var/log/mysqld
-    entrypoint: ["/usr/local/bin/start.sh"]
+    entrypoint: [ "/usr/local/bin/start.sh" ]
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 30s
       timeout: 10s
       retries: 5
   mysql2:
-    networks: ["wta_network_01"]
-    image: ${HUB}/mysql:8.4.2
+    image: ${MYSQL}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${REDIS_IP2}
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
-      - 3307:3306
+      - ${MYSQL_PORT2}:3306
     volumes:
-      - /etc/localtime:/etc/localtime:ro
       - ./apps/mysql2/start.sh:/usr/local/bin/start.sh
       - ./apps/mysql2/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./apps/mysql2/initdb.d:/docker-entrypoint-initdb.d
       - ${DATA2}/mysql2:/var/lib/mysql
       - ${LOGS2}/mysql2:/var/log/mysql
-    entrypoint: ["/usr/local/bin/start.sh"]
+    entrypoint: [ "/usr/local/bin/start.sh" ]
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 30s
       timeout: 10s
       retries: 5
   phpmyadmin:
-    networks: ["wta_network_01"]
-    image: ${HUB}/phpmyadmin:5.2.1
+    image: ${PHPMYADMIN}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${PHPMYADMIN_IP}
     environment:
-      - /etc/localtime:/etc/localtime:ro
       - PMA_ARBITRARY=1
       - PMA_HOST=mysql
-      - PMA_PORT=330
+      - PMA_PORT=${MYSQL_PORT}
       - PMA_ABSOLUTE_URI=http://localhost/
       - PMA_USER=root
       - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
-      - 5541:80
+      - ${PHPMYADMIN_PORT}:80
     depends_on:
       mysql:
         condition: service_healthy
