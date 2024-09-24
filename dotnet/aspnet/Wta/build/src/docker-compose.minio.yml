@@ -21,6 +21,3 @@ services:
       - ${DATA}/minio:/data
     healthcheck:
       test: [ "CMD", "mc", "ready", "local" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5

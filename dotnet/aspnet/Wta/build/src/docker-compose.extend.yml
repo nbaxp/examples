@@ -5,3 +5,8 @@ services:
       - name=value
     volumes:
       - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s

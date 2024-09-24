@@ -7,11 +7,11 @@ namespace Wta.Infrastructure.Mapper;
 [Service<IObjerctMapper>(ServiceLifetime.Singleton)]
 public class ValueInjecterAdapter : IObjerctMapper
 {
-    public TEntity FromModel<TEntity, TModel>(TEntity? entity, TModel model, Action<TEntity, TModel, bool>? action = null)
+    public TEntity FromModel<TEntity, TModel>(TEntity entity, TModel model, Action<TEntity, TModel, bool>? action = null, bool isCreate = false)
     {
         var isNew = entity == null;
         List<string> ignoreNames = ["Id"];
-        if (isNew)
+        if (isCreate)
         {
             entity = Activator.CreateInstance<TEntity>();
             entity.InjectFrom(new NullableInjection([.. ignoreNames]), model);
@@ -22,7 +22,7 @@ public class ValueInjecterAdapter : IObjerctMapper
                 .Select(o => o.Name));
             entity.InjectFrom(new NullableInjection([.. ignoreNames]), model);
         }
-        action?.Invoke(entity!, model, isNew);
+        action?.Invoke(entity!, model, isCreate);
         return entity!;
     }
 

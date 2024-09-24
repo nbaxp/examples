@@ -5,7 +5,7 @@
       "commandVersion": "1.0",
       "composeLaunchAction": "LaunchBrowser",
       "composeLaunchServiceName": "wta",
-      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/{Scheme}://{ServiceHost}:{ServicePort}",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}",
       "serviceActions": {
         "wta": "StartDebugging"
       }

@@ -19,9 +19,6 @@ services:
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
   redisinsight:
     image: ${REDISINSIGHT}
     extends:

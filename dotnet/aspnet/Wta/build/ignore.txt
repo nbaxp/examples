@@ -1,0 +1,11 @@
+src\.gitignore
+src\data
+src\data2
+src\data3
+src\logs
+src\logs2
+src\logs3
+src\dev.cmd
+src\dev.sh
+src\docker-compose.development.yml
+src\apps\nginx\nginx.development.conf

@@ -1,5 +1,5 @@
-setlocal
-cd /d "%~dp0"
+#!/usr/bin/env bash
+cd "$(dirname "$0")"
 docker compose -f docker-compose.base.yml up -d
 docker compose -f docker-compose.minio.yml up -d
 docker compose -f docker-compose.redis.yml up -d

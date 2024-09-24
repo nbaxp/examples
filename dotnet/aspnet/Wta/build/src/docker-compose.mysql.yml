@@ -23,9 +23,6 @@ services:
     entrypoint: [ "/usr/local/bin/start.sh" ]
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
   mysql2:
     image: ${MYSQL}
     extends:
@@ -47,9 +44,6 @@ services:
     entrypoint: [ "/usr/local/bin/start.sh" ]
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
   phpmyadmin:
     image: ${PHPMYADMIN}
     extends:

@@ -1,4 +1,7 @@
-name: 'wta'
+networks:
+ net:
+    name: wta_net
+    external: true
 
 services:
   wta:
@@ -6,5 +9,7 @@ services:
     build:
       context: .
       dockerfile: src/Wta/Dockerfile
-    depends_on:
-      - mysql
+    ports:
+      - 5000:80
+    networks:
+      - net

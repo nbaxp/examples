@@ -1,0 +1,18 @@
+include: [ "docker-compose.include.yml" ]
+
+services:
+  wta:
+    image: ${ASPNET}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${WTA_IP}
+    ports:
+      - 5000:8080
+    volumes:
+      - ./apps/wta:/app
+      - ./logs/wta:/logs
+    working_dir: /app
+    command: [ "dotnet", "Wta.dll" ]

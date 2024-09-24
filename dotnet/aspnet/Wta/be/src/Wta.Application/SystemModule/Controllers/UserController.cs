@@ -66,7 +66,7 @@ public class UserController(ILogger<User> logger,
         if (ModelState.IsValid)
         {
             var user = new User();
-            ObjectMapper.FromModel(user, model);
+            ObjectMapper.FromModel(user, model,null,true);
             user.NormalizedUserName = user.UserName.ToUpperInvariant();
             user.SecurityStamp = encryptionService.CreateSalt();
             user.PasswordHash = encryptionService.HashPassword(model.Password!, user.SecurityStamp);
