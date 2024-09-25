@@ -1,0 +1,37 @@
+include: [ "docker-compose.include.yml" ]
+
+services:
+  seatunnel-master:
+    image: ${SEATUNNEL}
+    # build:
+    #   context: ./apps/seatunnel
+    #   args:
+    #     VERSION: 2.3.7
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${SEATUNNEL_MASTER_IP}
+    environment:
+      - ST_DOCKER_MEMBER_LIST=${SEATUNNEL_MASTER_IP},${SEATUNNEL_Work1_IP}
+    entrypoint: >
+      /bin/sh -c " /opt/seatunnel/bin/seatunnel-cluster.sh -r master" 
+    ports:
+      - 5801:5801
+    volumes:
+      - ./apps/seatunnel/config/plugin_config:/opt/seatunnel/config/plugin_config
+  seatunnel-work1:
+    image: ${SEATUNNEL}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${SEATUNNEL_Work1_IP}
+    environment:
+      - ST_DOCKER_MEMBER_LIST=${SEATUNNEL_MASTER_IP},${SEATUNNEL_Work1_IP}
+    entrypoint: >
+      /bin/sh -c " /opt/seatunnel/bin/seatunnel-cluster.sh -r worker" 
+    volumes:
+      - ./apps/seatunnel/config/plugin_config:/opt/seatunnel/config/plugin_config

@@ -1,8 +1,13 @@
 services:
   base:
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G
     environment:
-      - name=value
+      - service=wta
     volumes:
       - /etc/localtime:/etc/localtime:ro
     healthcheck:

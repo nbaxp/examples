@@ -1,20 +1,33 @@
-networks:
-  wta_net:
-    external: true
+include: [ "docker-compose.include.yml" ]
 
 services:
   jobmanager:
-    networks: ["wta_net"]
-    image: ${HUB}/flink:scala_2.12
+    image: ${FLINK}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${FLINK_IP}
     environment:
-      - /etc/localtime:/etc/localtime:ro
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
     ports:
       - 8081:8081
+    volumes:
+      - ${LOGS}/flink-jobmanager:/opt/flink/log
     command: jobmanager
   taskmanager:
-    networks: ["wta_net"]
-    image: ${HUB}/flink:scala_2.12
+    image:  ${FLINK}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${FLINK_IP1}
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    volumes:
+      - ${LOGS}/flink-taskmanager:/opt/flink/log
     command: taskmanager
     depends_on:
       - jobmanager

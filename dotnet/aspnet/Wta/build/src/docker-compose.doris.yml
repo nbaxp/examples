@@ -1,14 +1,18 @@
-networks:
-  wta_net:
-    external: true
+include: [ "docker-compose.include.yml" ]
 
 services:
   doris-fe:
-    networks: [ "wta_net" ]
-    image: selectdb/doris.fe-ubuntu:3.0.0
+    image: ${DORIS_FE}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${DORIS_FE_IP}
+    container_name: "doris-fe-01"
+    hostname: "fe-01"
     environment:
-      - /etc/localtime=/etc/localtime:ro
-      - FE_SERVERS=fe:172.20.80.2:9010
+      - FE_SERVERS=fe1:${DORIS_FE_IP}:9010
       - FE_ID=1
     ports:
       - 8030:8030
@@ -17,15 +21,23 @@ services:
       - ${DATA}/doris-fe/doris-meta:/opt/apache-doris/fe/doris-meta
       - ${LOGS}/doris-fe/:/opt/apache-doris/fe/log
   doris-be:
-    networks: [ "wta_net" ]
-    image: selectdb/doris.be-ubuntu:3.0.0
+    image: ${DORIS_BE}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${DORIS_BE_IP}
+    container_name: "doris-be-01"
+    hostname: "be-01"
     environment:
-      - FE_SERVERS=fe1:${当前机器的内网IP}:9010
-      - BE_ADDR=${当前机器的内网IP}:9050
+      - FE_SERVERS=fe1:${DORIS_FE_IP}:9010
+      - BE_ADDR=${DORIS_BE_IP}:9050
     ports:
       - 8040:8040
     volumes:
       - ${DATA}/doris-be:/opt/apache-doris/be/storage
-      # - /data/be/script/:/docker-entrypoint-initdb.d
+      - ${LOGS}/doris-be:/opt/apache-doris/be/log
+      - ./apps/doris/be/script:/docker-entrypoint-initdb.d
     depends_on:
       - doris-fe
