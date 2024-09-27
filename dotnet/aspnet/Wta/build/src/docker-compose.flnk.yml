@@ -14,6 +14,11 @@ services:
     ports:
       - 8081:8081
     volumes:
+      - ./apps/flink/conf:/opt/flink/conf/conf.yaml:/opt/flink/conf/conf.yaml
+      - ./apps/flink/cdc:/opt/flink/cdc
+      - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
+      - ./apps/flink/lib/flink-cdc-dist-3.2.0.jar:/opt/flink/lib/flink-cdc-dist-3.2.0.jar
+      - ./apps/flink/lib/flink-doris-connector-1.20-24.0.0.jar:/opt/flink/lib/flink-doris-connector-1.20-24.0.0.jar
       - ${LOGS}/flink-jobmanager:/opt/flink/log
     command: jobmanager
   taskmanager:
@@ -27,7 +32,11 @@ services:
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
     volumes:
-      - ${LOGS}/flink-taskmanager:/opt/flink/log
+      - ./apps/flink/conf:/opt/flink/conf/conf.yaml:/opt/flink/conf/conf.yaml
+      - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
+      - ./apps/flink/lib/flink-cdc-dist-3.2.0.jar:/opt/flink/lib/flink-cdc-dist-3.2.0.jar
+      - ./apps/flink/lib/flink-doris-connector-1.20-24.0.0.jar:/opt/flink/lib/flink-doris-connector-1.20-24.0.0.jar
+      - ${LOGS}/flink-jobmanager:/opt/flink/log
     command: taskmanager
     depends_on:
       - jobmanager
