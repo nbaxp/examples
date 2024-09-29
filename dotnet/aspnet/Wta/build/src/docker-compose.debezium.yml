@@ -1,0 +1,35 @@
+include: [ "docker-compose.include.yml" ]
+
+services:
+  debezium-connect:
+    image: debezium/connect:3.0.0.CR2
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${KAFKA_CONNECT_IP}
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+    ports:
+      - 8083:8083
+    volumes:
+      - ./apps/debezium/connect/doris-kafka-connector:/kafka/connect
+      # - ./apps/debezium/conf/connect-doris-sink.properties:/kafka/config/connect-doris-sink.properties
+  debezium-ui:
+    image: debezium/debezium-ui:1.9
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${DEBEZIUM_UI_IP}
+    environment:
+      - KAFKA_CONNECT_URIS=http://kafka-connect:8083
+    ports:
+      - 18080:8080
+    depends_on:
+      - debezium-connect

@@ -64,10 +64,10 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-  debezium:
-    image: debezium/server:3.0
-    ports:
-      - 8080:8080
-    volumes:
-      - ./apps/debezium/conf:/debezium/conf
-      - ${DATA}/debezium:/debezium/data
+  # debezium:
+  #   image: debezium/server:3.0
+  #   ports:
+  #     - 8080:8080
+  #   volumes:
+  #     - ./apps/debezium/conf:/debezium/conf
+  #     - ${DATA}/debezium:/debezium/data
