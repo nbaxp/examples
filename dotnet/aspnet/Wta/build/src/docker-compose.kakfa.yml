@@ -27,6 +27,25 @@ services:
       - ${DATA}/kafka:/bitnami/kafka
     healthcheck:
       test: [ "CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092" ]
+  # kafka-connect:
+  #   image: confluentinc/cp-kafka-connect:7.7.1
+  #   extends:
+  #     file: docker-compose.extend.yml
+  #     service: base
+  #   networks:
+  #     net:
+  #       ipv4_address: ${KAFKA_CONNECT_IP}
+  #   environment:
+  #     - CONNECT_BOOTSTRAP_SERVERS="kafka:9092"
+  #     - CONNECT_GROUP_ID=1
+  #     - CONNECT_CONFIG_STORAGE_TOPIC=_connect-configs
+  #     - CONNECT_OFFSET_STORAGE_TOPIC=_connect-offsets
+  #     - CONNECT_STATUS_STORAGE_TOPIC=_connect-status
+  #     - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.storage.StringConverter
+  #     - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+  #     - CONNECT_REST_ADVERTISED_HOST_NAME=kafka-connect
+  #   ports:
+  #     - 8083:8083
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.7.2
     extends:

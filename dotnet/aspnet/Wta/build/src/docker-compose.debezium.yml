@@ -14,11 +14,12 @@ services:
       - GROUP_ID=1
       - CONFIG_STORAGE_TOPIC=my_connect_configs
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
     ports:
       - 8083:8083
     volumes:
-      - ./apps/debezium/connect/doris-kafka-connector:/kafka/connect
-      # - ./apps/debezium/conf/connect-doris-sink.properties:/kafka/config/connect-doris-sink.properties
+      - ./apps/debezium/connect/doris-kafka-connector:/kafka/connect/doris-kafka-connector
+      - ${LOGS}/debezium-connect:/kafka/logs
   debezium-ui:
     image: debezium/debezium-ui:1.9
     extends:
@@ -28,7 +29,7 @@ services:
       net:
         ipv4_address: ${DEBEZIUM_UI_IP}
     environment:
-      - KAFKA_CONNECT_URIS=http://kafka-connect:8083
+      - KAFKA_CONNECT_URIS=http://debezium-connect:8083
     ports:
       - 18080:8080
     depends_on:

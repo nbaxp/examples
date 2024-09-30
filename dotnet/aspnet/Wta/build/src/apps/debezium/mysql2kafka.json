@@ -1,0 +1,11 @@
+{
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "topic.prefix": "db",
+    "database.user": "root",
+    "schema.history.internal.kafka.topic": "db.schema",
+    "database.server.id": "1",
+    "database.hostname": "mysql",
+    "database.password": "*********",
+    "name": "mysql2kafka",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092"
+  }
