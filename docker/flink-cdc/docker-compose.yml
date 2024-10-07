@@ -9,7 +9,7 @@ networks:
 
 services:
   mysql:
-    image: ${HUB}mysql:8.0.39
+    image: ${HUB}mysql:${MYSQL_VERSION}
     networks:
       net:
         ipv4_address: 172.0.0.20
@@ -19,7 +19,7 @@ services:
       - 3306:3306
     volumes:
       - ./apps/mysql/start.sh:/usr/local/bin/start.sh
-      - ./apps/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./apps/mysql/my_${MYSQL_VERSION}.cnf:/etc/mysql/conf.d/my.cnf
       - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
       - ./data/mysql:/var/lib/mysql
       - ./logs/mysql:/var/log/mysqld
