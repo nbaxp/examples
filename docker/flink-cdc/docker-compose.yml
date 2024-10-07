@@ -9,7 +9,7 @@ networks:
 
 services:
   mysql:
-    image: mysql:8.0.39
+    image: ${HUB}mysql:8.0.39
     networks:
       net:
         ipv4_address: 172.0.0.20
@@ -27,7 +27,7 @@ services:
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
   doris-fe:
-    image: selectdb/doris.fe-ubuntu:3.0.0
+    image: ${HUB}selectdb/doris.fe-ubuntu:3.0.0
     networks:
       net:
         ipv4_address: 172.0.0.30
@@ -41,7 +41,7 @@ services:
       - ./data/doris/fe/doris-meta:/opt/apache-doris/fe/doris-meta
       - ./logs/doris/fe/:/opt/apache-doris/fe/log
   doris-be:
-    image: selectdb/doris.be-ubuntu:3.0.0
+    image: ${HUB}selectdb/doris.be-ubuntu:3.0.0
     networks:
       net:
         ipv4_address: 172.0.0.40
@@ -57,7 +57,7 @@ services:
     depends_on:
       - doris-fe
   flink-jobmanager:
-    image: flink:1.18.1-scala_2.12-java8
+    image: ${HUB}flink:1.20.0-scala_2.12-java8
     networks:
       net:
         ipv4_address: 172.0.0.50
@@ -66,21 +66,19 @@ services:
     ports:
       - 8081:8081
     volumes:
-      - ./apps/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
       - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
       - ./logs/flink/jobmanager:/opt/flink/log
       - ./apps/flink/cdc:/opt/flink/cdc
       - ./logs/flink/cdc:/opt/flink/cdc/log
     command: jobmanager
   flink-taskmanager:
-    image: flink:1.18.1-scala_2.12-java8
+    image: ${HUB}flink:1.20.0-scala_2.12-java8
     networks:
       net:
         ipv4_address: 172.0.0.60
     environment:
       - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
     volumes:
-      - ./apps/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
       - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
       - ./logs/flink/taskmanager:/opt/flink/log
     command: taskmanager
