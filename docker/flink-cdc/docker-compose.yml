@@ -1,0 +1,88 @@
+name: flink-cdc-mysql-to-doris
+
+networks:
+  net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.0.0.0/24
+
+services:
+  mysql:
+    image: mysql:8.0.39
+    networks:
+      net:
+        ipv4_address: 172.0.0.20
+    environment:
+      - MYSQL_ROOT_PASSWORD=aA123456!
+    ports:
+      - 3306:3306
+    volumes:
+      - ./apps/mysql/start.sh:/usr/local/bin/start.sh
+      - ./apps/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./data/mysql:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysqld
+    entrypoint: ["/usr/local/bin/start.sh"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  doris-fe:
+    image: selectdb/doris.fe-ubuntu:3.0.0
+    networks:
+      net:
+        ipv4_address: 172.0.0.30
+    environment:
+      - FE_ID=1
+      - FE_SERVERS=fe1:172.0.0.30:9010
+    ports:
+      - 8030:8030
+      - 9030:9030
+    volumes:
+      - ./data/doris/fe/doris-meta:/opt/apache-doris/fe/doris-meta
+      - ./logs/doris/fe/:/opt/apache-doris/fe/log
+  doris-be:
+    image: selectdb/doris.be-ubuntu:3.0.0
+    networks:
+      net:
+        ipv4_address: 172.0.0.40
+    environment:
+      - FE_SERVERS=fe1:172.0.0.30:9010
+      - BE_ADDR=172.0.0.40:9050
+    ports:
+      - 8040:8040
+    volumes:
+      - ./data/doris/be:/opt/apache-doris/be/storage
+      - ./logs/doris/be:/opt/apache-doris/be/log
+      - ./apps/doris/be/script:/docker-entrypoint-initdb.d
+    depends_on:
+      - doris-fe
+  flink-jobmanager:
+    image: flink:1.18.1-scala_2.12-java8
+    networks:
+      net:
+        ipv4_address: 172.0.0.50
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    ports:
+      - 8081:8081
+    volumes:
+      - ./apps/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+      - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
+      - ./logs/flink/jobmanager:/opt/flink/log
+      - ./apps/flink/cdc:/opt/flink/cdc
+      - ./logs/flink/cdc:/opt/flink/cdc/log
+    command: jobmanager
+  flink-taskmanager:
+    image: flink:1.18.1-scala_2.12-java8
+    networks:
+      net:
+        ipv4_address: 172.0.0.60
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    volumes:
+      - ./apps/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+      - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
+      - ./logs/flink/taskmanager:/opt/flink/log
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager

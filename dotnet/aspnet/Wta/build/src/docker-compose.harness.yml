@@ -1,0 +1,23 @@
+include: [ "docker-compose.include.yml" ]
+
+services:
+  harness:
+    image: docker.io/harness/harness:3.0.0
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    # networks:
+    #   net:
+    #     ipv4_address: ${REDIS_IP}
+    environment:
+      - GITNESS_PRINCIPAL_ADMIN_EMAIL=admin@nbaxp.com
+      - GITNESS_PRINCIPAL_ADMIN_PASSWORD=aA123456
+      - GITNESS_USER_SIGNUP_ENABLED=false
+      - GITNESS_HTTP_PORT=13000
+      - GITNESS_SSH_PORT=13022
+    ports:
+      - 13000:13000
+      - 13022:13022
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATA}/harness:/data

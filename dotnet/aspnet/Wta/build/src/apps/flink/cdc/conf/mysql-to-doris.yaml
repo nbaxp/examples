@@ -1,10 +1,10 @@
 source:
   type: mysql
-  hostname: mysql
+  hostname: dinky-mysql
   port: 3306
   username: root
   password: aA123456!
-  tables: wta.\.*
+  tables: demo.\.*
   server-id: 1
   server-time-zone: UTC
 

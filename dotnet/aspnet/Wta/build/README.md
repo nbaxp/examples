@@ -11,6 +11,7 @@
 主库：
 
 ```sql
+--alter user 'root'@'%' identified by 'root';
 SET GLOBAL rpl_semi_sync_source_timeout=999999999;
 SET GLOBAL rpl_semi_sync_source_enabled = 1; 
 SHOW VARIABLES LIKE 'rpl_semi_sync%';
@@ -18,6 +19,7 @@ SHOW VARIABLES LIKE 'rpl_semi_sync%';
 从库：
 
 ```sql
+--alter user 'root'@'%' identified by 'root';
 STOP REPLICA;
 SHOW VARIABLES LIKE 'rpl_semi_sync%';
 CHANGE REPLICATION SOURCE TO

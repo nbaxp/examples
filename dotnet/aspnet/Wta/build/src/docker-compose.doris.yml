@@ -9,8 +9,6 @@ services:
     networks:
       net:
         ipv4_address: ${DORIS_FE_IP}
-    container_name: "doris-fe-01"
-    hostname: "fe-01"
     environment:
       - FE_SERVERS=fe1:${DORIS_FE_IP}:9010
       - FE_ID=1
@@ -28,8 +26,6 @@ services:
     networks:
       net:
         ipv4_address: ${DORIS_BE_IP}
-    container_name: "doris-be-01"
-    hostname: "be-01"
     environment:
       - FE_SERVERS=fe1:${DORIS_FE_IP}:9010
       - BE_ADDR=${DORIS_BE_IP}:9050
