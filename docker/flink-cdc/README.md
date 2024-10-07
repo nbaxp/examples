@@ -1,5 +1,7 @@
 # FLink 1.20 FLink CDC 3.2.0 MySQL 8.0 to Doris 3.0
 
+<https://nightlies.apache.org/flink/flink-cdc-docs-master/zh/docs/get-started/quickstart/mysql-to-doris/>
+
 自动建库建表，目前最高只支持 MySQL 8.0.x
 
 ```bash
