@@ -4,7 +4,7 @@ localhost {
 	root * /usr/share/caddy
 	encode gzip
 	file_server
-	reverse_proxy /api/* wta:80 {
+	reverse_proxy /api/* host.docker.internal:5000 {
 		lb_policy cookie api_sticky
 	}
 }

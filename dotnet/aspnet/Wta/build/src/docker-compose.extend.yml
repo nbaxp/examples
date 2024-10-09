@@ -7,7 +7,7 @@ services:
           cpus: "1.0"
           memory: 2G
     environment:
-      - service=wta
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
     volumes:
       - /etc/localtime:/etc/localtime:ro
     healthcheck:

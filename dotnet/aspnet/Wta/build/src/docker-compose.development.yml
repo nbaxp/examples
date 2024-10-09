@@ -1,5 +1,5 @@
 services:
-  nginx:
+  caddy:
     volumes:
-      - ../../be/src/Wta/wwwroot:/usr/share/nginx/html
-      - ./apps/nginx/nginx.development.conf:/etc/nginx/nginx.conf
+      - ../../be/src/Wta/wwwroot:/usr/share/caddy
+      - ./apps/caddy/Caddyfile.development:/etc/caddy/Caddyfile

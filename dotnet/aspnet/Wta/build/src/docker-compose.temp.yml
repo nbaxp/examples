@@ -1,0 +1,197 @@
+networks:
+  net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${SUBNET}
+
+services:
+  debezium-connect:
+    image: debezium/connect:3.0.0.CR2
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${KAFKA_CONNECT_IP}
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+    ports:
+      - 8083:8083
+    volumes:
+      - ./apps/debezium/connect/doris-kafka-connector:/kafka/connect/doris-kafka-connector
+      - ${LOGS}/debezium-connect:/kafka/logs
+  debezium-ui:
+    image: debezium/debezium-ui:1.9
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${DEBEZIUM_UI_IP}
+    environment:
+      - KAFKA_CONNECT_URIS=http://debezium-connect:8083
+    ports:
+      - 18080:8080
+    depends_on:
+      - debezium-connect
+  dinky-mysql:
+    image: mysql:8.0.39
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${DINKY_MYSQL_IP}
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./apps/dinky-mysql/start.sh:/usr/local/bin/start.sh
+      - ./apps/dinky-mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./apps/dinky-mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ${DATA}/dinky-mysql:/var/lib/mysql
+      - ${LOGS}/dinky-mysql:/var/log/mysqld
+    entrypoint: [ "/usr/local/bin/start.sh" ]
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+  dinky:
+    image: dinkydocker/dinky-standalone-server:1.1.0-flink1.17
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${DINKY_IP}
+    environment:
+      - DB_ACTIVE=mysql
+      - MYSQL_ADDR=dinky-mysql:3306
+      - MYSQL_DATABASE=dinky
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - 8888:8888
+    volumes:
+      - ./apps/dinky/extends/:/opt/dinky/customJar/
+    command: bash -c "./auto.sh startOnPending"
+    depends_on:
+      dinky-mysql:
+        condition: service_healthy
+  flink-jobmanager:
+    image: flink:1.17-scala_2.12-java8
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${FLINK_IP}
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    volumes:
+      - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
+      - ./apps/dinky/extends/:/opt/flink/lib/customJar/
+      - ./apps/dinky/flink-cdc:/flink-cdc
+  flink-taskmanager:
+    image: flink:1.17-scala_2.12-java8
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${FLINK_TASKMANAGER_IP}
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    command: taskmanager
+    volumes:
+      - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
+      - ./apps/dinky/extends/:/opt/flink/lib/customJar/
+      - ./apps/dinky/flink-cdc:/flink-cdc
+    depends_on:
+      - flink-jobmanager
+  influxdb:
+    image: ${INFLUXDB}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${INFLUXDB_IP}
+    environment:
+      INFLUXDB_DB: wta
+      INFLUXDB_USER: root
+      INFLUXDB_USER_PASSWORD: aA123456!
+    ports:
+      - 8086:8086
+      - 8088:8088
+    volumes:
+      - ${DATA}/influxdb:/var/lib/influxdb
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:7.7.1
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${KAFKA_CONNECT_IP}
+    environment:
+      - CONNECT_BOOTSTRAP_SERVERS="kafka:9092"
+      - CONNECT_GROUP_ID=1
+      - CONNECT_CONFIG_STORAGE_TOPIC=_connect-configs
+      - CONNECT_OFFSET_STORAGE_TOPIC=_connect-offsets
+      - CONNECT_STATUS_STORAGE_TOPIC=_connect-status
+      - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.storage.StringConverter
+      - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_REST_ADVERTISED_HOST_NAME=kafka-connect
+    ports:
+      - 8083:8083
+  seatunnel-master:
+    image: ${SEATUNNEL}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${SEATUNNEL_IP}
+    environment:
+      - ST_DOCKER_MEMBER_LIST= ${SEATUNNEL_IP}, ${SEATUNNEL_IP1}, ${SEATUNNEL_IP2}
+    entrypoint: >
+      /bin/sh -c " /opt/seatunnel/bin/seatunnel-cluster.sh -r master "    
+    ports:
+      - 5801:5801
+  seatunnel-worker1:
+    image: ${SEATUNNEL}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${SEATUNNEL_IP1}
+    environment:
+      - ST_DOCKER_MEMBER_LIST= ${SEATUNNEL_IP}, ${SEATUNNEL_IP1}, ${SEATUNNEL_IP2}
+    entrypoint: >
+      /bin/sh -c " /opt/seatunnel/bin/seatunnel-cluster.sh -r worker " 
+    depends_on:
+      - seatunnel-master
+  nginx:
+    image: ${NGINX}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${NGINX_IP}
+    ports:
+      - ${NGINX_PORT_HTTP}:80
+      - ${NGINX_PORT_HTTPS}:443
+    volumes:
+      - ./apps/nginx/html:/usr/share/nginx/html
+      - ./apps/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./apps/nginx/conf.d:/etc/nginx/conf.d
+      - ./apps/nginx/certs:/etc/nginx/certs

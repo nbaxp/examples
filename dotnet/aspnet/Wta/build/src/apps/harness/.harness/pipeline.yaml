@@ -1,0 +1,23 @@
+version: 1
+kind: pipeline
+spec:
+  stages:
+    - name: build
+      type: ci
+      spec:
+        steps:
+          - setup:
+            name: push
+            type: plugin
+            spec:
+              name: docker
+              image: hub.hongtai-idi.com/plugins/docker:20.18
+              settings:
+                registry: loalhost:13000
+                repo: localhost:13000/demo/local/test
+                insecure: true
+                username: admin
+                password: aA123456
+                dockerfile: Dockerfile
+                context: .
+

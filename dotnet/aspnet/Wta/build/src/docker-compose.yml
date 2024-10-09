@@ -1,8 +1,47 @@
-include: [ "docker-compose.include.yml" ]
+networks:
+  net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${SUBNET}
 
 services:
-  nginx:
-    image: ${NGINX}
+  portainer:
+    image: ${PORTAINER}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${PORTAINER_IP}
+    ports:
+      - 19000:9000
+      - 19443:9443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATA}/portainer:/data
+  harness:
+    image: ${HARNESS}
+    networks:
+      net:
+        ipv4_address: ${HARNESS_IP}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    environment:
+      GITNESS_PRINCIPAL_ADMIN_EMAIL: ${GITNESS_PRINCIPAL_ADMIN_EMAIL}
+      GITNESS_PRINCIPAL_ADMIN_PASSWORD: ${GITNESS_PRINCIPAL_ADMIN_PASSWORD}
+      GITNESS_USER_SIGNUP_ENABLED: ${GITNESS_USER_SIGNUP_ENABLED}
+      GITNESS_HTTP_PORT: ${GITNESS_HTTP_PORT}
+      GITNESS_SSH_PORT: ${GITNESS_SSH_PORT}
+    ports:
+      - ${GITNESS_HTTP_PORT}:${GITNESS_HTTP_PORT}
+      - ${GITNESS_SSH_PORT}:${GITNESS_SSH_PORT}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATA}/harness:/data
+  caddy:
+    image: ${CADDY}
     extends:
       file: docker-compose.extend.yml
       service: base
@@ -13,8 +52,262 @@ services:
       - ${NGINX_PORT_HTTP}:80
       - ${NGINX_PORT_HTTPS}:443
     volumes:
-      - ./apps/nginx/html:/usr/share/nginx/html
-      - ./apps/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./apps/nginx/conf.d:/etc/nginx/conf.d
-      - ./apps/nginx/certs:/etc/nginx/certs
-
+      - ./apps/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./apps/caddy/html:/usr/share/caddy
+      - ${DATA}/caddy/data:/data
+  minio:
+    image: ${MINIO}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${MINIO_IP}
+    environment:
+      MINIO_DATA_DIR: /data
+      MINIO_DEFAULT_BUCKETS: default
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - ${MINIO_PORT_UI}:9000
+      - ${MINIO_PORT_API}:9001
+    volumes:
+      - ${DATA}/minio:/data
+    healthcheck:
+      test: [ "CMD", "mc", "ready", "local" ]
+  redis:
+    image: ${REDIS}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${REDIS_IP}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - ./apps/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ${DATA}/redis:/data
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+  redisinsight:
+    image: ${REDISINSIGHT}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${REDISINSIGHT_IP}
+    ports:
+      - 5540:5540
+    volumes:
+      - ${DATA}/redisinsight:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+  mysql:
+    image: ${MYSQL}
+    networks:
+      net:
+        ipv4_address: ${MYSQL_IP}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - ${MYSQL_PORT}:3306
+    volumes:
+      - ./apps/mysql/start.sh:/usr/local/bin/start.sh
+      - ./apps/mysql/${MYSQL_CNF}:/etc/mysql/conf.d/my.cnf
+      - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./data/mysql:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysqld
+    entrypoint: [ "/usr/local/bin/start.sh" ]
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+  phpmyadmin:
+    image: ${PHPMYADMIN}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${PHPMYADMIN_IP}
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_ABSOLUTE_URI: http://mysql/
+      PMA_HOST: mysql
+      PMA_PORT: ${MYSQL_PORT}
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - ${PHPMYADMIN_PORT}:80
+    depends_on:
+      mysql:
+        condition: service_healthy
+  doris-fe:
+    image: ${DORIS_FE}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${DORIS_FE_IP}
+    environment:
+      FE_ID: 1
+      FE_SERVERS: fe1:${DORIS_FE_IP}:9010
+    ports:
+      - 8030:8030
+      - 9030:9030
+    volumes:
+      - ${DATA}/doris/fe/doris-meta:/opt/apache-doris/fe/doris-meta
+      - ${LOGS}/doris/fe/:/opt/apache-doris/fe/log
+  doris-be:
+    image: ${DORIS_BE}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${DORIS_BE_IP}
+    environment:
+      FE_SERVERS: fe1:${DORIS_FE_IP}:9010
+      BE_ADDR: ${DORIS_BE_IP}:9050
+    ports:
+      - 8040:8040
+    volumes:
+      - ./apps/doris/be/script:/docker-entrypoint-initdb.d
+      - ${DATA}/doris/be:/opt/apache-doris/be/storage
+      - ${LOGS}/logs/doris/be:/opt/apache-doris/be/log
+    depends_on:
+      - doris-fe
+  flink-jobmanager:
+    image: ${FLINK}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${FLINK_JOBMANAGER_IP}
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: flink-jobmanager
+    ports:
+      - 8081:8081
+    volumes:
+      - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
+      - ${LOGS}/flink/jobmanager:/opt/flink/log
+      - ./apps/flink/cdc:/opt/flink/cdc
+      - ${LOGS}/flink/cdc:/opt/flink/cdc/log
+    command: jobmanager
+  flink-taskmanager:
+    image: ${FLINK}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${FLINK_TASKMANAGER_IP}
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: flink-jobmanager
+    volumes:
+      - ./apps/flink/lib/mysql-connector-java-8.0.30.jar:/opt/flink/lib/mysql-connector-java-8.0.30.jar
+      - ${LOGS}/flink/taskmanager:/opt/flink/log
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+  superset:
+    image: ${SUPERSET}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${SUPERSET_IP}
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+    ports:
+      - 8088:8088
+    volumes:
+      - ./apps/superset/startup.sh:/opt/startup.sh
+      - ./apps/superset/superset_config.py:/etc/superset/superset_config.py
+      - ${DATA}/superset:/app/superset_home
+    command: "/opt/startup.sh"
+  kafka:
+    image: ${KAFKA}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${KAFKA_IP}
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_ENABLE_KRAFT: yes
+      KAFKA_KRAFT_CLUSTER_ID: 1
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    ports:
+      - 9092:9092
+      - 9093:9093
+    volumes:
+      - ${DATA}/kafka:/bitnami/kafka
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092" ]
+  emqx:
+    image: ${EMQX}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${EMQX_IP}
+    user: root
+    environment:
+      EMQX_NAME: emqx
+      EMQX_HOST: ${EMQX_IP}
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD__DEFAULT_PASSWORD}
+    ports:
+      - 1883:1883
+      - 8083:8083
+      - 8084:8084
+      - 18083:18083
+    volumes:
+      - ${DATA}/emqx:/opt/emqx/data
+      - ${LOGS}/emqx:/opt/emqx/log
+    # srs:
+    #   image: ${SRS}
+    #   extends:
+    #     file: docker-compose.extend.yml
+    #     service: base
+    #   networks:
+    #     net:
+    #       ipv4_address: ${EMQX_IP}
+    #   ports:
+    #     - 1935:1935
+    #     - 1985:1985
+    #     - 8080:8080
+    # volumes:
+    #   - ./apps/srs/conf:/usr/local/srs/conf
+    # wta:
+    #   image: ${ASPNET}
+    #   extends:
+    #     file: docker-compose.extend.yml
+    #     service: base
+    #   networks:
+    #     net:
+    #       ipv4_address: ${ASPNET_IP}
+    #   environment:
+    #     - ASPNETCORE_URLS=http://*:80
+    #   ports:
+    #     - 5000:80
+    #   volumes:
+    #     - ./apps/wta:/app
+    #     - ./logs/wta:/logs
+    #   working_dir: /app
+    #   command: [ "dotnet", "Wta.dll" ]
