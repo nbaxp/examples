@@ -1,0 +1,38 @@
+version: 1
+kind: pipeline
+spec:
+  stages:
+    - name: build
+      type: ci
+      spec:
+        steps:
+          - name: test
+            type: run
+            spec:
+              container:
+                image: plugins/docker:20.18
+                privileged: true
+                user: root
+              script: |-
+                uname -a
+                env
+                pwd
+                ls
+                docker -v
+                # docker ps -a
+          - setup:
+            name: push
+            type: plugin
+            spec:
+              name: docker
+              container: plugins/docker:20.18
+              inputs:
+                context: .
+                dockerfile: Dockerfile
+                insecure: true
+                registry: localhost:13000
+                repo: localhost:13000/demo/docker/test
+                username: admin@nbaxp.com
+                password: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3Mjg2MDgxMjksImlzcyI6IkdpdG5lc3MiLCJwaWQiOjQsInRrbiI6eyJ0eXAiOiJwYXQiLCJpZCI6OH19.OPVTGwFlOggMG5rWhhK-shsyeSR6MOvcHIzQ0nIN_xY
+                tags:
+                  - latest

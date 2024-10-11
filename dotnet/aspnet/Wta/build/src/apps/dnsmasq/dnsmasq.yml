@@ -1,0 +1,16 @@
+# dnsmasq
+# DNSMASQ=${HUB}jpillora/dnsmasq:1.1.0
+# DNSMASQ_IP=${LAN}.2
+dnsmasq:
+  image: ${DNSMASQ}
+  networks:
+    net:
+      ipv4_address: ${DNSMASQ_IP}
+  environment:
+    HTTP_USER: usr
+    HTTP_PASS: pwd
+  ports:
+    - 53:53/udp
+    - 18080:8080
+  volumes:
+    - ./apps/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf

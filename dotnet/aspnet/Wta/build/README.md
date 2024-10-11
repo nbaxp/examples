@@ -1,5 +1,14 @@
 # 构建
 
+使用国内镜像
+
+```json
+{
+  "insecure-registries": ["localhost:13000"],
+  "registry-mirrors": ["https://hub.hongtai-idi.com"]
+}
+```
+
 ## MySQL
 
 在 Docker 下使用 MySQL 时：
@@ -13,9 +22,10 @@
 ```sql
 --alter user 'root'@'%' identified by 'root';
 SET GLOBAL rpl_semi_sync_source_timeout=999999999;
-SET GLOBAL rpl_semi_sync_source_enabled = 1; 
+SET GLOBAL rpl_semi_sync_source_enabled = 1;
 SHOW VARIABLES LIKE 'rpl_semi_sync%';
 ```
+
 从库：
 
 ```sql
@@ -58,7 +68,7 @@ sysctl -p
 --登录：
 mysql -uroot -P9030 -h127.0.0.1
 --修改密码：aA123456!
-SET PASSWORD FOR 'root' = PASSWORD('doris-root-password');       
+SET PASSWORD FOR 'root' = PASSWORD('doris-root-password');
 SET PASSWORD FOR 'admin' = PASSWORD('doris-admin-password');
 --添加 BE 到集群：172.172.0.61:9050
 --ALTER SYSTEM ADD BACKEND "be_host_ip:heartbeat_service_port";

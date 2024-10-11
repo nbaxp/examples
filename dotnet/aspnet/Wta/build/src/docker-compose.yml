@@ -28,12 +28,15 @@ services:
     extends:
       file: docker-compose.extend.yml
       service: base
+    privileged: true
+    user: root
     environment:
       GITNESS_PRINCIPAL_ADMIN_EMAIL: ${GITNESS_PRINCIPAL_ADMIN_EMAIL}
       GITNESS_PRINCIPAL_ADMIN_PASSWORD: ${GITNESS_PRINCIPAL_ADMIN_PASSWORD}
       GITNESS_USER_SIGNUP_ENABLED: ${GITNESS_USER_SIGNUP_ENABLED}
       GITNESS_HTTP_PORT: ${GITNESS_HTTP_PORT}
       GITNESS_SSH_PORT: ${GITNESS_SSH_PORT}
+      GITNESS_URL_BASE: ${GITNESS_URL_BASE}
     ports:
       - ${GITNESS_HTTP_PORT}:${GITNESS_HTTP_PORT}
       - ${GITNESS_SSH_PORT}:${GITNESS_SSH_PORT}
