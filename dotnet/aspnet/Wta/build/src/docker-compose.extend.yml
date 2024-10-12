@@ -4,14 +4,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: "2.0"
           memory: 2G
     environment:
-      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+      TZ: Asia/Shanghai
     volumes:
       - /etc/localtime:/etc/localtime:ro
     healthcheck:
       interval: 10s
       timeout: 10s
-      retries: 10
+      retries: 100
       start_period: 10s

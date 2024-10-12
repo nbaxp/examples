@@ -4,7 +4,7 @@ networks:
     external: true
 
 services:
-  wta:
+  wta-dev:
     image: ${DOCKER_REGISTRY-}wta
     build:
       context: .
@@ -12,4 +12,6 @@ services:
     ports:
       - 5000:80
     networks:
-      - net
+      net:
+        ipv4_address: 172.172.0.201
+

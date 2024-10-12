@@ -4,6 +4,7 @@ localhost {
 	root * /usr/share/caddy
 	encode gzip
 	file_server
+	metrics
 	reverse_proxy /api/* wta:80 {
 		lb_policy cookie api_sticky
 	}

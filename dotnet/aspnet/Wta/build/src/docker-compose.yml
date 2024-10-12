@@ -20,6 +20,44 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${DATA}/portainer:/data
+  # windows-exporter:
+  #   image: prometheuscommunity/windows-exporter:master-ltsc2022
+  node-exporter:
+    image: ${NODE_EXPORTER}
+    platform: linux/amd64
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    restart: no
+    network_mode: host
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+    command:
+      - '--path.rootfs=/host'
+  prometheus:
+    image: ${PROMETHEUS}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${PROMETHEUS_IP}
+    ports:
+      - 9090:9090
+    volumes:
+      - ./apps/prometheus:/etc/prometheus
+      - ${DATA}/prometheus:/prometheus
+  grafra:
+    image: ${GRAFANA}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${GRAFANA_IP}
+    ports:
+      - 3000:3000
   harness:
     image: ${HARNESS}
     networks:
@@ -50,13 +88,20 @@ services:
       service: base
     networks:
       net:
-        ipv4_address: ${NGINX_IP}
+        ipv4_address: ${WEB_IP}
+    cap_add:
+      - NET_ADMIN
+    environment:
+      ADMIN_USER: admin
+      ADMIN_PASSWORD: aA123456
     ports:
-      - ${NGINX_PORT_HTTP}:80
-      - ${NGINX_PORT_HTTPS}:443
+      - ${WEB_PORT_HTTP}:80
+      - ${WEB_PORT_HTTPS}:443
+      - 2019:2019
     volumes:
-      - ./apps/caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ./apps/caddy/html:/usr/share/caddy
+      - ./apps/caddy/Caddyfile.development:/etc/caddy/Caddyfile
+      - ${DATA}/caddy/config:/config
+      - ../../be/src/Wta/wwwroot:/usr/share/caddy
       - ${DATA}/caddy/data:/data
   minio:
     image: ${MINIO}
@@ -113,6 +158,9 @@ services:
         condition: service_healthy
   mysql:
     image: ${MYSQL}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
     networks:
       net:
         ipv4_address: ${MYSQL_IP}
@@ -297,20 +345,3 @@ services:
     #     - 8080:8080
     # volumes:
     #   - ./apps/srs/conf:/usr/local/srs/conf
-    # wta:
-    #   image: ${ASPNET}
-    #   extends:
-    #     file: docker-compose.extend.yml
-    #     service: base
-    #   networks:
-    #     net:
-    #       ipv4_address: ${ASPNET_IP}
-    #   environment:
-    #     - ASPNETCORE_URLS=http://*:80
-    #   ports:
-    #     - 5000:80
-    #   volumes:
-    #     - ./apps/wta:/app
-    #     - ./logs/wta:/logs
-    #   working_dir: /app
-    #   command: [ "dotnet", "Wta.dll" ]

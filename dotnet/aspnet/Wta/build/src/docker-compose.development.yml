@@ -1,5 +1,0 @@
-services:
-  caddy:
-    volumes:
-      - ../../be/src/Wta/wwwroot:/usr/share/caddy
-      - ./apps/caddy/Caddyfile.development:/etc/caddy/Caddyfile

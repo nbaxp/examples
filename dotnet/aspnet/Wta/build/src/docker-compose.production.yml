@@ -1,6 +1,7 @@
-include: [ "docker-compose.include.yml" ]
-
 services:
+  caddy:
+    volumes:
+      - ./apps/caddy/Caddyfile:/etc/caddy/Caddyfile
   wta:
     image: ${ASPNET}
     extends:

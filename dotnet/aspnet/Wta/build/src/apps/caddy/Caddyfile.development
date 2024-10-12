@@ -3,8 +3,12 @@
 localhost {
 	root * /usr/share/caddy
 	encode gzip
-	file_server
+	file_server	
 	reverse_proxy /api/* host.docker.internal:5000 {
 		lb_policy cookie api_sticky
 	}
+}
+
+http://localhost:2019 {
+	metrics
 }

@@ -17,7 +17,6 @@ public class CaptchaController(ILogger<CaptchaController> logger,
 {
     [AllowAnonymous]
     [ResponseCache(NoStore = true)]
-    [HttpGet]
     public ApiResult<CaptchaModel> Image()
     {
         var timeout = GetTimeout(configuration);

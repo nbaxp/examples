@@ -18,7 +18,7 @@
 ## 部署
 
 1. 服务器安装 Docker ，配置本地镜像仓库
-1. 上传代码到服务i去
+1. 上传代码到服务器
 1. 执行 build/src/start.cmd
 1. 配置启动的相关服务，如 flink cdc
 1. 提交代码到 git 服务器：http://localhost:13000
