@@ -1,0 +1,42 @@
+name: sso
+
+services:
+  authelia:
+    image: authelia/authelia:4.38.16
+    # environment:
+    #   AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: "/secrets/JWT_SECRET"
+    #   AUTHELIA_SESSION_SECRET_FILE: "/secrets/SESSION_SECRET"
+    #   AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE: "/secrets/STORAGE_PASSWORD"
+    #   AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: "/secrets/STORAGE_ENCRYPTION_KEY"
+    volumes:
+      - ./apps/authelia/config:/config
+    #   - ./data/authelia/secrets:/secrets
+    ports:
+      - 9091:9091
+  openldap:
+    image: bitnami/openldap:2.5.18
+    environment:
+      - LDAP_ORGANISATION=demo
+      - LDAP_DOMAIN=demo.com
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=aA123456
+    ports:
+      - 11389:1389
+      - 11636:1636
+    volumes:
+      - ./data/openldap:/bitnami/openldap
+  phpldapadmin:
+    image: osixia/phpldapadmin:stable-amd64
+    privileged: true
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=openldap
+      - PHPLDAPADMIN_HTTPS=false
+    ports:
+      - 6443:80
+  cas:
+    image: apereo/cas:7.2.0-RC1
+    environment:
+      - SERVER_SSL_ENABLED=false
+      - SERVER_PORT=8080
+    ports:
+      - 8080:8080
