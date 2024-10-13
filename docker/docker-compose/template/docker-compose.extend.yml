@@ -1,0 +1,17 @@
+services:
+  base:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G
+    environment:
+      - service=wta
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s

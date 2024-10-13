@@ -1,0 +1,4 @@
+networks:
+ net:
+    name: ${NETWORK}
+    external: true

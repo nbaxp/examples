@@ -1,0 +1,20 @@
+include: [ "docker-compose.include.yml" ]
+
+services:
+  nginx:
+    image: ${NGINX}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${NGINX_IP}
+    ports:
+      - ${NGINX_PORT_HTTP}:80
+      - ${NGINX_PORT_HTTPS}:443
+    volumes:
+      - ./apps/nginx/html:/usr/share/nginx/html
+      - ./apps/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./apps/nginx/conf.d:/etc/nginx/conf.d
+      - ./apps/nginx/certs:/etc/nginx/certs
+
