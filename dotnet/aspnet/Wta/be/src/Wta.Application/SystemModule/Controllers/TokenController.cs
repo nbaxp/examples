@@ -69,7 +69,7 @@ public class TokenController(
     /// </summary>
     [ApiExplorerSettings(GroupName = "OAuth2 Server API"), Route("/api/oauth/[action]")]
     [RawAction, HttpPost, AllowAnonymous, Ignore]
-    public IActionResult Token(string client_id, string client_secret, string code, string? refresh_token, string grant_type = "authorization_code")
+    public IActionResult Token([FromForm] string client_id, [FromForm] string client_secret, [FromForm] string code, [FromForm] string? refresh_token, [FromForm] string grant_type = "authorization_code")
     {
         var app = repository.AsNoTracking().FirstOrDefault(o => o.ClientId == client_id);
         if (app == null)
@@ -117,10 +117,22 @@ public class TokenController(
             .Select(o => new Claim(tokenValidationParameters.RoleClaimType, o!));
         additionalClaims.AddRange(roles);
         var subject = CreateSubject(user.UserName!, additionalClaims);
-        var accessToken = this.CreateToken(subject, jwtOptions.AccessTokenExpires);
-        var refreshToken = CreateToken(subject, jwtOptions.RefreshTokenExpires);
-        var expiresIn = (long)jwtOptions.AccessTokenExpires.TotalSeconds;
-        return Content($"token_type=bearer&access_token={accessToken}&id_token={accessToken}&refresh_token={refresh_token}&expires_in={expiresIn}");
+        var access_token = this.CreateToken(subject, jwtOptions.AccessTokenExpires);
+        var id_token = access_token;
+        var refreshToken = this.CreateToken(subject, jwtOptions.RefreshTokenExpires);
+        var expires_in = (long)jwtOptions.AccessTokenExpires.TotalSeconds;
+        if (Request.Headers.Accept.Contains("application/json"))
+        {
+            return new JsonResult(new
+            {
+                token_type = "bearer",
+                access_token,
+                id_token,
+                refresh_token = refreshToken,
+                expires_in
+            });
+        }
+        return Content($"token_type=bearer&access_token={access_token}&id_token={id_token}&refresh_token={refreshToken}&expires_in={expires_in}");
     }
 
     /// <summary>
@@ -150,19 +162,19 @@ public class TokenController(
     /// 作为 OAuth2 服务器，提供用户信息
     /// </summary>
     [ApiExplorerSettings(GroupName = "OAuth2 Server API"), Route("/api/oauth/[action]")]
-    [RawAction,HttpGet, Authorize, Ignore]
+    [RawAction, HttpGet, Authorize, Ignore]
     public async Task<IActionResult> Logout()
     {
         var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
         var user = userRepository
             .AsNoTracking()
             .Where(o => o.NormalizedUserName == normalizedUserName)
-            .Include(o=>o.UserLogins)
+            .Include(o => o.UserLogins)
             .FirstOrDefault()!;
         foreach (var item in user.UserLogins)
         {
             var app = repository.AsNoTracking().FirstOrDefault(o => o.Name == item.LoginProvider);
-            if(app?.Logout!=null)
+            if (app?.Logout != null)
             {
                 try
                 {

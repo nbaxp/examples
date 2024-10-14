@@ -566,11 +566,11 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
                 {
                     Name = "localhost",
                     Logo="api/file/avatar.svg",
-                    Home = "http://localhost:5000",
+                    Home = "http://localhost:5010",
                     Description="shelf test",
-                    ClientId="123",
-                    ClientSecret="456",
-                    Callback="http://localhost:5000/api/oauth/oauth-callback/wta",
+                    ClientId="aspnetcore",
+                    ClientSecret="123456",
+                    Callback="http://localhost:5010/oauth-callback",
                     Enabled = true
                 },
                 new ExternalApp
