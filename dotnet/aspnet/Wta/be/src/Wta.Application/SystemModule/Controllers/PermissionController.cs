@@ -15,7 +15,7 @@ public class PermissionController(ILogger<Permission> logger,
         model.RolesList = entity.Roles?.Split(',').ToList();
     }
 
-    protected override void ToEntity(Permission entity, Permission model, bool isCreate)
+    protected override void ToEntity(Permission entity, Permission model)
     {
         if (entity.AuthType == AuthType.Roles)
         {

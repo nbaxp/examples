@@ -50,7 +50,7 @@ public class TenantController(ILogger<Tenant> logger,
             throw new BadRequestException();
         }
         //创建租户
-        var entity = ObjectMapper.FromModel(Activator.CreateInstance<Tenant>(), model, null, true).SetIdBy(o => o.Number);
+        var entity = ObjectMapper.ToEntity<Tenant, Tenant>(model).SetIdBy(o => o.Number);
         Repository.Add(entity);
         Repository.SaveChanges();
         //初始化租户

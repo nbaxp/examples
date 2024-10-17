@@ -90,7 +90,7 @@ export default {
                 </el-dropdown-item>
                 <el-dropdown-item divided @click="confirmLogout">
                   <el-icon><ep-switch-button /></el-icon>
-                  {{$t('注销')}}
+                  {{$t('退出')}}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>

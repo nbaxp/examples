@@ -22,19 +22,19 @@ services:
       - ${DATA}/portainer:/data
   # windows-exporter:
   #   image: prometheuscommunity/windows-exporter:master-ltsc2022
-  node-exporter:
-    image: ${NODE_EXPORTER}
-    platform: linux/amd64
-    extends:
-      file: docker-compose.extend.yml
-      service: base
-    restart: no
-    network_mode: host
-    pid: host
-    volumes:
-      - '/:/host:ro,rslave'
-    command:
-      - '--path.rootfs=/host'
+  # node-exporter:
+  #   image: ${NODE_EXPORTER}
+  #   platform: linux/amd64
+  #   extends:
+  #     file: docker-compose.extend.yml
+  #     service: base
+  #   restart: no
+  #   network_mode: host
+  #   pid: host
+  #   volumes:
+  #     - '/:/host:ro,rslave'
+  #   command:
+  #     - '--path.rootfs=/host'
   prometheus:
     image: ${PROMETHEUS}
     extends:
@@ -122,7 +122,7 @@ services:
     volumes:
       - ${DATA}/minio:/data
     healthcheck:
-      test: [ "CMD", "mc", "ready", "local" ]
+      test: ["CMD", "mc", "ready", "local"]
   redis:
     image: ${REDIS}
     extends:
@@ -138,9 +138,9 @@ services:
     volumes:
       - ./apps/redis/redis.conf:/usr/local/etc/redis/redis.conf
       - ${DATA}/redis:/data
-    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
   redisinsight:
     image: ${REDISINSIGHT}
     extends:
@@ -174,9 +174,9 @@ services:
       - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
       - ./data/mysql:/var/lib/mysql
       - ./logs/mysql:/var/log/mysqld
-    entrypoint: [ "/usr/local/bin/start.sh" ]
+    entrypoint: ["/usr/local/bin/start.sh"]
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
   phpmyadmin:
     image: ${PHPMYADMIN}
     extends:
@@ -309,7 +309,13 @@ services:
     volumes:
       - ${DATA}/kafka:/bitnami/kafka
     healthcheck:
-      test: [ "CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092" ]
+      test:
+        [
+          "CMD",
+          "kafka-broker-api-versions.sh",
+          "--bootstrap-server",
+          "localhost:9092",
+        ]
   emqx:
     image: ${EMQX}
     extends:

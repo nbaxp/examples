@@ -85,7 +85,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             throw new BadRequestException();
         }
-        var entity = ObjectMapper.FromModel<TEntity, TModel>(Activator.CreateInstance<TEntity>(), model, ToEntity,true);
+        var entity = ObjectMapper.ToEntity<TEntity, TModel>(model, ToEntity);
         entity.Id = Repository.NewGuid();
         if (entity is BaseTreeEntity<TEntity> node)
         {
@@ -321,7 +321,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     {
     }
 
-    protected virtual void ToEntity(TEntity entity, TModel model, bool isCreate)
+    protected virtual void ToEntity(TEntity entity, TModel model)
     {
     }
 }

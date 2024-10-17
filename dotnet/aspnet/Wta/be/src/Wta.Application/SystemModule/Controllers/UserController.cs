@@ -65,8 +65,7 @@ public class UserController(ILogger<User> logger,
     {
         if (ModelState.IsValid)
         {
-            var user = new User();
-            ObjectMapper.FromModel(user, model,null,true);
+            var user = ObjectMapper.ToEntity<User, RegisterModel>(model);
             user.NormalizedUserName = user.UserName.ToUpperInvariant();
             user.SecurityStamp = encryptionService.CreateSalt();
             user.PasswordHash = encryptionService.HashPassword(model.Password!, user.SecurityStamp);
@@ -160,9 +159,9 @@ public class UserController(ILogger<User> logger,
         return result;
     }
 
-    protected override void ToEntity(User entity, User model, bool isCreate)
+    protected override void ToEntity(User entity, User model)
     {
-        if (isCreate && string.IsNullOrEmpty(model.Password))
+        if (string.IsNullOrEmpty(model.Password))
         {
             var key = nameof(model.Password);
             ModelState.AddModelError(key, StringLocalizer.GetString("Required", StringLocalizer.GetString(key)));

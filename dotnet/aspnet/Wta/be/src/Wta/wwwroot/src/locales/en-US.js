@@ -37,7 +37,7 @@ export default {
   验证码: 'Captcha Code',
   点击刷新: 'Click Refresh',
   登录: 'Login',
-  注销: 'Logout',
+  退出: 'Logout',
   注册: 'Register',
   忘记密码: 'Forgot Password',
   用户中心: 'User Center',

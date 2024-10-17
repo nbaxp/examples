@@ -16,7 +16,7 @@ public class DepartmentController(ILogger<Department> logger,
         model.DepartmentUsers = entity.Users.Select(x => x.Id).ToList();
     }
 
-    protected override void ToEntity(Department entity, Department model, bool isCreate)
+    protected override void ToEntity(Department entity, Department model)
     {
         entity.Users = [.. userRepository.Query().Where(o => model.DepartmentUsers.Contains(o.Id))];
     }

@@ -8,7 +8,7 @@ public class MapsterAdapter : IObjerctMapper
 {
     public static ConcurrentDictionary<string, object> Maps = new ConcurrentDictionary<string, object>();
 
-    public TEntity FromModel<TEntity, TModel>(TEntity entity, TModel model, Action<TEntity, TModel, bool>? action = null, bool isCreate = false)
+    public TEntity FromModel<TEntity, TModel>(TEntity entity, TModel model, Action<TEntity, TModel>? action = null)
     {
         var setter = GetConfig<TModel, TEntity>();
         var isNew = entity == null;
@@ -18,7 +18,7 @@ public class MapsterAdapter : IObjerctMapper
         }
         var config = setter.Config;
         model.Adapt(entity, config);
-        action?.Invoke(entity!, model, isCreate);
+        action?.Invoke(entity!, model);
         return entity!;
     }
 
@@ -36,5 +36,10 @@ public class MapsterAdapter : IObjerctMapper
     public static TypeAdapterSetter<TSource, TTarget> GetConfig<TSource, TTarget>(int depth = 1)
     {
         return TypeAdapterConfig<TSource, TTarget>.NewConfig().PreserveReference(true).MaxDepth(depth);
+    }
+
+    public TEntity ToEntity<TEntity, TModel>(TModel model, Action<TEntity, TModel>? action = null)
+    {
+        throw new NotImplementedException();
     }
 }

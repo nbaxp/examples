@@ -1,11 +1,11 @@
 services:
   base:
     restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 2G
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "2.0"
+    #       memory: 2G
     environment:
       TZ: Asia/Shanghai
     volumes:
