@@ -36,14 +36,15 @@ export default {
           <template v-else-if="schema.input==='select'||schema.input==='radio'">
             <template v-if="schema.meta?.isTree">
               <template v-if="schema.meta?.multiple">
-                <el-tree
+                <el-tree-select
                   v-if="selectOptions?.length"
-                  :props="selectProps"
-                  node-key="value"
+                  v-model="selectValues"
                   :data="selectOptions"
+                  :check-strictly="selectProps.checkStrictly"
+                  node-key="value"
+                  show-checkbox
                   :default-checked-keys="selectValues"
                   show-checkbox
-                  disabled
                 />
                 <el-icon v-else v-loading="true"></el-icon>
               </template>
@@ -272,8 +273,8 @@ export default {
     });
     const selectProps = {
       multiple: isMultiple,
-      checkStrictly: !isMultiple, //false
-      emitPath: false, //true
+      checkStrictly: true,
+      emitPath: false
     };
     const selectChange = (values) => {
       console.log(selectValues.value);
