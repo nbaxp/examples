@@ -2,7 +2,7 @@ using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.SystemModule.Domain;
 
-[PermissionManagement, Display(Name = "登录绑定", Order = 4)]
+[PermissionManagement, Display(Name = "登录绑定", Order = 6)]
 [DependsOn<SystemDbContext>]
 public class UserLogin : BaseEntity
 {

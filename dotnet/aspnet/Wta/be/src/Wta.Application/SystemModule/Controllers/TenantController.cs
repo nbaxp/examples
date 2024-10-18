@@ -96,29 +96,21 @@ public class TenantController(ILogger<Tenant> logger,
 
     public override ApiResult<bool> Update([FromBody] Tenant model)
     {
-        if (!ModelState.IsValid)
-        {
-            throw new BadRequestException();
-        }
+        Repository.DisableTenantFilter();
         var entity = Repository.Query().First(o => o.Id == model.Id);
         ObjectMapper.FromModel(entity, model);
-        permissionRepository.DisableTenantFilter();
-        var permissions = permissionRepository.Query().Where(o => o.TenantNumber == entity.Number).ToList();
-        roleRepository.DisableTenantFilter();
+        Repository.SaveChanges();
         var tenantRole = roleRepository.Query()
             .Include(o => o.RolePermissions)
             .First(o => o.Number == "admin" && o.TenantNumber == entity.Number);
-        var oldPermissions = permissions.Where(o => tenantRole.RolePermissions.Any(p => p.PermissionId == o.Id));
-        var newPermissions = permissions.Where(o => model.Permissions.Any(p => o.Number == p));
-        tenantRole.RolePermissions.RemoveAll(o => !newPermissions.Any(p => p.Id == o.PermissionId));
-        var addList = newPermissions.Where(o => !tenantRole.RolePermissions.Any(p => p.PermissionId == o.Id)).Select(o => new RolePermission
-        {
-            RoleId = tenantRole.Id,
-            PermissionId = o.Id,
-        });
-        tenantRole.RolePermissions.AddRange(addList);
+        var permissions = permissionRepository.Query().Where(o => o.TenantNumber == entity.Number).ToList();
+        tenantRole.RolePermissions.Clear();
+        Repository.SaveChanges();
+        tenantRole.RolePermissions.AddRange(permissions.Where(o => model.Permissions.Any(p => o.Number == p))
+            .Select(o => new RolePermission { PermissionId = o.Id, RoleId = tenantRole.Id, TenantNumber = entity.TenantNumber })
+            .ToList());
         permissions.Where(o => !o.Disabled && !model.Permissions.Any(p => o.Number == p)).ForEach(o => o.Disabled = true);
-        newPermissions.Where(o => o.Disabled && model.Permissions.Any(p => o.Number == p)).ForEach(o => o.Disabled = false);
+        permissions.Where(o => o.Disabled && model.Permissions.Any(p => o.Number == p)).ForEach(o => o.Disabled = false);
         Repository.SaveChanges();
         return Json(true);
     }

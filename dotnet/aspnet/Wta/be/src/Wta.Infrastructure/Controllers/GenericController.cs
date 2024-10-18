@@ -61,7 +61,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     [Button(Type = ButtonType.Row)]
     public virtual ApiResult<TModel> Details([FromBody] Guid id)
     {
-        var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id) ?? throw new ProblemException("NotFound");
+        var entity = Include(Repository.AsNoTracking()).FirstOrDefault(o => o.Id == id) ?? throw new ProblemException("NotFound");
         var model = ObjectMapper.ToModel<TEntity, TModel>(entity, ToModel);
         return Json(model);
     }
@@ -142,7 +142,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             throw new BadRequestException();
         }
         var id = (Guid)typeof(TModel).GetProperty("Id")!.GetValue(model)!;
-        var entity = Repository.Query().First(o => o.Id == id);
+        var entity = Include(Repository.Query()).First(o => o.Id == id);
         ObjectMapper.FromModel(entity, model, ToEntity);
         if (entity is BaseTreeEntity<TEntity> node)
         {
@@ -323,5 +323,10 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
 
     protected virtual void ToEntity(TEntity entity, TModel model)
     {
+    }
+
+    protected virtual IQueryable<TEntity> Include(IQueryable<TEntity> queryable)
+    {
+        return queryable;
     }
 }

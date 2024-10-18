@@ -29,15 +29,13 @@ export default {
               <router-link style to="/register">{{ $t('注册') }}</router-link>
               <router-link style to="/forgot-password">{{ $t('忘记密码') }}</router-link>
             </div>
-            <template v-if="false&&!model?.client_id&&providers.length">
+            <template v-if="!model?.client_id&&providers.length">
               <el-divider>{{$t("社交账号登录")}}</el-divider>
-              <template v-for="item in providers">
-                <el-space>
-                  <el-icon @click="redirect(item.name)" class="cursor-pointer">
-                    <svg-icon :name="item.name" />
-                  </el-icon>
-                </el-space>
-              </template>
+            <el-space>
+              <el-icon v-for="item in providers" @click="redirect(item.name)" class="cursor-pointer">
+                <svg-icon :name="item.name" />
+              </el-icon>
+            </el-space>
             </template>
           </el-card>
           <layout-footer />

@@ -3,7 +3,7 @@ using Wta.Application.SystemModule.Data;
 
 namespace Wta.Infrastructure.Scheduling;
 
-[SystemManagement, Display(Name = "定时任务", Order = 1000)]
+[SystemSettings, Display(Name = "定时任务", Order = 1000)]
 [DependsOn<SystemDbContext>]
 public class Job : Entity
 {

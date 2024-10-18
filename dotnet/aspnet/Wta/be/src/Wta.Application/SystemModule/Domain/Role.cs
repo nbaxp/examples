@@ -18,7 +18,7 @@ public class Role : Entity
 
     [KeyValue("hideForList", true)]
     [UIHint("select")]
-    [KeyValue("url", "permission/search")]
+    [KeyValue("url", "permission/tenant")]
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]

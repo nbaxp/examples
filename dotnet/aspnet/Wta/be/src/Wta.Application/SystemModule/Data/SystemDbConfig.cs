@@ -44,7 +44,7 @@ public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
     public void Configure(EntityTypeBuilder<Department> builder)
     {
         builder.HasOne(o => o.Manager).WithMany(o => o.Departments).HasForeignKey(o => o.ManagerId).OnDelete(DeleteBehavior.SetNull);
-        builder.Navigation(o => o.Users).AutoInclude();
+        //builder.Navigation(o => o.Users).AutoInclude();
     }
 
     public void Configure(EntityTypeBuilder<Post> builder)
@@ -57,13 +57,13 @@ public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
         builder.HasOne(o => o.Department).WithMany(o => o.Users).HasForeignKey(o => o.DepartmentId).OnDelete(DeleteBehavior.SetNull);
         builder.HasOne(o => o.Post).WithMany(o => o.Users).HasForeignKey(o => o.PostId).OnDelete(DeleteBehavior.SetNull);
         builder.HasIndex(o => new { o.TenantNumber, o.NormalizedUserName }).IsUnique();
-        builder.Navigation(o => o.UserRoles).AutoInclude();
+        //builder.Navigation(o => o.UserRoles).AutoInclude();
     }
 
     public void Configure(EntityTypeBuilder<Role> builder)
     {
         builder.HasIndex(o => new { o.TenantNumber, o.Number }).IsUnique();
-        builder.Navigation(o => o.RolePermissions).AutoInclude();
+        //builder.Navigation(o => o.RolePermissions).AutoInclude();
     }
 
     public void Configure(EntityTypeBuilder<UserRole> builder)
@@ -86,7 +86,7 @@ public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
 
     public void Configure(EntityTypeBuilder<WorkGroup> builder)
     {
-        builder.Navigation(o => o.WorkGroupUsers).AutoInclude();
+        //builder.Navigation(o => o.WorkGroupUsers).AutoInclude();
     }
 
     public void Configure(EntityTypeBuilder<WorkGroupUser> builder)

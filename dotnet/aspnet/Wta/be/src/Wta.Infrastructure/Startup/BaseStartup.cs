@@ -3,11 +3,13 @@ using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Minio;
 using OrchardCore.Localization;
 using Prometheus;
 using Prometheus.SystemMetrics;
 using Serilog;
 using Serilog.Events;
+using StackExchange.Profiling;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Wta.Infrastructure.OAuth2;
 
@@ -513,6 +515,7 @@ public abstract class BaseStartup : IStartup
         UseLocalization(webApplication);
         UseDbContext(webApplication);
         UseScheduler(webApplication);
+        webApplication.UseMiniProfiler();
     }
 
     /// <summary>
@@ -542,6 +545,7 @@ public abstract class BaseStartup : IStartup
         AddScheduler(builder);
         AddDistributedLock(builder);
         AddDbContext(builder);
+        builder.Services.AddMiniProfiler(o => o.RouteBasePath = "/profiler").AddEntityFramework();
     }
 
     public virtual IFileProvider GetFileProvider(WebApplicationBuilder builder)
