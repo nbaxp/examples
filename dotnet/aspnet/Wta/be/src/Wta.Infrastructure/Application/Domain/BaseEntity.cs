@@ -1,6 +1,6 @@
 namespace Wta.Infrastructure.Application.Domain;
 
-public abstract class BaseEntity : IResource, ITenantEntity
+public abstract class BaseEntity : IResource, ISoftDelete, ITenantEntity
 {
     public BaseEntity()
     {

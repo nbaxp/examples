@@ -49,6 +49,7 @@ public class TenantController(ILogger<Tenant> logger,
         {
             throw new BadRequestException();
         }
+        Repository.Context.Database.BeginTransaction();
         //创建租户
         var entity = ObjectMapper.ToEntity<Tenant, Tenant>(model).SetIdBy(o => o.Number);
         Repository.Add(entity);
@@ -76,6 +77,7 @@ public class TenantController(ILogger<Tenant> logger,
                     });
                 }
             });
+        Repository.Context.Database.CommitTransaction();
         return Json(true);
     }
 
@@ -99,13 +101,11 @@ public class TenantController(ILogger<Tenant> logger,
         Repository.DisableTenantFilter();
         var entity = Repository.Query().First(o => o.Id == model.Id);
         ObjectMapper.FromModel(entity, model);
-        Repository.SaveChanges();
         var tenantRole = roleRepository.Query()
             .Include(o => o.RolePermissions)
             .First(o => o.Number == "admin" && o.TenantNumber == entity.Number);
         var permissions = permissionRepository.Query().Where(o => o.TenantNumber == entity.Number).ToList();
         tenantRole.RolePermissions.Clear();
-        Repository.SaveChanges();
         tenantRole.RolePermissions.AddRange(permissions.Where(o => model.Permissions.Any(p => o.Number == p))
             .Select(o => new RolePermission { PermissionId = o.Id, RoleId = tenantRole.Id, TenantNumber = entity.TenantNumber })
             .ToList());

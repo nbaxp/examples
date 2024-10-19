@@ -36,11 +36,11 @@ export default {
           <template v-else-if="schema.input==='select'||schema.input==='radio'">
             <template v-if="schema.meta?.isTree">
               <template v-if="schema.meta?.multiple">
+              {{selectValues}}
                 <el-tree
                   v-if="selectOptions?.length"
-                  v-model="selectValues"
                   :data="selectOptions"
-                  :check-strictly="selectProps.checkStrictly"
+                  :check-strictly="true"
                   node-key="value"
                   show-checkbox
                   :default-checked-keys="selectValues"
