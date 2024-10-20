@@ -92,6 +92,10 @@ img.loading {
   margin-top: var(--header);
 } */
 
+.el-link {
+  white-space: nowrap;
+}
+
 .el-scrollbar,
 .el-scrollbar__view {
   width: 100%;
@@ -126,10 +130,13 @@ img.loading {
   background-color: var(--el-menu-bg-color);
   z-index: 10;
   overflow: hidden;
+  align-items: center;
 
   .el-menu {
     height: calc(var(--el-menu-horizontal-height) - 1px);
     border: none;
+    overflow: hidden;
+    flex-basis: 100%;
 
     .is-active {
       border: none;
@@ -139,6 +146,34 @@ img.loading {
   .search {
     width: 200px;
   }
+}
+
+.el-header>* {
+  flex: 1;
+}
+
+.logo {
+  display: flex;
+
+  img {
+    min-width: 28px;
+    height: 28px;
+    margin-right: 1em;
+  }
+
+  h1 {
+    white-space: nowrap;
+    font-size: 18px;
+    font-weight: 500;
+    height: 32px;
+    line-height: 32px;
+    padding-right: 1em;
+    overflow: hidden;
+  }
+}
+
+.login .logo>div {
+  flex-direction: column;
 }
 
 .el-footer {
@@ -156,21 +191,6 @@ img.loading {
 .el-card {
   min-width: 300px;
   min-height: 100px;
-}
-
-.logo img {
-  min-width: 28px;
-  height: 28px;
-  margin-right: 1em;
-}
-
-.logo h1 {
-  font-size: 18px;
-  font-weight: 500;
-  height: 32px;
-  line-height: 32px;
-  padding-right: 1em;
-  overflow: hidden;
 }
 
 .el-dropdown-link:focus-visible {

@@ -13,12 +13,11 @@ import SvgIcon from '@/components/icon/index.js';
 export default {
   components: { SvgIcon, AppForm, LayoutLogo, LayoutLocale, LayoutFooter },
   template: html`
-    <el-container>
+    <el-container class="login">
       <el-main class="flex items-center justify-center">
         <div style="min-width:333px;min-height:514px;">
           <div class="flex items-center justify-center pb-4">
             <layout-logo />
-            <layout-locale />
           </div>
           <el-card class="box-card">
             <template v-if="model?.client_id" #header>
@@ -31,11 +30,11 @@ export default {
             </div>
             <template v-if="!model?.client_id&&providers.length">
               <el-divider>{{$t("社交账号登录")}}</el-divider>
-            <el-space>
-              <el-icon v-for="item in providers" @click="redirect(item.name)" class="cursor-pointer">
-                <svg-icon :name="item.name" />
-              </el-icon>
-            </el-space>
+              <el-space>
+                <el-icon v-for="item in providers" @click="redirect(item.name)" class="cursor-pointer">
+                  <svg-icon :name="item.name" />
+                </el-icon>
+              </el-space>
             </template>
           </el-card>
           <layout-footer />

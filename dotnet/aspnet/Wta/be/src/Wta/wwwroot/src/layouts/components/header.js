@@ -22,91 +22,83 @@ export default {
     HeadMenu,
   },
   template: html`
-    <div class="w-full flex justify-between">
-      <div class="flex items-center justify-center row">
-        <layout-logo />
-        <el-icon v-if="!isPortal" @click="toggleMenuCollapse" class="collapse-button cursor-pointer mx-5" :size="18">
-          <svg-icon name="unfold" v-if="appStore.settings.isMenuCollapse" />
-          <svg-icon name="fold" v-else />
-        </el-icon>
-        <el-icon v-if="false" @click="refresh" class="collapse-button cursor-pointer mx-5" :size="18">
-          <ep-refresh />
-        </el-icon>
-        <head-menu />
-      </div>
-      <div class="flex">
-        <el-space :size="appStore.settings.size">
-          <el-icon v-if="!isPortal" class="cursor-pointer" @click="clickSearch" :title="$t('点击搜索')">
-            <ep-search />
+    <layout-logo />
+    <el-icon
+      v-if="!isPortal"
+      @click="toggleMenuCollapse"
+      class="collapse-button cursor-pointer mr-5"
+      :size="18"
+      style="flex:1;"
+    >
+      <svg-icon name="unfold" v-if="appStore.settings.isMenuCollapse" />
+      <svg-icon name="fold" v-else />
+    </el-icon>
+    <head-menu />
+    <el-space :size="appStore.settings.size">
+      <el-icon v-if="!isPortal" class="cursor-pointer" @click="clickSearch" :title="$t('点击搜索')">
+        <ep-search />
+      </el-icon>
+      <el-select
+        class="search"
+        ref="searchRef"
+        :placeholder="$t('搜索')"
+        v-show="showSearch"
+        @blur="hideSearch"
+        filterable
+        remote
+        :remote-method="searchMenu"
+        v-model="searchModel"
+        :loading="searchLoading"
+      >
+        <el-option
+          v-for="item in searchOptions"
+          :key="item.path"
+          :value="item.path"
+          :label="item.meta.title"
+          @click="searchChange(item)"
+        />
+      </el-select>
+      <el-icon @click="toggleFullscreen" :size="18" class="cursor-pointer">
+        <svg-icon name="fullscreen-exit" v-if="isFullscreen" />
+        <svg-icon name="fullscreen" v-else />
+      </el-icon>
+      <layout-locale />
+      <el-dropdown class="cursor-pointer" v-if="tokenStore.accessToken">
+        <span class="el-dropdown-link flex">
+          <el-avatar v-if="userStore.avatar" class="el-icon--left" :size="18" :src="'./src/assets/icons/avatar.svg'" />
+          <el-icon v-else class="el-icon--left" :size="18">
+            <ep-user />
           </el-icon>
-          <el-select
-            class="search"
-            ref="searchRef"
-            :placeholder="$t('搜索')"
-            v-show="showSearch"
-            @blur="hideSearch"
-            filterable
-            remote
-            :remote-method="searchMenu"
-            v-model="searchModel"
-            :loading="searchLoading"
-          >
-            <el-option
-              v-for="item in searchOptions"
-              :key="item.path"
-              :value="item.path"
-              :label="item.meta.title"
-              @click="searchChange(item)"
-            />
-          </el-select>
-          <el-icon @click="toggleFullscreen" :size="18" class="cursor-pointer">
-            <svg-icon name="fullscreen-exit" v-if="isFullscreen" />
-            <svg-icon name="fullscreen" v-else />
+          {{ tokenStore.name }}
+          <el-icon class="el-icon--right">
+            <ep-arrow-down />
           </el-icon>
-          <layout-locale />
-          <el-dropdown class="cursor-pointer" v-if="tokenStore.accessToken">
-            <span class="el-dropdown-link flex">
-              <el-avatar
-                v-if="userStore.avatar"
-                class="el-icon--left"
-                :size="18"
-                :src="'./src/assets/icons/avatar.svg'"
-              />
-              <el-icon v-else class="el-icon--left" :size="18">
-                <ep-user />
-              </el-icon>
-              {{ tokenStore.name }}
-              <el-icon class="el-icon--right">
-                <ep-arrow-down />
-              </el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item>
-                  <router-link to="/user-center">
-                    <el-icon><ep-user /></el-icon>
-                    {{$t('我的')}}
-                  </router-link>
-                </el-dropdown-item>
-                <el-dropdown-item divided @click="confirmLogout">
-                  <el-icon><ep-switch-button /></el-icon>
-                  {{$t('退出')}}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-          <template v-else>
-            <el-link type="info">
-              <router-link to="/register">{{$t('注册')}}</router-link>
-            </el-link>
-            <el-link type="info">
-              <router-link to="/login">{{$t('登录')}}</router-link>
-            </el-link>
-          </template>
-          <layout-settings v-if="!isPortal" />
-        </el-space>
-      </div>
-    </div>
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item>
+              <router-link to="/user-center">
+                <el-icon><ep-user /></el-icon>
+                {{$t('我的')}}
+              </router-link>
+            </el-dropdown-item>
+            <el-dropdown-item divided @click="confirmLogout">
+              <el-icon><ep-switch-button /></el-icon>
+              {{$t('退出')}}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+      <template v-else>
+        <el-link type="info">
+          <router-link to="/register">{{$t('注册')}}</router-link>
+        </el-link>
+        <el-link type="info">
+          <router-link to="/login">{{$t('登录')}}</router-link>
+        </el-link>
+      </template>
+      <layout-settings v-if="!isPortal" />
+    </el-space>
   `,
   setup() {
     const router = useRouter();

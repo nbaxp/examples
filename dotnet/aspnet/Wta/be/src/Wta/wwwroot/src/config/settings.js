@@ -8,9 +8,9 @@ export default {
   color: '#409eff',
   size: 'default',
   mode: 'auto',
-  useDarkNav: true,
+  useDarkNav: false,
   useTabs: true,
-  showCopyright: true,
+  showCopyright: false,
   showBreadcrumb: true,
   showTopMenu: true,
 };

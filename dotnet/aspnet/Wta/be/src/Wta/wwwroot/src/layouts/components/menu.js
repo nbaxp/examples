@@ -19,7 +19,7 @@ const show = (menu) => {
 export const HeadMenu = {
   components: { SvgIcon },
   template: html`
-    <el-menu mode="horizontal" :ellipsis="false" :default-active="active" router>
+    <el-menu mode="horizontal" ellipsis :default-active="active" router>
       <template v-if="appStore.settings.showTopMenu">
         <template v-for="route in routes">
           <el-menu-item v-if="show(route)" :index="route.meta?.fullPath" @click="onClick(route)">

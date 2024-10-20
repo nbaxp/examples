@@ -36,7 +36,7 @@ export default {
           <template v-else-if="schema.input==='select'||schema.input==='radio'">
             <template v-if="schema.meta?.isTree">
               <template v-if="schema.meta?.multiple">
-              {{selectValues}}
+                {{selectValues}}
                 <el-tree
                   v-if="selectOptions?.length"
                   :data="selectOptions"
@@ -274,14 +274,14 @@ export default {
     const selectProps = {
       multiple: isMultiple,
       checkStrictly: false,
-      emitPath: true
+      emitPath: true,
     };
     const selectChange = (values) => {
       console.log(selectValues.value);
       if (isMultiple) {
         model[props.prop] = Array.from(values.flat());
       } else {
-        model[props.prop] = values;
+        model[props.prop] = values.at(-1);
       }
     };
     const fetchOptions = async () => {
