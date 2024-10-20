@@ -14,7 +14,7 @@ public class SkiaSharpImpageCaptchaService : IImpageCaptchaService
         var info = new SKImageInfo(100, height);
         using var surface = SKSurface.Create(info);
         var canvas = surface.Canvas;
-        canvas.Clear(SKColor.Parse("#efefef"));
+        canvas.Clear(SKColor.Parse("#f5f7fa"));
 
         for (var i = 0; i < code.Length; i++)
         {

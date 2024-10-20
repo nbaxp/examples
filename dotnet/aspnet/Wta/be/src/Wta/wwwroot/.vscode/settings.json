@@ -3,6 +3,7 @@
   "explorer.excludeGitIgnore": true,
   "search.followSymlinks": false,
   "search.exclude": {
+    "node_modules/**": true,
     "lib/**": true,
     "assets/**": true
   },

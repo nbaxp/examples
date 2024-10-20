@@ -5,10 +5,8 @@ import {
 } from '@/constants/index.js';
 import { bytesFormat, findPath, listToTree } from '@/utils/index.js';
 import request from '@/utils/request.js';
-import { dayjs } from 'element-plus';
-import { ElMessage, useFormItem } from 'element-plus';
-import html from 'utils';
-import { getProp } from 'utils';
+import { dayjs, ElMessage, useFormItem } from 'element-plus';
+import html, { getProp } from 'utils';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import CodeCaptcha from './code-captcha.js';
@@ -75,7 +73,7 @@ export default {
       <template v-else-if="schema.input==='select'">
         <el-cascader
           v-model="selectValues"
-          :placeholder="schema.meta?.placeholder??schema.meta?.title"
+          :placeholder="schema.meta?.placeholder??schema.title"
           :value-on-clear="null"
           :options="selectOptions"
           :props="selectProps"
@@ -138,7 +136,7 @@ export default {
           @callback="updateCodeHash"
           :errors="errors"
           :prop="prop"
-          :icon="schema.meta.icon"
+          :placeholder="schema.meta.placeholder??schema.title??prop"
         />
       </template>
       <template v-else-if="schema.input === 'code-captcha'">
@@ -189,7 +187,7 @@ export default {
           :placeholder="schema.meta.placeholder??schema.title??prop"
           v-model="model[prop]"
           :type="text"
-          :prefix-icon="schema.icon"
+          :prefix-icon="schema.meta?.icon"
         />
       </template>
       <template v-else>
@@ -200,7 +198,7 @@ export default {
           v-model="model[prop]"
           :type="schema.input"
           :show-password="schema.input==='password'"
-          :prefix-icon="schema.icon"
+          :prefix-icon="schema.meta?.icon"
         />
       </template>
     </template>
@@ -392,11 +390,7 @@ export default {
 
     onMounted(async () => {
       if (props.schema.input === 'select' || props.schema.input === 'radio') {
-        if (isMultiple) {
-          selectValues.value = model[props.prop];
-        } else {
-          selectValues.value = model[props.prop];
-        }
+        selectValues.value = model[props.prop];
       }
     });
     return {

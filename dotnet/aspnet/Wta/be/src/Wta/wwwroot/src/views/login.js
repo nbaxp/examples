@@ -15,7 +15,7 @@ export default {
   template: html`
     <el-container class="login">
       <el-main class="flex items-center justify-center">
-        <div style="min-width:333px;min-height:514px;">
+        <div style="min-width:300px;min-height:500px;">
           <div class="flex items-center justify-center pb-4">
             <layout-logo />
           </div>
@@ -41,13 +41,14 @@ export default {
               </router-link>
             </div>
             <template v-if="!model?.client_id&&providers.length">
-              <el-divider>{{$t("社交账号登录")}}</el-divider>
-              <el-space>
+              <el-divider>{{$t("其他登录方式")}}</el-divider>
+              <el-space style="display:flex;justify-content: center;">
                 <el-icon
                   style="font-size:28px;"
                   v-for="item in providers"
                   @click="redirect(item.number)"
                   class="cursor-pointer"
+                  :title="item.name"
                 >
                   <img
                     :alt="item.name"
@@ -92,6 +93,7 @@ export default {
       //
       schema.value.meta.hideReset = true;
       const params = new URLSearchParams(window.location.search);
+      model.value.tenantNunmber = params.get('tenant');
       if (params.has('client_id')) {
         model.value.client_id = params.get('client_id');
         model.value.return_to = params.get('return_to');

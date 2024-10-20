@@ -7,7 +7,7 @@ public class ClaimTenantService(IHttpContextAccessor httpContextAccessor) : ITen
 {
     private string? _tenantNumber;
 
-    public string? TenantNumber
+    public string TenantNumber
     {
         get
         {
@@ -15,7 +15,7 @@ public class ClaimTenantService(IHttpContextAccessor httpContextAccessor) : ITen
             {
                 return _tenantNumber;
             }
-            return httpContextAccessor!.HttpContext?.User.Claims.FirstOrDefault(o => o.Type == "TenantNumber")?.Value;
+            return httpContextAccessor!.HttpContext?.User.Claims.FirstOrDefault(o => o.Type == "TenantNumber")?.Value ?? "root";
         }
         set
         {

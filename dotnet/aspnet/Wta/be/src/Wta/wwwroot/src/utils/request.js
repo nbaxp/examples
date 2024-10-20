@@ -30,7 +30,13 @@ function getUrl(url) {
   return `${settings.baseURL}/${url}`;
 }
 
-async function getOptions(method, originalUrl, data, customOptions, isUrlEncoded) {
+async function getOptions(
+  method,
+  originalUrl,
+  data,
+  customOptions,
+  isUrlEncoded,
+) {
   let url = getUrl(originalUrl);
   //设置默认值
   const options = {
@@ -62,16 +68,14 @@ async function getOptions(method, originalUrl, data, customOptions, isUrlEncoded
     //上传参数
     //options.headers['Content-Type'] = 'application/json';
     options.body = data;
+  } else if (isUrlEncoded) {
+    //urlencoded
+    options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    options.body = qs.stringify(data);
   } else {
-    if (isUrlEncoded) {
-      //urlencoded
-      options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-      options.body = qs.stringify(data);
-    } else {
-      //json
-      options.headers['Content-Type'] = 'application/json';
-      options.body = JSON.stringify(data);
-    }
+    //json
+    options.headers['Content-Type'] = 'application/json';
+    options.body = JSON.stringify(data);
   }
   return {
     fullUrl: url,
@@ -145,7 +149,9 @@ async function getResult(response) {
   }
   if (!response.ok || result.code !== 200) {
     result.error = true;
-    result.message ||= result.data ? result.data[''] : messages.get(result.code);
+    result.message ||= result.data
+      ? result.data['']
+      : messages.get(result.code);
   }
   return result;
 }
@@ -155,7 +161,13 @@ async function getResult(response) {
  */
 async function request(method, url, data, customOptions, isUrlEncoded = false) {
   //规范化请求参数
-  const { fullUrl, options } = await getOptions(method, url, data, customOptions, isUrlEncoded);
+  const { fullUrl, options } = await getOptions(
+    method,
+    url,
+    data,
+    customOptions,
+    isUrlEncoded,
+  );
   try {
     //发送请求
     const response = await fetch(fullUrl, options);

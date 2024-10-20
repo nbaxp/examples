@@ -7,6 +7,13 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
 {
     public void Seed(SystemDbContext context)
     {
+        context.Set<Tenant>().Add(new Tenant
+        {
+            Name = "WTA 管理系统",
+            Number = "root",
+            Logo = "/src/assets/icons/wta.svg",
+            Copyright = "Copyright © {0} 版权所有",
+        });
         //添加字典
         InitDict(context);
         //添加部门
@@ -279,7 +286,7 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
             .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(IResource)));
         foreach (var resourceType in resourceTypeList)
         {
-            if (tenantService.TenantNumber != null && resourceType == typeof(Tenant))
+            if (tenantService.TenantNumber != "root" && resourceType == typeof(Tenant))
             {
                 continue;
             }
@@ -396,7 +403,7 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
 
     private List<Role> InitRole(DbContext context, List<Permission> permissions)
     {
-        if (tenantService.TenantNumber != null)
+        if (tenantService.TenantNumber != "root")
         {
             permissions.Where(o => !o.Disabled && !tenantService.Permissions.Contains(o.Number)).ForEach(o => o.Disabled = true);
             permissions = permissions.Where(o => tenantService.Permissions.Contains(o.Number)).ToList();
@@ -404,7 +411,7 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
         var rules = new List<Role> { new Role
         {
             Id = context.NewGuid(),
-            Name = tenantService.TenantNumber != null ? "租户管理员" : "管理员",
+            Name = "管理员",
             Number = "admin",
             RolePermissions = permissions!.Select(o => new RolePermission
             {
@@ -550,7 +557,7 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
             Email = email,
             NormalizedEmail = email.ToUpperInvariant(),
             EmailConfirmed = true,
-            Name = tenantService.TenantNumber != null ? "租户管理员" : "管理员",
+            Name = tenantService.TenantNumber == "root" ? "系统管理员" : "租户管理员",
             NormalizedUserName = userName.ToUpperInvariant(),
             SecurityStamp = salt,
             PasswordHash = passwordHash,

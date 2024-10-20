@@ -323,7 +323,8 @@ public class TokenController(
         {
             var userQuery = userRepository.Query();
             var normalizedUserName = model.UserName?.ToUpperInvariant()!;
-            var user = userQuery.FirstOrDefault(o => o.NormalizedUserName == normalizedUserName && o.TenantNumber == model.TenantNumber);
+            var tenantNumber = model.TenantNumber ?? "root";
+            var user = userQuery.FirstOrDefault(o => o.NormalizedUserName == normalizedUserName && o.TenantNumber == tenantNumber);
             if (user != null)
             {
                 if (user.LockoutEnd.HasValue)

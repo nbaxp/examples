@@ -11,14 +11,14 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
 {
     public static readonly ILoggerFactory DefaultLoggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
 
-    private readonly string? _tenantNumber;
+    private readonly string _tenantNumber;
 
     public BaseDbContext(DbContextOptions<TDbContext> options, IServiceProvider serviceProvider) : base(options)
     {
         ServiceProvider = serviceProvider;
         DbContextManager = ServiceProvider.GetRequiredService<IDbContextManager>();
         DbContextManager.Add(this);
-        _tenantNumber = ServiceProvider.GetService<ITenantService>()?.TenantNumber;
+        _tenantNumber = ServiceProvider.GetRequiredService<ITenantService>().TenantNumber;
     }
 
     public IDbContextManager DbContextManager { get; }

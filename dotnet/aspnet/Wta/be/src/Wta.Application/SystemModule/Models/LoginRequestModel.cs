@@ -11,12 +11,16 @@ public class LoginRequestModel : CaptchaModel
     [KeyValue("url", "tenant/search")]
     [KeyValue("value", "number")]
     [KeyValue("label", "name")]
-    public string? TenantNumber { get; set; }
+    [Required]
+    [Display(Name ="租户")]
+    public string TenantNumber { get; set; } = default!;
 
-    public string UserName { get; set; } = null!;
+    [KeyValue("icon", "ep-user")]
+    public string UserName { get; set; } = default!;
 
     [Required]
     [DataType(DataType.Password)]
+    [KeyValue("icon", "ep-lock")]
     public string? Password { get; set; }
 
     [KeyValue("showLabel", true)]

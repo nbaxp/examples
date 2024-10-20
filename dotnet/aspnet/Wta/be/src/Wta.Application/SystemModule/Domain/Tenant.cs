@@ -7,11 +7,19 @@ namespace Wta.Application.SystemModule.Domain;
 [DependsOn<SystemDbContext>]
 public class Tenant : Entity
 {
+    [Display(Name = "名称")]
     public string Name { get; set; } = default!;
 
     [Required]
     [ReadOnly(true)]
+    [Display(Name = "编码")]
     public string Number { get; set; } = default!;
+
+    [Display(Name = "图标")]
+    public string? Logo { get; set; }
+
+    [Display(Name = "版权")]
+    public string? Copyright { get; set; }
 
     public bool Disabled { get; set; }
 

@@ -6,26 +6,34 @@ import { onMounted, ref, useModel, watch } from 'vue';
 export default {
   components: { SvgIcon },
   template: html`
-    <div style="display: inline-flex">
-      <el-input v-model="model">
-        <template #prefix>
-          <el-icon v-if="icon" class="el-input__icon">
-            <svg-icon :name="icon" />
-          </el-icon>
-        </template>
-      </el-input>
-      <el-image
-        :title="$t('点击刷新')"
-        :src="src"
-        @click="onClick"
-        style="cursor: pointer; max-height: 30px; margin-left: 10px"
-      >
-        <template #placeholder><span></span></template>
-        <template #error><span></span></template>
-      </el-image>
-    </div>
+    <el-input v-model="model">
+      <template #prefix>
+        <el-icon class="el-input__icon">
+          <svg-icon name="auth" />
+        </el-icon>
+      </template>
+      <template #append>
+        <el-image
+          :title="$t('点击刷新')"
+          :src="src"
+          @click="onClick"
+          style="cursor: pointer;"
+        >
+          <template #placeholder><span></span></template>
+          <template #error><span></span></template>
+        </el-image>
+      </template>
+    </el-input>
   `,
-  props: ['modelValue', 'url', 'method', 'authCode', 'codeHash', 'errors', 'prop', 'icon'],
+  props: [
+    'modelValue',
+    'url',
+    'method',
+    'authCode',
+    'codeHash',
+    'errors',
+    'prop',
+  ],
   emit: ['callback'],
   setup(props, context) {
     const model = useModel(props, 'modelValue');
