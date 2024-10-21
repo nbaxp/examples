@@ -22,7 +22,7 @@ export default {
     const { t } = useI18n();
     const success = () => {
       formRef.value.reset();
-      ElMessageBox.alert(t('success'), t('tip'));
+      ElMessageBox.alert(t('操作成功'), t('提示'));
     };
     onMounted(async () => {
       const result = await request('GET', 'reset-password/index');

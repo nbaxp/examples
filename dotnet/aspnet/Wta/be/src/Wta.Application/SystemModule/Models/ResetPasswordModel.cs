@@ -15,7 +15,7 @@ public class ResetPasswordModel : IResource
     [Display(Name = "新密码")]
     public string? NewPassword { get; set; }
 
-    [Compare(nameof(NewPassword))]
+    [Compare(nameof(NewPassword),ErrorMessage ="新密码和确认新密码必须相同")]
     [DataType(DataType.Password)]
     [Display(Name = "确认新密码")]
     public string? ConfirmNewPassword { get; set; }
