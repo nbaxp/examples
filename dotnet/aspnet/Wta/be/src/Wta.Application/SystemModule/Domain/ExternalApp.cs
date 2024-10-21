@@ -5,6 +5,7 @@ namespace Wta.Application.SystemModule.Domain;
 [DependsOn<SystemDbContext>, SystemSettings, Display(Name = "应用", Order = 8)]
 public class ExternalApp : Entity
 {
+    [Hidden]
     public Guid UserId { get; set; }
 
     [Display(Name = "应用名称")]
@@ -17,6 +18,7 @@ public class ExternalApp : Entity
     [KeyValue("accept", ".svg,.png")]
     [KeyValue("url", "file/upload")]
     [Display(Name = "应用图标")]
+    [KeyValue("hideForQuery", true)]
     public string Logo { get; set; } = null!;
 
     [Display(Name = "应用首页")]
@@ -34,10 +36,12 @@ public class ExternalApp : Entity
 
     [Display(Name = "Client Secret")]
     [ReadOnly(true)]
+    [KeyValue("hideForQuery", true)]
+    [DataType(DataType.Password)]
     public string ClientSecret { get; set; } = null!;
 
-    [Display(Name = "启用")]
-    public bool Enabled { get; set; }
+    [Display(Name = "禁用")]
+    public bool Disabled { get; set; }
 
     [Hidden]
     public User? User { get; set; }

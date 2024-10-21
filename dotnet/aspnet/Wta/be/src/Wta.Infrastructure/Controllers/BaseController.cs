@@ -6,8 +6,8 @@ namespace Wta.Infrastructure.Controllers;
 [Route("api/[controller]/[action]")]
 public class BaseController : ControllerBase
 {
-    protected ApiResult<T> Json<T>(T data, int code = 0, string? message = null,bool isRedirect = false)
+    protected ApiResult<T> Json<T>(T data, int code = 0, string? message = null, bool isRedirect = false)
     {
-        return new ApiResult<T> { Data = data, Code = code, Message = message,IsRedirect = isRedirect };
+        return new ApiResult<T> { Data = data, Code = code, Message = message, IsRedirect = isRedirect };
     }
 }

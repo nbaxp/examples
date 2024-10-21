@@ -84,15 +84,8 @@ public class TenantController(ILogger<Tenant> logger,
     public override ApiResult<Tenant> Details([FromBody] Guid id)
     {
         var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id) ?? throw new ProblemException("NotFound");
-        var model = ObjectMapper.ToModel<Tenant, Tenant>(entity, (entity, model) =>
-        {
-            roleRepository.DisableTenantFilter();
-            var rolePermissions =
-            model.Permissions = [.. roleRepository.AsNoTracking()
-            .Where(o => o.Number == "admin" && o.TenantNumber == entity.Number)
-            .SelectMany(o => o.RolePermissions)
-            .Select(o => o.Permission!.Number)];
-        });
+        var model = ObjectMapper.ToModel<Tenant, Tenant>(entity);
+        ToModel(entity,model);
         return Json(model);
     }
 
@@ -118,6 +111,12 @@ public class TenantController(ILogger<Tenant> logger,
     protected override void ToModel(Tenant entity, Tenant model)
     {
         model.Permissions = entity.Permissions;
+                    roleRepository.DisableTenantFilter();
+            var rolePermissions =
+            model.Permissions = [.. roleRepository.AsNoTracking()
+            .Where(o => o.Number == "admin" && o.TenantNumber == entity.Number)
+            .SelectMany(o => o.RolePermissions)
+            .Select(o => o.Permission!.Number)];
     }
 
     [AllowAnonymous, Ignore]

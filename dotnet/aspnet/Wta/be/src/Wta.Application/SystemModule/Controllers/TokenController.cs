@@ -32,7 +32,7 @@ public class TokenController(
         {
             throw new ProblemException("应用不存在");
         }
-        else if (!app.Enabled)
+        else if (app.Disabled)
         {
             throw new ProblemException("应用已禁用");
         }
@@ -76,7 +76,7 @@ public class TokenController(
         {
             return Problem("应用不存在");
         }
-        else if (!app.Enabled)
+        else if (app.Disabled)
         {
             return Problem("应用已禁用");
         }
@@ -361,7 +361,7 @@ public class TokenController(
                 {
                     throw new ProblemException("应用不存在");
                 }
-                else if (!app.Enabled)
+                else if (app.Disabled)
                 {
                     throw new ProblemException("应用已禁用");
                 }

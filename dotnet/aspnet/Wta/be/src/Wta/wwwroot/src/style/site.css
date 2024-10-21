@@ -185,6 +185,12 @@ img.loading {
   padding: 0;
 }
 
+.el-dialog {
+  width: auto;
+  min-width: calc(2*16px + 7em + 220px + 40px);
+  max-width: calc(2*16px + 2*(7em + 220px + 40px));
+}
+
 .el-table {
   content-visibility: auto;
 }
@@ -205,7 +211,7 @@ img.loading {
 .el-form {
   .el-form-item__label {
     padding-right: 0 !important;
-    width: 6em !important;
+    width: 7em !important;
     margin: 0 1em 0 0 !important;
     overflow: hidden;
     white-space: nowrap;

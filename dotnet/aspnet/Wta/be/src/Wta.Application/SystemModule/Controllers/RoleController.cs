@@ -9,7 +9,7 @@ public class RoleController(ILogger<Role> logger, IStringLocalizer stringLocaliz
         model.Permissions = entity.RolePermissions.Select(o => o.PermissionId).ToList();
     }
 
-    protected override void ToEntity(Role entity, Role model)
+    protected override void ToEntity(Role entity, Role model, bool isCreate = false)
     {
         entity.RolePermissions.Clear();
         entity.RolePermissions.AddRange(model.Permissions.Select(o => new RolePermission { PermissionId = o }));

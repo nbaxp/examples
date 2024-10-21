@@ -1,6 +1,6 @@
 namespace Wta.Infrastructure.Application.Domain;
 
-public interface IOrderedEntity
+public interface IOrdered
 {
     float Order { get; set; }
 }

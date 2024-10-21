@@ -3,7 +3,7 @@ using Wta.Application.SystemModule.Data;
 namespace Wta.Application.SystemModule.Domain;
 
 [DependsOn<SystemDbContext>]
-public class UserRole : ISoftDelete, ITenantEntity
+public class UserRole : ISoftDelete, ITenant
 {
     public Guid UserId { get; set; }
     public Guid RoleId { get; set; }

@@ -4,7 +4,7 @@ namespace Wta.Infrastructure.Data;
 
 public interface IRepository<TEntity> where TEntity : BaseEntity
 {
-    DbContext Context { get;}
+    DbContext Context { get; }
 
     Guid NewGuid();
 

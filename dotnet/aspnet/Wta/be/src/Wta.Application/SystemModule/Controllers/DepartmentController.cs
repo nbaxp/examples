@@ -1,4 +1,3 @@
-using Wta.Application.SystemModule.Domain;
 using Wta.Infrastructure.Mapper;
 
 namespace Wta.Application.SystemModule.Controllers;
@@ -16,7 +15,7 @@ public class DepartmentController(ILogger<Department> logger,
         model.DepartmentUsers = entity.Users.Select(x => x.Id).ToList();
     }
 
-    protected override void ToEntity(Department entity, Department model)
+    protected override void ToEntity(Department entity, Department model, bool isCreate = false)
     {
         entity.Users = [.. userRepository.Query().Where(o => model.DepartmentUsers.Contains(o.Id))];
     }

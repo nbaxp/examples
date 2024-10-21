@@ -72,7 +72,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                 continue;
             }
             //设置租户
-            if (item.Entity is ITenantEntity tenantEntity && item.State == EntityState.Added)
+            if (item.Entity is ITenant tenantEntity && item.State == EntityState.Added)
             {
                 if (_tenantNumber != null)
                 {
@@ -84,14 +84,14 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
 
             }
             //实体IsReadOnly属性为true的不可删除
-            if (item.State == EntityState.Deleted)
-            {
-                var isReadOnly = item.Entity.GetType().GetProperty("IsReadOnly")?.GetValue(item.Entity) as bool?;
-                if (isReadOnly.HasValue && isReadOnly.Value)
-                {
-                    item.State = EntityState.Unchanged;
-                }
-            }
+            //if (item.State == EntityState.Deleted)
+            //{
+            //    var isReadOnly = item.Entity.GetType().GetProperty("IsReadOnly")?.GetValue(item.Entity) as bool?;
+            //    if (isReadOnly.HasValue && isReadOnly.Value)
+            //    {
+            //        item.State = EntityState.Unchanged;
+            //    }
+            //}
             //设置审计属性户
             if (item.Entity is BaseEntity entity)
             {
@@ -129,7 +129,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         var jsonSerializerOptions = ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
         foreach (var item in entries.Where(o => o.State == EntityState.Added || o.State == EntityState.Modified || o.State == EntityState.Deleted))
         {
-            if (item.Entity is not Audit && item.Entity is IAuditEntity && item.Entity is BaseEntity entity)
+            if (item.Entity is not Audit && item.Entity is IAudit && item.Entity is BaseEntity entity)
             {
                 var audit = this.Set<Audit>().Add(new Audit
                 {
@@ -178,7 +178,7 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
         AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(o => !o.IsAbstract &&
-            o.IsAssignableTo(typeof(ITenantEntity)) &&
+            o.IsAssignableTo(typeof(ITenant)) &&
             o.GetCustomAttributes(typeof(DependsOnAttribute<>)).Any(o => o.GetType().GenericTypeArguments.First().IsAssignableTo(typeof(DbContext))))
             .ForEach(entityType =>
             {
@@ -218,13 +218,13 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
             {
                 entityModlerBuilder.Property(nameof(BaseNameNumberEntity.Name)).IsRequired();
                 entityModlerBuilder.Property(nameof(BaseNameNumberEntity.Number)).IsRequired();
-                entityModlerBuilder.HasIndex(nameof(ITenantEntity.TenantNumber), nameof(BaseNameNumberEntity.Number)).IsUnique();//?
+                entityModlerBuilder.HasIndex(nameof(ITenant.TenantNumber), nameof(BaseNameNumberEntity.Number)).IsUnique();//?
             }
             //配置单据实体
             if (entityType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseOrderEntity<>)))
             {
                 entityModlerBuilder.Property(nameof(BaseOrderEntity<BaseEntity>.Number)).IsRequired();
-                entityModlerBuilder.HasIndex(nameof(ITenantEntity.TenantNumber), nameof(BaseOrderEntity<BaseEntity>.Number)).IsUnique();//?
+                entityModlerBuilder.HasIndex(nameof(ITenant.TenantNumber), nameof(BaseOrderEntity<BaseEntity>.Number)).IsUnique();//?
             }
             if (entityType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseOrderItemEntity<>)))
             {

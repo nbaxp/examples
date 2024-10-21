@@ -1,5 +1,4 @@
 using ClosedXML;
-using DocumentFormat.OpenXml.Presentation;
 using Microsoft.AspNetCore.Mvc;
 using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Application.Models;
@@ -53,7 +52,12 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             query = SkipTake(query, model.PageIndex, model.PageSize);
         }
-        model.Items = query.ToList().Select(o => ObjectMapper.ToModel<TEntity, TModel>(o, ToModel)).ToList();
+        model.Items = query.ToList().Select(o =>
+        {
+            var model = ObjectMapper.ToModel<TEntity, TModel>(o);
+            ToModel(o, model);
+            return model;
+        }).ToList();
         return Json(model);
     }
 
@@ -62,7 +66,8 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     public virtual ApiResult<TModel> Details([FromBody] Guid id)
     {
         var entity = Include(Repository.AsNoTracking()).FirstOrDefault(o => o.Id == id) ?? throw new ProblemException("NotFound");
-        var model = ObjectMapper.ToModel<TEntity, TModel>(entity, ToModel);
+        var model = ObjectMapper.ToModel<TEntity, TModel>(entity);
+        this.ToModel(entity, model);
         return Json(model);
     }
 
@@ -85,7 +90,8 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             throw new BadRequestException();
         }
-        var entity = ObjectMapper.ToEntity<TEntity, TModel>(model, ToEntity);
+        var entity = ObjectMapper.ToEntity<TEntity, TModel>(model);
+        this.ToEntity(entity, model, true);
         entity.Id = Repository.NewGuid();
         if (entity is BaseTreeEntity<TEntity> node)
         {
@@ -121,7 +127,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             query = SkipTake(query, model.PageIndex, model.PageSize);
         }
-        var items = query.ToList().Select(o => ObjectMapper.ToModel<TEntity, TModel>(o, ToModel)).ToList();
+        var items = query.ToList().Select(o => { var model = ObjectMapper.ToModel<TEntity, TModel>(o); this.ToModel(o, model); return model; }).ToList();
         var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[$".{model.Format}"];
         var result = new FileContentResult(exportImportService.Export(items), contentType)
         {
@@ -143,7 +149,8 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         }
         var id = (Guid)typeof(TModel).GetProperty("Id")!.GetValue(model)!;
         var entity = Include(Repository.Query()).First(o => o.Id == id);
-        ObjectMapper.FromModel(entity, model, ToEntity);
+        ObjectMapper.FromModel(entity, model);
+        this.ToEntity(entity, model);
         if (entity is BaseTreeEntity<TEntity> node)
         {
             var parentId = typeof(TModel).GetProperty(nameof(node.ParentId))?.GetValue(model) as Guid?;
@@ -255,7 +262,12 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
                 .Where(o => suffix.StartsWith(o.Path))
                 .ToList()
                 .Cast<TEntity>()
-                .Select(o => ObjectMapper.ToModel<TEntity, TModel>(o, ToModel)).ToList();
+                .Select(o =>
+                {
+                    var model = ObjectMapper.ToModel<TEntity, TModel>(o);
+                    this.ToModel(o, model);
+                    return model;
+                }).ToList();
             return result;
         }
         throw new ProblemException("NotFound");
@@ -271,7 +283,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
                 .Where(o => o.Path.StartsWith(prefix))
                 .ToList()
                 .Cast<TEntity>()
-                .Select(o => ObjectMapper.ToModel<TEntity, TModel>(o, ToModel)).ToList();
+                .Select(o => { var model = ObjectMapper.ToModel<TEntity, TModel>(o); ToModel(o, model); return model; }).ToList();
             return result;
         }
         throw new ProblemException("NotFound");
@@ -301,9 +313,9 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         {
             query = query.OrderBy(orderBy);
         }
-        else if (typeof(TEntity).IsAssignableTo(typeof(IOrderedEntity)))
+        else if (typeof(TEntity).IsAssignableTo(typeof(IOrdered)))
         {
-            query = query.OrderBy(nameof(IOrderedEntity.Order));
+            query = query.OrderBy(nameof(IOrdered.Order));
         }
         else
         {
@@ -321,7 +333,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     {
     }
 
-    protected virtual void ToEntity(TEntity entity, TModel model)
+    protected virtual void ToEntity(TEntity entity, TModel model, bool isCreate = false)
     {
     }
 

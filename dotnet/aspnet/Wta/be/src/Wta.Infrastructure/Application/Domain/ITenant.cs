@@ -1,4 +1,4 @@
-public interface ITenantEntity
+public interface ITenant
 {
     string? TenantNumber { get; set; }
 }

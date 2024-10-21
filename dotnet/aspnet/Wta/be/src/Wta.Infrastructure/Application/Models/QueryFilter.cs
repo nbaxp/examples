@@ -17,7 +17,7 @@ public class QueryFilter
         {
             var parameter = Expression.Parameter(typeof(T), "p");//参数
             var property = Expression.PropertyOrField(parameter, Property);//字段或属性
-            var valueType = Operator == "in" ? typeof(List<>).MakeGenericType(propertyType) : propertyType;
+            var valueType = Operator == "in" ? typeof(List<>).MakeGenericType(propertyType.GetGenericArguments()[0]) : propertyType;
             var constant = Operator == "in" ? Expression.Constant(JsonSerializer.Deserialize(Value?.ToString()!, valueType), valueType) : Expression.Constant(Value!.ToString().GetValue(propertyType), valueType); //常量
             //比较运算
             if (Operator == "=")
@@ -56,6 +56,7 @@ public class QueryFilter
             {
                 //多选
                 var methodInfo = valueType.GetMethod(nameof(string.Contains));
+                methodInfo.MakeGenericMethod(valueType.GetGenericArguments()[0]);
                 var methodCall = Expression.Call(constant, methodInfo!, property);
                 return Expression.Lambda<Func<T, bool>>(methodCall, parameter);
             }

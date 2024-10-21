@@ -3,7 +3,6 @@ using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Minio;
 using OrchardCore.Localization;
 using Prometheus;
 using Prometheus.SystemMetrics;

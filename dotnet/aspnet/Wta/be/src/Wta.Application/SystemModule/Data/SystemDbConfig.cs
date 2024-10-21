@@ -99,11 +99,11 @@ public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
     public void Configure(EntityTypeBuilder<ExternalApp> builder)
     {
         builder.HasIndex(o => new { o.TenantNumber, o.Name }).IsUnique();
-        builder.HasOne(o => o.User).WithMany(o=>o.Apps).HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.User).WithMany(o => o.Apps).HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.Cascade);
     }
 
     public void Configure(EntityTypeBuilder<UserLogin> builder)
     {
-        builder.HasOne(o=>o.User).WithMany(o=>o.UserLogins).HasForeignKey(o=>o.UserId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.User).WithMany(o => o.UserLogins).HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.Cascade);
     }
 }

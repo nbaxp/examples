@@ -1,4 +1,3 @@
-using System.Net.Http;
 using Flurl;
 using HttpClientToCurl;
 using Microsoft.AspNetCore.Http;
@@ -45,7 +44,7 @@ public class OAuthService(IHttpClientFactory factory, IHttpContextAccessor httpC
             .SetQueryParamIf(options.TokenEndpoint.Contains(REDIRECT_URI), REDIRECT_URI, UrlContent(options.CallbackPath));
         var client = factory.CreateClient();
         var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = new FormUrlEncodedContent(url.Query.QueryStringToDictionary()) };
-        string curlScript = client.GenerateCurlInString(request);
+        _ = client.GenerateCurlInString(request);
         var response = await client.SendAsync(request).ConfigureAwait(false);
         var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         return response.Content.Headers.ContentType?.MediaType == "application/json" ? result.JsonTextToDictionary() : result.QueryStringToDictionary();

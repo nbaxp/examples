@@ -16,6 +16,7 @@ public class Tenant : Entity
     public bool Disabled { get; set; }
 
     [KeyValue("hideForList", true)]
+    [KeyValue("hideForQuery", true)]
     [UIHint("select")]
     [KeyValue("url", "permission/search")]
     [KeyValue("value", "number")]

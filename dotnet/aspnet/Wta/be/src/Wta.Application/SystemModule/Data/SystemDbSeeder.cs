@@ -571,7 +571,6 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
                     ClientId="aspnetcore",
                     ClientSecret="123456",
                     Callback="http://localhost:5010/oauth-callback",
-                    Enabled = true
                 },
                 new ExternalApp
                 {
@@ -582,7 +581,6 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
                     ClientId="123",
                     ClientSecret="456",
                     Callback="http://192.168.0.223:5000/api/oauth/oauth-callback/wta",
-                    Enabled = true
                 }
             }
         });

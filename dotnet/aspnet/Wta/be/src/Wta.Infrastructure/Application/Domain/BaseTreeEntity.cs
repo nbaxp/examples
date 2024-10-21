@@ -1,6 +1,6 @@
 namespace Wta.Infrastructure.Application.Domain;
 
-public abstract class BaseTreeEntity<T> : BaseNameNumberEntity, IOrderedEntity where T : BaseEntity
+public abstract class BaseTreeEntity<T> : BaseNameNumberEntity, IOrdered where T : BaseEntity
 {
     [DefaultValue(0)]
     public float Order { get; set; }

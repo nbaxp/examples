@@ -159,7 +159,7 @@ public class UserController(ILogger<User> logger,
         return result;
     }
 
-    protected override void ToEntity(User entity, User model)
+    protected override void ToEntity(User entity, User model, bool isCreate = false)
     {
         if (string.IsNullOrEmpty(model.Password))
         {

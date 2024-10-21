@@ -36,7 +36,6 @@ export default {
           <template v-else-if="schema.input==='select'||schema.input==='radio'">
             <template v-if="schema.meta?.isTree">
               <template v-if="schema.meta?.multiple">
-                {{selectValues}}
                 <el-tree
                   v-if="selectOptions?.length"
                   :data="selectOptions"
@@ -168,6 +167,16 @@ export default {
             </template>
           </template>
         </el-upload>
+      </template>
+      <template v-else-if="schema.input==='textarea'&&mode==='query'">
+        <el-input
+          clearable
+          :disabled="getDisabled()"
+          :placeholder="schema.meta.placeholder??schema.title??prop"
+          v-model="model[prop]"
+          :type="text"
+          :prefix-icon="schema.icon"
+        />
       </template>
       <template v-else>
         <el-input

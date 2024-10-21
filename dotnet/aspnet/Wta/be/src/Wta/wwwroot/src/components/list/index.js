@@ -145,7 +145,7 @@ export default {
                 </el-table-column>
               </template>
             </template>
-            <template v-if="item.type==='object'">
+            <template v-if="item.type==='object'&&false">
               <template v-for="(item2,key2) in item['properties']">
                 <el-table-column :prop="key+'.'+key2">
                   <template #header="scope">{{item2.title}}</template>
@@ -226,14 +226,7 @@ export default {
       </template>
     </el-drawer>
     <!--通用对话框-->
-    <el-dialog
-      v-model="dialogVisible"
-      align-center
-      append-to-body
-      destroy-on-close
-      :close-on-click-modal="false"
-      :style="{width:editFormSchema?.meta?.width??'710px'}"
-    >
+    <el-dialog v-model="dialogVisible" align-center append-to-body destroy-on-close :close-on-click-modal="false">
       <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
       <template #footer>
         <span class="dialog-footer">
