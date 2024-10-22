@@ -19,7 +19,7 @@ public class ExternalApp : Entity
     [KeyValue("url", "file/upload")]
     [Display(Name = "应用图标")]
     [KeyValue("hideForQuery", true)]
-    public string Logo { get; set; } = null!;
+    public string Icon { get; set; } = null!;
 
     [Display(Name = "应用首页")]
     public string Home { get; set; } = null!;

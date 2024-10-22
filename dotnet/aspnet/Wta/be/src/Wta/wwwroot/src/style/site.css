@@ -77,6 +77,11 @@ flex-dir-row {
   justify-content: center;
 }
 
+svg {
+  width: 1em;
+  height: 1em;
+}
+
 img.loading {
   width: 3rem;
   height: 3rem;
@@ -186,9 +191,9 @@ img.loading {
 }
 
 .el-dialog {
-  width: auto;
   min-width: calc(2*16px + 7em + 220px + 40px);
-  max-width: calc(2*16px + 2*(7em + 220px + 40px));
+  width: calc(2*16px + 2*(7em + 220px + 40px));
+  max-width: 100%;
 }
 
 .el-table {
@@ -241,7 +246,7 @@ img.loading {
   .el-form-content-2col,
   .el-date-editor--datetimerange,
   .el-textarea {
-    width: 554px;
+    width: calc(8em + 2*220px + 20px);
   }
 }
 

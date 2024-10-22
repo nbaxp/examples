@@ -24,7 +24,6 @@ public abstract class BaseStartup : IStartup
     /// <param name="builder"></param>
     public virtual void AddAuth(WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<OAuthService>();
         builder.Services.AddSingleton<JsonWebTokenHandler>();
         builder.Services.AddSingleton<AuthJwtSecurityTokenHandler>();
         builder.Services.AddSingleton<JwtSecurityTokenHandler, AuthJwtSecurityTokenHandler>();

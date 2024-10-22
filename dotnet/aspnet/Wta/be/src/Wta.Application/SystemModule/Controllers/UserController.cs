@@ -1,3 +1,4 @@
+using Wta.Application.SystemModule.Services;
 using Wta.Infrastructure.Mapper;
 
 namespace Wta.Application.SystemModule.Controllers;
@@ -6,11 +7,14 @@ namespace Wta.Application.SystemModule.Controllers;
 public class UserController(ILogger<User> logger,
     IStringLocalizer stringLocalizer,
     IObjerctMapper mapper,
+    IRepository<LoginProvider> loginProviderRepository,
     IRepository<User> repository,
     IEventPublisher eventPublisher,
     IExportImportService exportImportService,
     IHttpContextAccessor httpContextAccessor,
-    IEncryptionService encryptionService) : GenericController<User, User>(logger, stringLocalizer, mapper, repository, eventPublisher, exportImportService), IAuthService
+    IEncryptionService encryptionService,
+    JwtOptions jwtOptions,
+    TokenService tokenService) : GenericController<User, User>(logger, stringLocalizer, mapper, repository, eventPublisher, exportImportService), IAuthService
 {
     [Authorize, Ignore]
     public bool HasPermission(string permission)
@@ -61,7 +65,7 @@ public class UserController(ILogger<User> logger,
     //}
 
     [AllowAnonymous, Ignore]
-    public ApiResult<object> Register(RegisterModel model)
+    public ApiResult<LoginResponseModel> Register(RegisterModel model)
     {
         if (ModelState.IsValid)
         {
@@ -79,13 +83,24 @@ public class UserController(ILogger<User> logger,
                 user.EmailConfirmed = true;
             }
             Repository.Add(user);
-            Repository.SaveChanges();
             if (!string.IsNullOrEmpty(model.provider))
             {
-                var url = Url.Content("~/login");
-                return Json(url as object, isRedirect: true);
+                user.UserLogins.Add(new UserLogin
+                {
+                    LoginProvider = model.provider,
+                    ProviderKey = model.open_id!,
+                    DisplayName = loginProviderRepository.AsNoTracking().First(o => o.Number == model.provider)?.Name!
+                });
             }
-            return Json(true as object);
+            Repository.SaveChanges();
+            var subject = tokenService.CreateSubject(user.UserName, []);
+            var result = new LoginResponseModel
+            {
+                AccessToken = tokenService.CreateToken(subject, jwtOptions.AccessTokenExpires),
+                RefreshToken = tokenService.CreateToken(subject, jwtOptions.RefreshTokenExpires),
+                ExpiresIn = (long)jwtOptions.AccessTokenExpires.TotalSeconds
+            };
+            return Json(result);
         }
         throw new BadRequestException();
     }

@@ -30,4 +30,10 @@ public class LoginRequestModel : CaptchaModel
 
     [Hidden]
     public string? anti_token { get; set; }
+
+    [Hidden]
+    public string? provider { get; set; }
+
+    [Hidden]
+    public string? open_id { get; set; }
 }

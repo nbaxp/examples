@@ -21,18 +21,39 @@ export default {
           </div>
           <el-card class="box-card">
             <template v-if="model?.client_id" #header>
-              <el-alert type="warning" show-icon :closable="false">{{client}} {{$t('请求登录')}}</el-alert>
+              <el-alert type="warning" show-icon :closable="false">
+                {{client}} {{$t('请求登录')}}
+              </el-alert>
             </template>
-            <app-form v-if="schema" :schema="schema" v-model="model" @success="success" />
-            <div v-if="false" style="display: flex; align-items: center; justify-content: space-between; height: 50px">
+            <app-form
+              v-if="schema"
+              :schema="schema"
+              v-model="model"
+              @success="success"
+            />
+            <div
+              v-if="false"
+              style="display: flex; align-items: center; justify-content: space-between; height: 50px"
+            >
               <router-link style to="/register">{{ $t('注册') }}</router-link>
-              <router-link style to="/forgot-password">{{ $t('忘记密码') }}</router-link>
+              <router-link style to="/forgot-password">
+                {{ $t('忘记密码') }}
+              </router-link>
             </div>
             <template v-if="!model?.client_id&&providers.length">
               <el-divider>{{$t("社交账号登录")}}</el-divider>
               <el-space>
-                <el-icon v-for="item in providers" @click="redirect(item.name)" class="cursor-pointer">
-                  <svg-icon :name="item.name" />
+                <el-icon
+                  style="font-size:28px;"
+                  v-for="item in providers"
+                  @click="redirect(item.number)"
+                  class="cursor-pointer"
+                >
+                  <img
+                    :alt="item.name"
+                    style="max-width:28px;max-height:28px;"
+                    :src="item.icon"
+                  />
                 </el-icon>
               </el-space>
             </template>
@@ -74,7 +95,9 @@ export default {
         model.value.client_id = params.get('client_id');
         model.value.return_to = params.get('return_to');
         model.value.anti_token = params.get('anti_token');
-        client.value = new URL(model.value.return_to).origin;
+        client.value = new URL(
+          new URL(model.value.return_to).searchParams.get('redirect_uri'),
+        ).origin;
       } else {
         const result = await request('GET', 'oauth/providers');
         providers.value = result.data.data;

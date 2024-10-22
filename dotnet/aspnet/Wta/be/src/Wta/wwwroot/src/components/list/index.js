@@ -226,8 +226,21 @@ export default {
       </template>
     </el-drawer>
     <!--通用对话框-->
-    <el-dialog v-model="dialogVisible" align-center append-to-body destroy-on-close :close-on-click-modal="false">
-      <template #header><span class="el-dialog__title">{{editFormTitle}}</span></template>
+    <el-dialog
+      v-model="dialogVisible"
+      :fullscreen="dialogFullscreen"
+      align-center
+      append-to-body
+      destroy-on-close
+      :close-on-click-modal="false"
+    >
+      <template #header="{ close, titleId, titleClass }">
+        <span class="el-dialog__title">{{editFormTitle}}</span>
+        <el-icon @click="dialogFullscreen=!dialogFullscreen" style="cursor:pointer;float:right;">
+          <svg-icon v-if="!dialogFullscreen" name="fullscreen" />
+          <svg-icon v-else name="fullscreen-exit" />
+        </el-icon>
+      </template>
       <template #footer>
         <span class="dialog-footer">
           <el-button type="primary" @click="editFormSubmit">{{$t('确定')}}</el-button>
@@ -295,6 +308,7 @@ export default {
     const subListQuery = ref(props.query ?? {});
     const selectedRows = ref([]);
     const dialogVisible = ref(false);
+    const dialogFullscreen = ref(false);
     const route = useRoute();
     const router = useRouter();
     const { t } = useI18n();
@@ -737,6 +751,7 @@ export default {
       onPageIndexChange,
       //对话框
       dialogVisible,
+      dialogFullscreen,
       editFormRef,
       editFormloading,
       editFormCommand,

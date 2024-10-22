@@ -1,13 +1,15 @@
+using Azure.Core;
 using Flurl;
+using HttpClientToCurl;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Caching.Distributed;
-using Wta.Infrastructure.OAuth2;
+using Microsoft.Extensions.Options;
 
 namespace Wta.Application.SystemModule.Controllers;
 
 public class TokenController(
     ILogger<TokenController> logger,
-    OAuthService oauthService,
+    IRepository<LoginProvider> loginProviderRepository,
     TokenValidationParameters tokenValidationParameters,
     SigningCredentials signingCredentials,
     JwtSecurityTokenHandler jwtSecurityTokenHandler,
@@ -196,7 +198,7 @@ public class TokenController(
     [HttpGet, AllowAnonymous, Ignore]
     public ApiResult<List<object>> Providers(string provider, string returnUrl)
     {
-        return Json(oauthService.Options.Providers.Select(o => new { o.Name } as object).ToList());
+        return Json(loginProviderRepository.AsNoTracking().Select(o => new { o.Name, o.Number, o.Icon } as object).ToList());
     }
 
     /// <summary>
@@ -206,7 +208,13 @@ public class TokenController(
     [HttpGet, AllowAnonymous, Ignore]
     public ApiResult<string> ExternalLogin(string provider, string returnUrl)
     {
-        var url = oauthService.GetAuthorizationUrl(provider);
+        var loginProvider = loginProviderRepository
+            .AsNoTracking()
+            .First(o => o.Number == provider);
+        var url = loginProvider.AuthorizationEndpoint
+            .SetQueryParam("client_id", loginProvider.ClientId)
+            .SetQueryParam("redirect_uri", Url.Content($"~{loginProvider.CallbackPath}"))
+            .ToString();
         var result = Json(url);
         result.IsRedirect = true;
         return result;
@@ -220,49 +228,81 @@ public class TokenController(
     [HttpGet, AllowAnonymous, Ignore]
     public async Task<IActionResult> OAuthCallback(string provider, string code)
     {
-        var openId = await oauthService.GetOpenId(provider, code).ConfigureAwait(false);
-        if (User.Identity!.IsAuthenticated)// 已登录用户且未绑定，添加三方登录绑定
+        var loginProvider = loginProviderRepository.AsNoTracking().First(o => o.Number == provider);
+        //get token
+        var url = loginProvider.TokenEndpoint
+            .SetQueryParam("client_id", loginProvider.ClientId)
+            .SetQueryParam("client_secret", loginProvider.ClientSecret)
+            .SetQueryParam("code", code)
+            .SetQueryParam("redirect_uri", Url.Content($"~{loginProvider.CallbackPath}"));
+        var client = factory.CreateClient();
+        var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = new FormUrlEncodedContent(url.Query.QueryStringToDictionary()) };
+        _ = client.GenerateCurlInString(request);
+        var response = await client.SendAsync(request).ConfigureAwait(false);
+        var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        var tokenResult = response.Content.Headers.ContentType?.MediaType == "application/json" ? result.JsonTextToDictionary() : result.QueryStringToDictionary();
+        var access_token = tokenResult["access_token"];
+        //get user id
+        var url2 = loginProvider.UserInformationEndpoint;
+        var client2 = factory.CreateClient();
+        if (loginProvider.UserInformationTokenPosition == "header")
         {
-            if (!userLoginRepository.AsNoTracking().Any(o => o.LoginProvider == provider && o.ProviderKey == openId))// 没有 openid 增加 openid 并关联当前用户
-            {
-                var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
-                var user = userRepository.Query().First(o => o.NormalizedUserName == normalizedUserName);
-                user.UserLogins.Add(new UserLogin { LoginProvider = provider, ProviderKey = openId! });
-                userRepository.SaveChanges();
-            }
-            return Ok();
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", access_token);
         }
-        else//未登录用户
+        else
         {
-            var loginUser = userLoginRepository.AsNoTracking().Include(o => o.User).FirstOrDefault(o => o.LoginProvider == provider && o.ProviderKey == openId);
-            if (loginUser != null) // 已绑定用户，携带 token 跳转到浏览器，自动登录
-            {
-                var user = loginUser.User;
-                var additionalClaims = new List<Claim>();
-                if (user.TenantNumber != null)
-                {
-                    additionalClaims.Add(new Claim("TenantNumber", user.TenantNumber));
-                }
-                var normalizedUserName = user.NormalizedUserName;
-                var roles = userRepository.AsNoTracking()
-                    .Where(o => o.NormalizedUserName == normalizedUserName)
-                    .SelectMany(o => o.UserRoles)
-                    .Select(o => o.Role!.Number)
-                    .ToList()
-                    .Select(o => new Claim(tokenValidationParameters.RoleClaimType, o!));
-                additionalClaims.AddRange(roles);
-                var subject = CreateSubject(user.UserName!, additionalClaims);
-                var access_token = CreateToken(subject, jwtOptions.AccessTokenExpires);
-                var refresh_token = CreateToken(subject, jwtOptions.RefreshTokenExpires);
-                var url = Url.Content("~/").SetQueryParam("access_token", access_token).SetQueryParam("refresh_token", refresh_token).SetFragment("/oauth2-login");
-                return Redirect(url);
-            }
-            else//未绑定用户，跳转到注册页注册并绑定
-            {
-                var url = Url.Content("~/").SetQueryParam("provider", provider).SetQueryParam("open_id", openId).SetFragment("/register");
-                return Redirect(url);
-            }
+            url = url.SetQueryParam("access_token", access_token);
         }
+        var response2 = loginProvider.UserInformationRequestMethod == "post" ? await client.PostAsync(url.RemoveQuery(), new FormUrlEncodedContent(new Url(url).Query.QueryStringToDictionary())).ConfigureAwait(false) : await client.GetAsync(url).ConfigureAwait(false);
+        var result2 = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        var userInfoResult = response.Content.Headers.ContentType?.MediaType == "application/json" ? result.JsonTextToDictionary() : result.QueryStringToDictionary();
+        var openId = userInfoResult[loginProvider.UserIdName!];
+        // 跳转到 SPA
+        var url3 = Url.Content("~/").SetQueryParam("provider", provider).SetQueryParam("open_id", openId).SetFragment("/callback");
+        return Redirect(url3);
+        //var loginUser = userLoginRepository.AsNoTracking().Include(o => o.User).FirstOrDefault(o => o.LoginProvider == provider && o.ProviderKey == openId);
+        //if (loginUser != null) // 已绑定用户，携带 token 跳转到浏览器，自动登录
+        //{
+        //    var user = loginUser.User;
+        //    var additionalClaims = new List<Claim>();
+        //    if (user.TenantNumber != null)
+        //    {
+        //        additionalClaims.Add(new Claim("TenantNumber", user.TenantNumber));
+        //    }
+        //    var normalizedUserName = user.NormalizedUserName;
+        //    var roles = userRepository.AsNoTracking()
+        //        .Where(o => o.NormalizedUserName == normalizedUserName)
+        //        .SelectMany(o => o.UserRoles)
+        //        .Select(o => o.Role!.Number)
+        //        .ToList()
+        //        .Select(o => new Claim(tokenValidationParameters.RoleClaimType, o!));
+        //    additionalClaims.AddRange(roles);
+        //    var subject = CreateSubject(user.UserName!, additionalClaims);
+        //    var access_token = CreateToken(subject, jwtOptions.AccessTokenExpires);
+        //    var refresh_token = CreateToken(subject, jwtOptions.RefreshTokenExpires);
+        //    var url = Url.Content("~/").SetQueryParam("access_token", access_token).SetQueryParam("refresh_token", refresh_token).SetFragment("/oauth2-login");
+        //    return Redirect(url);
+        //}
+        //else//未绑定用户，跳转到注册页注册并绑定
+        //{
+        //    var url3 = Url.Content("~/").SetQueryParam("provider", provider).SetQueryParam("open_id", openId).SetFragment("/callback");
+        //    return Redirect(url3);
+        //}
+        //
+        //if (User.Identity!.IsAuthenticated)// 已登录用户且未绑定，添加三方登录绑定
+        //{
+        //    if (!userLoginRepository.AsNoTracking().Any(o => o.LoginProvider == provider && o.ProviderKey == openId))// 没有 openid 增加 openid 并关联当前用户
+        //    {
+        //        var normalizedUserName = User.Identity?.Name?.ToUpperInvariant()!;
+        //        var user = userRepository.Query().First(o => o.NormalizedUserName == normalizedUserName);
+        //        user.UserLogins.Add(new UserLogin { LoginProvider = provider, ProviderKey = openId! });
+        //        userRepository.SaveChanges();
+        //    }
+        //    return Ok();
+        //}
+        //else//未登录用户
+        //{
+        //}
     }
 
     [HttpGet, AllowAnonymous, Ignore]
@@ -318,6 +358,21 @@ public class TokenController(
                 {
                     user.LockoutEnd = null;
                     user.AccessFailedCount = 0;
+                    if (!string.IsNullOrEmpty(model.provider))
+                    {//oauth2 client
+                        var userLogin = userLoginRepository.Query().FirstOrDefault(o => o.UserId == user.Id && o.LoginProvider == model.provider);
+                        if (userLogin == null)
+                        {
+                            userLogin = new UserLogin
+                            {
+                                UserId = user.Id,
+                                LoginProvider = model.provider,
+                                ProviderKey = model.open_id!,
+                                DisplayName = loginProviderRepository.AsNoTracking().FirstOrDefault(o => o.Number == model.provider)?.Name!
+                            };
+                            userLoginRepository.Add(userLogin);
+                        }
+                    }
                     userRepository.SaveChanges();
                 }
             }
@@ -346,7 +401,7 @@ public class TokenController(
                 ExpiresIn = (long)jwtOptions.AccessTokenExpires.TotalSeconds
             };
             if (!string.IsNullOrEmpty(model.client_id))
-            {//oauth2
+            {//oauth2 server
                 if (model.anti_token == null)
                 {
                     throw new ProblemException("anti_token不能为空");
@@ -366,8 +421,8 @@ public class TokenController(
                     throw new ProblemException("应用已禁用");
                 }
                 var returnUrl = new Url(model.return_to);
-                var redirect_uri = returnUrl.QueryParams.FirstOrDefault("redirect_uri")?.ToString();
-                var state = returnUrl.QueryParams.FirstOrDefault("state");
+                var redirect_uri = returnUrl.QueryParams.FirstOrDefault("redirect_uri").ToString();
+                var state = returnUrl.QueryParams.FirstOrDefault("state")?.ToString();
                 if (redirect_uri != null && !redirect_uri.StartsWith(new Url(app.Callback).Root))
                 {
                     throw new ProblemException("redirect_uri不匹配");

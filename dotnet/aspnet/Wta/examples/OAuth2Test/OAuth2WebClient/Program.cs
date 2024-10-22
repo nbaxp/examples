@@ -18,13 +18,33 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddAuthentication()
-    .AddOAuth2("demo", "WTA", o =>
+    .AddOAuth2("wta", "WTA", o =>
     {
-        o.ClientId = "aspnetcore";
+        o.ClientId = "wta";
         o.ClientSecret = "123456";
         o.AuthorizationEndpoint = "http://localhost:5000/api/oauth/authorize";
         o.TokenEndpoint = "http://localhost:5000/api/oauth/token";
         o.UserInformationEndpoint = "http://localhost:5000/api/oauth/user-info";
+        //o.CallbackPath = "/oauth-callback";
+        //o.ClaimActions.MapJsonKey("sub", "id");
+        o.Events.OnCreatingTicket = async context =>
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var response = await context.Backchannel.SendAsync(request, context.HttpContext.RequestAborted);
+            response.EnsureSuccessStatusCode();
+            using var user = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            context.RunClaimActions(user.RootElement);
+        };
+    }, "id")
+    .AddOAuth2("openiddict", "openiddict", o =>
+    {
+        o.ClientId = "mvc";
+        o.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
+        o.AuthorizationEndpoint = "http://localhost:5020/connect/authorize";
+        o.TokenEndpoint = "http://localhost:5020/connect/token";
+        o.UserInformationEndpoint = "http://localhost:5020/connect/userinfo";
         //o.CallbackPath = "/oauth-callback";
         //o.ClaimActions.MapJsonKey("sub", "id");
         o.Events.OnCreatingTicket = async context =>

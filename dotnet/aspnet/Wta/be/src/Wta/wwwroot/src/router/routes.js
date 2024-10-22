@@ -21,6 +21,13 @@ export default [
         },
       },
       {
+        path: '/callback',
+        component: () => import('@/views/callback.js'),
+        meta: {
+          title: 'OAuth2 回调',
+        },
+      },
+      {
         path: '/403',
         component: () => import('@/views/403.js'),
         meta: {

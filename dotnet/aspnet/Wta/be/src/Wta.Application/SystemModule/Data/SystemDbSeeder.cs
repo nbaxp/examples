@@ -541,6 +541,22 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
         var passwordHash = encryptionService.HashPassword(password, salt);
         var email = "76527413@qq.com";
 
+        context.Set<LoginProvider>().Add(new LoginProvider
+        {
+            Name = "自测",
+            Number = "wta",
+            Icon = "/src/assets/icons/wta.svg",
+            ClientId = "wta",
+            ClientSecret = "123456",
+            UserIdName = "id",
+            CallbackPath = "/api/oauth/oauth-callback/wta",
+            AuthorizationEndpoint = "http://localhost:5000/api/oauth/authorize",
+            TokenEndpoint = "http://localhost:5000/api/oauth/token",
+            UserInformationEndpoint = "http://localhost:5000/api/oauth/user-info",
+            UserInformationRequestMethod = "get",
+            UserInformationTokenPosition = "header"
+        });
+
         context.Set<User>().Add(new User
         {
             Id = context.NewGuid(),
@@ -564,24 +580,24 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
             {
                 new ExternalApp
                 {
-                    Name = "localhost",
-                    Logo="api/file/avatar.svg",
+                    Name = "内部客户端测试",
+                    Icon = "/src/assets/icons/wta.svg",
+                    Home = "http://localhost:5000",
+                    Description="shelf test",
+                    ClientId="wta",
+                    ClientSecret="123456",
+                    Callback="http://localhost:5000/api/oauth/oauth-callback/wta",
+                },
+                new ExternalApp
+                {
+                    Name = "外部客户端测试",
+                    Icon="api/file/avatar.svg",
                     Home = "http://localhost:5010",
                     Description="shelf test",
                     ClientId="aspnetcore",
                     ClientSecret="123456",
                     Callback="http://localhost:5010/oauth-callback",
                 },
-                new ExternalApp
-                {
-                    Name = "lan",
-                    Logo="api/file/avatar.svg",
-                    Home = "http://192.168.0.223:5000",
-                    Description="shelf test",
-                    ClientId="123",
-                    ClientSecret="456",
-                    Callback="http://192.168.0.223:5000/api/oauth/oauth-callback/wta",
-                }
             }
         });
     }
