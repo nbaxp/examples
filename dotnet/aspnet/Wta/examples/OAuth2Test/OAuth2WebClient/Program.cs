@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OAuth2WebClient;
@@ -20,7 +21,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication()
     .AddOAuth2("wta", "WTA", o =>
     {
-        o.ClientId = "wta";
+        o.ClientId = "aspnetcore";
         o.ClientSecret = "123456";
         o.AuthorizationEndpoint = "http://localhost:5000/api/oauth/authorize";
         o.TokenEndpoint = "http://localhost:5000/api/oauth/token";
@@ -38,14 +39,14 @@ builder.Services.AddAuthentication()
             context.RunClaimActions(user.RootElement);
         };
     }, "id")
-    .AddOAuth2("openiddict", "openiddict", o =>
+    .AddOAuth2("openiddict", "Openiddict", o =>
     {
         o.ClientId = "mvc";
         o.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
         o.AuthorizationEndpoint = "http://localhost:5020/connect/authorize";
         o.TokenEndpoint = "http://localhost:5020/connect/token";
         o.UserInformationEndpoint = "http://localhost:5020/connect/userinfo";
-        //o.CallbackPath = "/oauth-callback";
+        o.CallbackPath = "/oauth-callback";
         //o.ClaimActions.MapJsonKey("sub", "id");
         o.Events.OnCreatingTicket = async context =>
         {

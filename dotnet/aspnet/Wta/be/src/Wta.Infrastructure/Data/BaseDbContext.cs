@@ -84,14 +84,14 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
 
             }
             //实体IsReadOnly属性为true的不可删除
-            //if (item.State == EntityState.Deleted)
-            //{
-            //    var isReadOnly = item.Entity.GetType().GetProperty("IsReadOnly")?.GetValue(item.Entity) as bool?;
-            //    if (isReadOnly.HasValue && isReadOnly.Value)
-            //    {
-            //        item.State = EntityState.Unchanged;
-            //    }
-            //}
+            if (item.State == EntityState.Deleted)
+            {
+                var isReadOnly = item.Entity.GetType().GetProperty("IsReadOnly")?.GetValue(item.Entity) as bool?;
+                if (isReadOnly.HasValue && isReadOnly.Value)
+                {
+                    item.State = EntityState.Unchanged;
+                }
+            }
             //设置审计属性户
             if (item.Entity is BaseEntity entity)
             {

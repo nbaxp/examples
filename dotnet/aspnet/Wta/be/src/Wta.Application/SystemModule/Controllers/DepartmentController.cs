@@ -1,3 +1,4 @@
+using Wta.Infrastructure.Application.Models;
 using Wta.Infrastructure.Mapper;
 
 namespace Wta.Application.SystemModule.Controllers;
@@ -10,6 +11,12 @@ public class DepartmentController(ILogger<Department> logger,
     IEventPublisher eventPublisher,
     IExportImportService exportImportService) : GenericController<Department, Department>(logger, stringLocalizer, mapper, repository, eventPublisher, exportImportService)
 {
+    [Authorize]
+    public override ApiResult<QueryModel<Department>> Search(QueryModel<Department> model)
+    {
+        return base.Search(model);
+    }
+
     protected override void ToModel(Department entity, Department model)
     {
         model.DepartmentUsers = entity.Users.Select(x => x.Id).ToList();

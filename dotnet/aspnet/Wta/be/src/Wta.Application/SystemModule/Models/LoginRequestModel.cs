@@ -36,4 +36,7 @@ public class LoginRequestModel : CaptchaModel
 
     [Hidden]
     public string? open_id { get; set; }
+
+    [Hidden]
+    public string? access_token { get; set; }
 }

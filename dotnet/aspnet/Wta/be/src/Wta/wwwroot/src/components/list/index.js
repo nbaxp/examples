@@ -64,7 +64,11 @@ export default {
                 class="mb-5 mr-3"
                 style="margin-left:0;"
               >
-                <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
+                <el-icon>
+                  <svg-icon
+                    :name="item.meta.icon??item.meta.command??item.path"
+                  />
+                </el-icon>
                 <span>{{$t(item.meta.title)}}</span>
               </el-button>
             </template>
@@ -81,7 +85,9 @@ export default {
             >
               {{$t('查询')}}
             </el-button>
-            <el-button @click="reset(queryFormRef)" class="mb-5 ml-3">{{$t('重置')}}</el-button>
+            <el-button @click="reset(queryFormRef)" class="mb-5 ml-3">
+              {{$t('重置')}}
+            </el-button>
           </div>
         </el-row>
         <!--列表-->
@@ -106,20 +112,31 @@ export default {
           />
           <el-table-column type="index" :label="$t('行号')">
             <template #default="scope">
-              {{ (pageModel.pageIndex - 1) * pageModel.pageSize + scope.$index + 1 }}
+              {{ (pageModel.pageIndex - 1) * pageModel.pageSize + scope.$index +
+              1 }}
             </template>
           </el-table-column>
           <template v-for="(item,key) in schema.properties" :key="key">
             <template v-if="item.navigation">
               <el-table-column :prop="key" :label="item.title">
-                <template #default="scope">{{getProp(scope.row,item.navigation)}}</template>
+                <template #default="scope">
+                  {{getProp(scope.row,item.navigation)}}
+                </template>
               </el-table-column>
             </template>
             <template v-else-if="item.oneToMany">
               <el-table-column :prop="key" :label="item.title">
                 <template #default="scope">
-                  <el-link type="primary" @click="showList({[key]:scope.row[key]},item.oneToMany,item.config)">
-                    <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
+                  <el-link
+                    type="primary"
+                    @click="showList({[key]:scope.row[key]},item.oneToMany,item.config)"
+                  >
+                    <app-form-input
+                      mode="details"
+                      :schema="item"
+                      :prop="key"
+                      v-model="scope.row"
+                    />
                   </el-link>
                 </template>
               </el-table-column>
@@ -127,7 +144,12 @@ export default {
             <template v-else-if="item.link">
               <el-table-column :prop="key" :label="item.title">
                 <template #default="scope">
-                  <el-link type="primary" @click="buttonClick({path:key},[scope.row])">{{scope.row[key]}}</el-link>
+                  <el-link
+                    type="primary"
+                    @click="buttonClick({path:key},[scope.row])"
+                  >
+                    {{scope.row[key]}}
+                  </el-link>
                 </template>
               </el-table-column>
             </template>
@@ -140,7 +162,12 @@ export default {
                 >
                   <template #header="scope">{{item.title}}</template>
                   <template #default="scope">
-                    <app-form-input mode="details" :schema="item" :prop="key" v-model="scope.row" />
+                    <app-form-input
+                      mode="details"
+                      :schema="item"
+                      :prop="key"
+                      v-model="scope.row"
+                    />
                   </template>
                 </el-table-column>
               </template>
@@ -151,7 +178,12 @@ export default {
                   <template #header="scope">{{item2.title}}</template>
                   <template #default="scope">
                     <template v-if="scope.row[key]">
-                      <app-form-input mode="details" :schema="item2" :prop="key2" v-model="scope.row[key]" />
+                      <app-form-input
+                        mode="details"
+                        :schema="item2"
+                        :prop="key2"
+                        v-model="scope.row[key]"
+                      />
                     </template>
                   </template>
                 </el-table-column>
@@ -175,7 +207,11 @@ export default {
                     @click="buttonClick(item,[scope.row])"
                     :disabled="item.meta.disabled && item.meta.disabled(scope.row)"
                   >
-                    <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
+                    <el-icon>
+                      <svg-icon
+                        :name="item.meta.icon??item.meta.command??item.path"
+                      />
+                    </el-icon>
                     <span>{{$t(item.meta.title)}}</span>
                   </el-button>
                 </template>
@@ -201,19 +237,44 @@ export default {
       </el-card>
     </div>
     <!--列筛选抽屉-->
-    <el-drawer v-model="filterDrawer" destroy-on-close @close="tableRef.doLayout()">
-      <template #header><span class="el-dialog__title">{{$t('过滤')}}</span></template>
+    <el-drawer
+      v-model="filterDrawer"
+      destroy-on-close
+      @close="tableRef.doLayout()"
+    >
+      <template #header>
+        <span class="el-dialog__title">{{$t('过滤')}}</span>
+      </template>
       <el-scrollbar>
         <el-row>
           <el-col>
             <el-form inline>
               <div>
-                <el-button type="primary" @click="columns.forEach(o=>o.checked=true)">{{$t('全选')}}</el-button>
-                <el-button type="primary" @click="columns.forEach(o=>o.checked=!o.checked)">{{$t('反选')}}</el-button>
-                <el-button type="primary" @click="resetColumns">{{ $t('重置') }}</el-button>
+                <el-button
+                  type="primary"
+                  @click="columns.forEach(o=>o.checked=true)"
+                >
+                  {{$t('全选')}}
+                </el-button>
+                <el-button
+                  type="primary"
+                  @click="columns.forEach(o=>o.checked=!o.checked)"
+                >
+                  {{$t('反选')}}
+                </el-button>
+                <el-button type="primary" @click="resetColumns">
+                  {{ $t('重置') }}
+                </el-button>
               </div>
-              <div v-for="item in columns" style="display:inline-block;padding:10px;width:50%;">
-                <el-checkbox v-model="item.checked" :label="item.title" size="large" />
+              <div
+                v-for="item in columns"
+                style="display:inline-block;padding:10px;width:50%;"
+              >
+                <el-checkbox
+                  v-model="item.checked"
+                  :label="item.title"
+                  size="large"
+                />
               </div>
             </el-form>
           </el-col>
@@ -221,7 +282,9 @@ export default {
       </el-scrollbar>
       <template #footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="filterDrawer=false">{{$t('确定')}}</el-button>
+          <el-button type="primary" @click="filterDrawer=false">
+            {{$t('确定')}}
+          </el-button>
         </span>
       </template>
     </el-drawer>
@@ -236,15 +299,25 @@ export default {
     >
       <template #header="{ close, titleId, titleClass }">
         <span class="el-dialog__title">{{editFormTitle}}</span>
-        <el-icon @click="dialogFullscreen=!dialogFullscreen" style="cursor:pointer;float:right;">
+        <el-icon
+          v-if="false"
+          @click="dialogFullscreen=!dialogFullscreen"
+          style="cursor:pointer;float:right;"
+        >
           <svg-icon v-if="!dialogFullscreen" name="fullscreen" />
           <svg-icon v-else name="fullscreen-exit" />
         </el-icon>
       </template>
       <template #footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="editFormSubmit">{{$t('确定')}}</el-button>
-          <el-button v-if="editFormCommand!=='details'" @click="reset(editFormRef)" class="ml-3">
+          <el-button type="primary" @click="editFormSubmit">
+            {{$t('确定')}}
+          </el-button>
+          <el-button
+            v-if="editFormCommand!=='details'"
+            @click="reset(editFormRef)"
+            class="ml-3"
+          >
             {{$t('重置')}}
           </el-button>
         </span>
@@ -265,10 +338,16 @@ export default {
             >
               <!--下载导入母版-->
               <template v-if="editFormCommand==='import'">
-                <template v-for="item in buttons.filter(o=>o.meta.hidden&&o.meta.command==='import-template')">
+                <template
+                  v-for="item in buttons.filter(o=>o.meta.hidden&&o.meta.command==='import-template')"
+                >
                   <el-form-item label=" ">
                     <el-button @click="buttonClick(item)">
-                      <el-icon><svg-icon :name="item.meta.icon??item.meta.command??item.path" /></el-icon>
+                      <el-icon>
+                        <svg-icon
+                          :name="item.meta.icon??item.meta.command??item.path"
+                        />
+                      </el-icon>
                       <span>{{$t(item.meta.title)}}</span>
                     </el-button>
                   </el-form-item>
@@ -322,7 +401,9 @@ export default {
     const editFormSchema = ref(null);
     const editFormModel = ref(null);
     const editFormButton = ref(null);
-    const buttons = ref(props.schema.meta?.buttons.filter((o) => userStore.hasPermission(o.meta)));
+    const buttons = ref(
+      props.schema.meta?.buttons.filter((o) => userStore.hasPermission(o.meta)),
+    );
     const getSortModel = () => {
       const orders = (props.schema.meta?.sorting ?? '')
         .split(',')
@@ -353,7 +434,8 @@ export default {
     };
     const getClass = ({ column }) => {
       if (column.property) {
-        column.order = sortColumns.value.get(column.property)?.toLowerCase() ?? '';
+        column.order =
+          sortColumns.value.get(column.property)?.toLowerCase() ?? '';
       }
     };
     const sortChange = async ({ prop, order }) => {
@@ -373,15 +455,21 @@ export default {
     const load = async () => {
       loading.value = true;
       try {
-        const button = props.schema.meta?.buttons.find((o) => o.meta.command === 'search');
+        const button = props.schema.meta?.buttons.find(
+          (o) => o.meta.command === 'search',
+        );
         const url = `/${button.meta.url}`;
         const method = button.meta.method;
         const postData = buildQuery();
         const data = (await request(method, url, postData)).data;
         if (data.error) {
-          await ElMessageBox.confirm(data.error.data?.message ?? data.error.message ?? data.error.code, '提示', {
-            type: 'error',
-          });
+          await ElMessageBox.confirm(
+            data.error.data?.message ?? data.error.message ?? data.error.code,
+            '提示',
+            {
+              type: 'error',
+            },
+          );
         }
         let items = data.data.items;
         if (props.schema.meta.isTree) {
@@ -411,14 +499,19 @@ export default {
     };
     const buttonClick = async (item, rows) => {
       if (item.meta.command === 'import-template') {
-        const result = await request(item.meta.method ?? 'POST', `/${item.meta.url}`);
+        const result = await request(
+          item.meta.method ?? 'POST',
+          `/${item.meta.url}`,
+        );
         if (!result.error) {
           downloadFile(result.data, result.name);
         }
         return;
       }
       editFormCommand.value = item.meta.command;
-      const showForm = ['create', 'update', 'details', 'import', 'export'].some((o) => o === item.meta.command);
+      const showForm = ['create', 'update', 'details', 'import', 'export'].some(
+        (o) => o === item.meta.command,
+      );
       try {
         if (showForm) {
           editFormButton.value = item;
@@ -429,8 +522,13 @@ export default {
           await load();
         } else if (editFormCommand.value === 'create') {
           editFormModel.value = schemaToModel(editFormSchema.value);
-        } else if (editFormCommand.value === 'details' || editFormCommand.value === 'update') {
-          const detailsButton = props.schema.meta.buttons.find((o) => o.meta.command === 'details');
+        } else if (
+          editFormCommand.value === 'details' ||
+          editFormCommand.value === 'update'
+        ) {
+          const detailsButton = props.schema.meta.buttons.find(
+            (o) => o.meta.command === 'details',
+          );
           const url = `/${detailsButton?.meta?.url}`;
           const method = detailsButton.meta.method ?? 'POST';
           const result = await request(method, url, rows[0].id);
@@ -449,9 +547,16 @@ export default {
           editFormCommand.value === 'unarchive'
         ) {
           try {
-            await ElMessageBox.confirm(t('确认{0}选中的{1}行数据吗？', [t(item.meta.title), rows.length]), '提示', {
-              type: 'warning',
-            });
+            await ElMessageBox.confirm(
+              t('确认{0}选中的{1}行数据吗？', [
+                t(item.meta.title),
+                rows.length,
+              ]),
+              '提示',
+              {
+                type: 'warning',
+              },
+            );
             loading.value = true;
             const url = `/${item?.meta?.url}`;
             const method = item.meta.method ?? 'POST';
@@ -496,11 +601,16 @@ export default {
       }
       try {
         await editFormRef.value.validate();
-        const button = props.schema.meta.buttons.find((o) => o.meta.command === editFormCommand.value);
+        const button = props.schema.meta.buttons.find(
+          (o) => o.meta.command === editFormCommand.value,
+        );
         const url = `/${button?.meta?.url}`;
         const method = button.meta.method ?? 'POST';
         let data = null;
-        if (editFormCommand.value === 'search' || editFormCommand.value === 'export') {
+        if (
+          editFormCommand.value === 'search' ||
+          editFormCommand.value === 'export'
+        ) {
           data = buildQuery();
           if (editFormCommand.value === 'export') {
             Object.assign(data, editFormModel.value);
@@ -577,7 +687,9 @@ export default {
         const module = await import(config);
         const configValue = module.default;
 
-        return configValue.constructor === Function ? configValue(route.meta.businessType) : configValue;
+        return configValue.constructor === Function
+          ? configValue(route.meta.businessType)
+          : configValue;
       }
       return config;
     };
@@ -589,7 +701,11 @@ export default {
         }
         return item.meta.disabed;
       }
-      if (item.meta.command === 'delete' || item.meta.command === 'archive' || item.meta.command === 'unarchive') {
+      if (
+        item.meta.command === 'delete' ||
+        item.meta.command === 'archive' ||
+        item.meta.command === 'unarchive'
+      ) {
         if (selectedRows.value.length === 0) {
           return true;
         }
@@ -612,11 +728,16 @@ export default {
         filters: [],
       };
       const queryValue = [];
-      for (const [key, value] of Object.entries(JSON.parse(JSON.stringify(queryModel.value)))) {
+      for (const [key, value] of Object.entries(
+        JSON.parse(JSON.stringify(queryModel.value)),
+      )) {
         const propSchema = querySchema.value.properties[key];
         if (Array.isArray(value)) {
           if (value.length) {
-            if (propSchema.input === 'daterange' || propSchema.input === 'datetimerange') {
+            if (
+              propSchema.input === 'daterange' ||
+              propSchema.input === 'datetimerange'
+            ) {
               data.filters.push({
                 logic: 'and',
                 property: key,
@@ -691,7 +812,8 @@ export default {
     const queryFormFold = ref(true);
     const queryStyle = computed(() => {
       const height =
-        useCssVar(`--el-component-size-${appStore.settings.size}`).value || useCssVar('--el-component-size').value;
+        useCssVar(`--el-component-size-${appStore.settings.size}`).value ||
+        useCssVar('--el-component-size').value;
       return {
         overflow: 'hidden',
         height: queryFormFold.value ? `calc(${height} + 18px)` : 'auto',

@@ -8,7 +8,6 @@ import { normalize, schemaToModel } from '@/utils/schema.js';
 import html from 'utils';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { M } from '~/node_modules/vite/dist/node/types.d-aGj9QkWt';
 
 export default {
   components: { AppForm, LayoutLogo, LayoutLocale, LayoutFooter },
@@ -61,8 +60,7 @@ export default {
     const success = async (result) => {
       const data = result.data;
       tokenStore.update(data.access_token, data.refresh_token);
-      const redirect = router.currentRoute.value.query?.redirect ?? '/';
-      router.push({ path: '/redirect', query: { redirect } });
+      window.location = location.origin + location.pathname;
     };
     onMounted(async () => {
       isLogin.value = await tokenStore.isLogin();

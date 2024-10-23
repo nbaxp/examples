@@ -1,26 +1,28 @@
-# 应用集成
+# OAuth 2.0
 
-支持 OAuth2 授权码模式集成外部应用，参考 <https://gitee.com/api/v5/oauth_doc#/>
+1. <https://oauth.net/2/>
+1. <https://www.oauth.com/>
+1. <https://datatracker.ietf.org/doc/html/rfc6749>
 
-## 获取 Authorization Code
-
-应用在浏览器中携带 client_id 跳转到 OAuth2 Server 网站，OAuth Server 接受请求，生成 code, 携带 code 跳转回到应用
-
-1. 请求地址: [OAuth2 服务端]/api/oauth/authorize
-1. 请求参数: client_id={client_id}&redirect_uri={redirect_uri}&response_type=code
-1. HTTP Method: GET
-1. 回调地址: [OAuth2 客户端]{redirect_uri}?code=abc&state=xyz
-
-## 通过Authorization Code获取Access Token
-
-应用接受 OAuth2 Server 的回调，在应用服务端通过 code 请求 OAuth2 Server 获取 access_token
-
-## OAuth2 Server 处理
-
-浏览器跳转到 OAuth Server 时，如果已经登录，则生成 code 直接跳转回应用，否则跳转到登录页，登录后再生成 code 跳转回到应用
-
-## OAuth2 Client 处理
-
-浏览器跳转到 OAuth2 Client 时，如果是已登录用户且未绑定该 OAuth2 Server 的 OpenId，则进行绑定，已绑定则无需进行任何处理
-
-浏览器跳转到 OAuth2 Client 时，如果是未登录用户但存在绑定的用户，则自动进行登录，否则进行跳转，可以选择登录并绑定或注册并绑定
+1. 基本概念
+    1. 授权服务器：向应用颁发访问令牌和刷新令牌
+    1. 资源服务器：验证应用访问时携带的访问令牌并返回资源
+    1. 访问令牌：用于访问资源服务器
+    1. 刷新令牌：用于访问授权服务器刷新访问令牌
+    1. 范围：限制访问范围，通常通过访问令牌进行控制
+1. 创建开发人员账户
+1. 创建应用
+    1. 名称
+    1. 地址
+    1. 图标
+    1. 回调地址
+    1. client_id
+    1. client_secret
+1. 开发应用
+    1. 授权码模式
+        1. GET 方式携带 client_id 跳转到授权服务器认证入口
+        1. 如果未登录则跳转到登录页进行登录
+        1. 授权服务器在服务端生成 code 跳转到应用注册的回调地址
+        1. 应用服务端根据 code 向授权服务器凭据入口请求 access_token
+        1. 如果已登录应用且没有绑定账号则进行绑定
+        1. 如果未登录则跳转到绑定地址，由用户选择进行登录绑定还是注册绑定

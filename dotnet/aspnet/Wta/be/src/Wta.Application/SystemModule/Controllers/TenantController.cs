@@ -85,7 +85,7 @@ public class TenantController(ILogger<Tenant> logger,
     {
         var entity = Repository.AsNoTracking().FirstOrDefault(o => o.Id == id) ?? throw new ProblemException("NotFound");
         var model = ObjectMapper.ToModel<Tenant, Tenant>(entity);
-        ToModel(entity,model);
+        ToModel(entity, model);
         return Json(model);
     }
 
@@ -98,9 +98,11 @@ public class TenantController(ILogger<Tenant> logger,
             .Include(o => o.RolePermissions)
             .First(o => o.Number == "admin" && o.TenantNumber == entity.Number);
         var permissions = permissionRepository.Query().Where(o => o.TenantNumber == entity.Number).ToList();
+        var idList = permissions.Where(o => model.Permissions.Contains(o.Number)).Select(o => o.Id).ToList();
+        tenantRole.RolePermissions.Where(o => !idList.Contains(o.PermissionId)).ForEach(o => o.IsReadOnly = false);
         tenantRole.RolePermissions.Clear();
         tenantRole.RolePermissions.AddRange(permissions.Where(o => model.Permissions.Any(p => o.Number == p))
-            .Select(o => new RolePermission { PermissionId = o.Id, RoleId = tenantRole.Id, TenantNumber = entity.TenantNumber })
+            .Select(o => new RolePermission { PermissionId = o.Id, RoleId = tenantRole.Id, TenantNumber = entity.TenantNumber, IsReadOnly = true })
             .ToList());
         permissions.Where(o => !o.Disabled && !model.Permissions.Any(p => o.Number == p)).ForEach(o => o.Disabled = true);
         permissions.Where(o => o.Disabled && model.Permissions.Any(p => o.Number == p)).ForEach(o => o.Disabled = false);
@@ -111,9 +113,9 @@ public class TenantController(ILogger<Tenant> logger,
     protected override void ToModel(Tenant entity, Tenant model)
     {
         model.Permissions = entity.Permissions;
-                    roleRepository.DisableTenantFilter();
-            var rolePermissions =
-            model.Permissions = [.. roleRepository.AsNoTracking()
+        roleRepository.DisableTenantFilter();
+        var rolePermissions =
+        model.Permissions = [.. roleRepository.AsNoTracking()
             .Where(o => o.Number == "admin" && o.TenantNumber == entity.Number)
             .SelectMany(o => o.RolePermissions)
             .Select(o => o.Permission!.Number)];

@@ -69,12 +69,13 @@ export default {
     const router = useRouter();
     const client = ref('');
     const providers = ref([]);
+    const isLogin = ref(false);
+    const tokenStore = useTokenStore();
     const success = async (result) => {
       const data = result.data;
       if (result.isRedirect) {
         window.location = result.data;
       } else {
-        const tokenStore = useTokenStore();
         tokenStore.update(data.access_token, data.refresh_token);
         const redirect = router.currentRoute.value.query?.redirect ?? '/';
         router.push({ path: '/redirect', query: { redirect } });
@@ -104,6 +105,12 @@ export default {
       }
       model.value.userName = 'admin';
       model.value.password = '123456';
+      isLogin.value = await tokenStore.isLogin();
+      if (isLogin.value) {
+        const url =
+          params.get('return_to') + '&access_token=' + tokenStore.accessToken;
+        window.location = url;
+      }
     });
     return {
       schema,

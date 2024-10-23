@@ -1,9 +1,7 @@
-using Azure.Core;
 using Flurl;
 using HttpClientToCurl;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Options;
 
 namespace Wta.Application.SystemModule.Controllers;
 
@@ -211,9 +209,10 @@ public class TokenController(
         var loginProvider = loginProviderRepository
             .AsNoTracking()
             .First(o => o.Number == provider);
+        var redirectUri = $"{Request.Scheme}{Uri.SchemeDelimiter}{Request.Host}{Request.PathBase}{Url.Content($"~{loginProvider.CallbackPath}")}";
         var url = loginProvider.AuthorizationEndpoint
             .SetQueryParam("client_id", loginProvider.ClientId)
-            .SetQueryParam("redirect_uri", Url.Content($"~{loginProvider.CallbackPath}"))
+            .SetQueryParam("redirect_uri", redirectUri)
             .ToString();
         var result = Json(url);
         result.IsRedirect = true;
@@ -230,20 +229,20 @@ public class TokenController(
     {
         var loginProvider = loginProviderRepository.AsNoTracking().First(o => o.Number == provider);
         //get token
-        var url = loginProvider.TokenEndpoint
+        var tokenUrl = loginProvider.TokenEndpoint
             .SetQueryParam("client_id", loginProvider.ClientId)
             .SetQueryParam("client_secret", loginProvider.ClientSecret)
             .SetQueryParam("code", code)
             .SetQueryParam("redirect_uri", Url.Content($"~{loginProvider.CallbackPath}"));
         var client = factory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = new FormUrlEncodedContent(url.Query.QueryStringToDictionary()) };
+        var request = new HttpRequestMessage(HttpMethod.Post, tokenUrl) { Content = new FormUrlEncodedContent(tokenUrl.Query.QueryStringToDictionary()) };
         _ = client.GenerateCurlInString(request);
         var response = await client.SendAsync(request).ConfigureAwait(false);
         var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         var tokenResult = response.Content.Headers.ContentType?.MediaType == "application/json" ? result.JsonTextToDictionary() : result.QueryStringToDictionary();
         var access_token = tokenResult["access_token"];
         //get user id
-        var url2 = loginProvider.UserInformationEndpoint;
+        var userinfoUrl = loginProvider.UserInformationEndpoint;
         var client2 = factory.CreateClient();
         if (loginProvider.UserInformationTokenPosition == "header")
         {
@@ -251,14 +250,18 @@ public class TokenController(
         }
         else
         {
-            url = url.SetQueryParam("access_token", access_token);
+            userinfoUrl = userinfoUrl.SetQueryParam("access_token", access_token);
         }
-        var response2 = loginProvider.UserInformationRequestMethod == "post" ? await client.PostAsync(url.RemoveQuery(), new FormUrlEncodedContent(new Url(url).Query.QueryStringToDictionary())).ConfigureAwait(false) : await client.GetAsync(url).ConfigureAwait(false);
-        var result2 = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-        var userInfoResult = response.Content.Headers.ContentType?.MediaType == "application/json" ? result.JsonTextToDictionary() : result.QueryStringToDictionary();
+        var response2 = loginProvider.UserInformationRequestMethod == "post" ? await client.PostAsync(tokenUrl.RemoveQuery(), new FormUrlEncodedContent(new Url(userinfoUrl).Query.QueryStringToDictionary())).ConfigureAwait(false) : await client.GetAsync(userinfoUrl).ConfigureAwait(false);
+        var result2 = await response2.Content.ReadAsStringAsync().ConfigureAwait(false);
+        var userInfoResult = response2.Content.Headers.ContentType?.MediaType == "application/json" ? result2.JsonTextToDictionary() : result2.QueryStringToDictionary();
         var openId = userInfoResult[loginProvider.UserIdName!];
         // 跳转到 SPA
-        var url3 = Url.Content("~/").SetQueryParam("provider", provider).SetQueryParam("open_id", openId).SetFragment("/callback");
+        var url3 = Url.Content("~/")
+            .SetQueryParam("provider", provider)
+            .SetQueryParam("open_id", openId)
+            .SetQueryParam("access_token",access_token)
+            .SetFragment("/callback");
         return Redirect(url3);
         //var loginUser = userLoginRepository.AsNoTracking().Include(o => o.User).FirstOrDefault(o => o.LoginProvider == provider && o.ProviderKey == openId);
         //if (loginUser != null) // 已绑定用户，携带 token 跳转到浏览器，自动登录
