@@ -1,6 +1,8 @@
 using Autofac;
 using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
+using Hangfire;
+using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using OrchardCore.Localization;
@@ -9,8 +11,8 @@ using Prometheus.SystemMetrics;
 using Serilog;
 using Serilog.Events;
 using StackExchange.Profiling;
+using StackExchange.Redis;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Wta.Infrastructure.OAuth2;
 
 namespace Wta.Infrastructure.Startup;
 
@@ -186,6 +188,30 @@ public abstract class BaseStartup : IStartup
                 .MakeGenericMethod(dbContextType)
                 .Invoke(null, [builder.Services, action, ServiceLifetime.Scoped, ServiceLifetime.Scoped]);
             });
+    }
+
+    public virtual void AddScheduler(WebApplicationBuilder builder)
+    {
+        var redis = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!);
+        builder.Services.AddHangfire(o =>
+        {
+            o.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRedisStorage(redis);
+        });
+        builder.Services.AddHangfireServer(o =>
+        {
+            o.SchedulePollingInterval = TimeSpan.FromSeconds(1);
+            o.HeartbeatInterval = TimeSpan.FromSeconds(1000);
+            o.WorkerCount = Math.Max(Environment.ProcessorCount, 10);
+            o.StopTimeout = TimeSpan.FromSeconds(15);
+            o.ShutdownTimeout = TimeSpan.FromSeconds(30);
+        });
+    }
+
+    public virtual void AddProfile(WebApplicationBuilder builder)
+    {
+        builder.Services.AddMiniProfiler(o => o.RouteBasePath = "/profiler").AddEntityFramework();
     }
 
     /// <summary>
@@ -459,11 +485,6 @@ public abstract class BaseStartup : IStartup
         });
     }
 
-    public virtual void AddScheduler(WebApplicationBuilder builder)
-    {
-        //builder.Services.AddScheduler();
-    }
-
     /// <summary>
     /// 添加依赖注入
     /// </summary>
@@ -513,6 +534,11 @@ public abstract class BaseStartup : IStartup
         UseLocalization(webApplication);
         UseDbContext(webApplication);
         UseScheduler(webApplication);
+        UseProfile(webApplication);
+    }
+
+    public virtual void UseProfile(WebApplication webApplication)
+    {
         webApplication.UseMiniProfiler();
     }
 
@@ -540,10 +566,10 @@ public abstract class BaseStartup : IStartup
         AddJsonOptions(builder);
         AddOpenApi(builder);
         AddAuth(builder);
-        AddScheduler(builder);
         AddDistributedLock(builder);
         AddDbContext(builder);
-        builder.Services.AddMiniProfiler(o => o.RouteBasePath = "/profiler").AddEntityFramework();
+        AddScheduler(builder);
+        AddProfile(builder);
     }
 
     public virtual IFileProvider GetFileProvider(WebApplicationBuilder builder)
@@ -686,8 +712,17 @@ public abstract class BaseStartup : IStartup
         app.UseRouting();
     }
 
+    public static void JobTest()
+    {
+        Console.WriteLine($"test:{Environment.ProcessId},{DateTime.Now}");
+    }
+
     public virtual void UseScheduler(WebApplication webApplication)
     {
+        //https://cron.ciding.cc/
+        webApplication.UseHangfireDashboard();
+
+        RecurringJob.AddOrUpdate("job_process_test", () => JobTest(), "*/10 * * * * *");
         //webApplication.Services.UseScheduler(o =>
         //{
         //    webApplication.Services.GetServices<IScheduledTask>().ForEach(t =>

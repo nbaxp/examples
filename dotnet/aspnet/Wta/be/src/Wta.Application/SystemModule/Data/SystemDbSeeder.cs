@@ -1,5 +1,4 @@
 using ClosedXML;
-using Wta.Infrastructure.Scheduling;
 
 namespace Wta.Application.SystemModule.Data;
 
@@ -8,8 +7,6 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
 {
     public void Seed(SystemDbContext context)
     {
-        //添加定时任务
-        InitJob(context);
         //添加字典
         InitDict(context);
         //添加部门
@@ -24,17 +21,6 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
         InitUser(context, roles);
         //保存
         context.SaveChanges();
-    }
-
-    private static void InitJob(SystemDbContext context)
-    {
-        AppDomain.CurrentDomain.GetCustomerAssemblies()
-            .SelectMany(o => o.GetTypes())
-            .Where(o => o.IsClass && !o.IsAbstract && o.IsAssignableTo(typeof(IScheduledTask)) && o.HasAttribute<CronAttribute>())
-            .ForEach(o =>
-            {
-                context.Set<Job>().Add(new Job { Name = o.GetDisplayName(), Type = o.FullName!, Cron = o.GetCustomAttribute<CronAttribute>()!.Cron });
-            });
     }
 
     private static void InitDepartment(DbContext context)

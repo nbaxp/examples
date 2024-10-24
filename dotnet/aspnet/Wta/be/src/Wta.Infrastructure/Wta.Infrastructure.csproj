@@ -30,6 +30,8 @@
     <PackageReference Include="EntityFramework.DynamicLinq" />
     <PackageReference Include="Flurl" />
     <PackageReference Include="Flurl.Http" />
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.Redis.StackExchange" />
     <PackageReference Include="HttpClientToCurl" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="Mapster" />

@@ -23,6 +23,8 @@
     <PackageVersion Include="EntityFramework.DynamicLinq" Version="1.4.6" />
     <PackageVersion Include="Flurl" Version="4.0.0" />
     <PackageVersion Include="Flurl.Http" Version="4.0.2" />
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.15" />
+    <PackageVersion Include="Hangfire.Redis.StackExchange" Version="1.9.3" />
     <PackageVersion Include="Hardware.Info" Version="100.0.1.1" />
     <PackageVersion Include="HttpClientToCurl" Version="2.0.6" />
     <PackageVersion Include="MailKit" Version="4.8.0" />
@@ -64,7 +66,7 @@
     <PackageVersion Include="prometheus-net.SystemMetrics" Version="3.1.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="8.0.0" />
-    <PackageVersion Include="Serilog.Sinks.Async" Version="2.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.MySQL" Version="5.0.0" />

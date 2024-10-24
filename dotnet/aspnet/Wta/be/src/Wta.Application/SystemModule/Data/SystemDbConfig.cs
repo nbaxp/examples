@@ -1,11 +1,8 @@
-using Wta.Infrastructure.Scheduling;
-
 namespace Wta.Application.SystemModule.Data;
 
 public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
     IEntityTypeConfiguration<Audit>,
     IEntityTypeConfiguration<Tenant>,
-    IEntityTypeConfiguration<Job>,
     IEntityTypeConfiguration<Dict>,
     IEntityTypeConfiguration<Department>,
     IEntityTypeConfiguration<WorkGroup>,
@@ -31,10 +28,6 @@ public class SystemDbConfig : BaseDbConfig<SystemDbContext>,
         builder.Property(o => o.Name).IsRequired();
         builder.Property(o => o.Number).IsRequired();
         builder.HasIndex(o => o.Number).IsUnique();
-    }
-
-    public void Configure(EntityTypeBuilder<Job> builder)
-    {
     }
 
     public void Configure(EntityTypeBuilder<Dict> builder)
