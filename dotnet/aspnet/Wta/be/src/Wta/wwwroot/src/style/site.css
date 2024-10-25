@@ -250,11 +250,16 @@ img.loading {
   }
 }
 
-.el-form.details {
+.el-tree.display {
   .el-tree-node:not(.is-checked) {
     display: none;
   }
+
+  .el-checkbox {
+    display: none;
+  }
 }
+
 
 .el-form--inline {
   .el-form-item {

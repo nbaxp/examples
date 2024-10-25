@@ -43,30 +43,15 @@ export default {
             <qr-code v-model="model[prop]" />
           </template>
           <template v-else-if="schema.input==='select'||schema.input==='radio'">
-            <template v-if="schema.meta?.isTree">
-              <template v-if="schema.meta?.multiple">
-                <el-tree
-                  v-if="selectOptions?.length"
-                  :data="selectOptions"
-                  :check-strictly="true"
-                  node-key="value"
-                  show-checkbox
-                  :default-checked-keys="selectValues"
-                  show-checkbox
-                />
-                <el-icon v-else v-loading="true"></el-icon>
-              </template>
-              <el-breadcrumb v-else v-for="item in displayOptions">
-                <el-breadcrumb-item v-for="item2 in item">
-                  {{item2.label}}
-                </el-breadcrumb-item>
-              </el-breadcrumb>
-            </template>
-            <el-space v-else>
-              <template v-for="item in displayOptions">
-                <el-tag v-for="item2 in item">{{item2.label}}</el-tag>
-              </template>
-            </el-space>
+            <el-tree
+              class="display"
+              v-if="selectOptions?.length"
+              :data="selectOptions"
+              :check-strictly="true"
+              node-key="value"
+              show-checkbox
+              :default-checked-keys="schema.meta?.multiple?selectValues:[selectValues]"
+            />
           </template>
           <template v-else-if="schema.input.startsWith('image-')">
             <div class="el-input__inner flex">
@@ -325,6 +310,13 @@ export default {
       checkStrictly: !isMultiple,
       emitPath: true,
     };
+    const treeProps = {
+      children: 'children',
+      label: 'label',
+      disabled() {
+        return true;
+      },
+    };
     const selectChange = (values) => {
       console.log(selectValues.value);
       if (isMultiple) {
@@ -399,7 +391,7 @@ export default {
     );
 
     onMounted(async () => {
-      if (props.schema.input === 'select') {
+      if (props.schema.input === 'select' || props.schema.input === 'radio') {
         if (isMultiple) {
           selectValues.value = model[props.prop];
         } else {
@@ -417,6 +409,7 @@ export default {
       selectOptions,
       selectChange,
       displayOptions,
+      treeProps,
       bytesFormat,
       fileList,
       removeFile,
