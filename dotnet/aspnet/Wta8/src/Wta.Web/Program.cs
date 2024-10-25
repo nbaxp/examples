@@ -1,0 +1,34 @@
+using Wta.Application.System;
+using Wta.Infrastructure.Module;
+
+namespace Wta.Web;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+
+        builder.AddModule<SystemApplicationModule>();
+
+        var app = builder.Build();
+
+        app.UseModules();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseAuthorization();
+
+        app.MapControllers();
+
+        app.Run();
+    }
+}

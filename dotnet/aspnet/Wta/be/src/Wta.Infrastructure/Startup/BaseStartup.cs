@@ -13,6 +13,7 @@ using Serilog.Events;
 using StackExchange.Profiling;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Wta.Infrastructure.Locking;
 
 namespace Wta.Infrastructure.Startup;
 
@@ -79,18 +80,11 @@ public abstract class BaseStartup : IStartup
     public virtual void AddCache(WebApplicationBuilder builder)
     {
         builder.Services.AddMemoryCache();
-        if (builder.Configuration.GetValue("App:UseRedis", false))
+        builder.Services.AddStackExchangeRedisCache(options =>
         {
-            builder.Services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = builder.Configuration.GetConnectionString("Redis");
-                options.InstanceName = "Default";
-            });
-        }
-        else
-        {
-            builder.Services.AddDistributedMemoryCache();
-        }
+            options.Configuration = builder.Configuration.GetConnectionString("Redis");
+            options.InstanceName = "wta";
+        });
     }
 
     /// <summary>
@@ -271,7 +265,8 @@ public abstract class BaseStartup : IStartup
 
     public virtual void AddDistributedLock(WebApplicationBuilder builder)
     {
-        //builder.Services.AddSingleton<IDistributedLockProvider>(o=>new RedisDistributedLock());
+        //var redis = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!);
+        //builder.Services.AddSingleton<IDistributedLockProvider>(o => new RedisDistributedLock(redis));
     }
 
     public virtual void AddMonitoring(WebApplicationBuilder builder)
@@ -507,11 +502,14 @@ public abstract class BaseStartup : IStartup
         {
             o.EnableDetailedErrors = true;
         });
-        var redisConnectionString = builder.Configuration.GetConnectionString("SignalR");
+        var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
         if (!string.IsNullOrEmpty(redisConnectionString))
         {
             var prefix = Assembly.GetEntryAssembly()!.GetName().Name;
-            signalRServerBuilder.AddStackExchangeRedis(redisConnectionString);
+            signalRServerBuilder.AddStackExchangeRedis(redisConnectionString, o =>
+            {
+                o.Configuration.ChannelPrefix = RedisChannel.Literal("signalr");
+            });
         }
     }
 
@@ -621,13 +619,18 @@ public abstract class BaseStartup : IStartup
                 {
                     if (dbContext.Database.EnsureCreated())
                     {
-                        var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
-                        serviceProvider.GetServices(dbSeedType)
-                        .OrderBy(o => o!.GetType().GetAttribute<DisplayAttribute>()?.GetOrder() ?? 0)
-                        .ForEach(o =>
+                        var @lock = app.Services.GetRequiredService<ILock>();
+                        using var handle = @lock.Acquire("seed");
+                        if (handle != null)
                         {
-                            dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]);
-                        });
+                            var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
+                            serviceProvider.GetServices(dbSeedType)
+                            .OrderBy(o => o!.GetType().GetAttribute<DisplayAttribute>()?.GetOrder() ?? 0)
+                            .ForEach(o =>
+                            {
+                                dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]);
+                            });
+                        }
                     }
                 }
             });

@@ -11,12 +11,56 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{57C8D9CE-1
 		docs\be.md = docs\be.md
 		docs\fe.md = docs\fe.md
 		docs\framework.md = docs\framework.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wta.Infrastructure", "src\Wta.Infrastructure\Wta.Infrastructure.csproj", "{B8C4BA1F-3A71-46E1-8597-D43AB49A66FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{82715156-AA05-4247-A4E6-FB2D00CAE36E}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		Directory.Packages.props = Directory.Packages.props
+		Nuget.config = Nuget.config
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wta.Application", "src\Wta.Application\Wta.Application.csproj", "{64EA849F-A04F-4015-BA4B-7AF37B156A8D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wta.Web", "src\Wta.Web\Wta.Web.csproj", "{A065AF78-5955-457A-8186-6377F7B429F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wta.Migrations", "src\Wta.Migrations\Wta.Migrations.csproj", "{D94660CA-7EDC-48C7-9D84-86A0F98DF91C}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8C4BA1F-3A71-46E1-8597-D43AB49A66FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8C4BA1F-3A71-46E1-8597-D43AB49A66FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8C4BA1F-3A71-46E1-8597-D43AB49A66FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8C4BA1F-3A71-46E1-8597-D43AB49A66FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64EA849F-A04F-4015-BA4B-7AF37B156A8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64EA849F-A04F-4015-BA4B-7AF37B156A8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64EA849F-A04F-4015-BA4B-7AF37B156A8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64EA849F-A04F-4015-BA4B-7AF37B156A8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A065AF78-5955-457A-8186-6377F7B429F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A065AF78-5955-457A-8186-6377F7B429F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A065AF78-5955-457A-8186-6377F7B429F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A065AF78-5955-457A-8186-6377F7B429F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D94660CA-7EDC-48C7-9D84-86A0F98DF91C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D94660CA-7EDC-48C7-9D84-86A0F98DF91C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D94660CA-7EDC-48C7-9D84-86A0F98DF91C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D94660CA-7EDC-48C7-9D84-86A0F98DF91C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B8C4BA1F-3A71-46E1-8597-D43AB49A66FB} = {9CA01E3F-AC79-410A-A52B-E113A0ED6587}
+		{64EA849F-A04F-4015-BA4B-7AF37B156A8D} = {9CA01E3F-AC79-410A-A52B-E113A0ED6587}
+		{A065AF78-5955-457A-8186-6377F7B429F3} = {9CA01E3F-AC79-410A-A52B-E113A0ED6587}
+		{D94660CA-7EDC-48C7-9D84-86A0F98DF91C} = {9CA01E3F-AC79-410A-A52B-E113A0ED6587}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9F49840C-92F7-4851-BEE2-DD34EFBB842F}

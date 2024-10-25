@@ -250,6 +250,12 @@ img.loading {
   }
 }
 
+.el-form.details {
+  .el-tree-node:not(.is-checked) {
+    display: none;
+  }
+}
+
 .el-form--inline {
   .el-form-item {
     margin-right: 20px !important;

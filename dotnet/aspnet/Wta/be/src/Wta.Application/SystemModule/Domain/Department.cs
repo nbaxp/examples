@@ -19,6 +19,7 @@ public class Department : BaseTreeEntity<Department>
 
     [KeyValue("hideForList", true)]
     [Hidden]
+    [IgnoreToModel]
     public List<User> Users { get; set; } = [];
 
     [KeyValue("hideForList", true)]

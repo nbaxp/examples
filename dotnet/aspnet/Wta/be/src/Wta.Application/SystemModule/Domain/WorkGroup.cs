@@ -29,12 +29,11 @@ public class WorkGroup : BaseTreeEntity<WorkGroup>
     {
         get
         {
-            return [.. WorkGroupUsers.Select(o => o.UserId)];
+            return this.WorkGroupUsers?.Select(o => o.UserId).ToList() ?? [];
         }
         set
         {
-            WorkGroupUsers.Clear();
-            WorkGroupUsers.AddRange(value.Select(o => new WorkGroupUser { UserId = o }));
+            this.WorkGroupUsers = value?.Distinct().Select(o => new WorkGroupUser { UserId = o }).ToList() ?? [];
         }
     }
 }

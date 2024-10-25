@@ -174,9 +174,14 @@ public class UserController(ILogger<User> logger,
         return result;
     }
 
+    protected override IQueryable<User> Include(IQueryable<User> queryable)
+    {
+        return queryable.Include(o => o.UserRoles);
+    }
+
     protected override void ToEntity(User entity, User model, bool isCreate = false)
     {
-        if (string.IsNullOrEmpty(model.Password))
+        if (isCreate && string.IsNullOrEmpty(model.Password))
         {
             var key = nameof(model.Password);
             ModelState.AddModelError(key, StringLocalizer.GetString("Required", StringLocalizer.GetString(key)));
@@ -198,7 +203,5 @@ public class UserController(ILogger<User> logger,
         {
             entity.PasswordHash = encryptionService.HashPassword(model.Password, entity.SecurityStamp);
         }
-        entity.UserRoles.Clear();
-        entity.UserRoles.AddRange(model.Roles.Select(o => new UserRole { RoleId = o }));
     }
 }

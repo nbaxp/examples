@@ -4,34 +4,34 @@ Web Template ASP.NET
 
 ```txt
 /
-©À©¤©¤ .gitignore								# Ìá½»¹ıÂË
-©À©¤©¤ .gitattributes							# ÎÄ¼şÅäÖÃ
-©À©¤©¤ .editorconfig							# Í¨ÓÃ±à¼­Æ÷ÅäÖÃ
-©À©¤©¤ Nuget.config							# ³ÌĞò°üÅäÖÃ
-©À©¤©¤ Directory.Packages.props				# ¼¯ÖĞ¹ÜÀí³ÌĞò°ü°æ±¾
-©À©¤©¤ Wta.sln									# ½â¾ö·½°¸ÎÄ¼ş
-©À©¤©¤ docker-compose.dcproj					# Docker Compose ÏîÄ¿ÎÄ¼ş
-©À©¤©¤ docker-compose.yml						# Docker Compose ÅäÖÃ
-©À©¤©¤ launchSettings.json						# Docker Compose Æô¶¯ÅäÖÃ
-©À©¤©¤ .dockerignore							# ¹¹½¨¾µÏñµÄ¹ıÂË
-©À©¤©¤ docs									# ÎÄµµ
-©¦     ©À©¤©¤ architecture.md					# ¼Ü¹¹Éè¼Æ
-©¦     ©À©¤©¤ framework.md						# ¿ò¼ÜÉè¼Æ
-©¦     ©À©¤©¤ fe.md								# Ç°¶ËËµÃ÷
-©¦     ©¸©¤©¤ be.md								# ºó¶ËËµÃ÷
-©À©¤©¤ build									# ¹¹½¨
-©¦     ©À©¤©¤ build.cmd							# windows ¹¹½¨½Å±¾
-©¦     ©À©¤©¤ build.sh							# linux ¹¹½¨½Å±¾
-©¦     ©À©¤©¤ src								# Ô¤·¢²¼ÎÄ¼ş
-©¦	      ©À©¤©¤ docker-compose.extend.yml		# ¶¨Òå·şÎñ»ù´¡ÊôĞÔ
-©¦	      ©À©¤©¤ docker-compose.yml			# ¶¨Òåµ÷ÊÔºÍÉú²ú»·¾³Í¨ÓÃ·şÎñ
-©¦	      ©À©¤©¤ docker-compose.production.yml	# ¶¨ÒåÉú²ú»·¾³·şÎñ
-©¦	      ©À©¤©¤ start.sh						# linux Éú²úÆô¶¯½Å±¾
-©¦		  ©¸©¤©¤ start.cmd						# windows Éú²úÆô¶¯½Å±¾
-©À©¤©¤ src										# Ô´Âë
-©¦	  ©À©¤©¤ Wta								# Web ÏîÄ¿
-©¦ 	  ©À©¤©¤ Wta.Application					# Ó¦ÓÃÀà¿â
-©¦     ©À©¤©¤ Wta.Infrastructure				# »ù´¡ÉèÊ©Àà¿â 
-©¦     ©¸©¤©¤ Wta.Migrations					# Êı¾İÇ¨ÒÆÏîÄ¿
-©¸©¤©¤ README.md								# ËµÃ÷
+â”œâ”€â”€ .gitignore								# æäº¤è¿‡æ»¤
+â”œâ”€â”€ .gitattributes							# æ–‡ä»¶é…ç½®
+â”œâ”€â”€ .editorconfig							# é€šç”¨ç¼–è¾‘å™¨é…ç½®
+â”œâ”€â”€ Nuget.config							# ç¨‹åºåŒ…é…ç½®
+â”œâ”€â”€ Directory.Packages.props				# é›†ä¸­ç®¡ç†ç¨‹åºåŒ…ç‰ˆæœ¬
+â”œâ”€â”€ Wta.sln									# è§£å†³æ–¹æ¡ˆæ–‡ä»¶
+â”œâ”€â”€ docker-compose.dcproj					# Docker Compose é¡¹ç›®æ–‡ä»¶
+â”œâ”€â”€ docker-compose.yml						# Docker Compose é…ç½®
+â”œâ”€â”€ launchSettings.json						# Docker Compose å¯åŠ¨é…ç½®
+â”œâ”€â”€ .dockerignore							# æ„å»ºé•œåƒçš„è¿‡æ»¤
+â”œâ”€â”€ docs									# æ–‡æ¡£
+â”‚     â”œâ”€â”€ architecture.md					# æ¶æ„è®¾è®¡
+â”‚     â”œâ”€â”€ framework.md						# æ¡†æ¶è®¾è®¡
+â”‚     â”œâ”€â”€ fe.md								# å‰ç«¯è¯´æ˜
+â”‚     â””â”€â”€ be.md								# åç«¯è¯´æ˜
+â”œâ”€â”€ build									# æ„å»º
+â”‚     â”œâ”€â”€ build.cmd							# windows æ„å»ºè„šæœ¬
+â”‚     â”œâ”€â”€ build.sh							# linux æ„å»ºè„šæœ¬
+â”‚     â”œâ”€â”€ src								# é¢„å‘å¸ƒæ–‡ä»¶
+â”‚	      â”œâ”€â”€ docker-compose.extend.yml		# å®šä¹‰æœåŠ¡åŸºç¡€å±æ€§
+â”‚	      â”œâ”€â”€ docker-compose.yml			# å®šä¹‰è°ƒè¯•å’Œç”Ÿäº§ç¯å¢ƒé€šç”¨æœåŠ¡
+â”‚	      â”œâ”€â”€ docker-compose.production.yml	# å®šä¹‰ç”Ÿäº§ç¯å¢ƒæœåŠ¡
+â”‚	      â”œâ”€â”€ start.sh						# linux ç”Ÿäº§å¯åŠ¨è„šæœ¬
+â”‚		  â””â”€â”€ start.cmd						# windows ç”Ÿäº§å¯åŠ¨è„šæœ¬
+â”œâ”€â”€ src										# æºç 
+â”‚	  â”œâ”€â”€ Wta								# Web é¡¹ç›®
+â”‚ 	  â”œâ”€â”€ Wta.Application					# åº”ç”¨ç±»åº“
+â”‚     â”œâ”€â”€ Wta.Infrastructure				# åŸºç¡€è®¾æ–½ç±»åº“ 
+â”‚     â””â”€â”€ Wta.Migrations					# æ•°æ®è¿ç§»é¡¹ç›®
+â””â”€â”€ README.md								# è¯´æ˜
 ```

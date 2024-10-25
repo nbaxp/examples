@@ -1,5 +1,8 @@
 import SvgIcon from '@/components/icon/index.js';
-import { DATETIME_DISPLAY_FORMAT, DATETIME_VALUE_FORMAT } from '@/constants/index.js';
+import {
+  DATETIME_DISPLAY_FORMAT,
+  DATETIME_VALUE_FORMAT,
+} from '@/constants/index.js';
 import { bytesFormat, findPath, listToTree } from '@/utils/index.js';
 import request from '@/utils/request.js';
 import { dayjs } from 'element-plus';
@@ -16,7 +19,9 @@ export default {
   components: { SvgIcon, ImageCaptcha, CodeCaptcha, QrCode },
   template: html`
     <template v-if="getDisabled()">
-      <template v-if="model[prop]!==null&&(schema.type!=='array'||model[prop].length>0)">
+      <template
+        v-if="model[prop]!==null&&(schema.type!=='array'||model[prop].length>0)"
+      >
         <template v-if="schema.type==='boolean'||model[prop]!==false">
           <template v-if="schema.type==='boolean'">
             <el-button v-if="schema.input==='select'" link type="primary">
@@ -24,8 +29,12 @@ export default {
             </el-button>
             <el-checkbox v-else disabled v-model="model[prop]" type="checked" />
           </template>
-          <template v-else-if="schema.input==='year'">{{dayjs(model[prop]).format('YYYY')}}</template>
-          <template v-else-if="schema.input==='date'">{{dayjs(model[prop]).format('YYYY-MM-DD')}}</template>
+          <template v-else-if="schema.input==='year'">
+            {{dayjs(model[prop]).format('YYYY')}}
+          </template>
+          <template v-else-if="schema.input==='date'">
+            {{dayjs(model[prop]).format('YYYY-MM-DD')}}
+          </template>
           <template v-else-if="schema.input==='datetime'">
             {{dayjs(model[prop]).format(DATETIME_DISPLAY_FORMAT)}}
           </template>
@@ -48,7 +57,9 @@ export default {
                 <el-icon v-else v-loading="true"></el-icon>
               </template>
               <el-breadcrumb v-else v-for="item in displayOptions">
-                <el-breadcrumb-item v-for="item2 in item">{{item2.label}}</el-breadcrumb-item>
+                <el-breadcrumb-item v-for="item2 in item">
+                  {{item2.label}}
+                </el-breadcrumb-item>
               </el-breadcrumb>
             </template>
             <el-space v-else>
@@ -59,7 +70,12 @@ export default {
           </template>
           <template v-else-if="schema.input.startsWith('image-')">
             <div class="el-input__inner flex">
-              <el-image fit="fill" preview-teleported :src="model[prop]" :preview-src-list="[model[prop]]" />
+              <el-image
+                fit="fill"
+                preview-teleported
+                :src="model[prop]"
+                :preview-src-list="[model[prop]]"
+              />
             </div>
           </template>
           <template v-else><span>{{model[prop]}}</span></template>
@@ -84,7 +100,11 @@ export default {
       </template>
       <template v-else-if="schema.input==='radio'">
         <el-radio-group v-model="model[prop]">
-          <el-radio v-for="item in selectOptions" :label="item.label" :value="item.value" />
+          <el-radio
+            v-for="item in selectOptions"
+            :label="item.label"
+            :value="item.value"
+          />
         </el-radio-group>
       </template>
       <!--string:datetime-->
@@ -116,7 +136,10 @@ export default {
         />
       </template>
       <template v-else-if="schema.input==='checkbox'">
-        <el-checkbox v-model="model[prop]" :label="schema.meta.showLabel?schema.title:''" />
+        <el-checkbox
+          v-model="model[prop]"
+          :label="schema.meta.showLabel?schema.title:''"
+        />
       </template>
       <template v-else-if="schema.input==='switch'">
         <el-switch v-model="model[prop]" type="checked" />
@@ -144,7 +167,9 @@ export default {
           :regexp="schema.regexp"
         />
       </template>
-      <template v-else-if="schema.input==='file'||schema.input==='image-upload'||schema.input==='image-inline'">
+      <template
+        v-else-if="schema.input==='file'||schema.input==='image-upload'||schema.input==='image-inline'"
+      >
         <el-upload
           class="el-input__inner flex"
           :show-file-list="false"
@@ -163,7 +188,11 @@ export default {
                 <ep-close />
               </el-icon>
               <span v-if="schema.input==='file'">{{model[prop].name}}</span>
-              <el-image v-else :src="model[prop]" :preview-src-list="[model[prop]]" />
+              <el-image
+                v-else
+                :src="model[prop]"
+                :preview-src-list="[model[prop]]"
+              />
             </template>
           </template>
         </el-upload>
@@ -222,9 +251,12 @@ export default {
     //upload
     const inputFileRef = ref(null);
     const fileList = ref([]);
-    const limit = props.schema.meta?.multiple ? (props.schema.meta?.limit ?? 5) : 1;
+    const limit = props.schema.meta?.multiple
+      ? (props.schema.meta?.limit ?? 5)
+      : 1;
     const size = props.schema.meta?.size ?? 1024 * 1024;
-    const fileTypes = props.schema.meta?.accept?.split(',').map((o) => o.toLowerCase()) ?? [];
+    const fileTypes =
+      props.schema.meta?.accept?.split(',').map((o) => o.toLowerCase()) ?? [];
     const { formItem } = useFormItem();
 
     const uploadOnChange = async (uploadFile) => {
@@ -232,11 +264,15 @@ export default {
       // const index = uploadFiles.findIndex((o) => o.uid !== uploadFile.uid);
       fileList.value = [uploadFile];
       if (props.schema.accept && !fileTypes.some((o) => o === ext)) {
-        ElMessage.error(`当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`);
+        ElMessage.error(
+          `当前文件 ${uploadFile.name} 不是可选文件类型 ${props.schema.accept}`,
+        );
         return false;
       }
       if (uploadFile.size > size) {
-        ElMessage.error(`当前文件大小 ${bytesFormat(uploadFile.size)} 已超过 ${bytesFormat(size)}`);
+        ElMessage.error(
+          `当前文件大小 ${bytesFormat(uploadFile.size)} 已超过 ${bytesFormat(size)}`,
+        );
         return false;
       }
       if (props.schema.input === 'image-upload') {
@@ -274,23 +310,27 @@ export default {
     const displayOptions = computed(() => {
       if (props.schema.input === 'select' || props.schema.input === 'radio') {
         if (props.schema.meta?.multiple) {
-          return model[props.prop].map((o) => findPath(selectOptions.value, (n) => n.value === o)).sort();
+          return model[props.prop]
+            .map((o) => findPath(selectOptions.value, (n) => n.value === o))
+            .sort();
         }
-        return [findPath(selectOptions.value, (n) => n.value === model[props.prop])];
+        return [
+          findPath(selectOptions.value, (n) => n.value === model[props.prop]),
+        ];
       }
       return [];
     });
     const selectProps = {
       multiple: isMultiple,
-      checkStrictly: false,
+      checkStrictly: !isMultiple,
       emitPath: true,
     };
     const selectChange = (values) => {
       console.log(selectValues.value);
       if (isMultiple) {
-        model[props.prop] = Array.from(values.flat());
+        model[props.prop] = Array.from(new Set(values?.flat() ?? []));
       } else {
-        model[props.prop] = values.at(-1);
+        model[props.prop] = values?.at(-1);
       }
     };
     const fetchOptions = async () => {
@@ -312,7 +352,10 @@ export default {
         const method = props.schema.meta?.method || 'POST';
         const data = (await request(method, url, postData)).data;
         if (!data.error) {
-          const items = getProp(data, props.schema.meta?.path ?? 'data.items').map((o) => {
+          const items = getProp(
+            data,
+            props.schema.meta?.path ?? 'data.items',
+          ).map((o) => {
             const result = {
               id: o[props.schema.meta?.id ?? 'id'],
               parentId: o[props.schema.meta?.parentId ?? 'parentId'],
@@ -326,7 +369,11 @@ export default {
         } else {
           selectOptions.value = [];
         }
-        if (!model[props.prop] && props.schema.meta.selected && selectOptions.value.length) {
+        if (
+          !model[props.prop] &&
+          props.schema.meta.selected &&
+          selectOptions.value.length
+        ) {
           model[props.prop] = selectOptions.value[0].value;
         }
       }
@@ -338,7 +385,10 @@ export default {
         if (props.schema.meta?.options) {
           selectOptions.value = props.schema.meta?.options;
         } else if (props.schema.meta?.url && props.schema.input === 'select') {
-          if (!props.schema.meta?.dependsOn || model[props.schema.meta?.dependsOn]) {
+          if (
+            !props.schema.meta?.dependsOn ||
+            model[props.schema.meta?.dependsOn]
+          ) {
             await fetchOptions();
           } else {
             selectOptions.value = [];

@@ -19,9 +19,14 @@ export default {
       :model="model"
       label-width="auto"
       :inline="inline"
+      :class="mode"
       @keyup.enter.native="submit"
     >
-      <el-form-item v-if="errorMessage" :label-width="0" style="margin-bottom:0;">
+      <el-form-item
+        v-if="errorMessage"
+        :label-width="0"
+        style="margin-bottom:0;"
+      >
         <el-text type="danger">{{errorMessage}}</el-text>
       </el-form-item>
       <template v-if="schema && schema.properties">
@@ -31,10 +36,19 @@ export default {
           <!--对象列表-->
           <template v-else-if="value.meta?.items?.type==='object'">
             <el-form-item :label="value.title">
-              <el-icon v-if="mode!=='query'&&model[prop]?.length===0" class="cursor-pointer">
-                <svg-icon name="ep-plus" @click="addItem(prop,value.meta.items)" />
+              <el-icon
+                v-if="mode!=='query'&&model[prop]?.length===0"
+                class="cursor-pointer"
+              >
+                <svg-icon
+                  name="ep-plus"
+                  @click="addItem(prop,value.meta.items)"
+                />
               </el-icon>
-              <div class="el-form-content-2col pb-2" v-for="(item,index) in model[prop]">
+              <div
+                class="el-form-content-2col pb-2"
+                v-for="(item,index) in model[prop]"
+              >
                 <app-form
                   inline
                   :hideButton="true"
@@ -44,10 +58,18 @@ export default {
                   v-model="model[prop][index]"
                 />
                 <el-icon>
-                  <svg-icon name="ep-plus" @click="addItem(prop,value.meta.items)" class="cursor-pointer" />
+                  <svg-icon
+                    name="ep-plus"
+                    @click="addItem(prop,value.meta.items)"
+                    class="cursor-pointer"
+                  />
                 </el-icon>
                 <el-icon>
-                  <svg-icon name="ep-close" @click="removeItem(model[prop],index)" class="cursor-pointer" />
+                  <svg-icon
+                    name="ep-close"
+                    @click="removeItem(model[prop],index)"
+                    class="cursor-pointer"
+                  />
                 </el-icon>
                 <br />
               </div>
@@ -73,15 +95,34 @@ export default {
         :label="schema.meta?.submitStyle?'':' '"
       >
         <slot name="submit">
-          <el-button type="primary" @click="submit" :disabled="loading" :style="schema.meta?.submitStyle">
+          <el-button
+            type="primary"
+            @click="submit"
+            :disabled="loading"
+            :style="schema.meta?.submitStyle"
+          >
             {{$t('确定')}}
           </el-button>
-          <el-button v-if="!schema.meta.hideReset" @click="reset" :disabled="loading">{{$t('重置')}}</el-button>
+          <el-button
+            v-if="!schema.meta.hideReset"
+            @click="reset"
+            :disabled="loading"
+          >
+            {{$t('重置')}}
+          </el-button>
         </slot>
       </el-form-item>
     </el-form>
   `,
-  props: ['modelValue', 'inline', 'schema', 'action', 'hideButton', 'showReset', 'mode'],
+  props: [
+    'modelValue',
+    'inline',
+    'schema',
+    'action',
+    'hideButton',
+    'showReset',
+    'mode',
+  ],
   emits: ['update:modelValue', 'success', 'error'],
   setup(props, context) {
     // init
@@ -138,7 +179,9 @@ export default {
       }
     };
     const getProperties = (properties) => {
-      return Object.fromEntries(Object.entries(properties).sort(([, a], [, b]) => a.order - b.order));
+      return Object.fromEntries(
+        Object.entries(properties).sort(([, a], [, b]) => a.order - b.order),
+      );
     };
     const setErrors = (modelErrors) => {
       errors.value = {};

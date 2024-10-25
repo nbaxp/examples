@@ -20,7 +20,7 @@ public class User : Entity
     public string? Password { get; set; }
 
     [Display(Name = "名称")]
-    public string? Name { get; set; }
+    public string Name { get; set; } = default!;
 
     [Display(Name = "性别")]
     [UIHint("radio")]
@@ -82,7 +82,8 @@ public class User : Entity
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]
-    [Display(Name = "部门")] public Guid? DepartmentId { get; set; }
+    [Display(Name = "部门")]
+    public Guid? DepartmentId { get; set; }
 
     [Hidden]
     public Department? Department { get; set; }
@@ -121,7 +122,7 @@ public class User : Entity
         }
         set
         {
-            this.UserRoles = value?.Select(o => new UserRole { RoleId = o }).ToList() ?? [];
+            this.UserRoles = value?.Distinct().Select(o => new UserRole { RoleId = o }).ToList() ?? [];
         }
     }
 

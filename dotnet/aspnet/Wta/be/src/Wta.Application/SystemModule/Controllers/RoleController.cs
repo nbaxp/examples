@@ -10,14 +10,9 @@ public class RoleController(ILogger<Role> logger, IStringLocalizer stringLocaliz
     {
         return base.Search(model);
     }
-    protected override void ToModel(Role entity, Role model)
-    {
-        model.Permissions = entity.RolePermissions.Select(o => o.PermissionId).ToList();
-    }
 
-    protected override void ToEntity(Role entity, Role model, bool isCreate = false)
+    protected override IQueryable<Role> Include(IQueryable<Role> queryable)
     {
-        entity.RolePermissions.Clear();
-        entity.RolePermissions.AddRange(model.Permissions.Select(o => new RolePermission { PermissionId = o }));
+        return queryable.Include(o => o.RolePermissions);
     }
 }

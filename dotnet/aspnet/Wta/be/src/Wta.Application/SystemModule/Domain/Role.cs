@@ -11,6 +11,7 @@ public class Role : Entity
     public string Number { get; set; } = default!;
 
     [Hidden]
+    [JsonIgnore]
     public List<UserRole> UserRoles { get; set; } = [];
 
     [Hidden]
@@ -23,5 +24,15 @@ public class Role : Entity
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]
     [NotMapped]
-    public List<Guid> Permissions { get; set; } = [];
+    public List<Guid> Permissions
+    {
+        get
+        {
+            return this.RolePermissions?.Select(o => o.PermissionId).ToList() ?? [];
+        }
+        set
+        {
+            this.RolePermissions = value?.Distinct().Select(o => new RolePermission { PermissionId = o }).ToList() ?? [];
+        }
+    }
 }

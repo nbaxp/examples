@@ -1,16 +1,18 @@
 using Medallion.Threading.Redis;
 using StackExchange.Redis;
+using StackExchange.Redis.KeyspaceIsolation;
 
 namespace Wta.Infrastructure.Locking;
 
+[Service<ILock>(ServiceLifetime.Singleton)]
 public class DistributedLock : ILock, IDisposable
 {
     private bool disposedValue;
 
     public DistributedLock(IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Redis") ?? "127.0.0.1:6379";
-        Database = ConnectionMultiplexer.ConnectAsync(connectionString).GetAwaiter().GetResult().GetDatabase();
+        var connectionString = configuration.GetConnectionString("Redis")!;
+        Database = ConnectionMultiplexer.ConnectAsync(connectionString).GetAwaiter().GetResult().GetDatabase().WithKeyPrefix("lock");
     }
 
     public IDatabase Database { get; }

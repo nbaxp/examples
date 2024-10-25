@@ -17,6 +17,11 @@ public class DepartmentController(ILogger<Department> logger,
         return base.Search(model);
     }
 
+    protected override IQueryable<Department> Include(IQueryable<Department> queryable)
+    {
+        return queryable.Include(o => o.Users);
+    }
+
     protected override void ToModel(Department entity, Department model)
     {
         model.DepartmentUsers = entity.Users.Select(x => x.Id).ToList();
