@@ -10,7 +10,7 @@ using Wta.Application.System.Data;
 namespace Wta.Migrations.Migrations
 {
     [DbContext(typeof(SystemDbContext))]
-    [Migration("20241027085710_Init")]
+    [Migration("20241027121640_Init")]
     partial class Init
     {
         /// <inheritdoc />

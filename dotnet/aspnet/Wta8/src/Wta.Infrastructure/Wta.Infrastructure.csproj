@@ -11,9 +11,4 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Hosting\" />
-    <Folder Include="Module\" />
-  </ItemGroup>
-
 </Project>
