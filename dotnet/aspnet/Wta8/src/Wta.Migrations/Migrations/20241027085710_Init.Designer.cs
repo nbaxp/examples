@@ -10,8 +10,8 @@ using Wta.Application.System.Data;
 namespace Wta.Migrations.Migrations
 {
     [DbContext(typeof(SystemDbContext))]
-    [Migration("20241025024020_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241027085710_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

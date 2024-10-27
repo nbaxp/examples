@@ -15,7 +15,7 @@ public class ClaimTenantService(IHttpContextAccessor httpContextAccessor) : ITen
             {
                 return _tenantNumber;
             }
-            return httpContextAccessor!.HttpContext?.User.Claims.FirstOrDefault(o => o.Type == "TenantNumber")?.Value ?? "root";
+            return httpContextAccessor!.HttpContext?.User.Claims.FirstOrDefault(o => o.Type == "TenantNumber")?.Value ?? TenantConstants.ROOT;
         }
         set
         {

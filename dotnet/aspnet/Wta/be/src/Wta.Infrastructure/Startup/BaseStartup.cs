@@ -14,6 +14,7 @@ using StackExchange.Profiling;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Wta.Infrastructure.Locking;
+using Wta.Infrastructure.Tenant;
 
 namespace Wta.Infrastructure.Startup;
 
@@ -676,7 +677,7 @@ public abstract class BaseStartup : IStartup
             o.MessageTemplate = "[{TenantNumber}:{UserName}] HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
             o.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
             {
-                var tenantNumber = httpContext.User.Claims.FirstOrDefault(o => o.Type == "TenantNumber")?.Value;
+                var tenantNumber = httpContext.User.Claims.FirstOrDefault(o => o.Type == "TenantNumber")?.Value ?? TenantConstants.ROOT;
                 var userName = httpContext.User.Identity?.Name;
                 diagnosticContext.Set("TenantNumber", tenantNumber);
                 diagnosticContext.Set("UserName", userName);

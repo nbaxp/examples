@@ -10,7 +10,7 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
         context.Set<Tenant>().Add(new Tenant
         {
             Name = "WTA 管理系统",
-            Number = "root",
+            Number = TenantConstants.ROOT,
             Logo = "/src/assets/icons/wta.svg",
             Copyright = "Copyright © {0} 版权所有",
         });
@@ -286,7 +286,7 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
             .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(IResource)));
         foreach (var resourceType in resourceTypeList)
         {
-            if (tenantService.TenantNumber != "root" && resourceType == typeof(Tenant))
+            if (tenantService.TenantNumber != TenantConstants.ROOT && resourceType == typeof(Tenant))
             {
                 continue;
             }
@@ -403,7 +403,7 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
 
     private List<Role> InitRole(DbContext context, List<Permission> permissions)
     {
-        if (tenantService.TenantNumber != "root")
+        if (tenantService.TenantNumber != TenantConstants.ROOT)
         {
             permissions.Where(o => !o.Disabled && !tenantService.Permissions.Contains(o.Number)).ForEach(o => o.Disabled = true);
             permissions = permissions.Where(o => tenantService.Permissions.Contains(o.Number)).ToList();
@@ -557,7 +557,7 @@ public class SystemDbSeeder(IActionDescriptorCollectionProvider actionProvider, 
             Email = email,
             NormalizedEmail = email.ToUpperInvariant(),
             EmailConfirmed = true,
-            Name = tenantService.TenantNumber == "root" ? "系统管理员" : "租户管理员",
+            Name = tenantService.TenantNumber == TenantConstants.ROOT ? "系统管理员" : "租户管理员",
             NormalizedUserName = userName.ToUpperInvariant(),
             SecurityStamp = salt,
             PasswordHash = passwordHash,

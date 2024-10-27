@@ -1,13 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Wta.Application\Wta.Application.csproj" />
     <ProjectReference Include="..\Wta.Infrastructure\Wta.Infrastructure.csproj" />
+    <ProjectReference Include="..\Wta.Migrations\Wta.Migrations.csproj" />
   </ItemGroup>
 
 </Project>

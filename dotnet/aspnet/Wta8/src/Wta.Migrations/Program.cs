@@ -1,4 +1,4 @@
-﻿using Wta.Application.System;
-using Wta.Infrastructure.Module;
+using Wta.Application;
+using Wta.Infrastructure;
 
-WebApplication.CreateBuilder(args).AddModule<SystemApplicationModule>().Build().UseModules().Run();
+WebApplication.CreateBuilder(args).AddApplication<WtaApplication>().Build().UseModules().Run();
