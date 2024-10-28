@@ -1,14 +1,61 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-	<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	  <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Autofac" />
+    <PackageReference Include="Autofac.Configuration" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" />
+    <PackageReference Include="ClosedXML" />
+    <PackageReference Include="Coravel" />
+    <PackageReference Include="DistributedLock" />
+    <PackageReference Include="DistributedLock.Redis" />
+    <PackageReference Include="DynamicExpresso.Core" />
+    <PackageReference Include="EntityFramework.DynamicLinq" />
+    <PackageReference Include="Flurl" />
+    <PackageReference Include="Flurl.Http" />
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.Redis.StackExchange" />
+    <PackageReference Include="HttpClientToCurl" />
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="Mapster" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
+    <PackageReference Include="Minio" />
+    <PackageReference Include="MiniProfiler.AspNetCore.Mvc" />
+    <PackageReference Include="MiniProfiler.EntityFrameworkCore" />
+    <PackageReference Include="NCrontab" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="Oracle.EntityFrameworkCore" />
+    <PackageReference Include="OrchardCore.Localization.Core" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.NetTopologySuite" />
+    <PackageReference Include="prometheus-net.AspNetCore" />
+    <PackageReference Include="prometheus-net.AspNetCore.HealthChecks" />
+    <PackageReference Include="prometheus-net.SystemMetrics" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Extensions.Hosting" />
+    <PackageReference Include="Serilog.Sinks.Async" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Serilog.Sinks.File" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="ValueInjecter" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\Wta.Application\Wta.Application.csproj" />
-    <ProjectReference Include="..\Wta.Infrastructure\Wta.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

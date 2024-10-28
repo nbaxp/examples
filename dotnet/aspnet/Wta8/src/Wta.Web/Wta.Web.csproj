@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Wta.Application\Wta.Application.csproj" />
-    <ProjectReference Include="..\Wta.Infrastructure\Wta.Infrastructure.csproj" />
     <ProjectReference Include="..\Wta.Migrations\Wta.Migrations.csproj" />
   </ItemGroup>
 

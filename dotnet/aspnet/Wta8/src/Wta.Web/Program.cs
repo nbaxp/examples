@@ -1,5 +1,5 @@
 using Wta.Application;
-using Wta.Infrastructure;
+using Wta.Infrastructure.Modules;
 
 namespace Wta.Web;
 

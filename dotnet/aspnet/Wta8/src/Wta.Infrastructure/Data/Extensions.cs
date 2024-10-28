@@ -8,13 +8,12 @@ namespace Wta.Infrastructure.Data;
 
 public static class Extensions
 {
-  public static void AddDbContext<TDbContext>(this WebApplicationBuilder builder, string connectionStringName, string assemblyName)
+  public static void AddDbContext<TDbContext>(this WebApplicationBuilder builder)
     where TDbContext : DbContext
   {
-    var connectionStringValue = builder.Configuration.GetConnectionString(connectionStringName)!;
-    var matches = Regex.Match(connectionStringValue, "(.+)://(.+)");
-    var provider = matches.Groups[1].Value;
-    var connectionString = matches.Groups[2].Value;
+    var provider = builder.Configuration.GetValue<string>($"DbContextProviders:{typeof(TDbContext).Name}")!;
+    var connectionString = builder.Configuration.GetConnectionString(typeof(TDbContext).Name)!;
+    var migrationsAssemblyName = "Wta.Migrations";
     if (provider == "sqlite")
     {
       builder.Services.AddScoped<DbContext, TDbContext>();
@@ -23,7 +22,7 @@ public static class Extensions
       b =>
       {
         b.UseNetTopologySuite();
-        b.MigrationsAssembly(assemblyName);
+        b.MigrationsAssembly(migrationsAssemblyName);
       }));
     }
   }
