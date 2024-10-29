@@ -2,17 +2,17 @@ using Wta.Application.SystemModule.Data;
 
 namespace Wta.Application.WmsModule;
 
-[DependsOn<SystemDbContext>, WareHouseManagement, Display(Name = "仓库信息", Order = 10)]
-public class WareHouseInfo : Entity
+[DependsOn<SystemDbContext>, WarehouseManagement, Display(Name = "仓库信息", Order = 10)]
+public class WarehouseInfo : Entity
 {
 }
 
-[DependsOn<SystemDbContext>, WareHouseManagement, Display(Name = "仓位信息", Order = 20)]
+[DependsOn<SystemDbContext>, WarehouseManagement, Display(Name = "仓位信息", Order = 20)]
 public class WarehouseLocationInfo : Entity
 {
 }
 
-[DependsOn<SystemDbContext>, WareHouseManagement, Display(Name = "期初期末", Order = 30)]
+[DependsOn<SystemDbContext>, WarehouseManagement, Display(Name = "期初期末", Order = 30)]
 public class PeriodStartEnd : Entity
 {
 }

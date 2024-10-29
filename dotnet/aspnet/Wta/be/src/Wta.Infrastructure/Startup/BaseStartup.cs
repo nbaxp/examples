@@ -152,9 +152,9 @@ public abstract class BaseStartup : IStartup
             {
                 var action = (DbContextOptionsBuilder optionsBuilder) =>
                 {
-                    var connectionStringName = dbContextType.GetCustomAttribute<ConnectionStringAttribute>()?.ConnectionString ?? dbContextType.Name.TrimEnd("DbContext");
+                    var connectionStringName = dbContextType.GetCustomAttribute<ConnectionStringAttribute>()?.ConnectionString ?? dbContextType.Name;
                     var connectionString = builder.Configuration.GetConnectionString(connectionStringName);
-                    var dbContextProvider = builder.Configuration.GetValue<string>($"DbContextProvider:{connectionStringName}");
+                    var dbContextProvider = builder.Configuration.GetValue<string>($"DbContextProviders:{connectionStringName}");
                     if (dbContextProvider == "mysql")
                     {
                         var serverVersion = ServerVersion.AutoDetect(connectionString);

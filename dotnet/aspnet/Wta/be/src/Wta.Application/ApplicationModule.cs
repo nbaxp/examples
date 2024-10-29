@@ -1,0 +1,14 @@
+using Wta.Application.SystemModule.Data;
+using Wta.Infrastructure.Modules;
+
+namespace Wta.Application;
+public class ApplicationModule : BaseApplication
+{
+    public override void ConfigureServices(WebApplicationBuilder builder)
+    {
+        builder.AddDbContext<SystemDbContext>();
+    }
+    public override void Configure(WebApplication app)
+    {
+    }
+}

@@ -94,7 +94,7 @@ public class WmsAttribute : GroupAttribute
 }
 
 [Display(Name = "仓库管理", Order = 3)]
-public class WareHouseManagementAttribute : WmsAttribute
+public class WarehouseManagementAttribute : WmsAttribute
 {
 }
 #endregion
