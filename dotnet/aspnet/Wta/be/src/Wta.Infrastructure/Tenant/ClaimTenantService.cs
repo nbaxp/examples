@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 namespace Wta.Infrastructure.Tenant;
 
 [Service<ITenantService>(ServiceLifetime.Scoped)]
-public class ClaimTenantService(IHttpContextAccessor httpContextAccessor) : ITenantService
+public class ClaimTenantService(IServiceProvider serviceProvider) : ITenantService
 {
     private string? _tenantNumber;
 
@@ -15,7 +15,7 @@ public class ClaimTenantService(IHttpContextAccessor httpContextAccessor) : ITen
             {
                 return _tenantNumber;
             }
-            return httpContextAccessor!.HttpContext?.User.Claims.FirstOrDefault(o => o.Type == "TenantNumber")?.Value ?? TenantConstants.ROOT;
+            return serviceProvider.GetService<IHttpContextAccessor>()?.HttpContext?.User.Claims.FirstOrDefault(o => o.Type == "TenantNumber")?.Value ?? TenantConstants.ROOT;
         }
         set
         {

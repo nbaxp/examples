@@ -155,26 +155,35 @@ public abstract class BaseStartup : IStartup
                     var connectionStringName = dbContextType.GetCustomAttribute<ConnectionStringAttribute>()?.ConnectionString ?? dbContextType.Name;
                     var connectionString = builder.Configuration.GetConnectionString(connectionStringName);
                     var dbContextProvider = builder.Configuration.GetValue<string>($"DbContextProviders:{connectionStringName}");
+                    var migrationsAssemblyName = "Wta.Migrations";
                     if (dbContextProvider == "mysql")
                     {
                         var serverVersion = ServerVersion.AutoDetect(connectionString);
-                        optionsBuilder.UseMySql(connectionString, serverVersion, b => b.UseNetTopologySuite());
+                        optionsBuilder.UseMySql(connectionString, serverVersion, b =>
+                        {
+                            b.UseNetTopologySuite();
+                            b.MigrationsAssembly(migrationsAssemblyName);
+                        });
                     }
                     else if (dbContextProvider == "npgsql")
                     {
-                        optionsBuilder.UseNpgsql(connectionString);
+                        optionsBuilder.UseNpgsql(connectionString, b => b.MigrationsAssembly(migrationsAssemblyName));
                     }
                     else if (dbContextProvider == "sqlserver")
                     {
-                        optionsBuilder.UseSqlServer(connectionString);
+                        optionsBuilder.UseSqlServer(connectionString, b => b.MigrationsAssembly(migrationsAssemblyName));
                     }
                     else if (dbContextProvider == "oracle")
                     {
-                        optionsBuilder.UseOracle(connectionString);
+                        optionsBuilder.UseOracle(connectionString, b => b.MigrationsAssembly(migrationsAssemblyName));
                     }
                     else
                     {
-                        optionsBuilder.UseSqlite(connectionString, b => b.UseNetTopologySuite());
+                        optionsBuilder.UseSqlite(connectionString, b =>
+                        {
+                            b.UseNetTopologySuite();
+                            b.MigrationsAssembly(migrationsAssemblyName);
+                        });
                     }
                 };
                 typeof(EntityFrameworkServiceCollectionExtensions)

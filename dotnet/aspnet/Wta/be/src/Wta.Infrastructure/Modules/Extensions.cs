@@ -1,3 +1,5 @@
+using Wta.Infrastructure.Locking;
+
 namespace Wta.Infrastructure.Modules;
 
 public static class Extensions
@@ -24,21 +26,30 @@ public static class Extensions
 
     public static WebApplication UseModules(this WebApplication app)
     {
+        //Global.Application = app; // delete
         app.Services.GetRequiredService<IApplication>().Configure(app);
         foreach (var module in app.Services.GetServices<IModule>())
         {
             module.Configure(app);
         }
-        using var scope = app.Services.CreateScope();
-        foreach (var dbContext in scope.ServiceProvider.GetServices<DbContext>())
+        if (app.Environment.IsDevelopment())
         {
-            var strategy = dbContext.Database.CreateExecutionStrategy();
-            strategy.Execute(() =>
+            using var scope = app.Services.CreateScope();
+            foreach (var dbContext in scope.ServiceProvider.GetServices<DbContext>())
             {
-                using var transaction = dbContext.Database.BeginTransaction();
-                dbContext.Database.Migrate();
-                transaction.Commit();
-            });
+                var @lock = app.Services.GetRequiredService<ILock>();
+                using var handle = @lock.Acquire("seed");
+                if (handle != null)
+                {
+                    var strategy = dbContext.Database.CreateExecutionStrategy();
+                    strategy.Execute(() =>
+                    {
+                        using var transaction = dbContext.Database.BeginTransaction();
+                        dbContext.Database.Migrate();
+                        transaction.Commit();
+                    });
+                }
+            }
         }
         return app;
     }

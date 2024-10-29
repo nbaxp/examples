@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Wta.Application\Wta.Application.csproj" />
+    <ProjectReference Include="..\Wta.Migrations\Wta.Migrations.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="start.cmd">

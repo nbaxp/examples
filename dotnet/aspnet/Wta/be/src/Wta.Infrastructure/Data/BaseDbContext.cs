@@ -16,12 +16,10 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
     public BaseDbContext(DbContextOptions<TDbContext> options, IServiceProvider serviceProvider) : base(options)
     {
         ServiceProvider = serviceProvider;
-        DbContextManager = ServiceProvider.GetRequiredService<IDbContextManager>();
-        DbContextManager.Add(this);
+        ServiceProvider.GetService<IDbContextManager>()?.Add(this);
         _tenantNumber = ServiceProvider.GetRequiredService<ITenantService>().TenantNumber;
     }
 
-    public IDbContextManager DbContextManager { get; }
     public bool DisableSoftDeleteFilter { get; set; }
     public bool DisableTenantFilter { get; set; }
     public IServiceProvider ServiceProvider { get; }
