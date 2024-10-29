@@ -1,4 +1,4 @@
-namespace Wta.Controllers;
+namespace Wta.Application.Platform.Controllers;
 
 [AllowAnonymous]
 public class HomeController : Controller

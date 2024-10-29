@@ -18,8 +18,7 @@ public class GenericControllerFeatureProvider : IApplicationFeatureProvider<Cont
             var entityType = entityTypeInfo.AsType();
             if (!feature.Controllers.Any(o => o.Name == $"{entityType.Name}Controller"))
             {
-                var modelType = Global.EntityModel.GetValueOrDefault(entityType) ?? entityType;
-                var controllerType = typeof(GenericController<,>).MakeGenericType(entityType, modelType);
+                var controllerType = typeof(GenericController<,>).MakeGenericType(entityType, entityType);
                 feature.Controllers.Add(controllerType.GetTypeInfo());
             }
         }

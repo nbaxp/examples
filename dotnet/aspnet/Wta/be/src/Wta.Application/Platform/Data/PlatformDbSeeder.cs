@@ -385,7 +385,7 @@ public class PlatformDbSeeder(IActionDescriptorCollectionProvider actionProvider
 
     private static AuthType GetAuthType(ControllerActionDescriptor descriptor)
     {
-        if (descriptor.MethodInfo.GetAttributes<AllowAnonymousAttribute>().Any())
+        if (descriptor.MethodInfo.GetAttributes<AllowAnonymousAttribute>().Length != 0)
         {
             return AuthType.Anonymous;
         }
@@ -408,8 +408,7 @@ public class PlatformDbSeeder(IActionDescriptorCollectionProvider actionProvider
             permissions.Where(o => !o.Disabled && !tenantService.Permissions.Contains(o.Number)).ForEach(o => o.Disabled = true);
             permissions = permissions.Where(o => tenantService.Permissions.Contains(o.Number)).ToList();
         }
-        var rules = new List<Role> { new Role
-        {
+        var rules = new List<Role> { new() {
             Id = context.NewGuid(),
             Name = "管理员",
             Number = "admin",
@@ -569,8 +568,8 @@ public class PlatformDbSeeder(IActionDescriptorCollectionProvider actionProvider
                     IsReadOnly = true
                 }
             ],
-            Apps = new List<ExternalApp>
-            {
+            Apps =
+            [
                 new ExternalApp
                 {
                     Name = "内部客户端测试",
@@ -591,7 +590,7 @@ public class PlatformDbSeeder(IActionDescriptorCollectionProvider actionProvider
                     ClientSecret="123456",
                     Callback="http://localhost:5010/oauth-callback",
                 },
-            }
+            ]
         });
     }
 }

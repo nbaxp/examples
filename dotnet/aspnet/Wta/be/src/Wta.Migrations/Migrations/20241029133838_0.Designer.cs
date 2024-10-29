@@ -12,7 +12,7 @@ using Wta.Application.Platform.Data;
 namespace Wta.Migrations.Migrations
 {
     [DbContext(typeof(PlatformDbContext))]
-    [Migration("20241029071032_0")]
+    [Migration("20241029133838_0")]
     partial class _0
     {
         /// <inheritdoc />

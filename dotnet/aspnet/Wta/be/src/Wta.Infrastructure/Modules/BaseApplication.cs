@@ -16,6 +16,7 @@ public abstract partial class BaseApplication : IApplication
         AddCache(builder);
         AddRouting(builder);
         AddSignalR(builder);
+        AddFileProvider(builder);
         AddLocalization(builder);
         AddMvc(builder);
         AddJsonOptions(builder);

@@ -1,18 +1,7 @@
 using Autofac;
-using Autofac.Configuration;
-using Autofac.Extensions.DependencyInjection;
 using Hangfire;
-using Hangfire.Redis.StackExchange;
-using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
-using OrchardCore.Localization;
 using Prometheus;
-using Prometheus.SystemMetrics;
 using Serilog;
-using Serilog.Events;
-using StackExchange.Redis;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Wta.Infrastructure.Locking;
 using Wta.Infrastructure.Tenant;
 

@@ -5,7 +5,6 @@ using Hangfire;
 using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.Extensions.DependencyInjection;
 using OrchardCore.Localization;
 using Prometheus;
 using Prometheus.SystemMetrics;
@@ -187,10 +186,6 @@ public abstract partial class BaseApplication
             options.SupportedCultures = supportedCultures;
             options.SupportedUICultures = supportedCultures;
         });
-        var fileProvider = new CompositeFileProvider(AppDomain.CurrentDomain.GetCustomerAssemblies()
-            .Select(o => new FixedEmbeddedFileProvider(o))
-            .ToArray());
-        builder.Services.AddSingleton<IFileProvider>(fileProvider);
         builder.Services.AddLocalization();
         builder.Services.AddPortableObjectLocalization(options => options.ResourcesPath = "Resources")
             .AddDataAnnotationsPortableObjectLocalization();
@@ -199,7 +194,7 @@ public abstract partial class BaseApplication
 
     public virtual void AddMvc(WebApplicationBuilder builder)
     {
-        var configJson = (JsonSerializerOptions options) =>
+        static void configJson(JsonSerializerOptions options)
         {
             options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
             options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -209,7 +204,7 @@ public abstract partial class BaseApplication
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             options.Converters.Add(new JsonNullableGuidConverter());
             options.Converters.Insert(0, new TrimJsonConverter());
-        };
+        }
         builder.Services.Configure<JsonOptions>(o => configJson(o.SerializerOptions));
         builder.Services.AddMvc(options =>
         {
@@ -406,18 +401,18 @@ public abstract partial class BaseApplication
         builder.Services.AddMiniProfiler(o => o.RouteBasePath = "/profiler").AddEntityFramework();
     }
 
-    public virtual IFileProvider GetFileProvider(WebApplicationBuilder builder)
+    public virtual void AddFileProvider(WebApplicationBuilder builder)
     {
         var providers = AppDomain.CurrentDomain.GetCustomerAssemblies()
             .Select(o => new FixedEmbeddedFileProvider(o))
             .ToArray()
             .Append(builder.Environment.ContentRootFileProvider);
 
-        if (Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), builder.Environment.WebRootPath)))
+        if (Directory.Exists(builder.Environment.WebRootPath))
         {
-            //providers = providers.Append(new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), builder.Environment.WebRootPath));
-            //providers = providers.Append(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), builder.Environment.WebRootPath)));
+            //providers = providers.Append(new ManifestEmbeddedFileProvider(Assembly.GetEntryAssembly()!, builder.Environment.WebRootPath));
+            providers = providers.Append(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), builder.Environment.WebRootPath)));
         }
-        return new CompositeFileProvider(providers);
+        builder.Services.AddSingleton<IFileProvider>(new CompositeFileProvider(providers));
     }
 }
