@@ -1,7 +1,7 @@
-using Wta.Application.SystemModule.Data;
+using Wta.Application.Platform.Data;
 
 namespace Wta.Application.MesModule.Data;
 
-public class MesDbConfig : BaseDbConfig<SystemDbContext>
+public class MesDbConfig : BaseDbConfig<PlatformDbContext>
 {
 }

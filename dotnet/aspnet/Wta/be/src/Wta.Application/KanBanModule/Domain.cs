@@ -1,38 +1,38 @@
-using Wta.Application.SystemModule.Data;
+using Wta.Application.Platform.Data;
 
 namespace Wta.Application.KanBanModule;
 
-[DependsOn<SystemDbContext>, KanBan, Display(Name = "看板首页", Order = 10)]
+[DependsOn<PlatformDbContext>, KanBan, Display(Name = "看板首页", Order = 10)]
 public class KanbanHomepage : Entity
 {
 }
 
-[DependsOn<SystemDbContext>, KanBan, Display(Name = "生产统计看板", Order = 20)]
+[DependsOn<PlatformDbContext>, KanBan, Display(Name = "生产统计看板", Order = 20)]
 public class ProductionStatisticsKanban : Entity
 {
 }
 
-[DependsOn<SystemDbContext>, KanBan, Display(Name = "库存统计看板", Order = 30)]
+[DependsOn<PlatformDbContext>, KanBan, Display(Name = "库存统计看板", Order = 30)]
 public class InventoryStatisticsKanban : Entity
 {
 }
 
-[DependsOn<SystemDbContext>, KanBan, Display(Name = "仓库流水看板", Order = 40)]
+[DependsOn<PlatformDbContext>, KanBan, Display(Name = "仓库流水看板", Order = 40)]
 public class WarehouseTransactionKanban : Entity
 {
 }
 
-[DependsOn<SystemDbContext>, KanBan, Display(Name = "销售订单看板", Order = 50)]
+[DependsOn<PlatformDbContext>, KanBan, Display(Name = "销售订单看板", Order = 50)]
 public class SalesOrderKanban : Entity
 {
 }
 
-[DependsOn<SystemDbContext>, KanBan, Display(Name = "采购定单看板", Order = 60)]
+[DependsOn<PlatformDbContext>, KanBan, Display(Name = "采购定单看板", Order = 60)]
 public class PurchaseOrderKanban : Entity
 {
 }
 
-[DependsOn<SystemDbContext>, KanBan, Display(Name = "财务收支看板", Order = 70)]
+[DependsOn<PlatformDbContext>, KanBan, Display(Name = "财务收支看板", Order = 70)]
 public class FinancialRevenueExpenseKanban : Entity
 {
 }

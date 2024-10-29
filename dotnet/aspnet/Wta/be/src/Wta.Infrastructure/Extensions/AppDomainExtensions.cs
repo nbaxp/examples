@@ -18,5 +18,5 @@ public static class AppDomainExtensions
     }
 
     public static Func<Assembly, bool> Exclude = o => !o.FullName!.StartsWith("Microsoft.") && !o.FullName!.StartsWith("System.");
-    public static Func<Assembly, bool> Include = o => o.FullName!.StartsWith("Wta");
+    public static Func<Assembly, bool> Include = o => o.FullName!.StartsWith("Wta.");
 }

@@ -1,4 +1,25 @@
-﻿# WTA: Web template for asp.net
+# WTA: Web template for asp.net
+
+1. 开发环境
+    1. Windows 11
+    1. Git & TortoiseGit 
+    1. Visual Studio 2022
+    1. Docker Desktop
+1. 调试
+    1. 克隆源码
+    1. 配置依赖
+        1. docker compose 启动 MinIO、MySQL、Redis
+        1. 自定义 appSettings.Development.json 访问本地或容器内运行的依赖
+    1. Migrations 项目执行 `dotnet ef database update`
+    1. 调试启动 Web 项目
+1. 推送代码
+    1. 修改
+        1. 前后端代码修改、配置文件修改、数据库迁移修改、文档修改
+        1. 文档修改使用 markdown 和 mermaid
+        1. 实体变动在 Migrations 项目中添加迁移，提交后需要在测试服务器数据库上执行迁移
+    1. 本地提交
+    1. 拉取并变基 `git pull --rebase`
+    1. 解决冲突并推送
 
 ## 服务决策：
 
