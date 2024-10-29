@@ -3,7 +3,7 @@ using Wta.Infrastructure.Startup;
 
 namespace Wta.Infrastructure;
 
-public static class WtaApplication
+public static class Global
 {
     public static WebApplication Application { get; private set; } = default!;
 

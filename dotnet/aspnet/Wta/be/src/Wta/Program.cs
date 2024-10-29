@@ -1,1 +1,1 @@
-Wta.Infrastructure.WtaApplication.Run<Wta.Application.Startup>(args);
+Wta.Infrastructure.Global.Run<Wta.Application.Startup>(args);

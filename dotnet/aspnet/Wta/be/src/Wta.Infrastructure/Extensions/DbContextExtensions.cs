@@ -16,7 +16,7 @@ public static class DbContextExtensions
         {
             type = "SequentialAsBinary";
         }
-        var sequentialGuid = WtaApplication.Application.Services.GetRequiredService<ISequentialGuid>();
+        var sequentialGuid = Global.Application.Services.GetRequiredService<ISequentialGuid>();
         return sequentialGuid.Create(type);
     }
 }

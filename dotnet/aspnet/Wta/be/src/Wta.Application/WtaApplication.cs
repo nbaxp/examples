@@ -2,7 +2,7 @@ using Wta.Application.SystemModule.Data;
 using Wta.Infrastructure.Modules;
 
 namespace Wta.Application;
-public class ApplicationModule : BaseApplication
+public class WtaApplication : BaseApplication
 {
     public override void ConfigureServices(WebApplicationBuilder builder)
     {

@@ -17,7 +17,7 @@ public class CaptchaModel : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        using var scope = WtaApplication.Application.Services.CreateScope();
+        using var scope = Global.Application.Services.CreateScope();
         var stringLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer>();
         var encryptionService = scope.ServiceProvider.GetRequiredService<IEncryptionService>();
         var values = encryptionService.DecryptText(CodeHash!).Split(',');

@@ -115,7 +115,7 @@ public static class TypeExtensions
     /// <returns></returns>
     public static string GetDisplayName(this Type type)
     {
-        var scope = WtaApplication.Application.Services.CreateScope();
+        var scope = Global.Application.Services.CreateScope();
         var localizer = scope?.ServiceProvider.GetService<IStringLocalizer>();
         var key = type.GetCustomAttribute<DisplayAttribute>()?.Name ?? type.Name;
         return localizer?.GetString(key, type.FullName!) ?? key;
@@ -135,7 +135,7 @@ public static class TypeExtensions
 
     public static object GetMetadataForType(this Type modelType)
     {
-        using var scope = WtaApplication.Application.Services.CreateScope();
+        using var scope = Global.Application.Services.CreateScope();
         var meta = scope.ServiceProvider.GetRequiredService<IModelMetadataProvider>().GetMetadataForType(modelType);
         return meta.GetSchema(scope.ServiceProvider);
     }

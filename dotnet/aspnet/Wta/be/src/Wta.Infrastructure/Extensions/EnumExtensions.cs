@@ -13,7 +13,7 @@ public static class EnumExtensions
     {
         var type = enumValue.GetType();
         var field = type.GetField(enumValue.ToString())!;
-        var scope = WtaApplication.Application.Services.CreateScope();
+        var scope = Global.Application.Services.CreateScope();
         var localizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer>();
         var key = field.GetCustomAttribute<DisplayAttribute>()?.Name ?? field.Name;
         return localizer.GetString(key);

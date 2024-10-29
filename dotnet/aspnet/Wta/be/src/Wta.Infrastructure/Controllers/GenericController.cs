@@ -75,7 +75,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     [Hidden]
     public virtual FileContentResult ImportTemplate()
     {
-        var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
+        var contentType = Global.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
         var result = new FileContentResult(exportImportService.GetImportTemplate<TModel>(), contentType)
         {
             FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx"
@@ -128,7 +128,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             query = SkipTake(query, model.PageIndex, model.PageSize);
         }
         var items = query.ToList().Select(o => { var model = ObjectMapper.ToModel<TEntity, TModel>(o); this.ToModel(o, model); return model; }).ToList();
-        var contentType = WtaApplication.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[$".{model.Format}"];
+        var contentType = Global.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[$".{model.Format}"];
         var result = new FileContentResult(exportImportService.Export(items), contentType)
         {
             FileDownloadName = (model.Name ?? $"{typeof(TModel).GetDisplayName()}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}") + "." + model.Format

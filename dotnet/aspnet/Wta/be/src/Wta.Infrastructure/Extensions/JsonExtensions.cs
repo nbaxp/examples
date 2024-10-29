@@ -22,7 +22,7 @@ public static class JsonExtensions
 
     private static JsonSerializerOptions GetJsonOptions()
     {
-        var options = WtaApplication.Application.Services.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+        var options = Global.Application.Services.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
         return options;
     }
 }
