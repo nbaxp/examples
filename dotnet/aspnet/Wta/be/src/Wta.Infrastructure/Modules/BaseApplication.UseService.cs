@@ -1,8 +1,6 @@
-using Autofac;
 using Hangfire;
 using Prometheus;
 using Serilog;
-using Wta.Infrastructure.Locking;
 using Wta.Infrastructure.Tenant;
 
 namespace Wta.Infrastructure.Modules;
@@ -98,34 +96,34 @@ public abstract partial class BaseApplication
     public virtual void UseDbContext(WebApplication app)
     {
         return;
-        AppDomain.CurrentDomain.GetCustomerAssemblies()
-            .SelectMany(o => o.GetTypes())
-            .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t == typeof(DbContext)))
-            .OrderBy(o => o.GetCustomAttribute<DisplayAttribute>()?.Order ?? 0)
-            .ForEach(dbContextType =>
-            {
-                using var scope = app.Services.CreateScope();
-                var serviceProvider = scope.ServiceProvider;
-                var contextName = dbContextType.Name;
-                if (serviceProvider.GetRequiredService(dbContextType) is DbContext dbContext)
-                {
-                    if (dbContext.Database.EnsureCreated())
-                    {
-                        var @lock = app.Services.GetRequiredService<ILock>();
-                        using var handle = @lock.Acquire("seed");
-                        if (handle != null)
-                        {
-                            var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
-                            serviceProvider.GetServices(dbSeedType)
-                            .OrderBy(o => o!.GetType().GetAttribute<DisplayAttribute>()?.GetOrder() ?? 0)
-                            .ForEach(o =>
-                            {
-                                dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]);
-                            });
-                        }
-                    }
-                }
-            });
+        //AppDomain.CurrentDomain.GetCustomerAssemblies()
+        //    .SelectMany(o => o.GetTypes())
+        //    .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t == typeof(DbContext)))
+        //    .OrderBy(o => o.GetCustomAttribute<DisplayAttribute>()?.Order ?? 0)
+        //    .ForEach(dbContextType =>
+        //    {
+        //        using var scope = app.Services.CreateScope();
+        //        var serviceProvider = scope.ServiceProvider;
+        //        var contextName = dbContextType.Name;
+        //        if (serviceProvider.GetRequiredService(dbContextType) is DbContext dbContext)
+        //        {
+        //            if (dbContext.Database.EnsureCreated())
+        //            {
+        //                var @lock = app.Services.GetRequiredService<ILock>();
+        //                using var handle = @lock.Acquire("seed");
+        //                if (handle != null)
+        //                {
+        //                    var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContextType);
+        //                    serviceProvider.GetServices(dbSeedType)
+        //                    .OrderBy(o => o!.GetType().GetAttribute<DisplayAttribute>()?.GetOrder() ?? 0)
+        //                    .ForEach(o =>
+        //                    {
+        //                        dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(o, [dbContext]);
+        //                    });
+        //                }
+        //            }
+        //        }
+        //    });
     }
 
     public virtual void UseScheduler(WebApplication webApplication)

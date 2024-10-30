@@ -216,6 +216,7 @@ public abstract partial class BaseApplication
             options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
             options.Conventions.Add(new AutoControllerRouteConvention());
             options.Filters.Add<AuthActionFilter>();
+            options.Filters.Add<AuthActionFilter>();
         }).AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
         .AddDataAnnotationsLocalization(options =>
         {

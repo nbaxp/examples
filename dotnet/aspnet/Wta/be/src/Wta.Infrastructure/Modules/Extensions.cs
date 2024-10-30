@@ -40,7 +40,32 @@ public static class Extensions
         {
             module.Configure(app);
         }
-        //if (app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment())
+        {
+            using var scope = app.Services.CreateScope();
+            foreach (var dbContext in scope.ServiceProvider.GetServices<DbContext>())
+            {
+                var @lock = app.Services.GetRequiredService<ILock>();
+                using var handle = @lock.Acquire("seed");
+                if (handle != null)
+                {
+                    if (dbContext.Database.EnsureCreated())
+                    {
+                        using var transaction = dbContext.Database.BeginTransaction();
+                        var dbSeedType = typeof(IDbSeeder<>).MakeGenericType(dbContext.GetType());
+                        var list = scope.ServiceProvider.GetServices(dbSeedType)
+                        .OrderBy(o => o!.GetType().GetAttribute<DisplayAttribute>()?.GetOrder() ?? 0)
+                        .ToList();
+                        foreach (var item in list)
+                        {
+                            dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(item, [dbContext]);
+                        }
+                        transaction.Commit();
+                    }
+                }
+            }
+        }
+        else
         {
             using var scope = app.Services.CreateScope();
             foreach (var dbContext in scope.ServiceProvider.GetServices<DbContext>())

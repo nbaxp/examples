@@ -638,7 +638,7 @@ export default {
             ElMessageBox.alert(result.message, t('提示'), { type: 'error' });
           }
         }
-        dialogVisible.value = false;
+        // dialogVisible.value = false;
       } catch (error) {
         if (error === 'cancel') {
           ElMessage({

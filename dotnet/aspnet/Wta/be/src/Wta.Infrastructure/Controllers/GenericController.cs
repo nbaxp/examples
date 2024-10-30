@@ -20,10 +20,11 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     where TModel : class
 {
     public ILogger<TEntity> Logger { get; } = logger;
-    public IStringLocalizer StringLocalizer = stringLocalizer;
+    public IStringLocalizer StringLocalizer { get; } = stringLocalizer;
     public IObjerctMapper ObjectMapper { get; } = objectMapper;
     public IRepository<TEntity> Repository { get; } = repository;
-    public IEventPublisher EventPublisher = eventPublisher;
+    public IEventPublisher EventPublisher { get; } = eventPublisher;
+    public IExportImportService ExportImportService { get; } = exportImportService;
 
     [HttpGet, AllowAnonymous, Ignore]
     public virtual ApiResult<object> Schema()
@@ -38,7 +39,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         model ??= new QueryModel<TModel>();
         if (model.Filters.Any(o => o.Property == "IsDeleted".ToLowerCamelCase() && o.Value != null && o.Value is JsonElement jsonElement && jsonElement.GetBoolean()))
         {
-            repository.DisableSoftDeleteFilter();
+            Repository.DisableSoftDeleteFilter();
         }
         var query = Where(model);
         model.TotalCount = query.Count();
@@ -76,7 +77,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     public virtual FileContentResult ImportTemplate()
     {
         var contentType = Global.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[".xlsx"];
-        var result = new FileContentResult(exportImportService.GetImportTemplate<TModel>(), contentType)
+        var result = new FileContentResult(ExportImportService.GetImportTemplate<TModel>(), contentType)
         {
             FileDownloadName = $"{typeof(TModel).GetDisplayName()}.xlsx"
         };
@@ -99,9 +100,14 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             node.UpdateNode();
         }
         Repository.Add(entity);
+        BeforeSave(entity);
         EventPublisher.Publish(new EntityCreatedEvent<TEntity>(entity));
         Repository.SaveChanges();
         return Json(true);
+    }
+
+    protected virtual void BeforeSave(TEntity entity)
+    {
     }
 
     [Consumes("multipart/form-data")]
@@ -110,7 +116,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     {
         using var ms = new MemoryStream();
         model.File.OpenReadStream().CopyTo(ms);
-        var models = exportImportService.Import<TModel>(ms.ToArray());
+        var models = ExportImportService.Import<TModel>(ms.ToArray());
         foreach (var item in models)
         {
             Create(item);
@@ -129,7 +135,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
         }
         var items = query.ToList().Select(o => { var model = ObjectMapper.ToModel<TEntity, TModel>(o); this.ToModel(o, model); return model; }).ToList();
         var contentType = Global.Application.Services.GetRequiredService<FileExtensionContentTypeProvider>().Mappings[$".{model.Format}"];
-        var result = new FileContentResult(exportImportService.Export(items), contentType)
+        var result = new FileContentResult(ExportImportService.Export(items), contentType)
         {
             FileDownloadName = (model.Name ?? $"{typeof(TModel).GetDisplayName()}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}") + "." + model.Format
         };
@@ -140,9 +146,6 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
     [Button(Type = ButtonType.Row)]
     public virtual ApiResult<bool> Update([FromBody] TModel model)
     {
-        typeof(TModel).GetProperties(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance)
-            .Where(o => (o.PropertyType.IsGenericType && o.PropertyType.GetGenericTypeDefinition() == typeof(List<>)) || o.GetAttributes<IgnoreToModelAttribute>().Any())
-            .ForEach(o => ModelState.Remove(o.Name));
         if (!ModelState.IsValid)
         {
             throw new BadRequestException();
@@ -184,6 +187,7 @@ public class GenericController<TEntity, TModel>(ILogger<TEntity> logger,
             children.Where(o => o.ParentId == node.Id).ForEach(o => o.UpdateNode());
         }
         //EventPublisher.Publish(new EntityUpdatedEvent<TEntity>(entity));
+        BeforeSave(entity);
         Repository.SaveChanges();
         return Json(true);
     }

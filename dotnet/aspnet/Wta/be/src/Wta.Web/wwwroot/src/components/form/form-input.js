@@ -37,6 +37,9 @@ export default {
             {{dayjs(model[prop]).format(DATETIME_DISPLAY_FORMAT)}}
           </template>
           <template v-else-if="schema.input==='password'">******</template>
+          <template v-else-if="schema.input==='color'">
+            <el-color-picker v-model="model[prop]" disabled />
+          </template>
           <template v-else-if="schema.input==='qrcode'">
             <qr-code v-model="model[prop]" />
           </template>

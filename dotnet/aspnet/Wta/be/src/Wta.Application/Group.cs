@@ -1,13 +1,16 @@
 namespace Wta.Application;
 
 #region 用户中心
+
 [Display(Name = "用户中心", Order = 0)]
 public class UserCenterAttribute : GroupAttribute
 {
 }
-#endregion
+
+#endregion 用户中心
 
 #region 系统管理
+
 [Display(Name = "系统管理", Order = 5)]
 public class SystemManagementAttribute : GroupAttribute
 {
@@ -27,7 +30,22 @@ public class PermissionManagementAttribute : SystemManagementAttribute
 public class SystemSettingsAttribute : SystemManagementAttribute
 {
 }
-#endregion
+
+#endregion 系统管理
+
+#region OEE
+
+[Display(Name = "OEE", Order = 11)]
+public class OeeAttribute : GroupAttribute
+{
+}
+
+[Display(Name = "基础数据", Order = 1)]
+public class OeeBaseDataAttribute : OeeAttribute
+{
+}
+
+#endregion OEE
 
 #region 基础数据
 [Display(Name = "基础数据", Order = 10)]
@@ -50,6 +68,7 @@ public class CustomerManagementAttribute : GroupAttribute
 {
 }
 #endregion
+
 #region 销售管理
 [Display(Name = "销售管理", Order = 40)]
 public class SaleManagementAttribute : GroupAttribute
