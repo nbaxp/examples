@@ -2,6 +2,12 @@ import html from 'utils';
 import { onMounted, ref } from 'vue';
 import Cherry from '~/lib/cherry-markdown/cherry-markdown.esm.js';
 import '~/lib/cherry-markdown/echarts/echarts.min.js';
+import '~/lib/cherry-markdown/addons/cherry-code-block-mermaid-plugin.js';
+import '~/lib/cherry-markdown/mermaid/mermaid.min.js';
+
+Cherry.usePlugin(window.CherryCodeBlockMermaidPlugin, {
+  mermaid: window.mermaid,
+});
 
 export default {
   template: html`
@@ -11,7 +17,10 @@ export default {
     </div>
   `,
   styles: html`
-    <link rel="stylesheet" href="./lib/cherry-markdown/cherry-markdown.min.css" />
+    <link
+      rel="stylesheet"
+      href="./lib/cherry-markdown/cherry-markdown.min.css"
+    />
   `,
   props: {
     name: {
@@ -20,6 +29,7 @@ export default {
   },
   setup(props) {
     const tplRef = ref(null);
+
     onMounted(async () => {
       let mdText = tplRef.value.querySelector('.source pre')?.innerText;
       if (props.name !== null) {

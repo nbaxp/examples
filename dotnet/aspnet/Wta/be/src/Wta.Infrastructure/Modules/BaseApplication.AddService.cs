@@ -257,6 +257,7 @@ public abstract partial class BaseApplication
 
     public virtual void AddJsonOptions(WebApplicationBuilder builder)
     {
+        builder.Services.AddDateOnlyTimeOnlyStringConverters();
         builder.Services.AddSingleton(provider => provider.GetRequiredService<IOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>>().Value.SerializerOptions);
     }
 

@@ -4,7 +4,9 @@ export function schemaToModel(schema, isQueryForm = false) {
     return null;
   }
   const result = {};
-  const entries = Object.entries(schema.properties).sort((a, b) => (a[1]?.order ?? 0) - (b[1]?.order ?? 0));
+  const entries = Object.entries(schema.properties).sort(
+    (a, b) => (a[1]?.order ?? 0) - (b[1]?.order ?? 0),
+  );
   for (const [propertyName, property] of entries) {
     const type = property.type;
     let value = null;
@@ -22,14 +24,14 @@ export function schemaToModel(schema, isQueryForm = false) {
           value = [];
         } else if (property.meta?.required) {
           if (property.type === 'number') {
-            if (property.meta?.options) {
-              value = property.meta.options[0].value;
-            } else {
-              value = 0;
-            }
+            // if (property.meta?.options) {
+            //   value = property.meta.options[0].value;
+            // } else {
+            //   value = 0;
+            // }
           } else if (type === 'string') {
             if (property.meta?.hidden) {
-              if (property.meta?.format === 'datetime') {
+              if (property.input === 'datetime') {
                 value = new Date().toISOString();
               } else {
                 value = uuidv7();
@@ -48,7 +50,15 @@ export function normalize(schema) {
   if (!schema) {
     return null;
   }
-  const { title, type = 'string', properties = {}, input, default: defaultValue, rules, ...meta } = schema;
+  const {
+    title,
+    type = 'string',
+    properties = {},
+    input,
+    default: defaultValue,
+    rules,
+    ...meta
+  } = schema;
   const result = {
     title,
     type,
@@ -67,8 +77,7 @@ export function normalize(schema) {
       result.input = 'text';
     }
   }
-  if(meta.items?.type==='object')
-  {
+  if (meta.items?.type === 'object') {
     meta.items = normalize(meta.items);
   }
   for (const propertyName in properties) {

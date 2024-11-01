@@ -77,7 +77,7 @@ flex-dir-row {
   justify-content: center;
 }
 
-svg {
+.el-icon svg {
   width: 1em;
   height: 1em;
 }
@@ -259,6 +259,10 @@ img.loading {
   .el-checkbox {
     display: none;
   }
+}
+
+.el-tree.display:not(.mutiple) .el-tree-node__expand-icon {
+  display: none;
 }
 
 

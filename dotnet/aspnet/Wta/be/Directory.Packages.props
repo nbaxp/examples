@@ -17,6 +17,7 @@
     <PackageVersion Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageVersion Include="ClosedXML" Version="0.104.1" />
     <PackageVersion Include="Coravel" Version="6.0.0" />
+    <PackageVersion Include="DateOnlyTimeOnly.AspNet" Version="2.1.1" />
     <PackageVersion Include="DistributedLock" Version="2.5.0" />
     <PackageVersion Include="DistributedLock.Redis" Version="1.0.3" />
     <PackageVersion Include="DynamicExpresso.Core" Version="2.16.1" />

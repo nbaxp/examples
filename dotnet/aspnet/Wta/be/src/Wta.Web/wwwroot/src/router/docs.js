@@ -42,6 +42,13 @@ export default {
           },
         },
         {
+          path: 'oee',
+          component: () => view('product/oee'),
+          meta: {
+            title: 'OEE',
+          },
+        },
+        {
           path: 'wms',
           component: () => view('product/wms'),
           meta: {

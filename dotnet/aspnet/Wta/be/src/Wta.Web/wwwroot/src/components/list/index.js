@@ -154,7 +154,10 @@ export default {
               </el-table-column>
             </template>
             <template v-else-if="item.type!=='object'&&!item.meta.hidden">
-              <template v-if="!item.meta.hideForList&&showColumn(item,key)">
+              <template v-if="item.type==='array'"></template>
+              <template
+                v-else-if="!item.meta.hideForList&&showColumn(item,key)"
+              >
                 <el-table-column
                   :prop="key"
                   :sortable="isSortable(item)"

@@ -4,7 +4,8 @@ public abstract class BaseEntity : IResource, ISoftDelete, ITenant
 {
     public BaseEntity()
     {
-        Id = Guid.NewGuid();
+        var dbContextType = this.GetType().GetCustomAttribute(typeof(DependsOnAttribute<>))!.GetType().GenericTypeArguments.First();
+        Id = ((DbContext)Global.Application.Services.GetRequiredService(dbContextType)).NewGuid();
     }
 
     [Hidden]

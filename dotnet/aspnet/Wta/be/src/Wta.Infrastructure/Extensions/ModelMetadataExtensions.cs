@@ -119,22 +119,29 @@ public static class ModelMetadataExtensions
             else if (modelType == typeof(DateTime))
             {
                 result.Add("type", "string");
-                if (metaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(DataTypeAttribute)) is not DataTypeAttribute dataType
-                    || dataType.DataType == DataType.DateTime)
+                var format = "datetime";
+                if (metaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(DataTypeAttribute)) is DataTypeAttribute dataType)
                 {
-                    result.TryAdd("input", "datetime");
+                    if (dataType.DataType == DataType.Date)
+                    {
+                        format = "date";
+                    }
+                    else if (dataType.DataType == DataType.Time)
+                    {
+                        format = "time";
+                    }
                 }
-                else
-                {
-                    result.TryAdd("input", "date");
-                }
-                result.TryAdd("input", "date");
-                result.TryAdd("format", "datetime");
+                result.TryAdd("input", format);
             }
             else if (modelType == typeof(Guid))
             {
                 result.Add("type", "string");
                 result.Add("format", "guid");
+            }
+            else if (modelType == typeof(TimeOnly))
+            {
+                result.Add("type", "string");
+                result.Add("format", "time");
             }
             else
             {

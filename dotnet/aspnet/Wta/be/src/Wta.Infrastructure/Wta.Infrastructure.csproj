@@ -24,6 +24,7 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" />
     <PackageReference Include="ClosedXML" />
     <PackageReference Include="Coravel" />
+    <PackageReference Include="DateOnlyTimeOnly.AspNet" />
     <PackageReference Include="DistributedLock" />
     <PackageReference Include="DistributedLock.Redis" />
     <PackageReference Include="DynamicExpresso.Core" />

@@ -47,13 +47,6 @@ public class OeeBaseDataAttribute : OeeAttribute
 
 #endregion OEE
 
-#region 基础数据
-[Display(Name = "基础数据", Order = 10)]
-public class BaseDataAttribute : GroupAttribute
-{
-}
-#endregion
-
 #region 技术管理
 [Display(Name = "技术管理", Order = 20)]
 public class TechManagementAttribute : GroupAttribute

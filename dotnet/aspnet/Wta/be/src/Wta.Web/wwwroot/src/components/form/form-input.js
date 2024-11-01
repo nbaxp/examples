@@ -1,5 +1,6 @@
 import SvgIcon from '@/components/icon/index.js';
 import {
+  TIME_VALUE_FORMAT,
   DATETIME_DISPLAY_FORMAT,
   DATETIME_VALUE_FORMAT,
 } from '@/constants/index.js';
@@ -33,6 +34,9 @@ export default {
           <template v-else-if="schema.input==='date'">
             {{dayjs(model[prop]).format('YYYY-MM-DD')}}
           </template>
+          <template v-else-if="schema.input==='time'">
+            {{dayjs(model[prop],TIME_VALUE_FORMAT).format(TIME_VALUE_FORMAT)}}
+          </template>
           <template v-else-if="schema.input==='datetime'">
             {{dayjs(model[prop]).format(DATETIME_DISPLAY_FORMAT)}}
           </template>
@@ -45,7 +49,10 @@ export default {
           </template>
           <template v-else-if="schema.input==='select'||schema.input==='radio'">
             <el-tree
-              class="display"
+              :class="{
+                display:true,
+                mutiple:isMultiple
+              }"
               v-if="selectOptions?.length"
               :data="selectOptions"
               :check-strictly="true"
@@ -94,6 +101,15 @@ export default {
         </el-radio-group>
       </template>
       <!--string:datetime-->
+      <template v-else-if="schema.input==='time'">
+        <el-time-picker
+          v-model="model[prop]"
+          :type="schema.input"
+          :label="schema.meta.showLabel?schema.title:''"
+          :value-format="TIME_VALUE_FORMAT"
+          clearable
+        />
+      </template>
       <template
         v-else-if="schema.input==='date'||schema.input==='datetime'||schema.input==='daterange'||schema.input==='datetimerange'"
       >
@@ -416,6 +432,7 @@ export default {
       fetchOptions,
       updateCodeHash,
       uploadOnChange,
+      TIME_VALUE_FORMAT,
       DATETIME_DISPLAY_FORMAT,
       DATETIME_VALUE_FORMAT,
     };

@@ -79,7 +79,6 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
             }
             else
             {
-
             }
             //实体IsReadOnly属性为true的不可删除
             if (item.State == EntityState.Deleted)
