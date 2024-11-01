@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Configuration;
 using Wta.Application.Platform.Data;
 
 namespace Wta.Application.BaseData.Domain;
@@ -23,6 +24,7 @@ public class Asset : BaseTreeEntity<Asset>
     [KeyValue("isTree", true)]
     [Display(Name = "分类")]
     public Guid? CategoryId { get; set; }
+
     public AssetCategory? Category { get; set; }
     public List<WorkstationDevice> WorkstationDevices { get; set; } = [];
 }
@@ -91,6 +93,40 @@ public class WorkstationDevice : ISoftDelete, ITenant
 
 [DependsOn<PlatformDbContext>]
 [BaseData]
+[Display(Name = "工位设备日志", Order = 145)]
+public class WorkstationDeviceLog : BaseEntity
+{
+    [UIHint("select")]
+    [KeyValue("url", "workstation/search")]
+    [KeyValue("value", "number")]
+    [KeyValue("label", "name")]
+    [KeyValue("skipSorting", true)]
+    [Display(Name = "工位")] public string WorkstationNumber { get; set; } = default!;
+
+    [UIHint("select")]
+    [KeyValue("url", "asset/search")]
+    [KeyValue("value", "number")]
+    [KeyValue("label", "name")]
+    [KeyValue("skipSorting", true)]
+    [Display(Name = "设备")]
+    public string DeviceNumber { get; set; } = default!;
+
+    public string DeviceStatusNumber { get; set; } = default!;
+
+    [Display(Name = "开始")]
+    public DateTime Start { get; set; }
+
+    [Display(Name = "结束")]
+    public DateTime End { get; set; }
+
+    [Display(Name = "持续")]
+    [ReadOnly(true)]
+    [RegularExpression(@"^((\d+)\.)?(\d\d):(60|([0-5][0-9])):(60|([0-5][0-9]))$",ErrorMessage ="{0}格式错误")]
+    public TimeSpan Duration { get; set; }
+}
+
+[DependsOn<PlatformDbContext>]
+[BaseData]
 [Display(Name = "班次", Order = 150)]
 public class WorkstationTimeGroup : BaseEntity
 {
@@ -121,7 +157,7 @@ public class WorkstationTimeGroup : BaseEntity
 
 [DependsOn<PlatformDbContext>]
 [BaseData]
-[Display(Name = "休息时间", Order = 160)]
+[Display(Name = "时间段", Order = 160)]
 public class TimeRange : BaseEntity
 {
     [UIHint("select")]
