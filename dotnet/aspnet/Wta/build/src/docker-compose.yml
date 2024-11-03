@@ -172,8 +172,8 @@ services:
       - ./apps/mysql/start.sh:/usr/local/bin/start.sh
       - ./apps/mysql/${MYSQL_CNF}:/etc/mysql/conf.d/my.cnf
       - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
-      - ./data/mysql:/var/lib/mysql
-      - ./logs/mysql:/var/log/mysqld
+      - ${DATA}/mysql:/var/lib/mysql
+      - ${LOGS}/mysql:/var/log/mysqld
     entrypoint: ["/usr/local/bin/start.sh"]
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -197,6 +197,22 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+  postgres:
+    image: ${POSTGRES}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${POSTGRES_IP}
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - ${DATA}/postgresql:/var/lib/postgresql/data
+      - ./apps/postgres/initdb.d:/docker-entrypoint-initdb.d
   doris-fe:
     image: ${DORIS_FE}
     extends:

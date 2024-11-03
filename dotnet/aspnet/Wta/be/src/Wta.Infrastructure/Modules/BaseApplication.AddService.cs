@@ -204,6 +204,7 @@ public abstract partial class BaseApplication
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             options.Converters.Add(new JsonNullableGuidConverter());
             options.Converters.Insert(0, new TrimJsonConverter());
+            //options.NumberHandling= JsonNumberHandling.WriteAsString;
         }
         builder.Services.Configure<JsonOptions>(o => configJson(o.SerializerOptions));
         builder.Services.AddMvc(options =>

@@ -43,7 +43,7 @@ public enum AvailabilitMode
 [OeeBaseData]
 [DependsOn<PlatformDbContext>]
 [Display(Name = "配置", Order = 3)]
-public class OeeConfiguration : BaseEntity, IValidatableObject
+public class OeeConfiguration : BaseEntity//, IValidatableObject
 {
     [Display(Name = "配置名称")]
     public string Name { get; set; } = default!;
@@ -75,22 +75,22 @@ public class OeeConfiguration : BaseEntity, IValidatableObject
     [Display(Name = "可用性模式")]
     public AvailabilitMode AvailabilitMode { get; set; }
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
-        if (AvailabilitMode == AvailabilitMode.AUTO)
-        {
-            if (Numerator.Count == 0)
-            {
-                yield return new ValidationResult("实际运行时间不能为空", [nameof(Numerator).ToLowerCamelCase()]);
-            }
-            if (Numerator.Any(o => !Denominator.Any(d => d.Contains(o))))
-            {
-                yield return new ValidationResult("实际运行时间必须包含在计划运行时间内", [nameof(Numerator).ToLowerCamelCase()]);
-            }
-            if (Denominator.Count == 0)
-            {
-                yield return new ValidationResult("计划运行时间不能为空", [nameof(Denominator).ToLowerCamelCase()]);
-            }
-        }
-    }
+    //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    //{
+    //    if (AvailabilitMode == AvailabilitMode.AUTO)
+    //    {
+    //        if (Numerator.Count == 0)
+    //        {
+    //            yield return new ValidationResult("实际运行时间不能为空", [nameof(Numerator).ToLowerCamelCase()]);
+    //        }
+    //        if (Numerator.Any(o => !Denominator.Any(d => d.Contains(o))))
+    //        {
+    //            yield return new ValidationResult("实际运行时间必须包含在计划运行时间内", [nameof(Numerator).ToLowerCamelCase()]);
+    //        }
+    //        if (Denominator.Count == 0)
+    //        {
+    //            yield return new ValidationResult("计划运行时间不能为空", [nameof(Denominator).ToLowerCamelCase()]);
+    //        }
+    //    }
+    //}
 }

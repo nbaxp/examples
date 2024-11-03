@@ -5,7 +5,7 @@ public class BaseDataAttribute : GroupAttribute
 {
 }
 
-//[Display(Name = "厂区信息", Order = 10)]
-//public class WorkAreaAttribute : BaseDataAttribute
-//{
-//}
+[Display(Name = "计量单位", Order = 10)]
+public class UomGroupAttribute : BaseDataAttribute
+{
+}
