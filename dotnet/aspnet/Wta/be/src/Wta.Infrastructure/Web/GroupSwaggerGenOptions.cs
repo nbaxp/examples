@@ -12,4 +12,3 @@ public class GroupSwaggerGenOptions(IApiDescriptionGroupCollectionProvider provi
         }
     }
 }
-

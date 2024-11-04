@@ -12,7 +12,6 @@ using Serilog;
 using Serilog.Events;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Modules;
 

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Wta.Infrastructure.Application.Domain;
 
-public class Audit:ITenant, IEntityTypeConfiguration<Audit>
+public class Audit : ITenant, IEntityTypeConfiguration<Audit>
 {
     public Guid Id { get; set; }
     public Guid EntityId { get; set; }

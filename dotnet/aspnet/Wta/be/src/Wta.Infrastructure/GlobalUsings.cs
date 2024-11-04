@@ -10,6 +10,7 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Text.Unicode;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 //
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Builder;
@@ -34,6 +35,7 @@ global using Microsoft.Extensions.Options;
 global using Microsoft.IdentityModel.JsonWebTokens;
 global using Microsoft.IdentityModel.Tokens;
 global using Microsoft.OpenApi.Models;
+
 //
 global using Wta.Infrastructure.Application.Configuration;
 global using Wta.Infrastructure.Attributes;
@@ -44,4 +46,3 @@ global using Wta.Infrastructure.Extensions;
 global using Wta.Infrastructure.Resources;
 global using Wta.Infrastructure.SignalR;
 global using Wta.Infrastructure.Web;
-

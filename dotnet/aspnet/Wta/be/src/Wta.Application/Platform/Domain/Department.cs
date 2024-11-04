@@ -40,6 +40,7 @@ public class Department : BaseTreeEntity<Department>, IEntityTypeConfiguration<D
     {
         builder.HasOne(o => o.Manager).WithMany(o => o.Departments).HasForeignKey(o => o.ManagerId).OnDelete(DeleteBehavior.SetNull);
     }
+
     //{
     //    get
     //    {

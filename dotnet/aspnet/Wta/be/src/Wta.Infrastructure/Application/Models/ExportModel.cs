@@ -4,5 +4,4 @@ public class ExportModel<T> : QueryModel<T>
 {
     public string Format { get; set; } = null!;
     public string? Name { get; set; }
-
 }

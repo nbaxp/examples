@@ -1,4 +1,5 @@
 namespace Wta.Infrastructure.Web;
+
 public class TrimModelBinderProvider : IModelBinderProvider
 {
     public IModelBinder? GetBinder(ModelBinderProviderContext context)

@@ -1,4 +1,3 @@
-using ClosedXML;
 using Microsoft.AspNetCore.Mvc;
 using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Application.Models;

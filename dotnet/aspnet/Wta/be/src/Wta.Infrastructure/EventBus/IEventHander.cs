@@ -1,4 +1,5 @@
 namespace Wta.Infrastructure.Event;
+
 public interface IEventHander<T>
 {
     Task Handle(T data);

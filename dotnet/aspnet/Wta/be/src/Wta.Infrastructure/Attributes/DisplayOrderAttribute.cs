@@ -1,4 +1,3 @@
-
 namespace Wta.Infrastructure.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]

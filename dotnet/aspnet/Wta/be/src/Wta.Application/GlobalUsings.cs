@@ -7,6 +7,7 @@ global using System.Security.Claims;
 global using System.Text;
 global using System.Text.Json.Serialization;
 global using System.Text.RegularExpressions;
+
 //
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.AspNetCore.Authorization;
@@ -25,6 +26,7 @@ global using Microsoft.Extensions.Localization;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Options;
 global using Microsoft.IdentityModel.Tokens;
+
 //
 global using Wta.Application.Platform.Domain;
 global using Wta.Application.Platform.Models;

@@ -3,7 +3,7 @@ using Wta.Application.Platform.Data;
 namespace Wta.Application.Platform.Domain;
 
 [DependsOn<PlatformDbContext>]
-public class RolePermission : ISoftDelete, ITenant,IEntityTypeConfiguration<RolePermission>
+public class RolePermission : ISoftDelete, ITenant, IEntityTypeConfiguration<RolePermission>
 {
     public Guid RoleId { get; set; }
     public Guid PermissionId { get; set; }

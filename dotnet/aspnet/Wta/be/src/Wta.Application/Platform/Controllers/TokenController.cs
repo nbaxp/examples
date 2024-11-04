@@ -260,7 +260,7 @@ public class TokenController(
         var url3 = Url.Content("~/")
             .SetQueryParam("provider", provider)
             .SetQueryParam("open_id", openId)
-            .SetQueryParam("access_token",access_token)
+            .SetQueryParam("access_token", access_token)
             .SetFragment("/callback");
         return Redirect(url3);
         //var loginUser = userLoginRepository.AsNoTracking().Include(o => o.User).FirstOrDefault(o => o.LoginProvider == provider && o.ProviderKey == openId);

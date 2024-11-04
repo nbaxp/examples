@@ -5,7 +5,7 @@ namespace Wta.Application.Platform.Domain;
 
 [PermissionManagement, Display(Name = "角色", Order = 4)]
 [DependsOn<PlatformDbContext>]
-public class Role : Entity,IEntityTypeConfiguration<Role>
+public class Role : Entity, IEntityTypeConfiguration<Role>
 {
     public string Name { get; set; } = default!;
     public string Number { get; set; } = default!;

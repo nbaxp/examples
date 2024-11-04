@@ -12,7 +12,7 @@ public class LoginRequestModel : CaptchaModel
     [KeyValue("value", "number")]
     [KeyValue("label", "name")]
     [Required]
-    [Display(Name ="租户")]
+    [Display(Name = "租户")]
     public string TenantNumber { get; set; } = default!;
 
     [KeyValue("icon", "ep-user")]

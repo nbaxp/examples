@@ -1,4 +1,3 @@
-
 namespace Wta.Application.Platform.Controllers;
 
 [View("user-center/message")]

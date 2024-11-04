@@ -53,19 +53,19 @@ public class BaseDataDbSeeder() : IDbSeeder<PlatformDbContext>
                     Number = "0101000000",
                     CategoryId = workstationCategoryList.First(o => o.Number == "20").Id,
                     Children = [
-                        new ()
+                        new()
                         {
                             Name = "产线1",
                             Number = "0101010000",
                             CategoryId = workstationCategoryList.First(o => o.Number == "30").Id,
                             Children = [
-                                new ()
+                                new()
                                 {
                                     Name = "线体1",
                                     Number = "0101010100",
                                     CategoryId = workstationCategoryList.First(o => o.Number == "40").Id,
                                     Children = [
-                                        new ()
+                                        new()
                                         {
                                             Name = "工位1",
                                             Number = "0101010101",

@@ -26,12 +26,17 @@ public enum AssetType
 [Display(Name = "资产型号", Order = 105)]
 [DependsOn<PlatformDbContext>]
 [BaseData]
-public class AssetVersion : BaseNameNumberEntity
+public class AssetVersion : BaseNameNumberEntity, IEntityTypeConfiguration<AssetVersion>
 {
     [Display(Name = "类型")]
     public AssetType Type { get; set; }
 
     public List<AttributeMeta> Attributes { get; set; } = [];
+
+    public void Configure(EntityTypeBuilder<AssetVersion> builder)
+    {
+        builder.OwnsMany(o => o.Attributes, o => o.ToJson());
+    }
 }
 
 [Display(Name = "资产型号")]
@@ -62,7 +67,7 @@ public class AttributeMeta
 [DependsOn<PlatformDbContext>]
 [BaseData]
 [Display(Name = "资产", Order = 110)]
-public class Asset : BaseTreeEntity<Asset>
+public class Asset : BaseTreeEntity<Asset>, IEntityTypeConfiguration<Asset>
 {
     [UIHint("select")]
     [KeyValue("url", "asset-category/search")]
@@ -76,6 +81,12 @@ public class Asset : BaseTreeEntity<Asset>
 
     public List<KeyValue> Values { get; set; } = [];
     public List<WorkstationDevice> WorkstationDevices { get; set; } = [];
+
+    public void Configure(EntityTypeBuilder<Asset> builder)
+    {
+        builder.HasOne(o => o.Category).WithMany(o => o.Assets).HasForeignKey(o => o.CategoryId).OnDelete(DeleteBehavior.SetNull);
+        builder.OwnsMany(o => o.Values, o => o.ToJson());
+    }
 }
 
 //[DependsOn<PlatformDbContext>]
@@ -110,7 +121,7 @@ public class WorkstationCategory : BaseNameNumberEntity
 [DependsOn<PlatformDbContext>]
 [BaseData]
 [Display(Name = "工位", Order = 130)]
-public class Workstation : BaseTreeEntity<Workstation>
+public class Workstation : BaseTreeEntity<Workstation>, IEntityTypeConfiguration<Workstation>
 {
     [UIHint("select")]
     [KeyValue("url", "workstation-category/search")]
@@ -146,12 +157,17 @@ public class Workstation : BaseTreeEntity<Workstation>
 
     [Display(Name = "班次")]
     public List<WorkstationTimeGroup> TimeGroups { get; set; } = [];
+
+    public void Configure(EntityTypeBuilder<Workstation> builder)
+    {
+        builder.HasOne(o => o.Category).WithMany(o => o.Workstations).HasForeignKey(o => o.CategoryId).OnDelete(DeleteBehavior.SetNull);
+    }
 }
 
 [DependsOn<PlatformDbContext>]
 [BaseData]
 [Display(Name = "工位设备", Order = 140)]
-public class WorkstationDevice : ISoftDelete, ITenant
+public class WorkstationDevice : ISoftDelete, ITenant, IEntityTypeConfiguration<WorkstationDevice>
 {
     public Guid WorkstationId { get; set; }
     public Guid AssetId { get; set; }
@@ -159,6 +175,13 @@ public class WorkstationDevice : ISoftDelete, ITenant
     public Asset? Asset { get; set; }
     public bool IsDeleted { get; set; }
     public string? TenantNumber { get; set; }
+
+    public void Configure(EntityTypeBuilder<WorkstationDevice> builder)
+    {
+        builder.HasKey(o => new { o.WorkstationId, o.AssetId });
+        builder.HasOne(o => o.Workstation).WithMany(o => o.WorkstationDevices).HasForeignKey(o => o.WorkstationId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.Asset).WithMany(o => o.WorkstationDevices).HasForeignKey(o => o.AssetId).OnDelete(DeleteBehavior.Cascade);
+    }
 }
 
 [DependsOn<PlatformDbContext>]
@@ -198,7 +221,7 @@ public class WorkstationDeviceLog : BaseEntity
 [DependsOn<PlatformDbContext>]
 [BaseData]
 [Display(Name = "班次", Order = 150)]
-public class WorkstationTimeGroup : BaseEntity
+public class WorkstationTimeGroup : BaseEntity, IEntityTypeConfiguration<WorkstationTimeGroup>
 {
     [UIHint("select")]
     [KeyValue("url", "workstation/search")]
@@ -223,12 +246,17 @@ public class WorkstationTimeGroup : BaseEntity
     public TimeOnly End { get; set; }
 
     public List<TimeRange> Ranges { get; set; } = [];
+
+    public void Configure(EntityTypeBuilder<WorkstationTimeGroup> builder)
+    {
+        builder.HasOne(o => o.Workstation).WithMany(o => o.TimeGroups).HasForeignKey(o => o.WorkstationId).OnDelete(DeleteBehavior.Cascade);
+    }
 }
 
 [DependsOn<PlatformDbContext>]
 [BaseData]
 [Display(Name = "时间段", Order = 160)]
-public class TimeRange : BaseEntity
+public class TimeRange : BaseEntity, IEntityTypeConfiguration<TimeRange>
 {
     [UIHint("select")]
     [KeyValue("url", "workstation-time-group/search")]
@@ -247,4 +275,9 @@ public class TimeRange : BaseEntity
     [Display(Name = "结束")]
     [UIHint("time")]
     public TimeOnly End { get; set; }
+
+    public void Configure(EntityTypeBuilder<TimeRange> builder)
+    {
+        builder.HasOne(o => o.Group).WithMany(o => o.Ranges).HasForeignKey(o => o.GroupId).OnDelete(DeleteBehavior.Cascade);
+    }
 }
