@@ -7,7 +7,7 @@ export default {
   isMenuCollapse: false,
   color: '#409eff',
   size: 'default',
-  mode: 'auto',
+  theme: 'light',
   useDarkNav: false,
   useTabs: true,
   showCopyright: false,

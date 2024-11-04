@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import createRouteGuard from './guard.js';
 import routes from './routes.js';
 import { trimStart, trimEnd } from 'lodash';

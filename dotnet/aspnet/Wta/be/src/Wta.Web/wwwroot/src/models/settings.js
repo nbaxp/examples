@@ -49,12 +49,11 @@ export default function () {
         title: '主题色',
         input: 'color',
       },
-      mode: {
-        title: '主题模式',
+      theme: {
+        title: '主题',
         input: 'radio',
         default: 'auto',
         options: [
-          { value: 'auto', label: '跟随系统' },
           { value: 'light', label: '浅色' },
           { value: 'dark', label: '深色' },
         ],

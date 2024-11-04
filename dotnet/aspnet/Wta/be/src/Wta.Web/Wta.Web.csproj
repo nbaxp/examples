@@ -5,6 +5,12 @@
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="appsettings.Development.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="appsettings.Development.json" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Wta.Application\Wta.Application.csproj" />
     <ProjectReference Include="..\Wta.Migrations\Wta.Migrations.csproj" />
   </ItemGroup>

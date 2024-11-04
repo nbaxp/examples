@@ -6,6 +6,7 @@ import html from 'utils';
 import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import LayoutTheme from './theme.js';
 import LayoutLocale from './locale.js';
 import LayoutLogo from './logo.js';
 import { HeadMenu } from './menu.js';
@@ -15,6 +16,7 @@ export default {
   components: {
     SvgIcon,
     LayoutLogo,
+    LayoutTheme,
     LayoutLocale,
     LayoutSettings,
     ElMessage,
@@ -58,6 +60,7 @@ export default {
           @click="searchChange(item)"
         />
       </el-select>
+      <layout-theme />
       <el-icon @click="toggleFullscreen" :size="18" class="cursor-pointer">
         <svg-icon name="fullscreen-exit" v-if="isFullscreen" />
         <svg-icon name="fullscreen" v-else />

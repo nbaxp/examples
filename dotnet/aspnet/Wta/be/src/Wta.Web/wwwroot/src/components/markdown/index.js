@@ -1,13 +1,9 @@
-import html from 'utils';
-import { onMounted, ref } from 'vue';
-import Cherry from '~/lib/cherry-markdown/cherry-markdown.esm.js';
-import '~/lib/cherry-markdown/echarts/echarts.min.js';
-import '~/lib/cherry-markdown/addons/cherry-code-block-mermaid-plugin.js';
-import '~/lib/cherry-markdown/mermaid/mermaid.min.js';
-
-Cherry.usePlugin(window.CherryCodeBlockMermaidPlugin, {
-  mermaid: window.mermaid,
-});
+import html from "utils";
+import { onMounted, ref,watchEffect } from "vue";
+import Cherry from "~/lib/cherry-markdown/cherry-markdown.esm.js";
+import "~/lib/cherry-markdown/echarts/echarts.min.js";
+import "~/lib/cherry-markdown/addons/advance/cherry-table-echarts-plugin.js";
+import { useAppStore } from "@/store/index.js";
 
 export default {
   template: html`
@@ -29,27 +25,74 @@ export default {
   },
   setup(props) {
     const tplRef = ref(null);
-
+    const appStore = useAppStore();
+    let cherry;
+    watchEffect(()=>{
+      if(appStore.settings.theme==='light')
+      {
+        cherry?.setTheme('default');
+        cherry?.setCodeBlockTheme('default');
+      }
+      else{
+        cherry?.setTheme('dark');
+        cherry?.setCodeBlockTheme('dark');
+      }
+      localStorage.removeItem(`${cherry?.options.nameSpace}-theme`);
+      localStorage.removeItem(`${cherry?.options.nameSpace}-codeTheme`);
+    });
     onMounted(async () => {
-      let mdText = tplRef.value.querySelector('.source pre')?.innerText;
+      let mdText = tplRef.value.querySelector(".source pre")?.innerText;
       if (props.name !== null) {
         const response = await fetch(`./src/assets/docs/${props.name}.md`);
         mdText = await response.text();
       }
-      new Cherry({
-        el: tplRef.value.querySelector('.cherry-markdown'),
+      cherry = new Cherry({
+        el: tplRef.value.querySelector(".cherry-markdown"),
         value: mdText,
+        themeSettings: {
+          // 目前应用的主题
+          mainTheme: appStore.settings.theme,
+          // 目前应用的代码块主题
+          codeBlockTheme: appStore.settings.theme,
+        },
+        externals: {
+          // echarts: window.echarts,
+          // katex: window.katex,
+          MathJax: window.MathJax,
+        },
+        engine: {
+          syntax: {
+            header: {
+              anchorStyle: "autonumber",
+            },
+            toc: {
+              showAutoNumber: true,
+              // updateLocationHash: true,
+              // position: 'fixed',
+            },
+            mathBlock: {
+              engine: "MathJax", // katex或MathJax
+              src: "./lib/mathjax/tex-svg.js",
+            },
+          },
+        },
+        isPreviewOnly: true,
         toolbars: {
           toolbar: false,
         },
         editor: {
-          defaultModel: 'previewOnly',
+          defaultModel: "previewOnly",
         },
         previewer: {
-          className: 'cherry-markdown',
+          className: "cherry-markdown",
+          enablePreviewerBubble: false,
         },
+        // event: {
+        //   changeMainTheme: (theme) => alert(theme),
+        //   changeCodeBlockTheme: (theme) => alert(theme),
+        // },
       });
-      tplRef.value.querySelector('.source').remove();
+      tplRef.value.querySelector(".source").remove();
     });
     return {
       tplRef,

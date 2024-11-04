@@ -1,6 +1,37 @@
-# 基础数据
+# 功能模块
 
-## 工位
+行内公式： $e=mc^2$
+
+## 基础数据
+
+## 用户中心
+
+```mermaid
+flowchart LR
+用户中心-->我的待办
+用户中心-->用户信息
+用户中心-->修改密码
+```
+
+## 系统管理
+
+```mermaid
+flowchart LR
+系统管理-->组织管理
+组织管理-->部门
+组织管理-->岗位
+组织管理-->工作组
+系统管理-->权限管理
+权限管理-->用户
+权限管理-->角色
+权限管理-->权限
+系统管理-->系统设置
+系统设置-->租户
+系统设置-->应用
+系统设置-->登录服务
+```
+
+### 工位
 
 ```mermaid
 flowchart LR
@@ -8,7 +39,7 @@ flowchart LR
 产线-->工位
 ```
 
-## 人员
+### 人员
 
 ```mermaid
 flowchart LR
@@ -16,7 +47,7 @@ flowchart LR
 部门-->人员
 ```
 
-## 产线班组班次
+### 产线班组班次
 
 ```mermaid
 flowchart LR
@@ -24,7 +55,7 @@ flowchart LR
 产线班组班次-->班次-->产线
 ```
 
-## 人员工位
+### 人员工位
 
 ```mermaid
 flowchart LR
@@ -32,9 +63,9 @@ flowchart LR
 人员工位-->人员-->班次
 ```
 
-## 组织机构
+### 组织机构
 
-### 基本职能
+#### 基本职能
 
 ```mermaid
 flowchart TD
@@ -44,7 +75,7 @@ flowchart TD
 组织-->营销
 ```
 
-### 生产与运作系统
+#### 生产与运作系统
 
 ```mermaid
 flowchart LR
@@ -56,7 +87,7 @@ flowchart LR
 控制-->产出
 ```
 
-### 组织机构模型
+#### 组织机构模型
 
 ```mermaid
 flowchart TD
@@ -87,7 +118,7 @@ flowchart TD
 财务中心-->财务部
 ```
 
-### 业务系统
+#### 业务系统
 
 ```mermaid
 flowchart LR
@@ -102,7 +133,7 @@ flowchart LR
 业务系统-->财务管理
 ```
 
-## EDI
+### EDI
 
 ```mermaid
 flowchart LR
