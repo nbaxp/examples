@@ -5,7 +5,7 @@ namespace Wta.Application.Platform.Domain;
 
 [OrganizationManagement, Display(Name = "工作组", Order = 3)]
 [DependsOn<PlatformDbContext>]
-public class WorkGroup : BaseTreeEntity<WorkGroup>
+public class WorkGroup : BaseTreeEntity<WorkGroup>, IEntityTypeConfiguration<WorkGroup>
 {
     [UIHint("select")]
     [KeyValue("url", "user/search")]
@@ -35,5 +35,9 @@ public class WorkGroup : BaseTreeEntity<WorkGroup>
         {
             this.WorkGroupUsers = value?.Distinct().Select(o => new WorkGroupUser { UserId = o }).ToList() ?? [];
         }
+    }
+
+    public void Configure(EntityTypeBuilder<WorkGroup> builder)
+    {
     }
 }

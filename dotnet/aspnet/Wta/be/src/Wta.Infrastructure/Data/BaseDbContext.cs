@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Wta.Infrastructure.Application.Domain;
 using Wta.Infrastructure.Tenant;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Wta.Infrastructure.Data;
 
@@ -185,11 +186,9 @@ public abstract class BaseDbContext<TDbContext> : DbContext where TDbContext : D
                     //通用配置
                     ConfigEntity(modelBuilder, entityType);
                     //自定义配置
-                    var config = ServiceProvider.GetService(typeof(IEntityTypeConfiguration<>).MakeGenericType(entityType));
-                    if (config != null)
-                    {
-                        method.MakeGenericMethod(entityType).Invoke(modelBuilder, [config]);
-                    }
+                    ServiceProvider.GetServices(typeof(IEntityTypeConfiguration<>).MakeGenericType(entityType)).ForEach(o => {
+                        method.MakeGenericMethod(entityType).Invoke(modelBuilder, [o]);
+                    });
                 }
             });
     }

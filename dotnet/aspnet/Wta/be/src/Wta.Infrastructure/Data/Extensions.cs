@@ -16,8 +16,9 @@ public static class Extensions
     public static void AddDbContext<TDbContext>(this WebApplicationBuilder builder)
     where TDbContext : DbContext
     {
-        var provider = builder.Configuration.GetValue<string>($"DbContextProviders:{typeof(TDbContext).Name}")?.ToLowerInvariant()!;
-        var connectionString = builder.Configuration.GetConnectionString(typeof(TDbContext).Name)!;
+        var connectionStringValues = builder.Configuration.GetConnectionString(typeof(TDbContext).Name)!.Split(":");
+        var provider = connectionStringValues[0];
+        var connectionString = connectionStringValues[1];
         var migrationsAssemblyName = "Wta.Migrations";
         builder.Services.AddScoped<DbContext, TDbContext>();
         if (provider == "mysql")

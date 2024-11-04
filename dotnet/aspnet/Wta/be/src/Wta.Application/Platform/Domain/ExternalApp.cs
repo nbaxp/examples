@@ -3,7 +3,7 @@ using Wta.Application.Platform.Data;
 namespace Wta.Application.Platform.Domain;
 
 [DependsOn<PlatformDbContext>, SystemSettings, Display(Name = "应用", Order = 8)]
-public class ExternalApp : Entity
+public class ExternalApp : Entity, IEntityTypeConfiguration<ExternalApp>
 {
     [Hidden]
     public Guid UserId { get; set; }
@@ -45,4 +45,10 @@ public class ExternalApp : Entity
 
     [Hidden]
     public User? User { get; set; }
+
+    public void Configure(EntityTypeBuilder<ExternalApp> builder)
+    {
+        builder.HasIndex(o => new { o.TenantNumber, o.Name }).IsUnique();
+        builder.HasOne(o => o.User).WithMany(o => o.Apps).HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.Cascade);
+    }
 }

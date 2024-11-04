@@ -5,7 +5,7 @@ namespace Wta.Application.Platform.Domain;
 
 [PermissionManagement, Display(Name = "角色", Order = 4)]
 [DependsOn<PlatformDbContext>]
-public class Role : Entity
+public class Role : Entity,IEntityTypeConfiguration<Role>
 {
     public string Name { get; set; } = default!;
     public string Number { get; set; } = default!;
@@ -34,5 +34,10 @@ public class Role : Entity
         {
             this.RolePermissions = value?.Distinct().Select(o => new RolePermission { PermissionId = o }).ToList() ?? [];
         }
+    }
+
+    public void Configure(EntityTypeBuilder<Role> builder)
+    {
+        builder.HasIndex(o => new { o.TenantNumber, o.Number }).IsUnique();
     }
 }

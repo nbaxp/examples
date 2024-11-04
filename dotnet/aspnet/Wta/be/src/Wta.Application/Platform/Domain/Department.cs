@@ -5,7 +5,7 @@ namespace Wta.Application.Platform.Domain;
 
 [OrganizationManagement, Display(Name = "部门", Order = 1)]
 [DependsOn<PlatformDbContext>]
-public class Department : BaseTreeEntity<Department>
+public class Department : BaseTreeEntity<Department>, IEntityTypeConfiguration<Department>
 {
     [UIHint("select")]
     [KeyValue("url", "user/search")]
@@ -35,6 +35,11 @@ public class Department : BaseTreeEntity<Department>
     [Display(Name = "成员")]
     [NotMapped]
     public List<Guid> DepartmentUsers { get; set; } = null!;
+
+    public void Configure(EntityTypeBuilder<Department> builder)
+    {
+        builder.HasOne(o => o.Manager).WithMany(o => o.Departments).HasForeignKey(o => o.ManagerId).OnDelete(DeleteBehavior.SetNull);
+    }
     //{
     //    get
     //    {

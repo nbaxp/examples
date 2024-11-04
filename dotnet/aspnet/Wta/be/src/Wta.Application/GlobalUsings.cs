@@ -39,6 +39,5 @@ global using Wta.Infrastructure.Exceptions;
 global using Wta.Infrastructure.Extensions;
 global using Wta.Infrastructure.ImportExport;
 global using Wta.Infrastructure.Security;
-global using Wta.Infrastructure.Startup;
 global using Wta.Infrastructure.Tenant;
 global using Wta.Infrastructure.Web;

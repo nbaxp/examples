@@ -12,6 +12,7 @@ using Serilog;
 using Serilog.Events;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Wta.Infrastructure.Application.Domain;
 
 namespace Wta.Infrastructure.Modules;
 
@@ -376,6 +377,16 @@ public abstract partial class BaseApplication
         AppDomain.CurrentDomain.GetCustomerAssemblies()
             .SelectMany(o => o.GetTypes())
             .Where(o => !o.IsAbstract && o.GetBaseClasses().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(BaseDbConfig<>)))
+            .ForEach(configType =>
+            {
+                configType.GetInterfaces().Where(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)).ForEach(o =>
+                {
+                    builder.Services.AddScoped(typeof(IEntityTypeConfiguration<>).MakeGenericType(o.GenericTypeArguments.First()), configType);
+                });
+            });
+        AppDomain.CurrentDomain.GetCustomerAssemblies()
+            .SelectMany(o => o.GetTypes())
+            .Where(o => !o.IsAbstract && o.IsAssignableTo(typeof(ITenant)) && o.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)))
             .ForEach(configType =>
             {
                 configType.GetInterfaces().Where(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)).ForEach(o =>

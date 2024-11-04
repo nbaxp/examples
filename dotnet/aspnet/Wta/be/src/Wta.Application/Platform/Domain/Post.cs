@@ -5,7 +5,7 @@ namespace Wta.Application.Platform.Domain;
 [OrganizationManagement]
 [Display(Name = "岗位", Order = 2)]
 [DependsOn<PlatformDbContext>]
-public class Post : BaseTreeEntity<Post>
+public class Post : BaseTreeEntity<Post>, IEntityTypeConfiguration<Post>
 {
     [UIHint("select")]
     [KeyValue("url", "department/search")]
@@ -21,4 +21,9 @@ public class Post : BaseTreeEntity<Post>
 
     [Hidden]
     public List<Department> Departments { get; set; } = [];
+
+    public void Configure(EntityTypeBuilder<Post> builder)
+    {
+        builder.HasOne(o => o.Department).WithMany(o => o.Posts).HasForeignKey(o => o.DepartmentId).OnDelete(DeleteBehavior.SetNull);
+    }
 }

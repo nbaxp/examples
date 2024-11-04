@@ -5,7 +5,7 @@ namespace Wta.Application.Platform.Domain;
 
 [SystemSettings, Display(Name = "租户", Order = 7)]
 [DependsOn<PlatformDbContext>]
-public class Tenant : Entity
+public class Tenant : Entity, IEntityTypeConfiguration<Tenant>
 {
     [Display(Name = "名称")]
     public string Name { get; set; } = default!;
@@ -32,4 +32,11 @@ public class Tenant : Entity
     [KeyValue("isTree", true)]
     [NotMapped]
     public List<string> Permissions { get; set; } = [];
+
+    public void Configure(EntityTypeBuilder<Tenant> builder)
+    {
+        builder.Property(o => o.Name).IsRequired();
+        builder.Property(o => o.Number).IsRequired();
+        builder.HasIndex(o => o.Number).IsUnique();
+    }
 }

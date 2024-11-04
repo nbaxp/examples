@@ -1,12 +1,12 @@
+using Wta.Application.Platform.Data;
+using Wta.Infrastructure.Modules;
+
 namespace Wta.Application.Platform;
 
-public class PlatformModule : IStartup
+public class PlatformModule : BaseModule
 {
-    public void Configure(WebApplication webApplication)
+    public override void ConfigureServices(WebApplicationBuilder builder)
     {
-    }
-
-    public void ConfigureServices(WebApplicationBuilder builder)
-    {
+        builder.AddDbContext<PlatformDbContext>();
     }
 }

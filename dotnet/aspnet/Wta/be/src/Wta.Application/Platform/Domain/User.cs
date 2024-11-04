@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.EntityFrameworkCore;
 using Wta.Application.Platform.Data;
 
 namespace Wta.Application.Platform.Domain;
 
 [PermissionManagement, Display(Name = "用户", Order = 3)]
 [DependsOn<PlatformDbContext>]
-public class User : Entity
+public class User : Entity, IEntityTypeConfiguration<User>
 {
     [ReadOnly(true)]
     [Display(Name = "登录名")]
@@ -133,4 +134,12 @@ public class User : Entity
 
     [Hidden]
     public List<ExternalApp> Apps { get; set; } = [];
+
+    public void Configure(EntityTypeBuilder<User> builder)
+    {
+        builder.HasOne(o => o.Department).WithMany(o => o.Users).HasForeignKey(o => o.DepartmentId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(o => o.Post).WithMany(o => o.Users).HasForeignKey(o => o.PostId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasIndex(o => new { o.TenantNumber, o.NormalizedUserName }).IsUnique();
+        //builder.Navigation(o => o.UserRoles).AutoInclude();
+    }
 }
