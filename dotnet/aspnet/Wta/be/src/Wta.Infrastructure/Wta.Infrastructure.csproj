@@ -1,23 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="Resources\carlito.ttf" />
     <None Remove="wwwroot\favicon.ico" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="Resources\carlito.ttf" />
     <EmbeddedResource Include="wwwroot\**"></EmbeddedResource>
   </ItemGroup>
- 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  
   <ItemGroup>
     <PackageReference Include="Autofac" />
     <PackageReference Include="Autofac.Configuration" />
@@ -73,5 +68,4 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="ValueInjecter" />
   </ItemGroup>
-
 </Project>

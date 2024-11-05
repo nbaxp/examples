@@ -1,6 +1,6 @@
 using Wta.Application.Platform;
 
-namespace Wta.Application.Oee.Data;
+namespace Wta.Application.Oee;
 
 [Display(Order = -1)]
 public class OeeDbSeeder() : IDbSeeder<PlatformDbContext>
