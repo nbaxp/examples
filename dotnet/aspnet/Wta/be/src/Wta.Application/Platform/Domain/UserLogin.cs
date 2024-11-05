@@ -1,5 +1,3 @@
-using Wta.Application.Platform.Data;
-
 namespace Wta.Application.Platform.Domain;
 
 [PermissionManagement, Display(Name = "登录绑定", Order = 6)]

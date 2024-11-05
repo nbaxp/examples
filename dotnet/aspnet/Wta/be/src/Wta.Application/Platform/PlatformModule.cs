@@ -1,4 +1,3 @@
-using Wta.Application.Platform.Data;
 using Wta.Infrastructure.Modules;
 
 namespace Wta.Application.Platform;

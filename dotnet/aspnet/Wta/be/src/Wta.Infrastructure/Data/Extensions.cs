@@ -1,18 +1,7 @@
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
 namespace Wta.Infrastructure.Data;
 
 public static class Extensions
 {
-    public static void ToJsonExt<TEntity, TRelatedEntity, TProperty>(this EntityTypeBuilder<TEntity> builder, Expression<Func<TEntity, IEnumerable<TRelatedEntity>?>> navigationExpression, Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression)
-        where TEntity : class
-        where TRelatedEntity : class
-    {
-        builder.Property(propertyExpression).HasColumnType("json");
-        builder.OwnsMany(navigationExpression, o => o.ToJson());
-    }
-
     public static void AddDbContext<TDbContext>(this WebApplicationBuilder builder)
     where TDbContext : DbContext
     {

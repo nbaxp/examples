@@ -3,3 +3,15 @@
 @import url('../lib/element-plus/theme-chalk/dark/css-vars.css');
 @import url('../lib/tailwindcss/tailwind.min.css');
 @import url('./style/site.css');
+
+.h-full {
+  height: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}

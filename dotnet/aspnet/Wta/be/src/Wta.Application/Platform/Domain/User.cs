@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Wta.Application.Platform.Data;
 
 namespace Wta.Application.Platform.Domain;
 

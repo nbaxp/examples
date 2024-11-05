@@ -1,13 +1,14 @@
 using Wta.Application.BaseData.Domain;
-using Wta.Application.Platform.Data;
+using Wta.Application.Platform;
 
-namespace Wta.Application.BaseData.Data;
+namespace Wta.Application.BaseData;
 
 [Display(Order = -1)]
 public class BaseDataDbSeeder() : IDbSeeder<PlatformDbContext>
 {
     public void Seed(PlatformDbContext context)
     {
+        //计量单位
         var unitCategoryList = new List<UnitCategory>() {
             new() { Name = "数量", Number = "10" },
             new() { Name = "质量", Number = "20" },
@@ -31,6 +32,7 @@ public class BaseDataDbSeeder() : IDbSeeder<PlatformDbContext>
 
         context.Set<Uom>().AddRange(units);
 
+        //工位
         var workstationCategoryList = new List<WorkstationCategory>() {
             new() {Id = context.NewGuid(), Name = "厂区", Number = "10" },
             new() {Id = context.NewGuid(), Name = "车间", Number = "20" },
@@ -79,7 +81,8 @@ public class BaseDataDbSeeder() : IDbSeeder<PlatformDbContext>
                 },
             ]
         }.UpdateNode());
-        //
+
+        //资产
         var assetCategoryList = new List<AssetCategory>(){
             new() {Id = context.NewGuid(), Name = "生产设备", Number = "10" },
             new() {Id = context.NewGuid(), Name = "其他设备", Number = "20" },
@@ -100,6 +103,18 @@ public class BaseDataDbSeeder() : IDbSeeder<PlatformDbContext>
                 CategoryId = assetCategoryList.First(o => o.Number == "10").Id }.UpdateNode()
             };
         context.Set<Asset>().AddRange(assets);
+        //
+        var workstationStatus = new List<WorkstationStatus> {
+            new(){ Name = "呼叫主管", Number = "10" },
+            new(){ Name = "呼叫维修班长", Number = "20" },
+            new(){ Name = "呼叫维修", Number = "30" },
+            new(){ Name = "部品异常", Number = "40" },
+            new(){ Name = "呼叫班长", Number = "50" },
+            new(){ Name = "机种交换", Number = "60" },
+            new(){ Name = "料把回收", Number = "70" },
+            new(){ Name = "工艺参数错误", Number = "80" },
+        };
+        context.Set<WorkstationStatus>().AddRange(workstationStatus);
         //
         context.SaveChanges();
     }

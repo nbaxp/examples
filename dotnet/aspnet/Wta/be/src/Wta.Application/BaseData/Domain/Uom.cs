@@ -1,10 +1,14 @@
-using Wta.Application.Platform.Data;
+using Wta.Application.Platform;
 
 namespace Wta.Application.BaseData.Domain;
 
 [DependsOn<PlatformDbContext>, UomGroup, Display(Name = "计量单位", Order = 20)]
 public class Uom : BaseNameNumberEntity, IEntityTypeConfiguration<Uom>
 {
+    [UIHint("select")]
+    [KeyValue("url", "unit-category/search")]
+    [KeyValue("value", "id")]
+    [KeyValue("label", "name")]
     [Display(Name = "类型")]
     public Guid CategoryId { get; set; }
 

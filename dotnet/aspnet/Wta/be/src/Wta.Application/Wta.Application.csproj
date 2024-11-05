@@ -14,6 +14,6 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Oee\Models\" />
+    <Folder Include="Platform\Data\" />
   </ItemGroup>
 </Project>

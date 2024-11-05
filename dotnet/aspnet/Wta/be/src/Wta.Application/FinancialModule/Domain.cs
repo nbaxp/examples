@@ -1,4 +1,4 @@
-using Wta.Application.Platform.Data;
+using Wta.Application.Platform;
 
 namespace Wta.Application.FinancialModule;
 

@@ -1,5 +1,3 @@
-using Wta.Application.Platform.Data;
-
 namespace Wta.Application.Platform.Domain;
 
 [SystemSettings, Display(Name = "登录服务", Order = 8)]

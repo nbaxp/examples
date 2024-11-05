@@ -1,5 +1,3 @@
-using Wta.Application.Platform.Data;
-
 namespace Wta.Application.Platform.Domain;
 
 [DependsOn<PlatformDbContext>, SystemSettings, Display(Name = "应用", Order = 8)]

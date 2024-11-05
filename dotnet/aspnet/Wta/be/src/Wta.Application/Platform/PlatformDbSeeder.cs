@@ -1,6 +1,6 @@
 using ClosedXML;
 
-namespace Wta.Application.Platform.Data;
+namespace Wta.Application.Platform;
 
 [Display(Order = -1)]
 public class PlatformDbSeeder(IActionDescriptorCollectionProvider actionProvider, IEncryptionService encryptionService, ITenantService tenantService) : IDbSeeder<PlatformDbContext>
@@ -360,12 +360,36 @@ public class PlatformDbSeeder(IActionDescriptorCollectionProvider actionProvider
         }
 
         //设置分组首页
+        static Permission? FindFirstPage(List<Permission> nodes)
+        {
+            if (nodes.Any())
+            {
+                foreach (var item in nodes.OrderBy(o => o.Order))
+                {
+                    if (item.Type == MenuType.Menu)
+                    {
+                        return item;
+                    }
+                    else if (item.Type == MenuType.Group)
+                    {
+                        return FindFirstPage(item.Children);
+                    }
+                }
+            }
+            return null;
+        }
         list.Where(o => o.ParentId == null).ForEach(o =>
         {
-            var page = o.Children.Where(o => o.Type == MenuType.Menu).OrderBy(o => o.Order).FirstOrDefault();
+            var page = FindFirstPage(o.Children);
             if (page != null)
             {
-                o.Redirect = $"/{o.Number.ToSlugify()}/{page.Number.ToSlugify()}";
+                o.Redirect = "";
+                do
+                {
+                    o.Redirect = $"/{page.Number.ToSlugify()}" + o.Redirect;
+                    page = page.Parent!;
+                }
+                while (page != null);
             }
         });
 

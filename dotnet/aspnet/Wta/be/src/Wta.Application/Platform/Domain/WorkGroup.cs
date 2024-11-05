@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Wta.Application.Platform.Data;
 
 namespace Wta.Application.Platform.Domain;
 

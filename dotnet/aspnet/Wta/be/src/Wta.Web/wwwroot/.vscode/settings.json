@@ -32,5 +32,6 @@
   "[json]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
-  "markdownlint.run": "onSave"
+  "markdownlint.run": "onSave",
+  "markdown-preview-enhanced.plantumlServer": "https://kroki.io/plantuml/svg/"
 }
