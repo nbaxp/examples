@@ -1,15 +1,8 @@
 namespace Wta.Application.Platform.Controllers;
 
-[AllowAnonymous]
-public class HomeController(IServiceProvider serviceProvider) : Controller
+public class ResetDbController(IServiceProvider serviceProvider) : Controller
 {
-    [ResponseCache(NoStore = true), Ignore]
-    public IActionResult Index()
-    {
-        return File("~/index.html", "text/html");
-    }
-
-    [Ignore]
+    [HttpPost]
     public string Reset()
     {
         try
@@ -28,7 +21,7 @@ public class HomeController(IServiceProvider serviceProvider) : Controller
                 var seedList = scope.ServiceProvider.GetServices(dbSeedType)
                 .OrderBy(o => o!.GetType().GetAttribute<DisplayAttribute>()?.GetOrder() ?? 0)
                 .ToList();
-                foreach (var seeder in seedList)
+                foreach (var seeder in list)
                 {
                     dbSeedType.GetMethod(nameof(IDbSeeder<DbContext>.Seed))?.Invoke(seeder, [item]);
                 }
