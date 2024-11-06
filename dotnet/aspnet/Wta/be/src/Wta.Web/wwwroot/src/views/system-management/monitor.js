@@ -5,32 +5,30 @@ import { onActivated, onDeactivated, ref } from 'vue';
 export default {
   components: { Chart },
   template: html`
-    <div class="container xl">
-      <el-row :gutter="20" class="mb-5">
-        <el-col :span="12">
-          <el-card>
-            <chart :option="cpuModel" height="300px" />
-          </el-card>
-        </el-col>
-        <el-col :span="12">
-          <el-card>
-            <chart :option="memoryModel" height="300px" />
-          </el-card>
-        </el-col>
-      </el-row>
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-card>
-            <chart :option="networkModel" height="300px" />
-          </el-card>
-        </el-col>
-        <el-col :span="12">
-          <el-card>
-            <chart :option="diskModel" height="300px" />
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
+    <el-row
+      style="flex-wrap: wrap; align-items: center; justify-content: space-between;"
+    >
+      <div style="width:50%;max flex:1;padding:1rem;">
+        <el-card>
+          <chart :option="cpuModel" height="300px" />
+        </el-card>
+      </div>
+      <div style="width:50%;max flex:1;padding:1rem;">
+        <el-card>
+          <chart :option="memoryModel" height="300px" />
+        </el-card>
+      </div>
+      <div style="width:50%;max flex:1;padding:1rem;">
+        <el-card>
+          <chart :option="networkModel" height="300px" />
+        </el-card>
+      </div>
+      <div style="width:50%;max flex:1;padding:1rem;">
+        <el-card>
+          <chart :option="diskModel" height="300px" />
+        </el-card>
+      </div>
+    </el-row>
   `,
   setup() {
     const model = ref(null);
@@ -69,7 +67,9 @@ export default {
     let cpuUsage1 = null;
     const updateCpu = () => {
       const cpuUsage2 = {
-        idle: model.value.node_cpu_seconds_total.filter((o) => o.mode === 'idle').reduce(sum, 0),
+        idle: model.value.node_cpu_seconds_total
+          .filter((o) => o.mode === 'idle')
+          .reduce(sum, 0),
         total: model.value.node_cpu_seconds_total.reduce(sum, 0),
       };
       if (!cpuUsage1) {
@@ -127,10 +127,15 @@ export default {
         memoryModel.value.series[1].data.shift();
       }
       const totalMemory = model.value.node_memory_MemTotal_bytes.reduce(sum, 0);
-      const memoryUsage = ((1 - model.value.node_memory_MemAvailable_bytes.reduce(sum, 0) / totalMemory) * 100).toFixed(
-        2,
-      );
-      const processMemoryUsage = (model.value.process_private_memory_bytes.reduce(sum, 0) / totalMemory).toFixed(2);
+      const memoryUsage = (
+        (1 -
+          model.value.node_memory_MemAvailable_bytes.reduce(sum, 0) /
+            totalMemory) *
+        100
+      ).toFixed(2);
+      const processMemoryUsage = (
+        model.value.process_private_memory_bytes.reduce(sum, 0) / totalMemory
+      ).toFixed(2);
       memoryModel.value.series[0].data.push(memoryUsage);
       memoryModel.value.series[1].data.push(processMemoryUsage);
       memoryModel.value.title.text = '内存';
@@ -171,10 +176,16 @@ export default {
     let networkReceive1 = null;
     let networkTransmit1 = null;
     const updateNetwork = () => {
-      const networkReceive2 = model.value.node_network_receive_bytes_total.reduce(sum, 0);
-      const networkTransmit2 = model.value.node_network_transmit_bytes_total.reduce(sum, 0);
-      const networkReceive = Number.parseInt((networkReceive2 - networkReceive1) / 1024 / seconds);
-      const networkTransmit = Number.parseInt((networkTransmit2 - networkTransmit1) / 1024 / seconds);
+      const networkReceive2 =
+        model.value.node_network_receive_bytes_total.reduce(sum, 0);
+      const networkTransmit2 =
+        model.value.node_network_transmit_bytes_total.reduce(sum, 0);
+      const networkReceive = Number.parseInt(
+        (networkReceive2 - networkReceive1) / 1024 / seconds,
+      );
+      const networkTransmit = Number.parseInt(
+        (networkTransmit2 - networkTransmit1) / 1024 / seconds,
+      );
       if (!networkReceive1) {
         networkReceive1 = networkReceive2;
       } else {
@@ -230,7 +241,9 @@ export default {
         if (diskModel.value.series[i].data.length > 60) {
           diskModel.value.series[i].data.shift();
         }
-        diskModel.value.series[i].data.push(Number.parseInt(item.value / 1024 / 1024 / 1024));
+        diskModel.value.series[i].data.push(
+          Number.parseInt(item.value / 1024 / 1024 / 1024),
+        );
       }
       diskModel.value.title.text = '硬盘';
     };
@@ -251,7 +264,9 @@ export default {
         lines
           .filter((o) => !o.startsWith('#'))
           .map((o) => {
-            const [, name, , label, value] = /^([^{}]+)(\{(.+)\})? (.+)$/.exec(o);
+            const [, name, , label, value] = /^([^{}]+)(\{(.+)\})? (.+)$/.exec(
+              o,
+            );
             const result = {
               name,
               value: Number(value),

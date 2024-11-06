@@ -122,7 +122,7 @@ services:
     volumes:
       - ${DATA}/minio:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: [ "CMD", "mc", "ready", "local" ]
   redis:
     image: ${REDIS}
     extends:
@@ -138,9 +138,9 @@ services:
     volumes:
       - ./apps/redis/redis.conf:/usr/local/etc/redis/redis.conf
       - ${DATA}/redis:/data
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
   redisinsight:
     image: ${REDISINSIGHT}
     extends:
@@ -174,9 +174,9 @@ services:
       - ./apps/mysql/initdb.d:/docker-entrypoint-initdb.d
       - ${DATA}/mysql:/var/lib/mysql
       - ${LOGS}/mysql:/var/log/mysqld
-    entrypoint: ["/usr/local/bin/start.sh"]
+    entrypoint: [ "/usr/local/bin/start.sh" ]
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
   phpmyadmin:
     image: ${PHPMYADMIN}
     extends:
@@ -325,13 +325,7 @@ services:
     volumes:
       - ${DATA}/kafka:/bitnami/kafka
     healthcheck:
-      test:
-        [
-          "CMD",
-          "kafka-broker-api-versions.sh",
-          "--bootstrap-server",
-          "localhost:9092",
-        ]
+      test: [ "CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092" ]
   emqx:
     image: ${EMQX}
     extends:
@@ -345,6 +339,8 @@ services:
       EMQX_NAME: emqx
       EMQX_HOST: ${EMQX_IP}
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD__DEFAULT_PASSWORD}
+      EMQX_DURABLE_SESSIONS__ENABLE: true
+      EMQX_CLUSTER__DISCOVERY_STRATEGY: singleton
     ports:
       - 1883:1883
       - 8083:8083

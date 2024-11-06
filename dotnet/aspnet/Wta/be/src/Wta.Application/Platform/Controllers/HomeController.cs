@@ -40,4 +40,10 @@ public class HomeController(IServiceProvider serviceProvider) : Controller
             return ex.Message + ex.ToString();
         }
     }
+
+    //public object Test()
+    //{
+    //    var mqttclient = serviceProvider.GetRequiredService<MqttHostedService>().Client;
+    //    return mqttclient.TryPingAsync().Result;
+    //}
 }

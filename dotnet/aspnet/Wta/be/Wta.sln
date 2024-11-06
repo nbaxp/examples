@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wta.Migrations", "src\Wta.M
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{1DAE00C7-83A9-4E02-8E5E-1B08B1CD395D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wta.MqttServer", "src\Wta.MqttServer\Wta.MqttServer.csproj", "{5C9C3738-3C29-44FC-8636-C1629F8B5C47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{1DAE00C7-83A9-4E02-8E5E-1B08B1CD395D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DAE00C7-83A9-4E02-8E5E-1B08B1CD395D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DAE00C7-83A9-4E02-8E5E-1B08B1CD395D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C9C3738-3C29-44FC-8636-C1629F8B5C47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C9C3738-3C29-44FC-8636-C1629F8B5C47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C9C3738-3C29-44FC-8636-C1629F8B5C47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C9C3738-3C29-44FC-8636-C1629F8B5C47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
