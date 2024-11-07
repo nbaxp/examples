@@ -339,14 +339,13 @@ services:
       EMQX_NAME: emqx
       EMQX_HOST: ${EMQX_IP}
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD__DEFAULT_PASSWORD}
-      EMQX_DURABLE_SESSIONS__ENABLE: true
-      EMQX_CLUSTER__DISCOVERY_STRATEGY: singleton
     ports:
       - 1883:1883
       - 8083:8083
       - 8084:8084
       - 18083:18083
     volumes:
+      - ./apps/emqx/emqx.conf:/opt/emqx/etc/emqx.conf
       - ${DATA}/emqx:/opt/emqx/data
       - ${LOGS}/emqx:/opt/emqx/log
     # srs:
