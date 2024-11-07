@@ -23,3 +23,14 @@
 1. 配置启动的相关服务，如 flink cdc
 1. 提交代码到 git 服务器：http://localhost:13000
 1. 打 tag，服务器自动构建并生成镜像到仓库，自动发布
+
+## 常见问题
+
+### 查找 windows 保留的端口
+
+```bash
+# netsh interface ipv4 show excludedportrange protocol=tcp
+netsh int ipv4 set dynamic tcp start=50000 num=15535
+netsh int ipv6 set dynamic tcp start=50000 num=15535
+# netsh int ipv4 show dynamicport tcp
+```
