@@ -309,19 +309,20 @@ services:
       net:
         ipv4_address: ${KAFKA_IP}
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_CFG_NODE_ID: 1
-      KAFKA_ENABLE_KRAFT: yes
       KAFKA_KRAFT_CLUSTER_ID: 1
+      KAFKA_CFG_BROKER_ID: 1
+      KAFKA_CFG_NODE_ID: 1
       KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: true
       KAFKA_CFG_PROCESS_ROLES: controller,broker
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
     ports:
       - 9092:9092
       - 9093:9093
+      - 9094:9094
     volumes:
       - ${DATA}/kafka:/bitnami/kafka
     healthcheck:
@@ -348,6 +349,24 @@ services:
       - ./apps/emqx/emqx.conf:/opt/emqx/etc/emqx.conf
       - ${DATA}/emqx:/opt/emqx/data
       - ${LOGS}/emqx:/opt/emqx/log
+  influxdb:
+    image: ${INFLUXDB}
+    extends:
+      file: docker-compose.extend.yml
+      service: base
+    networks:
+      net:
+        ipv4_address: ${INFLUXDB_IP}
+    environment:
+      INFLUXDB_ADMIN_ENABLED: true
+      INFLUXDB_ADMIN_USER: admin
+      INFLUXDB_ADMIN_PASSWORD: ${DOCKER_INFLUXDB_INIT_PASSWORD}
+      INFLUXDB_DB: wta
+    ports:
+      - 8086:8086
+    volumes:
+      # - ./apps/influxdb/emqx:/etc/influxdb2
+      - ${DATA}/influxdb:/var/lib/influxdb
     # srs:
     #   image: ${SRS}
     #   extends:

@@ -18,6 +18,7 @@
     <PackageReference Include="Autofac.Configuration" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" />
     <PackageReference Include="ClosedXML" />
+    <PackageReference Include="Confluent.Kafka" />
     <PackageReference Include="Coravel" />
     <PackageReference Include="DateOnlyTimeOnly.AspNet" />
     <PackageReference Include="DistributedLock" />
@@ -29,6 +30,9 @@
     <PackageReference Include="Hangfire.AspNetCore" />
     <PackageReference Include="Hangfire.Redis.StackExchange" />
     <PackageReference Include="HttpClientToCurl" />
+    <PackageReference Include="InfluxDB.Client.Core" />
+    <PackageReference Include="InfluxDB.Client.Flux" />
+    <PackageReference Include="InfluxDB.Client.Linq" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />

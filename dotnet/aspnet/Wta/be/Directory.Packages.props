@@ -16,6 +16,7 @@
     <PackageVersion Include="Autofac.Configuration" Version="7.0.0" />
     <PackageVersion Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageVersion Include="ClosedXML" Version="0.104.1" />
+    <PackageVersion Include="Confluent.Kafka" Version="2.6.0" />
     <PackageVersion Include="Coravel" Version="6.0.0" />
     <PackageVersion Include="DateOnlyTimeOnly.AspNet" Version="2.1.1" />
     <PackageVersion Include="DistributedLock" Version="2.5.0" />
@@ -28,6 +29,9 @@
     <PackageVersion Include="Hangfire.Redis.StackExchange" Version="1.9.3" />
     <PackageVersion Include="Hardware.Info" Version="100.0.1.1" />
     <PackageVersion Include="HttpClientToCurl" Version="2.0.6" />
+    <PackageVersion Include="InfluxDB.Client.Core" Version="4.18.0" />
+    <PackageVersion Include="InfluxDB.Client.Flux" Version="4.18.0" />
+    <PackageVersion Include="InfluxDB.Client.Linq" Version="4.18.0" />
     <PackageVersion Include="MailKit" Version="4.8.0" />
     <PackageVersion Include="Mapster" Version="7.4.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
