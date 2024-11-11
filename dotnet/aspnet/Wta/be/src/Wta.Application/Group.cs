@@ -35,12 +35,12 @@ public class SystemSettingsAttribute : SystemManagementAttribute
 
 #region OEE
 
-[Display(Name = "OEE", Order = 11)]
+[Display(Name = "OEE", Order = 14)]
 public class OeeAttribute : GroupAttribute
 {
 }
 
-[Display(Name = "基础数据", Order = 1)]
+[Display(Name = "基础数据", Order = 10)]
 public class OeeBaseDataAttribute : OeeAttribute
 {
 }
