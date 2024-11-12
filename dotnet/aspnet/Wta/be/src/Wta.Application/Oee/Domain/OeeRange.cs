@@ -21,11 +21,11 @@ public class OeeRange : BaseEntity, IEntityTypeConfiguration<OeeRange>
 
     [UIHint("select")]
     [KeyValue("url", "oee-asset/search")]
-    [KeyValue("value", "id")]
+    [KeyValue("value", "number")]
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]
     [Display(Name = "资产")]
-    public Guid AssetId { get; set; }
+    public string AssetNumber { get; set; } = default!;
 
     [Display(Name = "开始")]
     public DateTime Start { get; set; }
@@ -43,21 +43,17 @@ public class OeeRange : BaseEntity, IEntityTypeConfiguration<OeeRange>
 
     [UIHint("select")]
     [KeyValue("url", "user/search")]
-    [KeyValue("value", "id")]
+    [KeyValue("value", "userName")]
     [KeyValue("label", "name")]
-    [Display(Name = "员工")]
-    public Guid? UserId { get; set; }
+    [Display(Name = "操作人员")]
+    public string UserName { get; set; } = default!;
 
     public OeeShift? Shift { get; set; }
-    public OeeAsset? Asset { get; set; }
     public OeeReason? Reason { get; set; }
-    public User? User { get; set; }
 
     public void Configure(EntityTypeBuilder<OeeRange> builder)
     {
         builder.HasOne(o => o.Shift).WithMany(o => o.Ranges).HasForeignKey(o => o.ShfitId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(o => o.Asset).WithMany(o => o.Ranges).HasForeignKey(o => o.AssetId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(o => o.Reason).WithMany(o => o.Ranges).HasForeignKey(o => o.ReasonId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(o => o.Reason).WithMany().HasForeignKey(o => o.ReasonId).OnDelete(DeleteBehavior.Cascade);
     }
 }
