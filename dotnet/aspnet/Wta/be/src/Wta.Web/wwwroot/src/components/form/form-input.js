@@ -47,19 +47,29 @@ export default {
           <template v-else-if="schema.input==='qrcode'">
             <qr-code v-model="model[prop]" />
           </template>
-          <template v-else-if="schema.input==='select'||schema.input==='radio'">
-            <el-tree
-              :class="{
-                display:true,
-                mutiple:isMultiple
-              }"
-              v-if="selectOptions?.length"
-              :data="selectOptions"
-              :check-strictly="true"
-              node-key="value"
-              show-checkbox
-              :default-checked-keys="schema.meta?.multiple?selectValues:[selectValues]"
-            />
+          <template v-else-if="schema.input==='select'">
+            <template v-if="!schema.meta?.isTree">
+              <el-text v-if="!schema.meta?.multiple">
+                {{selectOptions?.find(o=>o.value==model[prop])?.label}}
+              </el-text>
+              <el-space v-else>
+                {{selectValues.map(v=>selectOptions?.find(o=>o.value==v)?.label).join(',')}}
+              </el-space>
+            </template>
+            <template v-else>
+              <el-cascader
+                v-model="selectValues"
+                :placeholder="schema.meta?.placeholder??schema.title"
+                :value-on-clear="null"
+                :options="selectOptions"
+                :props="selectProps"
+                @change="selectChange"
+                :disabled="true"
+              />
+            </template>
+          </template>
+          <template v-else-if="schema.input==='radio'">
+            <span>{{selectOptions?.find(o=>o.value==model[prop])?.label}}</span>
           </template>
           <template v-else-if="schema.input.startsWith('image-')">
             <div class="el-input__inner flex">

@@ -1,5 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <Compile Remove="CustomerModule\**" />
+    <Compile Remove="FinancialModule\**" />
+    <Compile Remove="KanBanModule\**" />
+    <Compile Remove="MesModule\**" />
+    <Compile Remove="ProcurementModule\**" />
+    <Compile Remove="SaleModule\**" />
+    <Compile Remove="TechModule\**" />
+    <Compile Remove="WmsModule\**" />
+    <EmbeddedResource Remove="CustomerModule\**" />
+    <EmbeddedResource Remove="FinancialModule\**" />
+    <EmbeddedResource Remove="KanBanModule\**" />
+    <EmbeddedResource Remove="MesModule\**" />
+    <EmbeddedResource Remove="ProcurementModule\**" />
+    <EmbeddedResource Remove="SaleModule\**" />
+    <EmbeddedResource Remove="TechModule\**" />
+    <EmbeddedResource Remove="WmsModule\**" />
+    <None Remove="CustomerModule\**" />
+    <None Remove="FinancialModule\**" />
+    <None Remove="KanBanModule\**" />
+    <None Remove="MesModule\**" />
+    <None Remove="ProcurementModule\**" />
+    <None Remove="SaleModule\**" />
+    <None Remove="TechModule\**" />
+    <None Remove="WmsModule\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Resources\en-US.po" />
     <None Remove="Resources\zh-CN.po" />
   </ItemGroup>

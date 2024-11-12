@@ -3,14 +3,14 @@ using Wta.Application.Platform;
 
 namespace Wta.Application.Oee;
 
-[OeeBaseData]
+[OeeSettings]
 [DependsOn<PlatformDbContext>]
 [Display(Name = "设备状态类型", Order = 1)]
 public class EqpType : BaseNameNumberEntity
 {
 }
 
-[OeeBaseData]
+[OeeSettings]
 [DependsOn<PlatformDbContext>]
 [Display(Name = "设备状态分类", Order = 2)]
 public class EqpCategory : BaseNameNumberEntity
@@ -40,7 +40,7 @@ public enum AvailabilitMode
     AUTO
 }
 
-[OeeBaseData]
+[OeeSettings]
 [DependsOn<PlatformDbContext>]
 [Display(Name = "配置", Order = 3)]
 public class OeeConfiguration : BaseEntity//, IValidatableObject

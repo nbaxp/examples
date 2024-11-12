@@ -1,3 +1,4 @@
+using Wta.Application.Oee.Domain;
 using Wta.Application.Platform;
 
 namespace Wta.Application.Oee;
@@ -7,18 +8,90 @@ public class OeeDbSeeder() : IDbSeeder<PlatformDbContext>
 {
     public void Seed(PlatformDbContext context)
     {
-        context.Set<EqpType>().Add(new EqpType { Name = "运行", Number = "10" });
-        context.Set<EqpType>().Add(new EqpType { Name = "停机", Number = "20" });
-        context.Set<EqpType>().Add(new EqpType { Name = "故障停机", Number = "30" });
-
-        context.Set<EqpCategory>().Add(new EqpCategory { Name = "关机", Number = "10", Type = "20", Color = "#DEDEDE", Remark = "断电", });
-        context.Set<EqpCategory>().Add(new EqpCategory { Name = "离线", Number = "20", Type = "20", Color = "#DEDEDE", Remark = "离线", });
-        context.Set<EqpCategory>().Add(new EqpCategory { Name = "运行", Number = "30", Type = "10", Color = "#29E86C", Remark = "生产运行", });
-        context.Set<EqpCategory>().Add(new EqpCategory { Name = "调机", Number = "40", Type = "20", Color = "#274BDC", Remark = "调机运行", });
-        context.Set<EqpCategory>().Add(new EqpCategory { Name = "空闲", Number = "50", Type = "30", Color = "#FFB852", Remark = "设备停机", });
-        context.Set<EqpCategory>().Add(new EqpCategory { Name = "异常运行", Number = "60", Type = "10", Color = "#9FC944", Remark = "生产运行中存在异常\r\n", });
-        context.Set<EqpCategory>().Add(new EqpCategory { Name = "故障", Number = "70", Type = "30", Color = "#C02828", Remark = "生产设备故障停机\r\n", });
-        context.Set<EqpCategory>().Add(new EqpCategory { Name = "待机", Number = "80", Type = "30", Color = "#274BDC", Remark = "", });
+        //EventReanon
+        context.Set<OeeReason>().Add(new OeeReason()
+        {
+            Number = "Planned downtimes",
+            Name = "计划停机",
+            Children = new List<OeeReason>
+            {
+                new() { Number="C001",Name="Changeover(15 min)" },
+                new() { Number="P001",Name="Lunch Break" },
+                new() { Number="P002",Name="Shift breaks" },
+                new() { Number="P003",Name="Planned not to run" },
+            }
+        }.UpdateNode());
+        context.Set<OeeReason>().Add(new OeeReason
+        {
+            Number = "Unplanned downtimes",
+            Name = "非计划停机",
+            Children = new List<OeeReason>
+            {
+                new(){
+                    Number="Logistics issue",
+                    Name="物流问题",
+                    Children = new List<OeeReason>{
+                        new() { Number="C002",Name="Changeover Overrun" },
+                        new() { Number="L001",Name="Line side Inventory short" },
+                        new() { Number="L002",Name="Packing Line Overfull" },
+                    }
+                },
+                new(){
+                    Number="Engineering Issues",
+                    Name="技术问题",
+                    Children= new List<OeeReason>{
+                        new() { Number="E001",Name="Changeover(15 min)" },
+                        new() { Number="E002",Name="Packing Line broken" },
+                        new() { Number="E003",Name="Belt feed issues" },
+                    }
+                },
+            }
+        }.UpdateNode());
+        //OeeAsset
+        context.Set<OeeAsset>().Add(new OeeAsset
+        {
+            Name = "车间1",
+            Number = "01",
+            Children = new List<OeeAsset>
+            {
+                new OeeAsset
+                {
+                    Name="产线1",
+                    Number="0101",
+                    Children = new List<OeeAsset>
+                    {
+                        new OeeAsset
+                        {
+                            Name="工位1",
+                            Number="010101",
+                            Children = new List<OeeAsset>
+                            {
+                                new OeeAsset
+                                {
+                                    Name="设备1",
+                                    Number="01010101",
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            Shifts = new List<OeeShift>
+            {
+                new OeeShift{
+                    Name="白班",
+                    Number="day",
+                    Start=new TimeOnly(8,30),
+                    End=new TimeOnly(16,30),
+                },
+                new OeeShift{
+                    Name="晚班",
+                    Number="night",
+                    Start=new TimeOnly(17,30),
+                    End=new TimeOnly(20,30),
+                }
+            }
+        }.UpdateNode());
         context.SaveChanges();
     }
 }

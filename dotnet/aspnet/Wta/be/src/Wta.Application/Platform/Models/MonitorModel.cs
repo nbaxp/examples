@@ -2,11 +2,10 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using Wta.Application;
 
-namespace Wta.Infrastructure.Monitoring;
+namespace Wta.Application.Platform.Models;
 
-[SystemManagement, Display(Name = "监控", Order = 0)]
+[Platform, Display(Name = "监控", Order = 0)]
 public class MonitorModel : IResource
 {
     public MonitorModel()

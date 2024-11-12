@@ -116,20 +116,17 @@ public static class ModelMetadataExtensions
                     result.TryAdd("input", "checkbox");
                 }
             }
-            else if (modelType == typeof(DateTime))
+            else if (modelType == typeof(DateTime) || modelType == typeof(DateOnly) || modelType == typeof(TimeOnly))
             {
                 result.Add("type", "string");
                 var input = "datetime";
-                if (metaData.Attributes.Attributes!.FirstOrDefault(o => o.GetType() == typeof(DataTypeAttribute)) is DataTypeAttribute dataType)
+                if (modelType == typeof(DateOnly))
                 {
-                    if (dataType.DataType == DataType.Date)
-                    {
-                        input = "date";
-                    }
-                    else if (dataType.DataType == DataType.Time)
-                    {
-                        input = "time";
-                    }
+                    input = "date";
+                }
+                else if (modelType == typeof(TimeOnly))
+                {
+                    input = "time";
                 }
                 result.TryAdd("input", input);
             }
