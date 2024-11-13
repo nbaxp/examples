@@ -21,6 +21,11 @@ public static class ModelMetadataExtensions
         if (parent == null)
         {
             result.Add("isRoot", true);
+            var model = Activator.CreateInstance(modelType);
+            if (model != null)
+            {
+                result.Add("model", model);
+            }
         }
         //是否树
         if (meta.ContainerType == null && modelType.GetBaseClasses().Any(o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(BaseTreeEntity<>)))

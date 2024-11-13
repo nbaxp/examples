@@ -151,7 +151,7 @@ export default {
         if (valid) {
           loading.value = true;
           const url = props.schema.meta.url;
-          const method = props.schema.meta.method;
+          const method = props.schema.meta?.method ?? 'POST';
           errorMessage.value = null;
           const result = await request(method, url, model);
           if (!result.error) {

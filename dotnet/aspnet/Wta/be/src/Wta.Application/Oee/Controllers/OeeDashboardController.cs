@@ -14,8 +14,12 @@ public class OeeDashboardController() : BaseController, IResourceService<OeeDash
     [Display(Name = "OEE仪表盘")]
     [Authorize]
     [HttpPost]
-    public ApiResult<OeeDashboardResult> Index()
+    public ApiResult<OeeDashboardResult> Index(OeeDashboard model)
     {
+        if (!ModelState.IsValid)
+        {
+            throw new BadRequestException();
+        }
         var result = new OeeDashboardResult();
         result.Oee = 0.70f;
         return Json(result);

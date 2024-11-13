@@ -1,26 +1,26 @@
 import request from '@/utils/request.js';
-import { normalize } from '@/utils/schema.js';
+import { normalize, schemaToModel } from '@/utils/schema.js';
 import AppForm from '@/components/form/index.js';
 import { ElMessageBox } from 'element-plus';
 import Chart from '@/components/chart/index.js';
 import html from 'utils';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 export default {
   components: { AppForm, Chart },
   template: html`
-    <el-row>
+    <el-row v-loading="loading">
       <app-form
         ref="formRef"
         inline
         v-if="model"
         v-model="model"
         :schema="schema"
-        @submit="load"
+        @success="success"
         :hideButton="true"
       >
-        <el-button @click="load" class="el-button--primary mb-5">
+        <el-button @click="submit" class="el-button--primary mb-5">
           {{$t('查询')}}
         </el-button>
         <el-button @click="reset(formRef)" class="mb-5 ml-3">
@@ -169,16 +169,22 @@ export default {
       ],
     });
     const loading = ref(false);
+    const validate = async () => {
+      return formRef.value.validate();
+    };
     const load = async () => {
       loading.value = true;
       try {
-        const url = '/oee/oee-dashboard/index';
-        const result = (await request('POST', url, model.value)).data;
-        if (!result.error) {
-          const data = result.data;
-          console.log(data);
-        } else {
-          ElMessageBox.alert(result.message, t('提示'), { type: 'error' });
+        const valid = await validate();
+        if (valid) {
+          const url = 'oee-dashboard/index';
+          const result = (await request('POST', url, model.value)).data;
+          if (!result.error) {
+            const data = result.data;
+            console.log(data);
+          } else {
+            ElMessageBox.alert(result.message, t('提示'), { type: 'error' });
+          }
         }
       } finally {
         loading.value = false;
@@ -188,6 +194,9 @@ export default {
       formRef.reset();
       await load();
     };
+    const submit = async () => {
+      await formRef.value.submit();
+    };
     const success = (result) => {
       const data = result.data;
       console.log(data);
@@ -195,8 +204,10 @@ export default {
     onMounted(async () => {
       const result = await request('GET', 'oee-dashboard/schema');
       schema.value = normalize(result.data.data);
-      const result2 = await request('GET', 'user-info/index');
-      model.value = result2.data.data;
+      model.value = result.data.data?.model ?? schemaToModel(schema.value);
+      nextTick(async () => {
+        await submit();
+      });
     });
     return {
       formRef,
@@ -205,7 +216,7 @@ export default {
       schema,
       model,
       loading,
-      load,
+      submit,
       success,
       oeeAssetOption,
       oeeComponentsOption,
