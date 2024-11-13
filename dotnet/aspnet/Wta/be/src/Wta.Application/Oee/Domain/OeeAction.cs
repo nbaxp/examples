@@ -44,27 +44,14 @@ public class OeeAction : BaseEntity
     [Display(Name = "优先级")]
     public OeePriority Priority { get; set; }
 
-    [Hidden]
-    public List<OeeActionRequirement> ActionRequirements { get; set; } = [];
-
     [UIHint("select")]
-    [KeyValue("url", "oee-requirement/search")]
-    [KeyValue("value", "id")]
+    [KeyValue("url", "oee-action-status/search")]
+    [KeyValue("value", "number")]
     [KeyValue("label", "name")]
     [KeyValue("skipSorting", true)]
     [NotMapped]
-    [Display(Name = "处理建议")]
-    public List<Guid> Requirements
-    {
-        get
-        {
-            return this.ActionRequirements?.Select(o => o.RequirementId).ToList() ?? [];
-        }
-        set
-        {
-            this.ActionRequirements = value?.Distinct().Select(o => new OeeActionRequirement { RequirementId = o }).ToList() ?? [];
-        }
-    }
+    [Display(Name = "状态")]
+    public string OeeActionStatus { get; set; } = default!;
 
     [DataType(DataType.MultilineText)]
     [Display(Name = "详情")]

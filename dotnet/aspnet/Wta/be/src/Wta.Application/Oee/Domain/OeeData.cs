@@ -49,16 +49,22 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
     [Display(Name = "实际速率")]
     public float SpeedUpm { get; set; } = 0f;
 
+    [Display(Name = "总产出")]
+    public int TotalItems { get; set; }
+
+    [Display(Name = "不良品")]
+    public int ScrapItems { get; set; }
+
     [Display(Name = "OP CODE")]
     public string? OpCode { get; set; }
 
     [UIHint("select")]
-    [KeyValue("url", "oee-reason/search")]
+    [KeyValue("url", "oee-status/search")]
     [KeyValue("value", "id")]
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]
-    [Display(Name = "原因")]
-    public Guid? ReasonId { get; set; }
+    [Display(Name = "状态")]
+    public Guid? StatusId { get; set; }
 
     [UIHint("select")]
     [KeyValue("url", "user/search")]
@@ -73,6 +79,6 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
     public void Configure(EntityTypeBuilder<OeeData> builder)
     {
         builder.HasOne(o => o.Shift).WithMany(o => o.Datas).HasForeignKey(o => o.ShfitId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(o => o.Status).WithMany(o => o.Datas).HasForeignKey(o => o.ReasonId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.Status).WithMany(o => o.Datas).HasForeignKey(o => o.StatusId).OnDelete(DeleteBehavior.Cascade);
     }
 }

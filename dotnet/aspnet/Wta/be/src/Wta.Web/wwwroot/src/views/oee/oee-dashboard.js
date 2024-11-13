@@ -1,0 +1,215 @@
+import request from '@/utils/request.js';
+import { normalize } from '@/utils/schema.js';
+import AppForm from '@/components/form/index.js';
+import { ElMessageBox } from 'element-plus';
+import Chart from '@/components/chart/index.js';
+import html from 'utils';
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+export default {
+  components: { AppForm, Chart },
+  template: html`
+    <el-row>
+      <app-form
+        ref="formRef"
+        inline
+        v-if="model"
+        v-model="model"
+        :schema="schema"
+        @submit="load"
+        :hideButton="true"
+      >
+        <el-button @click="load" class="el-button--primary mb-5">
+          {{$t('查询')}}
+        </el-button>
+        <el-button @click="reset(formRef)" class="mb-5 ml-3">
+          {{$t('发起事件')}}
+        </el-button>
+      </app-form>
+    </el-row>
+    <el-tabs type="border-card">
+      <el-tab-pane label="OEE">
+        <el-row
+          style="flex-wrap: wrap; align-items: center; justify-content: space-between;"
+        >
+          <div style="width:50%;max flex:1;padding:1rem;">
+            <el-card>
+              <chart :option="oeeAssetOption" height="250px" />
+            </el-card>
+          </div>
+          <div style="width:50%;max flex:1;padding:1rem;">
+            <el-card>
+              <chart :option="oeeComponentsOption" height="250px" />
+            </el-card>
+          </div>
+          <div style="width:100%;max flex:1;padding:1rem;">
+            <el-card>
+              <chart :option="oeeTrendOption" height="250px" />
+            </el-card>
+          </div>
+        </el-row>
+      </el-tab-pane>
+      <el-tab-pane label="可用性">可用性</el-tab-pane>
+      <el-tab-pane label="性能">性能</el-tab-pane>
+      <el-tab-pane label="质量">质量</el-tab-pane>
+    </el-tabs>
+  `,
+  setup() {
+    const schema = ref(null);
+    const model = ref(null);
+    const { t } = useI18n();
+    const formRef = ref(null);
+    const oeeAssetOption = ref({
+      title: {
+        left: 'center',
+        text: 'OEE By Asset(%)',
+      },
+      xAxis: {
+        type: 'category',
+        data: Object.keys(Array(30).fill()),
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 100,
+      },
+      series: [
+        {
+          data: Object.keys(Array(30).fill()),
+          type: 'line',
+          smooth: true,
+          areaStyle: {},
+          showSymbol: false,
+        },
+      ],
+    });
+    const oeeComponentsOption = ref({
+      title: {
+        left: 'center',
+        text: 'OEE Components(%)',
+      },
+      xAxis: {
+        type: 'category',
+        data: Object.keys(Array(30).fill()),
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 100,
+      },
+      series: [
+        {
+          data: Object.keys(Array(30).fill()),
+          type: 'line',
+          smooth: true,
+          areaStyle: {},
+          showSymbol: false,
+        },
+      ],
+    });
+    const oeeTrendOption = ref({
+      title: {
+        left: 'center',
+        text: 'OEE 趋势(%)',
+      },
+      legend: {
+        data: ['OEE', '可用性', '性能', '质量'],
+      },
+      xAxis: {
+        type: 'category',
+        data: Object.keys(Array(30).fill()),
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 100,
+      },
+      series: [
+        {
+          data: Object.keys(Array(30).fill()),
+          type: 'line',
+          smooth: true,
+          areaStyle: {},
+          showSymbol: false,
+          lineStyle: {
+            color: 'green',
+          },
+        },
+        {
+          data: Object.keys(Array(30).fill()),
+          type: 'line',
+          smooth: true,
+          areaStyle: {},
+          showSymbol: false,
+          lineStyle: {
+            color: 'yeallow',
+          },
+        },
+        {
+          data: Object.keys(Array(30).fill()),
+          type: 'line',
+          smooth: true,
+          areaStyle: {},
+          showSymbol: false,
+          lineStyle: {
+            color: 'blue',
+          },
+        },
+        {
+          data: Object.keys(Array(30).fill()),
+          type: 'line',
+          smooth: true,
+          areaStyle: {},
+          showSymbol: false,
+          lineStyle: {
+            color: 'red',
+          },
+        },
+      ],
+    });
+    const loading = ref(false);
+    const load = async () => {
+      loading.value = true;
+      try {
+        const url = '/oee/oee-dashboard/index';
+        const result = (await request('POST', url, model.value)).data;
+        if (!result.error) {
+          const data = result.data;
+          console.log(data);
+        } else {
+          ElMessageBox.alert(result.message, t('提示'), { type: 'error' });
+        }
+      } finally {
+        loading.value = false;
+      }
+    };
+    const reset = async (formRef) => {
+      formRef.reset();
+      await load();
+    };
+    const success = (result) => {
+      const data = result.data;
+      console.log(data);
+    };
+    onMounted(async () => {
+      const result = await request('GET', 'oee-dashboard/schema');
+      schema.value = normalize(result.data.data);
+      const result2 = await request('GET', 'user-info/index');
+      model.value = result2.data.data;
+    });
+    return {
+      formRef,
+      load,
+      reset,
+      schema,
+      model,
+      loading,
+      load,
+      success,
+      oeeAssetOption,
+      oeeComponentsOption,
+      oeeTrendOption,
+    };
+  },
+};

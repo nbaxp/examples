@@ -1,4 +1,5 @@
 namespace Wta.Application.Oee.Domain;
+
 public enum OeePriority
 {
     [Display(Name = "低")]

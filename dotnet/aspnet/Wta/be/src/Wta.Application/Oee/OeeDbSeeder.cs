@@ -17,11 +17,11 @@ public class OeeDbSeeder() : IDbSeeder<PlatformDbContext>
         context.Set<OeeActionCategory>().Add(new() { Number = "Process", Name = "Process" });
         context.SaveChanges();
         //OeeRequirement
-        context.Set<OeeRequirement>().Add(new() { Number = "Describe", Name = "Describe" });
-        context.Set<OeeRequirement>().Add(new() { Number = "Investigate", Name = "Investigate" });
-        context.Set<OeeRequirement>().Add(new() { Number = "Identify Countermeasure", Name = "Identify Countermeasure" });
-        context.Set<OeeRequirement>().Add(new() { Number = "Implementation", Name = "Implementation" });
-        context.Set<OeeRequirement>().Add(new() { Number = "Review", Name = "Review" });
+        context.Set<OeeActionStatus>().Add(new() { Number = "Describe", Name = "Describe" });
+        context.Set<OeeActionStatus>().Add(new() { Number = "Investigate", Name = "Investigate" });
+        context.Set<OeeActionStatus>().Add(new() { Number = "Identify Countermeasure", Name = "Identify Countermeasure" });
+        context.Set<OeeActionStatus>().Add(new() { Number = "Implementation", Name = "Implementation" });
+        context.Set<OeeActionStatus>().Add(new() { Number = "Review", Name = "Review" });
         context.SaveChanges();
         //EventReanon
         context.Set<OeeStatus>().Add(new OeeStatus()
@@ -115,10 +115,32 @@ public class OeeDbSeeder() : IDbSeeder<PlatformDbContext>
                     Name="晚班",
                     Number="night",
                     Start=new TimeOnly(17,30),
-                    End=new TimeOnly(20,30),
+                    End=new TimeOnly(22,30),
                 }
             }
         }.UpdateNode());
+        context.SaveChanges();
+        //data
+        var shiftId = context.Set<OeeShift>().First().Id;
+        var assetNumber = context.Set<OeeAsset>().First(o => o.Number == "01010101").Number;
+        var partNumber = context.Set<OeePart>().First().Number;
+        var standardUpm = context.Set<OeePart>().First().StandardUpm;
+        var statusId = context.Set<OeeStatus>().First(o => o.Number == "N001").Id;
+        context.Set<OeeData>().Add(new OeeData()
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now),
+            ShfitId = shiftId,
+            AssetNumber = assetNumber,
+            PartNumber = partNumber,
+            Start = DateTime.Now.Date.AddHours(8),
+            End = DateTime.Now.Date.AddHours(12),
+            StandardUpm = standardUpm,
+            SpeedUpm = 0.5f,
+            TotalItems = 180,
+            ScrapItems = 10,
+            StatusId = statusId,
+            Operator = "admin",
+        });
         context.SaveChanges();
     }
 }
