@@ -2,10 +2,10 @@ using Wta.Application.Platform;
 
 namespace Wta.Application.Oee.Domain;
 
-[OeeBaseData]
+[Oee]
 [DependsOn<PlatformDbContext>]
-[Display(Name = "Oee时间段", Order = 50)]
-public class OeeRange : BaseEntity, IEntityTypeConfiguration<OeeRange>
+[Display(Name = "OEE数据", Order = 40)]
+public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
 {
     [DataType(DataType.Date)]
     [Display(Name = "日期")]
@@ -27,11 +27,30 @@ public class OeeRange : BaseEntity, IEntityTypeConfiguration<OeeRange>
     [Display(Name = "资产")]
     public string AssetNumber { get; set; } = default!;
 
+    [UIHint("select")]
+    [KeyValue("url", "oee-part/search")]
+    [KeyValue("value", "number")]
+    [KeyValue("label", "name")]
+    [Display(Name = "零件")]
+    public string PartNumber { get; set; } = default!;
+
     [Display(Name = "开始")]
     public DateTime Start { get; set; }
 
     [Display(Name = "结束")]
-    public DateTime End { get; set; }
+    public DateTime? End { get; set; }
+
+    [Display(Name = "时长")]
+    public int Duration { get; set; }
+
+    [Display(Name = "标准速率")]
+    public float StandardUpm { get; set; } = 0f;
+
+    [Display(Name = "实际速率")]
+    public float SpeedUpm { get; set; } = 0f;
+
+    [Display(Name = "OP CODE")]
+    public string? OpCode { get; set; }
 
     [UIHint("select")]
     [KeyValue("url", "oee-reason/search")]
@@ -45,15 +64,15 @@ public class OeeRange : BaseEntity, IEntityTypeConfiguration<OeeRange>
     [KeyValue("url", "user/search")]
     [KeyValue("value", "userName")]
     [KeyValue("label", "name")]
-    [Display(Name = "操作人员")]
-    public string UserName { get; set; } = default!;
+    [Display(Name = "操作员")]
+    public string Operator { get; set; } = default!;
 
     public OeeShift? Shift { get; set; }
-    public OeeReason? Reason { get; set; }
+    public OeeStatus? Status { get; set; }
 
-    public void Configure(EntityTypeBuilder<OeeRange> builder)
+    public void Configure(EntityTypeBuilder<OeeData> builder)
     {
-        builder.HasOne(o => o.Shift).WithMany(o => o.Ranges).HasForeignKey(o => o.ShfitId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(o => o.Reason).WithMany(o => o.Ranges).HasForeignKey(o => o.ReasonId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.Shift).WithMany(o => o.Datas).HasForeignKey(o => o.ShfitId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.Status).WithMany(o => o.Datas).HasForeignKey(o => o.ReasonId).OnDelete(DeleteBehavior.Cascade);
     }
 }

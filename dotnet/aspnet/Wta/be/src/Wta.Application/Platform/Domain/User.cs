@@ -115,6 +115,7 @@ public class User : Entity, IEntityTypeConfiguration<User>
     [KeyValue("label", "name")]
     [KeyValue("skipSorting", true)]
     [NotMapped]
+    [Display(Name = "角色")]
     public List<Guid> Roles
     {
         get

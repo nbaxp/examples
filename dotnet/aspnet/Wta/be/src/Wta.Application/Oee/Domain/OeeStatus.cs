@@ -2,14 +2,14 @@ using Wta.Application.Platform;
 
 namespace Wta.Application.Oee.Domain;
 
-[OeeBaseData]
+[Oee]
 [DependsOn<PlatformDbContext>]
-[Display(Name = "事件原因", Order = 40)]
-public class OeeReason : BaseTreeEntity<OeeReason>
+[Display(Name = "OEE状态", Order = 30)]
+public class OeeStatus : BaseTreeEntity<OeeStatus>
 {
     [UIHint("color")]
     [Display(Name = "颜色")]
     public string Color { get; set; } = "#ffffff";
 
-    public List<OeeRange> Ranges { get; set; } = [];
+    public List<OeeData> Datas { get; set; } = [];
 }

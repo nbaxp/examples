@@ -3,9 +3,9 @@ using Wta.Application.Platform;
 
 namespace Wta.Application.Oee.Domain;
 
-[OeeBaseData]
+[Oee]
 [DependsOn<PlatformDbContext>]
-[Display(Name = "班次", Order = 20)]
+[Display(Name = "OEE班次", Order = 20)]
 public class OeeShift : BaseNameNumberEntity
 {
     [UIHint("select")]
@@ -28,7 +28,7 @@ public class OeeShift : BaseNameNumberEntity
     public TimeOnly End { get; set; }
 
     [Hidden]
-    public List<OeeRange> Ranges { get; set; } = [];
+    public List<OeeData> Datas { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<OeeShift> builder)
     {
