@@ -26,49 +26,54 @@ public class OeeDbSeeder() : IDbSeeder<PlatformDbContext>
         //EventReanon
         context.Set<OeeStatus>().Add(new OeeStatus()
         {
-            Number = "Produced",
-            Name = "生产中",
+            Type = OeeStatusType.PlannedDowntime,
+            Number = "PlannedDowntime",
+            Name = "计划停机",
             Children =
             [
-                new() { Number="N001",Name="正常生产" },
-                new() { Number="N002",Name="低速生产" },
+                new()
+                {
+                    Number="S001",
+                    Name="休息时间"
+                },
+                new()
+                {
+                    Number="S002",
+                    Name="日常管理"
+                },
+                new()
+                {
+                    Number="S003",
+                    Name="计划停机"
+                },
             ]
         }.UpdateNode());
         context.Set<OeeStatus>().Add(new OeeStatus()
         {
-            Number = "Planned downtimes",
-            Name = "计划停机",
-            Children =
-            [
-                new() { Number="C001",Name="Changeover(15 min)" },
-                new() { Number="P001",Name="Lunch Break" },
-                new() { Number="P002",Name="Shift breaks" },
-                new() { Number="P003",Name="Planned not to run" },
-            ]
+            Type = OeeStatusType.ProductionTime,
+            Number = "S004",
+            Name = "正常生产",
+        }.UpdateNode());
+        context.Set<OeeStatus>().Add(new OeeStatus()
+        {
+            Type = OeeStatusType.UnloadedTime,
+            Number = "S005",
+            Name = "无负荷运作",
         }.UpdateNode());
         context.Set<OeeStatus>().Add(new OeeStatus
         {
-            Number = "Unplanned downtimes",
+            Type = OeeStatusType.UnplannedDowntime,
+            Number = "UnplannedDowntime",
             Name = "非计划停机",
             Children = new List<OeeStatus>
             {
                 new(){
-                    Number="Logistics issue",
+                    Number="S006",
                     Name="物流问题",
-                    Children = new List<OeeStatus>{
-                        new() { Number="C002",Name="Changeover Overrun" },
-                        new() { Number="L001",Name="Line side Inventory short" },
-                        new() { Number="L002",Name="Packing Line Overfull" },
-                    }
                 },
                 new(){
-                    Number="Engineering Issues",
+                    Number="S007",
                     Name="技术问题",
-                    Children= new List<OeeStatus>{
-                        new() { Number="E001",Name="Changeover(15 min)" },
-                        new() { Number="E002",Name="Packing Line broken" },
-                        new() { Number="E003",Name="Belt feed issues" },
-                    }
                 },
             }
         }.UpdateNode());
@@ -121,26 +126,74 @@ public class OeeDbSeeder() : IDbSeeder<PlatformDbContext>
         }.UpdateNode());
         context.SaveChanges();
         //data
-        var shiftId = context.Set<OeeShift>().First().Id;
+        SetData(context, DateTime.Now.AddDays(-2));
+        SetData(context, DateTime.Now.AddDays(-1));
+        SetData(context, DateTime.Now);
+        context.SaveChanges();
+    }
+
+    private static void SetData(PlatformDbContext context,DateTime day)
+    {
+        var shfitNumber = context.Set<OeeShift>().First().Number;
         var assetNumber = context.Set<OeeAsset>().First(o => o.Number == "01010101").Number;
         var partNumber = context.Set<OeePart>().First().Number;
         var standardUpm = context.Set<OeePart>().First().StandardUpm;
-        var statusId = context.Set<OeeStatus>().First(o => o.Number == "N001").Id;
         context.Set<OeeData>().Add(new OeeData()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            ShfitId = shiftId,
+            Date = DateOnly.FromDateTime(day),
+            ShiftNumber = shfitNumber,
             AssetNumber = assetNumber,
             PartNumber = partNumber,
             Start = DateTime.Now.Date.AddHours(8),
-            End = DateTime.Now.Date.AddHours(12),
+            End = DateTime.Now.Date.AddHours(10),
+            Duration = (int)(DateTime.Now.Date.AddHours(12) - DateTime.Now.Date.AddHours(8)).TotalMinutes,
             StandardUpm = standardUpm,
             SpeedUpm = 0.5f,
             TotalItems = 180,
             ScrapItems = 10,
-            StatusId = statusId,
+            StatusNumber = GetStatus(context, "正常生产"),
             Operator = "admin",
         });
-        context.SaveChanges();
+        context.Set<OeeData>().Add(new OeeData()
+        {
+            Date = DateOnly.FromDateTime(day),
+            ShiftNumber = shfitNumber,
+            AssetNumber = assetNumber,
+            PartNumber = partNumber,
+            Start = DateTime.Now.Date.AddHours(10),
+            End = DateTime.Now.Date.AddHours(11),
+            Duration = (int)(DateTime.Now.Date.AddHours(11) - DateTime.Now.Date.AddHours(10)).TotalMinutes,
+            StatusNumber = GetStatus(context, "休息时间"),
+            Operator = "admin",
+        });
+        context.Set<OeeData>().Add(new OeeData()
+        {
+            Date = DateOnly.FromDateTime(day),
+            ShiftNumber = shfitNumber,
+            AssetNumber = assetNumber,
+            PartNumber = partNumber,
+            Start = DateTime.Now.Date.AddHours(11),
+            End = DateTime.Now.Date.AddHours(11.5),
+            Duration = (int)(DateTime.Now.Date.AddHours(11.5) - DateTime.Now.Date.AddHours(11)).TotalMinutes,
+            StatusNumber = GetStatus(context, "物流问题"),
+            Operator = "admin",
+        });
+        context.Set<OeeData>().Add(new OeeData()
+        {
+            Date = DateOnly.FromDateTime(day),
+            ShiftNumber = shfitNumber,
+            AssetNumber = assetNumber,
+            PartNumber = partNumber,
+            Start = DateTime.Now.Date.AddHours(11.5),
+            End = DateTime.Now.Date.AddHours(12),
+            Duration = (int)(DateTime.Now.Date.AddHours(12) - DateTime.Now.Date.AddHours(11.5)).TotalMinutes,
+            StatusNumber = GetStatus(context, "无负荷运作"),
+            Operator = "admin",
+        });
+    }
+
+    private static string GetStatus(PlatformDbContext context, string name)
+    {
+        return context.Set<OeeStatus>().First(o => o.Name == name).Number;
     }
 }

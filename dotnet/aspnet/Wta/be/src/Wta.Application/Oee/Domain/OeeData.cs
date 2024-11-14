@@ -5,7 +5,7 @@ namespace Wta.Application.Oee.Domain;
 [Oee]
 [DependsOn<PlatformDbContext>]
 [Display(Name = "OEE数据", Order = 40)]
-public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
+public class OeeData : BaseEntity
 {
     [DataType(DataType.Date)]
     [Display(Name = "日期")]
@@ -13,11 +13,11 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
 
     [UIHint("select")]
     [KeyValue("url", "oee-shift/search")]
-    [KeyValue("value", "id")]
+    [KeyValue("value", "number")]
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]
     [Display(Name = "班次")]
-    public Guid ShfitId { get; set; }
+    public string ShiftNumber { get; set; } = default!;
 
     [UIHint("select")]
     [KeyValue("url", "oee-asset/search")]
@@ -44,10 +44,10 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
     public int Duration { get; set; }
 
     [Display(Name = "标准速率")]
-    public float StandardUpm { get; set; } = 0f;
+    public float StandardUpm { get; set; }
 
     [Display(Name = "实际速率")]
-    public float SpeedUpm { get; set; } = 0f;
+    public float SpeedUpm { get; set; }
 
     [Display(Name = "总产出")]
     public int TotalItems { get; set; }
@@ -60,11 +60,11 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
 
     [UIHint("select")]
     [KeyValue("url", "oee-status/search")]
-    [KeyValue("value", "id")]
+    [KeyValue("value", "number")]
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]
     [Display(Name = "状态")]
-    public Guid? StatusId { get; set; }
+    public string StatusNumber { get; set; } = default!;
 
     [UIHint("select")]
     [KeyValue("url", "user/search")]
@@ -72,13 +72,4 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
     [KeyValue("label", "name")]
     [Display(Name = "操作员")]
     public string Operator { get; set; } = default!;
-
-    public OeeShift? Shift { get; set; }
-    public OeeStatus? Status { get; set; }
-
-    public void Configure(EntityTypeBuilder<OeeData> builder)
-    {
-        builder.HasOne(o => o.Shift).WithMany(o => o.Datas).HasForeignKey(o => o.ShfitId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(o => o.Status).WithMany(o => o.Datas).HasForeignKey(o => o.StatusId).OnDelete(DeleteBehavior.Cascade);
-    }
 }

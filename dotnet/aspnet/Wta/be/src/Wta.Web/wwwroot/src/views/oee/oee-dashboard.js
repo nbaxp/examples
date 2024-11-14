@@ -35,17 +35,29 @@ export default {
         >
           <div style="width:50%;max flex:1;padding:1rem;">
             <el-card>
-              <chart :option="oeeAssetOption" height="250px" />
+              <chart
+                v-if="oeeAssetOption"
+                :option="oeeAssetOption"
+                height="250px"
+              />
             </el-card>
           </div>
           <div style="width:50%;max flex:1;padding:1rem;">
             <el-card>
-              <chart :option="oeeComponentsOption" height="250px" />
+              <chart
+                v-if="oeeComponentsOption"
+                :option="oeeComponentsOption"
+                height="250px"
+              />
             </el-card>
           </div>
           <div style="width:100%;max flex:1;padding:1rem;">
             <el-card>
-              <chart :option="oeeTrendOption" height="250px" />
+              <chart
+                v-if="oeeTrendOption"
+                :option="oeeTrendOption"
+                height="250px"
+              />
             </el-card>
           </div>
         </el-row>
@@ -56,119 +68,14 @@ export default {
     </el-tabs>
   `,
   setup() {
+    const { t } = useI18n();
     const schema = ref(null);
     const model = ref(null);
-    const { t } = useI18n();
     const formRef = ref(null);
-    const oeeAssetOption = ref({
-      title: {
-        left: 'center',
-        text: 'OEE By Asset(%)',
-      },
-      xAxis: {
-        type: 'category',
-        data: Object.keys(Array(30).fill()),
-      },
-      yAxis: {
-        type: 'value',
-        min: 0,
-        max: 100,
-      },
-      series: [
-        {
-          data: Object.keys(Array(30).fill()),
-          type: 'line',
-          smooth: true,
-          areaStyle: {},
-          showSymbol: false,
-        },
-      ],
-    });
-    const oeeComponentsOption = ref({
-      title: {
-        left: 'center',
-        text: 'OEE Components(%)',
-      },
-      xAxis: {
-        type: 'category',
-        data: Object.keys(Array(30).fill()),
-      },
-      yAxis: {
-        type: 'value',
-        min: 0,
-        max: 100,
-      },
-      series: [
-        {
-          data: Object.keys(Array(30).fill()),
-          type: 'line',
-          smooth: true,
-          areaStyle: {},
-          showSymbol: false,
-        },
-      ],
-    });
-    const oeeTrendOption = ref({
-      title: {
-        left: 'center',
-        text: 'OEE 趋势(%)',
-      },
-      legend: {
-        data: ['OEE', '可用性', '性能', '质量'],
-      },
-      xAxis: {
-        type: 'category',
-        data: Object.keys(Array(30).fill()),
-      },
-      yAxis: {
-        type: 'value',
-        min: 0,
-        max: 100,
-      },
-      series: [
-        {
-          data: Object.keys(Array(30).fill()),
-          type: 'line',
-          smooth: true,
-          areaStyle: {},
-          showSymbol: false,
-          lineStyle: {
-            color: 'green',
-          },
-        },
-        {
-          data: Object.keys(Array(30).fill()),
-          type: 'line',
-          smooth: true,
-          areaStyle: {},
-          showSymbol: false,
-          lineStyle: {
-            color: 'yeallow',
-          },
-        },
-        {
-          data: Object.keys(Array(30).fill()),
-          type: 'line',
-          smooth: true,
-          areaStyle: {},
-          showSymbol: false,
-          lineStyle: {
-            color: 'blue',
-          },
-        },
-        {
-          data: Object.keys(Array(30).fill()),
-          type: 'line',
-          smooth: true,
-          areaStyle: {},
-          showSymbol: false,
-          lineStyle: {
-            color: 'red',
-          },
-        },
-      ],
-    });
     const loading = ref(false);
+    const oeeAssetOption = ref(null);
+    const oeeComponentsOption = ref(null);
+    const oeeTrendOption = ref(null);
     const validate = async () => {
       return formRef.value.validate();
     };
@@ -199,6 +106,9 @@ export default {
     };
     const success = (result) => {
       const data = result.data;
+      oeeAssetOption.value = data.asset;
+      oeeComponentsOption.value = data.components;
+      oeeTrendOption.value = data.trend;
       console.log(data);
     };
     onMounted(async () => {
