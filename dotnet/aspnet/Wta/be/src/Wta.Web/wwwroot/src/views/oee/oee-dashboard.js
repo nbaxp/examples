@@ -28,43 +28,56 @@ export default {
         </el-button>
       </app-form>
     </el-row>
-    <el-tabs type="border-card">
-      <el-tab-pane label="OEE">
+    <el-tabs type="border-card" v-model="currentTab" @tab-change="tabChange">
+      <el-tab-pane name="OEE" label="OEE">
         <el-row
           style="flex-wrap: wrap; align-items: center; justify-content: space-between;"
         >
           <div style="width:50%;max flex:1;padding:1rem;">
             <el-card>
-              <chart
-                v-if="oeeAssetOption"
-                :option="oeeAssetOption"
-                height="250px"
-              />
+              <chart v-if="chart11" :option="chart11" height="250px" />
             </el-card>
           </div>
           <div style="width:50%;max flex:1;padding:1rem;">
             <el-card>
               <chart
-                v-if="oeeComponentsOption"
-                :option="oeeComponentsOption"
+                v-if="chart12"
+                :option="chart12"
                 height="250px"
+                @click="o=>tabChange(o.name)"
               />
             </el-card>
           </div>
           <div style="width:100%;max flex:1;padding:1rem;">
             <el-card>
-              <chart
-                v-if="oeeTrendOption"
-                :option="oeeTrendOption"
-                height="250px"
-              />
+              <chart v-if="chart13" :option="chart13" height="250px" />
             </el-card>
           </div>
         </el-row>
       </el-tab-pane>
-      <el-tab-pane label="可用性">可用性</el-tab-pane>
-      <el-tab-pane label="性能">性能</el-tab-pane>
-      <el-tab-pane label="质量">质量</el-tab-pane>
+      <el-tab-pane name="可用性" label="可用性">
+        <el-row
+          style="flex-wrap: wrap; align-items: center; justify-content: space-between;"
+        >
+          <div style="width:50%;max flex:1;padding:1rem;">
+            <el-card>
+              <chart v-if="chart21" :option="chart21" height="250px" />
+            </el-card>
+          </div>
+          <div style="width:50%;max flex:1;padding:1rem;">
+            <el-card>
+              <chart v-if="chart22" :option="chart22" height="250px" />
+            </el-card>
+          </div>
+          <div style="width:100%;max flex:1;padding:1rem;">
+            <el-card>
+              <chart v-if="chart23" :option="chart23" height="250px" />
+            </el-card>
+          </div>
+        </el-row>
+      </el-tab-pane>
+      <el-tab-pane name="性能" label="性能">性能</el-tab-pane>
+      <el-tab-pane name="质量" label="质量">质量</el-tab-pane>
     </el-tabs>
   `,
   setup() {
@@ -73,9 +86,13 @@ export default {
     const model = ref(null);
     const formRef = ref(null);
     const loading = ref(false);
-    const oeeAssetOption = ref(null);
-    const oeeComponentsOption = ref(null);
-    const oeeTrendOption = ref(null);
+    const currentTab = ref('OEE');
+    const chart11 = ref(null);
+    const chart12 = ref(null);
+    const chart13 = ref(null);
+    const chart21 = ref(null);
+    const chart22 = ref(null);
+    const chart23 = ref(null);
     const validate = async () => {
       return formRef.value.validate();
     };
@@ -106,15 +123,21 @@ export default {
     };
     const success = (result) => {
       const data = result.data;
-      oeeAssetOption.value = data.asset;
-      oeeAssetOption.value.series[0].itemStyle = {
-        color({ data }) {
-          return data.value > 0.6 ? '#00ff00' : '#ff6600';
-        },
-      };
-      oeeComponentsOption.value = data.components;
-      oeeTrendOption.value = data.trend;
       console.log(data);
+      if (currentTab.value === 'OEE') {
+        chart11.value = data.chart1;
+        chart11.value.series[0].itemStyle = {
+          color({ data }) {
+            return data.value > 0.6 ? '#00ff00' : '#ff6600';
+          },
+        };
+        chart12.value = data.chart2;
+        chart13.value = data.chart3;
+      } else if (currentTab.value === '可用性') {
+        chart21.value = data.chart1;
+        chart22.value = data.chart2;
+        chart23.value = data.chart3;
+      }
     };
     onMounted(async () => {
       const result = await request('GET', 'oee-dashboard/schema');
@@ -124,8 +147,20 @@ export default {
         await submit();
       });
     });
+    const tabChange = async (name) => {
+      currentTab.value = name;
+      if (name === 'OEE') {
+        schema.value.meta.url = 'oee-dashboard/index';
+        await submit();
+      } else if (name === '可用性') {
+        schema.value.meta.url = 'oee-dashboard/availability';
+        await submit();
+      }
+    };
     return {
       formRef,
+      currentTab,
+      tabChange,
       load,
       reset,
       schema,
@@ -133,9 +168,12 @@ export default {
       loading,
       submit,
       success,
-      oeeAssetOption,
-      oeeComponentsOption,
-      oeeTrendOption,
+      chart11,
+      chart12,
+      chart13,
+      chart21,
+      chart22,
+      chart23,
     };
   },
 };

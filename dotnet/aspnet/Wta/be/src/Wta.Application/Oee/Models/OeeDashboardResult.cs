@@ -4,7 +4,7 @@ namespace Wta.Application.Oee.Models;
 
 public class OeeDashboardResult
 {
-    public ChartModel? Asset { get; set; }
-    public ChartModel? Components { get; set; }
-    public ChartModel? Trend { get; set; }
+    public ChartModel? Chart1 { get; set; }
+    public ChartModel? Chart2 { get; set; }
+    public ChartModel? Chart3 { get; set; }
 }

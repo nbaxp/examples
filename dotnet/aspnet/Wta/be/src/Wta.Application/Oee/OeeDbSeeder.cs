@@ -132,7 +132,7 @@ public class OeeDbSeeder() : IDbSeeder<PlatformDbContext>
         context.SaveChanges();
     }
 
-    private static void SetData(PlatformDbContext context,DateTime day)
+    private static void SetData(PlatformDbContext context, DateTime day)
     {
         var shfitNumber = context.Set<OeeShift>().First().Number;
         var assetNumber = context.Set<OeeAsset>().First(o => o.Number == "01010101").Number;
