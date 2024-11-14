@@ -1,3 +1,5 @@
+using Wta.Infrastructure.Application.Models;
+
 namespace Wta.Application.Oee.Models;
 
 public class OeeDashboardResult

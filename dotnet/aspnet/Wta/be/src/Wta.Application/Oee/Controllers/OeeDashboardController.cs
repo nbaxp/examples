@@ -1,6 +1,7 @@
 using Wta.Application.Oee.Domain;
 using Wta.Application.Oee.Models;
 using Wta.Application.Oee.Resources;
+using Wta.Infrastructure.Application.Models;
 
 namespace Wta.Application.Platform.Controllers;
 

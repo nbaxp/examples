@@ -107,6 +107,11 @@ export default {
     const success = (result) => {
       const data = result.data;
       oeeAssetOption.value = data.asset;
+      oeeAssetOption.value.series[0].itemStyle = {
+        color({ data }) {
+          return data.value > 0.6 ? '#00ff00' : '#ff6600';
+        },
+      };
       oeeComponentsOption.value = data.components;
       oeeTrendOption.value = data.trend;
       console.log(data);

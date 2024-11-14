@@ -1,4 +1,4 @@
-namespace Wta.Application.Oee.Models;
+namespace Wta.Infrastructure.Application.Models;
 
 public class ChartModel
 {
