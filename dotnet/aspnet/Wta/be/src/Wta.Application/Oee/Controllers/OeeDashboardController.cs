@@ -156,6 +156,10 @@ public class OeeDashboardController(IRepository<OeeAsset> oeeAssetRepository,
                 },
                 XAxis = new ChartXAxis
                 {
+                    AxisLabel = new AxisLabel
+                    {
+                        Rotate = 0
+                    },
                     Data = data.Select(o => o.Date).OrderBy(o => o).Select(o => o.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)).Distinct().ToList()
                 },
                 Series = new List<ChartSerie>
@@ -339,7 +343,6 @@ public class OeeDashboardController(IRepository<OeeAsset> oeeAssetRepository,
                 },
                 Legend = new ChartLegend
                 {
-                    Show = true,
                     Data = ["OEE", "可用性", "性能", "质量"],
                     Icon = "rect",
                     Left = "center",
@@ -347,6 +350,10 @@ public class OeeDashboardController(IRepository<OeeAsset> oeeAssetRepository,
                 },
                 XAxis = new ChartXAxis
                 {
+                    AxisLabel = new AxisLabel
+                    {
+                        Rotate = 0
+                    },
                     Data = data.Select(o => o.Date).OrderBy(o => o).Select(o => o.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)).Distinct().ToList()
                 },
                 Series = new List<ChartSerie>
