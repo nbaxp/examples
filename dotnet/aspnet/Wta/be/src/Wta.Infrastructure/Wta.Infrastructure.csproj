@@ -19,7 +19,6 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" />
     <PackageReference Include="ClosedXML" />
     <PackageReference Include="Confluent.Kafka" />
-    <PackageReference Include="Coravel" />
     <PackageReference Include="DateOnlyTimeOnly.AspNet" />
     <PackageReference Include="DistributedLock" />
     <PackageReference Include="DistributedLock.Redis" />
