@@ -55,7 +55,7 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
     [Display(Name = "设备因素废品")]
     public int EequipmentScrap { get; set; }
 
-    [Display(Name = "设备因素废品")]
+    [Display(Name = "非设备因素废品")]
     public int NonEequipmentScrap { get; set; }
 
     [Display(Name = "OP CODE")]
