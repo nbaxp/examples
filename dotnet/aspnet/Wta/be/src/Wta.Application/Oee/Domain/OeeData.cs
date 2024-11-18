@@ -5,7 +5,7 @@ namespace Wta.Application.Oee.Domain;
 [Oee]
 [DependsOn<PlatformDbContext>]
 [Display(Name = "OEE数据", Order = 40)]
-public class OeeData : BaseEntity
+public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
 {
     [DataType(DataType.Date)]
     [Display(Name = "日期")]
@@ -50,21 +50,24 @@ public class OeeData : BaseEntity
     public float SpeedUpm { get; set; }
 
     [Display(Name = "总产出")]
-    public int TotalItems { get; set; }
+    public int Total { get; set; }
 
-    [Display(Name = "不良品")]
-    public int ScrapItems { get; set; }
+    [Display(Name = "设备因素废品")]
+    public int EequipmentScrap { get; set; }
+
+    [Display(Name = "设备因素废品")]
+    public int NonEequipmentScrap { get; set; }
 
     [Display(Name = "OP CODE")]
     public string? OpCode { get; set; }
 
     [UIHint("select")]
     [KeyValue("url", "oee-status/search")]
-    [KeyValue("value", "number")]
+    [KeyValue("value", "id")]
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]
     [Display(Name = "状态")]
-    public string StatusNumber { get; set; } = default!;
+    public Guid StatusId { get; set; } = default!;
 
     [UIHint("select")]
     [KeyValue("url", "user/search")]
@@ -72,4 +75,12 @@ public class OeeData : BaseEntity
     [KeyValue("label", "name")]
     [Display(Name = "操作员")]
     public string Operator { get; set; } = default!;
+
+    [Hidden]
+    public OeeStatus Status { get; set; } = default!;
+
+    public void Configure(EntityTypeBuilder<OeeData> builder)
+    {
+        builder.HasOne(o => o.Status).WithMany().HasForeignKey(o => o.StatusId).OnDelete(DeleteBehavior.Cascade);
+    }
 }

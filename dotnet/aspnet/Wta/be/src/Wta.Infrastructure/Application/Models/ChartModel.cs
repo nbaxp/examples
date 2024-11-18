@@ -19,29 +19,29 @@ public class ChartXAxis
 {
     public string Type { get; set; } = "category";
     public List<string> Data { get; set; } = [];
-    public AxisLabel AxisLabel { get; set; } = new AxisLabel();
+    public ChartAxisLabel AxisLabel { get; set; } = new ChartAxisLabel();
 
-    public SplitLine SplitLine { get; set; } = new SplitLine();
-    public SplitArea SplitArea { get; set; } = new SplitArea();
+    public ChartSplitLine SplitLine { get; set; } = new ChartSplitLine();
+    public ChartSplitArea SplitArea { get; set; } = new ChartSplitArea();
 }
 
-public class SplitLine
+public class ChartSplitLine
 {
     public bool Show { get; set; } = true;
     public int Interval { get; set; } = 1;
 }
 
-public class SplitArea
+public class ChartSplitArea
 {
     public bool Show { get; set; } = true;
 }
 
-public class AxisLabel
+public class ChartAxisLabel
 {
     public int Rotate { get; set; } = 45;
 }
 
-public class AxisLine
+public class ChartAxisLine
 {
     public bool Show { get; set; } = true;
 }
@@ -49,7 +49,7 @@ public class AxisLine
 public class ChartYAxis
 {
     public string Type { get; set; } = "value";
-    public AxisLine AxisLine { get; set; } = new AxisLine();
+    public ChartAxisLine AxisLine { get; set; } = new ChartAxisLine();
 }
 
 public class ChartLegend

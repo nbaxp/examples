@@ -5,29 +5,31 @@ namespace Wta.Application.Oee.Domain;
 [Oee]
 [DependsOn<PlatformDbContext>]
 [Display(Name = "OEE状态", Order = 30)]
-public class OeeStatus : BaseTreeEntity<OeeStatus>
+public class OeeStatus : BaseNameNumberEntity, IEntityTypeConfiguration<OeeStatus>
 {
     [UIHint("color")]
     [Display(Name = "颜色")]
     public string Color { get; set; } = "#ffffff";
 
+    [UIHint("select")]
+    [KeyValue("url", "oee-status-type/search")]
+    [KeyValue("value", "id")]
+    [KeyValue("label", "name")]
     [Display(Name = "类型")]
-    public OeeStatusType Type { get; set; }
+    public Guid TypeId { get; set; } = default!;
 
-    public List<OeeData> Datas { get; set; } = [];
+    [Hidden]
+    public OeeStatusType Type { get; set; } = default!;
+
+    public void Configure(EntityTypeBuilder<OeeStatus> builder)
+    {
+        builder.HasOne(d => d.Type).WithMany().HasForeignKey(o => o.TypeId).OnDelete(DeleteBehavior.Cascade);
+    }
 }
 
-public enum OeeStatusType
+[Oee]
+[DependsOn<PlatformDbContext>]
+[Display(Name = "OEE状态", Order = 30)]
+public class OeeStatusType : BaseNameNumberEntity
 {
-    [Display(Name = "正常生产")]
-    ProductionTime = 10,
-
-    [Display(Name = "无负荷时间")]
-    UnloadedTime = 20,
-
-    [Display(Name = "计划停机")]
-    PlannedDowntime = 30,
-
-    [Display(Name = "非计划停机")]
-    UnplannedDowntime = 40,
 }
