@@ -16,27 +16,26 @@ public class OeeDbSeeder() : BaseDbSeeder<PlatformDbContext>
         context.Set<OeeStatusType>().Add(new() { Number = "T330", Name = "非设备因素停产" });
         context.SaveChanges();
         //OeeStatus
-        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "正常生产"), Number = "S100", Name = "正常生产" });
-        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "计划停产"), Number = "S200", Name = "计划停产" });
-        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "设备调整停产"), Number = "S310", Name = "设备调整停产" });
-        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "设备故障停产"), Number = "S320", Name = "设备故障停产" });
-        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "非设备因素停产"), Number = "S330", Name = "非设备因素停产" });
+        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "正常生产"),Color= "#009900", Number = "S100", Name = "正常生产" });
+        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "计划停产"), Color = "#0066FF", Number = "S210", Name = "休息" });
+        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "计划停产"), Color = "#0066FF", Number = "S220", Name = "自检" });
+        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "计划停产"), Color = "#0066FF", Number = "S230", Name = "计划停产" });
+        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "设备调整停产"), Color = "#FF9900", Number = "S310", Name = "设备调整停产" });
+        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "设备故障停产"), Color = "#FF0000", Number = "S320", Name = "设备故障停产" });
+        context.Set<OeeStatus>().Add(new() { TypeId = FindIdByName<OeeStatusType>(context, "非设备因素停产"), Color = "#0FF000009900", Number = "S330", Name = "非设备因素停产" });
         context.SaveChanges();
-        //OeeSettings
+        //OeeFaultReason
+        context.Set<OeeReason>().Add(new() { Number = "R100", Name = "电机故障" });
+        context.Set<OeeReason>().Add(new() { Number = "R200", Name = "材料异常" });
+        context.Set<OeeReason>().Add(new() { Number = "R300", Name = "电气异常" });
+        context.SaveChanges();
         //OeeActionCategory
-        context.Set<OeeActionCategory>().Add(new() { Number = "Environment", Name = "Environment" });
-        context.Set<OeeActionCategory>().Add(new() { Number = "Equipment", Name = "Equipment" });
-        context.Set<OeeActionCategory>().Add(new() { Number = "Material", Name = "Material" });
-        context.Set<OeeActionCategory>().Add(new() { Number = "Measurement", Name = "Measurement" });
-        context.Set<OeeActionCategory>().Add(new() { Number = "People", Name = "People" });
-        context.Set<OeeActionCategory>().Add(new() { Number = "Process", Name = "Process" });
-        context.SaveChanges();
-        //OeeRequirement
-        context.Set<OeeActionStatus>().Add(new() { Number = "Describe", Name = "Describe" });
-        context.Set<OeeActionStatus>().Add(new() { Number = "Investigate", Name = "Investigate" });
-        context.Set<OeeActionStatus>().Add(new() { Number = "Identify Countermeasure", Name = "Identify Countermeasure" });
-        context.Set<OeeActionStatus>().Add(new() { Number = "Implementation", Name = "Implementation" });
-        context.Set<OeeActionStatus>().Add(new() { Number = "Review", Name = "Review" });
+        context.Set<OeeActionCategory>().Add(new() { Number = "Environment", Name = "环境" });
+        context.Set<OeeActionCategory>().Add(new() { Number = "Equipment", Name = "设备" });
+        context.Set<OeeActionCategory>().Add(new() { Number = "Material", Name = "材料" });
+        context.Set<OeeActionCategory>().Add(new() { Number = "Measurement", Name = "计量" });
+        context.Set<OeeActionCategory>().Add(new() { Number = "People", Name = "人员" });
+        context.Set<OeeActionCategory>().Add(new() { Number = "Process", Name = "程序" });
         context.SaveChanges();
         //OeePart
         context.Set<OeePart>().Add(new OeePart { Name = "Acme001", Number = "Acme001", OpCode = "OP_001", StandardUpm = 1f });

@@ -4,3 +4,8 @@ namespace Wta.Application.Oee;
 public class OeeAttribute : GroupAttribute
 {
 }
+
+[Display(Name = "OEE基础配置", Order = 10)]
+public class OeeBaseDataAttribute : OeeAttribute
+{
+}

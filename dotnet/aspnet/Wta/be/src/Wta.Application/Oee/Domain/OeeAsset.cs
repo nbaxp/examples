@@ -4,7 +4,7 @@ namespace Wta.Application.Oee.Domain;
 
 [Oee]
 [DependsOn<PlatformDbContext>]
-[Display(Name = "OEE资产", Order = 10)]
+[Display(Name = "OEE资产", Order = 40)]
 public class OeeAsset : BaseTreeEntity<OeeAsset>, IEntityTypeConfiguration<OeeAsset>
 {
     [Hidden]

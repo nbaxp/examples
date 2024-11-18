@@ -4,7 +4,7 @@ namespace Wta.Application.Oee.Domain;
 
 [Oee]
 [DependsOn<PlatformDbContext>]
-[Display(Name = "OEE数据", Order = 40)]
+[Display(Name = "OEE数据", Order = 50)]
 public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
 {
     [DataType(DataType.Date)]
@@ -58,8 +58,8 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
     [Display(Name = "非设备因素废品")]
     public int NonEequipmentScrap { get; set; }
 
-    [Display(Name = "OP CODE")]
-    public string? OpCode { get; set; }
+    //[Display(Name = "OP CODE")]
+    //public string? OpCode { get; set; }
 
     [UIHint("select")]
     [KeyValue("url", "oee-status/search")]
@@ -70,6 +70,14 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
     public Guid StatusId { get; set; } = default!;
 
     [UIHint("select")]
+    [KeyValue("url", "oee-status/search")]
+    [KeyValue("value", "id")]
+    [KeyValue("label", "name")]
+    [KeyValue("isTree", true)]
+    [Display(Name = "原因")]
+    public Guid? ReasonId { get; set; } = default!;
+
+    [UIHint("select")]
     [KeyValue("url", "user/search")]
     [KeyValue("value", "userName")]
     [KeyValue("label", "name")]
@@ -77,10 +85,14 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
     public string Operator { get; set; } = default!;
 
     [Hidden]
-    public OeeStatus Status { get; set; } = default!;
+    public OeeStatus? Status { get; set; }
+
+    [Hidden]
+    public OeeReason? Reason { get; set; } = default!;
 
     public void Configure(EntityTypeBuilder<OeeData> builder)
     {
         builder.HasOne(o => o.Status).WithMany().HasForeignKey(o => o.StatusId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.Reason).WithMany().HasForeignKey(o => o.ReasonId).OnDelete(DeleteBehavior.SetNull);
     }
 }

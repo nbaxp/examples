@@ -5,7 +5,7 @@ namespace Wta.Application.Oee.Domain;
 
 [Oee]
 [DependsOn<PlatformDbContext>]
-[Display(Name = "OEE班次", Order = 20)]
+[Display(Name = "OEE班次", Order = 40)]
 public class OeeShift : BaseNameNumberEntity
 {
     //[UIHint("select")]

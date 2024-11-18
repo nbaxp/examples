@@ -4,7 +4,7 @@ namespace Wta.Application.Oee.Domain;
 
 [Oee]
 [DependsOn<PlatformDbContext>]
-[Display(Name = "OEE零件", Order = 5)]
+[Display(Name = "OEE零件", Order = 30)]
 public class OeePart : BaseNameNumberEntity
 {
     [Display(Name = "OP_CODE")]

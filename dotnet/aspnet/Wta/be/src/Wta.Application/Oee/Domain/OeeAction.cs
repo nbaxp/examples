@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using Wta.Application.Platform;
 
 namespace Wta.Application.Oee.Domain;
@@ -6,27 +5,34 @@ namespace Wta.Application.Oee.Domain;
 [Oee]
 [DependsOn<PlatformDbContext>]
 [Display(Name = "OEE事件", Order = 70)]
-public class OeeAction : BaseEntity
+public class OeeAction : BaseEntity, IEntityTypeConfiguration<OeeAction>
 {
     [Display(Name = "标题")]
     public string Title { get; set; } = default!;
 
-    [Display(Name = "TEAMID")]
-    public string? TeamId { get; set; } = default!;
+    [UIHint("select")]
+    [KeyValue("url", "oee-action-category/search")]
+    [KeyValue("value", "id")]
+    [KeyValue("label", "name")]
+    [Display(Name = "分类")]
+    public Guid CategoryId { get; set; } = default!;
+
+    //[Display(Name = "TEAMID")]
+    //public string? TeamId { get; set; } = default!;
 
     [UIHint("select")]
     [KeyValue("url", "user/search")]
-    [KeyValue("value", "userName")]
+    [KeyValue("value", "id")]
     [KeyValue("label", "name")]
-    [Display(Name = "创建人")]
-    public string? Owner { get; set; } = default!;
+    [Display(Name = "发送人")]
+    public Guid SenderId { get; set; }
 
     [UIHint("select")]
     [KeyValue("url", "user/search")]
-    [KeyValue("value", "userName")]
+    [KeyValue("value", "id")]
     [KeyValue("label", "name")]
-    [Display(Name = "分配")]
-    public string? Assignee { get; set; } = default!;
+    [Display(Name = "接收人")]
+    public Guid ReceiverId { get; set; }
 
     [Display(Name = "提出日期")]
     public DateOnly DateRaised { get; set; }
@@ -34,31 +40,18 @@ public class OeeAction : BaseEntity
     [Display(Name = "到期日期")]
     public DateOnly DateDue { get; set; }
 
-    [UIHint("select")]
-    [KeyValue("url", "oee-action-category/search")]
-    [KeyValue("value", "number")]
-    [KeyValue("label", "name")]
-    [Display(Name = "分类")]
-    public string CategoryNumber { get; set; } = default!;
-
     [Display(Name = "优先级")]
     public OeePriority Priority { get; set; }
 
-    [UIHint("select")]
-    [KeyValue("url", "oee-action-status/search")]
-    [KeyValue("value", "number")]
-    [KeyValue("label", "name")]
-    [KeyValue("skipSorting", true)]
-    [NotMapped]
-    [Display(Name = "状态")]
-    public string OeeActionStatus { get; set; } = default!;
+    [Display(Name = "已读")]
+    public bool IsRead { get; set; } = default!;
 
     [DataType(DataType.MultilineText)]
     [Display(Name = "详情")]
     public string Details { get; set; } = default!;
 
-    [Display(Name = "PLANT")]
-    public string Plant { get; set; } = default!;
+    //[Display(Name = "PLANT")]
+    //public string Plant { get; set; } = default!;
 
     [UIHint("select")]
     [KeyValue("url", "oee-shift/search")]
@@ -70,7 +63,18 @@ public class OeeAction : BaseEntity
 
     [Display(Name = "PART")]
     public string Part { get; set; } = default!;
+    public OeeActionCategory? Category { get; set; }
+
+    public User? Sender { get; set; } = default!;
+    public User? Receiver { get; set; } = default!;
 
     [Display(Name = "附件")]
     public List<string> Attachments { get; set; } = [];
+
+    public void Configure(EntityTypeBuilder<OeeAction> builder)
+    {
+        builder.HasOne(o => o.Category).WithMany().HasForeignKey(o => o.CategoryId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.Sender).WithMany().HasForeignKey(o => o.SenderId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(o => o.Receiver).WithMany().HasForeignKey(o => o.ReceiverId).OnDelete(DeleteBehavior.Cascade);
+    }
 }

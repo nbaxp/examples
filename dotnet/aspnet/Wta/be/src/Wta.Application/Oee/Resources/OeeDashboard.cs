@@ -3,7 +3,7 @@ using Wta.Infrastructure;
 namespace Wta.Application.Oee.Resources;
 
 [Oee]
-[Display(Name = "OEE仪表盘", Order = 0)]
+[Display(Name = "OEE仪表盘", Order = -10)]
 [KeyValue("url", "oee-dashboard/index")]
 public class OeeDashboard : IResource, IValidatableObject
 {

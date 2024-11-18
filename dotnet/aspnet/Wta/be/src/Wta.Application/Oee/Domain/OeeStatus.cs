@@ -2,15 +2,11 @@ using Wta.Application.Platform;
 
 namespace Wta.Application.Oee.Domain;
 
-[Oee]
+[OeeBaseData]
 [DependsOn<PlatformDbContext>]
-[Display(Name = "OEE状态", Order = 30)]
+[Display(Name = "OEE状态", Order = 20)]
 public class OeeStatus : BaseNameNumberEntity, IEntityTypeConfiguration<OeeStatus>
 {
-    [UIHint("color")]
-    [Display(Name = "颜色")]
-    public string Color { get; set; } = "#ffffff";
-
     [UIHint("select")]
     [KeyValue("url", "oee-status-type/search")]
     [KeyValue("value", "id")]
@@ -18,8 +14,16 @@ public class OeeStatus : BaseNameNumberEntity, IEntityTypeConfiguration<OeeStatu
     [Display(Name = "类型")]
     public Guid TypeId { get; set; } = default!;
 
+    [UIHint("color")]
+    [Display(Name = "颜色")]
+    public string Color { get; set; } = "#CC9900";
+
+    [UIHint("color")]
+    [Display(Name = "标准时间")]
+    public int BaseTime { get; set; }
+
     [Hidden]
-    public OeeStatusType Type { get; set; } = default!;
+    public OeeStatusType? Type { get; set; }
 
     public void Configure(EntityTypeBuilder<OeeStatus> builder)
     {
@@ -27,9 +31,9 @@ public class OeeStatus : BaseNameNumberEntity, IEntityTypeConfiguration<OeeStatu
     }
 }
 
-[Oee]
+[OeeBaseData]
 [DependsOn<PlatformDbContext>]
-[Display(Name = "OEE状态", Order = 30)]
+[Display(Name = "OEE状态类型", Order = 10)]
 public class OeeStatusType : BaseNameNumberEntity
 {
 }
