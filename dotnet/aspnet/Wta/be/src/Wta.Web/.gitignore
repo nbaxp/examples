@@ -2,3 +2,6 @@ appsettings.Development.json
 appsettings.Production.json
 upload/*
 !upload/avatar.svg
+log/*
+lock/*
+*.db

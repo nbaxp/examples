@@ -3,6 +3,7 @@ using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
 using Hangfire;
 using Hangfire.Redis.StackExchange;
+using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using OrchardCore.Localization;
@@ -12,6 +13,7 @@ using Serilog;
 using Serilog.Events;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Wta.Infrastructure.Locking;
 
 namespace Wta.Infrastructure.Modules;
 
@@ -139,11 +141,30 @@ public abstract partial class BaseApplication
     public virtual void AddCache(WebApplicationBuilder builder)
     {
         builder.Services.AddMemoryCache();
-        builder.Services.AddStackExchangeRedisCache(options =>
+        if (builder.Configuration.GetValue("App:DistributedCache:Provider", "memory") == "memory")
         {
-            options.Configuration = builder.Configuration.GetConnectionString("Redis");
-            options.InstanceName = "wta";
-        });
+            builder.Services.AddDistributedMemoryCache();
+        }
+        else
+        {
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration.GetConnectionString("Redis");
+                options.InstanceName = "wta";
+            });
+        }
+    }
+
+    public virtual void AddLock(WebApplicationBuilder builder)
+    {
+        if (builder.Configuration.GetValue("App:DistributedLock:Provider", "file") == "file")
+        {
+            builder.Services.AddSingleton<ILock, FileLock>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<ILock, RedisLock>();
+        }
     }
 
     public virtual void AddRouting(WebApplicationBuilder builder)
@@ -204,7 +225,7 @@ public abstract partial class BaseApplication
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             options.Converters.Add(new JsonNullableGuidConverter());
             options.Converters.Insert(0, new TrimJsonConverter());
-            options.NumberHandling= JsonNumberHandling.AllowNamedFloatingPointLiterals;
+            options.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals;
         }
         builder.Services.Configure<JsonOptions>(o => configJson(o.SerializerOptions));
         builder.Services.AddMvc(options =>
@@ -347,18 +368,32 @@ public abstract partial class BaseApplication
 
     public virtual void AddDistributedLock(WebApplicationBuilder builder)
     {
-        //var redis = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!);
-        //builder.Services.AddSingleton<IDistributedLockProvider>(o => new RedisDistributedLock(redis));
+        if (builder.Configuration.GetValue("App:DistributedLock:Provider", "file") == "file")
+        {
+            builder.Services.AddSingleton<ILock, FileLock>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<ILock, RedisLock>();
+        }
     }
 
     public virtual void AddScheduler(WebApplicationBuilder builder)
     {
-        var redis = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!);
         builder.Services.AddHangfire(o =>
         {
-            o.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            var config = o.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
-            .UseRedisStorage(redis);
+            .UseRecommendedSerializerSettings();
+            if (builder.Configuration.GetValue("App:Hangfire:Storage", "sqlite") == "sqlite")
+            {
+                config.UseSQLiteStorage("hangfire.db");
+            }
+            else
+            {
+                var redis = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!);
+                config.UseRedisStorage(redis);
+            }
         });
         builder.Services.AddHangfireServer(o =>
         {
@@ -407,11 +442,6 @@ public abstract partial class BaseApplication
     public virtual void AddRepository(WebApplicationBuilder builder)
     {
         builder.Services.AddTransient(typeof(IRepository<>), typeof(EfRepository<>));
-    }
-
-    public virtual void AddProfile(WebApplicationBuilder builder)
-    {
-        builder.Services.AddMiniProfiler(o => o.RouteBasePath = "/profiler").AddEntityFramework();
     }
 
     public virtual void AddFileProvider(WebApplicationBuilder builder)

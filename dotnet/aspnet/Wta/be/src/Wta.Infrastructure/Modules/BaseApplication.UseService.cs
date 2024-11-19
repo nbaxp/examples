@@ -130,9 +130,4 @@ public abstract partial class BaseApplication
     {
         webApplication.UseHangfireDashboard();
     }
-
-    public virtual void UseProfile(WebApplication webApplication)
-    {
-        webApplication.UseMiniProfiler();
-    }
 }

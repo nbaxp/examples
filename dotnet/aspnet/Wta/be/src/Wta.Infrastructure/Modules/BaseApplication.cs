@@ -14,6 +14,7 @@ public abstract partial class BaseApplication : IApplication
         AddContentProvider(builder);
         AddCors(builder);
         AddCache(builder);
+        AddLock(builder);
         AddRouting(builder);
         AddSignalR(builder);
         AddFileProvider(builder);
@@ -26,7 +27,6 @@ public abstract partial class BaseApplication : IApplication
         AddScheduler(builder);
         AddDbContext(builder);
         AddRepository(builder);
-        AddProfile(builder);
     }
 
     public virtual void Configure(WebApplication app)
@@ -44,6 +44,5 @@ public abstract partial class BaseApplication : IApplication
         UseLocalization(app);
         UseDbContext(app);
         UseScheduler(app);
-        UseProfile(app);
     }
 }

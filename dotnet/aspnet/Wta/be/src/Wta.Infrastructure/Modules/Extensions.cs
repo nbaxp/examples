@@ -40,7 +40,7 @@ public static class Extensions
         {
             module.Configure(app);
         }
-        if (app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment() || !app.Configuration.GetValue("UseMigration", false))
         {
             using var scope = app.Services.CreateScope();
             foreach (var dbContext in scope.ServiceProvider.GetServices<DbContext>())

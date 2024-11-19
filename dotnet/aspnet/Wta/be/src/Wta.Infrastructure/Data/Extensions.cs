@@ -10,6 +10,7 @@ public static class Extensions
         var connectionString = connectionStringValues[1];
         var migrationsAssemblyName = "Wta.Migrations";
         builder.Services.AddScoped<DbContext, TDbContext>();
+        var useMigration = builder.Configuration.GetValue("App:UseMigration", false);
         if (provider == "mysql")
         {
             //Oracle Provider
@@ -26,7 +27,10 @@ public static class Extensions
             {
                 b.UseMicrosoftJson(MySqlCommonJsonChangeTrackingOptions.FullHierarchyOptimizedSemantically);
                 b.UseNetTopologySuite();
-                b.MigrationsAssembly(migrationsAssemblyName);
+                if (useMigration)
+                {
+                    b.MigrationsAssembly(migrationsAssemblyName);
+                }
             }));
         }
         else if (provider == "sqlite")
@@ -36,7 +40,10 @@ public static class Extensions
             b =>
             {
                 b.UseNetTopologySuite();
-                b.MigrationsAssembly(migrationsAssemblyName);
+                if (useMigration)
+                {
+                    b.MigrationsAssembly(migrationsAssemblyName);
+                }
             }));
         }
         else if (provider == "npgsql")
@@ -44,7 +51,10 @@ public static class Extensions
             builder.Services.AddDbContext<TDbContext>(
             o => o.UseNpgsql(connectionString, b =>
             {
-                b.MigrationsAssembly(migrationsAssemblyName);
+                if (useMigration)
+                {
+                    b.MigrationsAssembly(migrationsAssemblyName);
+                }
             }));
         }
         else if (provider == "sqlserver")
@@ -52,7 +62,10 @@ public static class Extensions
             builder.Services.AddDbContext<TDbContext>(
             o => o.UseSqlServer(connectionString, b =>
             {
-                b.MigrationsAssembly(migrationsAssemblyName);
+                if (useMigration)
+                {
+                    b.MigrationsAssembly(migrationsAssemblyName);
+                }
             }));
         }
         else if (provider == "oracle")
@@ -60,7 +73,10 @@ public static class Extensions
             builder.Services.AddDbContext<TDbContext>(
             o => o.UseOracle(connectionString, b =>
             {
-                b.MigrationsAssembly(migrationsAssemblyName);
+                if (useMigration)
+                {
+                    b.MigrationsAssembly(migrationsAssemblyName);
+                }
             }));
         }
         else

@@ -21,6 +21,7 @@
     <PackageReference Include="Confluent.Kafka" />
     <PackageReference Include="DateOnlyTimeOnly.AspNet" />
     <PackageReference Include="DistributedLock" />
+    <PackageReference Include="DistributedLock.FileSystem" />
     <PackageReference Include="DistributedLock.Redis" />
     <PackageReference Include="DynamicExpresso.Core" />
     <PackageReference Include="EntityFramework.DynamicLinq" />
@@ -28,6 +29,7 @@
     <PackageReference Include="Flurl.Http" />
     <PackageReference Include="Hangfire.AspNetCore" />
     <PackageReference Include="Hangfire.Redis.StackExchange" />
+    <PackageReference Include="Hangfire.Storage.SQLite" />
     <PackageReference Include="HttpClientToCurl" />
     <PackageReference Include="InfluxDB.Client.Core" />
     <PackageReference Include="InfluxDB.Client.Flux" />
@@ -45,8 +47,6 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
     <PackageReference Include="Minio" />
-    <PackageReference Include="MiniProfiler.AspNetCore.Mvc" />
-    <PackageReference Include="MiniProfiler.EntityFrameworkCore" />
     <PackageReference Include="MQTTnet" />
     <PackageReference Include="MQTTnet.Extensions.ManagedClient" />
     <PackageReference Include="NCrontab" />

@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wta.Migrations", "src\Wta.M
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{1DAE00C7-83A9-4E02-8E5E-1B08B1CD395D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wta.Desktop", "src\Wta.Desktop\Wta.Desktop.csproj", "{147D1E95-97BB-4DED-821A-A5517C4425EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{1DAE00C7-83A9-4E02-8E5E-1B08B1CD395D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DAE00C7-83A9-4E02-8E5E-1B08B1CD395D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DAE00C7-83A9-4E02-8E5E-1B08B1CD395D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{147D1E95-97BB-4DED-821A-A5517C4425EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{147D1E95-97BB-4DED-821A-A5517C4425EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{147D1E95-97BB-4DED-821A-A5517C4425EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{147D1E95-97BB-4DED-821A-A5517C4425EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
