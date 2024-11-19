@@ -6,6 +6,7 @@ import Chart from '@/components/chart/index.js';
 import html from 'utils';
 import { ref, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
+import createChartOptions from '@/utils/chart.js';
 
 export default {
   components: { AppForm, Chart },
@@ -35,12 +36,18 @@ export default {
         >
           <div style="width:50%;max flex:1;padding:1rem;">
             <el-card>
-              <chart v-if="chart11" :option="chart11" height="250px" />
+              <chart
+                ref="chart11Ref"
+                v-if="chart11"
+                :option="chart11"
+                height="250px"
+              />
             </el-card>
           </div>
           <div style="width:50%;max flex:1;padding:1rem;">
             <el-card>
               <chart
+                ref="chart12Ref"
                 v-if="chart12"
                 :option="chart12"
                 height="250px"
@@ -50,7 +57,12 @@ export default {
           </div>
           <div style="width:100%;max flex:1;padding:1rem;">
             <el-card>
-              <chart v-if="chart13" :option="chart13" height="250px" />
+              <chart
+                ref="chart13Ref"
+                v-if="chart13"
+                :option="chart13"
+                height="250px"
+              />
             </el-card>
           </div>
         </el-row>
@@ -87,9 +99,12 @@ export default {
     const formRef = ref(null);
     const loading = ref(false);
     const currentTab = ref('OEE');
-    const chart11 = ref(null);
-    const chart12 = ref(null);
+    const chart11 = ref(createChartOptions());
+    const chart12 = ref(createChartOptions());
     const chart13 = ref(null);
+    const chart11Ref = ref(null);
+    const chart12Ref = ref(null);
+    const chart13Ref = ref(null);
     const chart21 = ref(null);
     const chart22 = ref(null);
     const chart23 = ref(null);
@@ -125,13 +140,8 @@ export default {
       const data = result.data;
       console.log(data);
       if (currentTab.value === 'OEE') {
-        chart11.value = data.chart1;
-        chart11.value.series[0].itemStyle = {
-          color({ data }) {
-            return data.value > 0.6 ? '#00ff00' : '#ff6600';
-          },
-        };
-        chart12.value = data.chart2;
+        chart11.value.series[0].data = data.chart1.series[0].data;
+        chart12.value.series[0] = data.chart2.series[0];
         chart13.value = data.chart3;
       } else if (currentTab.value === '可用性') {
         chart21.value = data.chart1;
@@ -139,14 +149,6 @@ export default {
         chart23.value = data.chart3;
       }
     };
-    onMounted(async () => {
-      const result = await request('GET', 'oee-dashboard/schema');
-      schema.value = normalize(result.data.data);
-      model.value = result.data.data?.model ?? schemaToModel(schema.value);
-      nextTick(async () => {
-        await submit();
-      });
-    });
     const tabChange = async (name) => {
       currentTab.value = name;
       if (name === 'OEE') {
@@ -157,6 +159,40 @@ export default {
         await submit();
       }
     };
+    const tooltipFormatter = (data) => {
+      return data[0].value;
+    };
+    onMounted(async () => {
+      const result = await request('GET', 'oee-dashboard/schema');
+      schema.value = normalize(result.data.data);
+      model.value = result.data.data?.model ?? schemaToModel(schema.value);
+      chart11.value.series[0].itemStyle = {
+        color({ data }) {
+          return data.value <= 0.6 ? '#00ff00' : '#ff6600';
+        },
+      };
+      // chart11.value.tooltip.formatter = tooltipFormatter;
+      // chart12.value.tooltip.formatter = tooltipFormatter;
+      nextTick(async () => {
+        await submit();
+      });
+      // const charts = [chart11Ref];
+      // charts.forEach((o) => {
+      //   o.value.formatter = (data) => {
+      //     charts.forEach((p) => {
+      //       if (p !== o) {
+      //         const { dataIndex } = data[0];
+      //         p.value.dispatchAction({
+      //           type: 'showTip',
+      //           dataIndex,
+      //           seriesIndex: 0,
+      //         });
+      //       }
+      //       return data[0].value;
+      //     });
+      //   };
+      // });
+    });
     return {
       formRef,
       currentTab,
@@ -171,6 +207,9 @@ export default {
       chart11,
       chart12,
       chart13,
+      chart11Ref,
+      chart12Ref,
+      chart13Ref,
       chart21,
       chart22,
       chart23,

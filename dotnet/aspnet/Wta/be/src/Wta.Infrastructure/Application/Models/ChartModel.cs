@@ -1,5 +1,8 @@
 namespace Wta.Infrastructure.Application.Models;
 
+/// <summary>
+/// https://echarts.apache.org/zh/option.html
+/// </summary>
 public class ChartModel
 {
     public ChartTitle Title { get; set; } = new ChartTitle();
@@ -7,6 +10,7 @@ public class ChartModel
     public ChartXAxis XAxis { get; set; } = new ChartXAxis();
     public ChartYAxis YAxis { get; set; } = new ChartYAxis();
     public List<ChartSerie> Series { get; set; } = [];
+    public ChartTooltip Tooltip { get; set; } = new ChartTooltip();
 }
 
 public class ChartTitle
@@ -76,4 +80,15 @@ public class ChartSerie
 public class ChartLineStyle
 {
     public string? Color { get; set; }
+}
+
+public class ChartAxisPointer
+{
+    public ChartLineStyle LineStyle { get; set; } = new ChartLineStyle();
+}
+
+public class ChartTooltip
+{
+    public string Trigger { get; set; } = "axis";
+    public ChartAxisPointer AxisPointer { get; set; } = new ChartAxisPointer();
 }
