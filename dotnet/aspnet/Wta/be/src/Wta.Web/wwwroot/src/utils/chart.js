@@ -1,3 +1,5 @@
+import { merge } from 'lodash';
+
 export function createSerie(value = {}) {
   const defaultValue = {
     smooth: true,
@@ -12,7 +14,6 @@ export default function (options = {}) {
   const defaultOptions = {
     title: {
       left: 'center',
-      text: '',
     },
     legend: {
       show: true,
@@ -41,13 +42,11 @@ export default function (options = {}) {
     series: [createSerie()],
     tooltip: {
       trigger: 'axis',
-      axisPointer: {
-        lineStyle: {
-          color: null,
-        },
-      },
+      // formatter(data) {
+      //   return JSON.stringify(data[0].value);
+      // },
     },
   };
-  Object.assign(options, defaultOptions);
+  merge(options, defaultOptions);
   return options;
 }

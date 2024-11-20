@@ -6,7 +6,7 @@ import Chart from '@/components/chart/index.js';
 import html from 'utils';
 import { ref, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import createChartOptions from '@/utils/chart.js';
+import options from '@/utils/chart.js';
 
 export default {
   components: { AppForm, Chart },
@@ -99,9 +99,9 @@ export default {
     const formRef = ref(null);
     const loading = ref(false);
     const currentTab = ref('OEE');
-    const chart11 = ref(createChartOptions());
-    const chart12 = ref(createChartOptions());
-    const chart13 = ref(null);
+    const chart11 = ref(options({ title: { text: '资产 OEE(%)' } }));
+    const chart12 = ref(options({ title: { text: 'OEE 组成(%)' } }));
+    const chart13 = ref(options({ title: { text: 'OEE 趋势(%)' } }));
     const chart11Ref = ref(null);
     const chart12Ref = ref(null);
     const chart13Ref = ref(null);
@@ -140,9 +140,12 @@ export default {
       const data = result.data;
       console.log(data);
       if (currentTab.value === 'OEE') {
+        chart11.value.xAxis.data = data.chart1.xAxis.data;
         chart11.value.series[0].data = data.chart1.series[0].data;
+        chart12.value.xAxis.data = data.chart2.xAxis.data;
         chart12.value.series[0] = data.chart2.series[0];
-        chart13.value = data.chart3;
+        chart13.value.xAxis.data = data.chart3.xAxis.data;
+        chart13.value.series = data.chart3.series;
       } else if (currentTab.value === '可用性') {
         chart21.value = data.chart1;
         chart22.value = data.chart2;
@@ -160,7 +163,7 @@ export default {
       }
     };
     const tooltipFormatter = (data) => {
-      return data[0].value;
+      return `${data[0].axisValue}:${data[0].value}`;
     };
     onMounted(async () => {
       const result = await request('GET', 'oee-dashboard/schema');
@@ -171,8 +174,8 @@ export default {
           return data.value <= 0.6 ? '#00ff00' : '#ff6600';
         },
       };
-      // chart11.value.tooltip.formatter = tooltipFormatter;
-      // chart12.value.tooltip.formatter = tooltipFormatter;
+      chart11.value.tooltip.formatter = tooltipFormatter;
+      //chart12.value.tooltip.formatter = tooltipFormatter;
       nextTick(async () => {
         await submit();
       });
