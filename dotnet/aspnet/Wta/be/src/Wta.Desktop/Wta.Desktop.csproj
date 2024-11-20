@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -10,7 +10,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" />
+    <PackageReference Include="Serilog.Sinks.File" />
     <PackageReference Include="WebView2.Runtime.X64" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="wwwroot\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

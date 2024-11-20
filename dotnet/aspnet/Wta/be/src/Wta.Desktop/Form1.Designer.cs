@@ -41,7 +41,6 @@ partial class Form1
         webView21.Location = new Point(0, 0);
         webView21.Name = "webView21";
         webView21.Size = new Size(784, 561);
-        webView21.Source = new Uri("http://localhost:5000", UriKind.Absolute);
         webView21.TabIndex = 0;
         webView21.ZoomFactor = 1D;
         // 
