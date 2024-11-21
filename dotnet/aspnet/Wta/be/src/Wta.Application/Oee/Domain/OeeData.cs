@@ -13,11 +13,11 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
 
     [UIHint("select")]
     [KeyValue("url", "oee-shift/search")]
-    [KeyValue("value", "number")]
+    [KeyValue("value", "id")]
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]
     [Display(Name = "班次")]
-    public string ShiftNumber { get; set; } = default!;
+    public Guid? ShiftId { get; set; } = default!;
 
     [UIHint("select")]
     [KeyValue("url", "oee-asset/search")]
@@ -85,6 +85,9 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
     public string Operator { get; set; } = default!;
 
     [Hidden]
+    public OeeShift? Shift { get; set; }
+
+    [Hidden]
     public OeeStatus? Status { get; set; }
 
     [Hidden]
@@ -92,6 +95,7 @@ public class OeeData : BaseEntity, IEntityTypeConfiguration<OeeData>
 
     public void Configure(EntityTypeBuilder<OeeData> builder)
     {
+        builder.HasOne(o => o.Shift).WithMany().HasForeignKey(o => o.ShiftId).OnDelete(DeleteBehavior.SetNull);
         builder.HasOne(o => o.Status).WithMany().HasForeignKey(o => o.StatusId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(o => o.Reason).WithMany().HasForeignKey(o => o.ReasonId).OnDelete(DeleteBehavior.SetNull);
     }

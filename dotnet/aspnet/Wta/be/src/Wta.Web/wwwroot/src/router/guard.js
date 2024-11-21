@@ -1,5 +1,10 @@
 import i18n from '@/locales/index.js';
-import { useAppStore, useTabsStore, useTokenStore, useUserStore } from '@/store/index.js';
+import {
+  useAppStore,
+  useTabsStore,
+  useTokenStore,
+  useUserStore,
+} from '@/store/index.js';
 import { useTitle } from '@vueuse/core';
 import NProgress from '~/lib/nprogress/nprogress.vite-esm.js';
 
@@ -23,7 +28,7 @@ const beforeEach = async (to, from, next) => {
       next();
     }
   } else {
-    if (!to.meta.requiresAuth) {
+    if (!to.meta?.requiresAuth) {
       next();
     } else {
       next({ path: '/login', query: { redirect: to.fullPath } });
@@ -35,7 +40,11 @@ const afterEach = (to, from) => {
   console.debug(`after route: ${to.name}: ${from.fullPath}-->${to.fullPath}`);
   try {
     const appStore = useAppStore();
-    if (appStore.settings.useTabs && to.matched[0].name === 'admin' && !to.meta?.hide) {
+    if (
+      appStore.settings.useTabs &&
+      to.matched[0].name === 'admin' &&
+      !to.meta?.hide
+    ) {
       const tabsStore = useTabsStore();
       tabsStore.addRoute(to);
     }

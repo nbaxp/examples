@@ -7,6 +7,7 @@ import html from 'utils';
 import { ref, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import options from '@/utils/chart.js';
+import { merge } from 'lodash';
 
 export default {
   components: { AppForm, Chart },
@@ -25,7 +26,7 @@ export default {
           {{$t('查询')}}
         </el-button>
         <el-button @click="reset(formRef)" class="mb-5 ml-3">
-          {{$t('发起事件')}}
+          {{$t('通知')}}
         </el-button>
       </app-form>
     </el-row>
@@ -98,10 +99,10 @@ export default {
     const model = ref(null);
     const formRef = ref(null);
     const loading = ref(false);
-    const currentTab = ref('OEE');
-    const chart11 = ref(options({ title: { text: '资产 OEE(%)' } }));
-    const chart12 = ref(options({ title: { text: 'OEE 组成(%)' } }));
-    const chart13 = ref(options({ title: { text: 'OEE 趋势(%)' } }));
+    const currentTab = ref(null);
+    const chart11 = ref(options());
+    const chart12 = ref(options());
+    const chart13 = ref(options());
     const chart11Ref = ref(null);
     const chart12Ref = ref(null);
     const chart13Ref = ref(null);
@@ -140,12 +141,9 @@ export default {
       const data = result.data;
       console.log(data);
       if (currentTab.value === 'OEE') {
-        chart11.value.xAxis.data = data.chart1.xAxis.data;
-        chart11.value.series[0].data = data.chart1.series[0].data;
-        chart12.value.xAxis.data = data.chart2.xAxis.data;
-        chart12.value.series[0] = data.chart2.series[0];
-        chart13.value.xAxis.data = data.chart3.xAxis.data;
-        chart13.value.series = data.chart3.series;
+        merge(chart11.value, data.chart11);
+        merge(chart12.value, data.chart12);
+        merge(chart13.value, data.chart13);
       } else if (currentTab.value === '可用性') {
         chart21.value = data.chart1;
         chart22.value = data.chart2;
@@ -169,6 +167,7 @@ export default {
       const result = await request('GET', 'oee-dashboard/schema');
       schema.value = normalize(result.data.data);
       model.value = result.data.data?.model ?? schemaToModel(schema.value);
+      tabChange('OEE');
       chart11.value.series[0].itemStyle = {
         color({ data }) {
           return data.value <= 0.6 ? '#00ff00' : '#ff6600';

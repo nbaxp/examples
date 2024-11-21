@@ -344,7 +344,7 @@ export default {
     });
     const selectProps = {
       multiple: isMultiple,
-      checkStrictly: !isMultiple,
+      checkStrictly: !!props.schema.meta?.checkStrictly,
       emitPath: true,
     };
     const treeProps = {

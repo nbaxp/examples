@@ -1,7 +1,6 @@
 using Wta.Application.Oee.Domain;
 using Wta.Application.Oee.Models;
 using Wta.Application.Oee.Resources;
-using Wta.Infrastructure.Application.Models;
 
 namespace Wta.Application.Platform.Controllers;
 
@@ -115,94 +114,90 @@ public class OeeDashboardController(IRepository<OeeAsset> oeeAssetRepository,
 
         var result = new
         {
-            Chart1 = new ChartModel
+            Chart11 = new
             {
-                Title = new ChartTitle
+                Title = new
                 {
                     Text = "资产 OEE(%)"
                 },
-                XAxis = new ChartXAxis
+                XAxis = new
                 {
                     Data = assetList.Select(o => o.Name).OrderBy(o => o).ToList()
                 },
-                Series = new List<ChartSerie>
+                Series = new List<object>
                 {
-                    new() {
+                    new {
                         Type ="bar",
                         Data = list
                     }
                 }
             },
-            Chart2 = new ChartModel
+            Chart12 = new
             {
-                Title = new ChartTitle
+                Title = new
                 {
                     Text = "OEE 组成(%)"
                 },
-                XAxis = new ChartXAxis
+                XAxis = new
                 {
-                    Data = ["OEE", "可用性", "性能", "质量"]
+                    Data = new List<string> { "OEE", "可用性", "性能", "质量" }
                 },
-                Series = new List<ChartSerie>
+                Series = new List<object>
                 {
-                    new() {
+                    new {
                         Type = "bar",
                         Data = componentsData
                     }
                 }
             },
-            Chart3 = new ChartModel
+            Chart13 = new
             {
-                Title = new ChartTitle
+                Title = new
                 {
                     Text = "OEE 趋势(%)"
                 },
-                Legend = new ChartLegend
+                Legend = new
                 {
-                    Show = true,
-                    Data = ["OEE", "可用性", "性能", "质量"],
-                    Icon = "rect",
-                    Left = "center",
-                    Bottom = "0",
+                    Data = new List<string> { "OEE", "可用性", "性能", "质量" },
                 },
-                XAxis = new ChartXAxis
+                XAxis = new
                 {
-                    AxisLabel = new ChartAxisLabel
-                    {
-                        Rotate = 0
-                    },
                     Data = dataGroup.Select(o => o.Date).OrderBy(o => o).Select(o => o.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)).Distinct().ToList()
                 },
-                Series = new List<ChartSerie>
+                Series = new List<object>
                 {
-                    new() {
+                    new {
+                        Type = "line",
                         Name = "OEE",
                         Data = trendData.Select(o=>o.Availability*o.Performance*o.Quality).ToList(),
-                        LineStyle = new ChartLineStyle
+                        LineStyle = new
                         {
                             Color="green"
                         }
                     },
-                    new() {
+                    new {
+                        Type = "line",
                         Name = "可用性",
                         Data = trendData.Select(o=>o.Availability).ToList(),
-                        LineStyle = new ChartLineStyle
+                        LineStyle = new
                         {
                             Color="yeallow"
                         }
                     },
-                    new() {
+                    new {
+                        Type = "line",
                         Name = "性能",
                         Data = trendData.Select(o=>o.Performance).ToList(),
-                        LineStyle = new ChartLineStyle
+                        LineStyle = new
                         {
                             Color="blue"
                         }
                     },
-                    new() {
+                    new {
+                        Type = "line",
                         Name = "质量",
                         Data = trendData.Select(o=>o.Quality).ToList(),
-                        LineStyle = new ChartLineStyle
+                        LineStyle = new
                         {
                             Color="red"
                         }

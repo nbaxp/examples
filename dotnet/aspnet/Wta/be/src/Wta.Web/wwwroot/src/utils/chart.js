@@ -10,20 +10,22 @@ export function createSerie(value = {}) {
   return value;
 }
 
-export default function (options = {}) {
-  const defaultOptions = {
+export default function (customOptions = {}) {
+  const options = {
     title: {
       left: 'center',
     },
     legend: {
       show: true,
+      left: 'center',
+      bottom: 0,
       data: [],
     },
     xAxis: {
       type: 'category',
       data: [],
       axisLabel: {
-        rotate: 45,
+        rotate: 0,
       },
       splitLine: {
         show: true,
@@ -47,6 +49,6 @@ export default function (options = {}) {
       // },
     },
   };
-  merge(options, defaultOptions);
+  merge(options, customOptions);
   return options;
 }

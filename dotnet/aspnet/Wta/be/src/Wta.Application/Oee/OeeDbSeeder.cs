@@ -103,7 +103,7 @@ public class OeeDbSeeder() : BaseDbSeeder<PlatformDbContext>
         context.Set<OeeData>().Add(new OeeData()
         {
             Date = DateOnly.FromDateTime(day),
-            ShiftNumber = shfitNumber,
+            ShiftId = FindIdByName<OeeShift>(context, "白班"),
             AssetNumber = assetNumber,
             PartNumber = partNumber,
             Start = DateTime.Now.Date.AddHours(8),
@@ -119,7 +119,7 @@ public class OeeDbSeeder() : BaseDbSeeder<PlatformDbContext>
         context.Set<OeeData>().Add(new OeeData()
         {
             Date = DateOnly.FromDateTime(day),
-            ShiftNumber = shfitNumber,
+            ShiftId = FindIdByName<OeeShift>(context, "白班"),
             AssetNumber = assetNumber,
             PartNumber = partNumber,
             Start = DateTime.Now.Date.AddHours(10),
@@ -131,7 +131,7 @@ public class OeeDbSeeder() : BaseDbSeeder<PlatformDbContext>
         context.Set<OeeData>().Add(new OeeData()
         {
             Date = DateOnly.FromDateTime(day),
-            ShiftNumber = shfitNumber,
+            ShiftId = FindIdByName<OeeShift>(context, "白班"),
             AssetNumber = assetNumber,
             PartNumber = partNumber,
             Start = DateTime.Now.Date.AddHours(11),
@@ -143,7 +143,7 @@ public class OeeDbSeeder() : BaseDbSeeder<PlatformDbContext>
         context.Set<OeeData>().Add(new OeeData()
         {
             Date = DateOnly.FromDateTime(day),
-            ShiftNumber = shfitNumber,
+            ShiftId = FindIdByName<OeeShift>(context, "晚班"),
             AssetNumber = assetNumber,
             PartNumber = partNumber,
             Start = DateTime.Now.Date.AddHours(11.5),
@@ -155,7 +155,7 @@ public class OeeDbSeeder() : BaseDbSeeder<PlatformDbContext>
         context.Set<OeeData>().Add(new OeeData()
         {
             Date = DateOnly.FromDateTime(day),
-            ShiftNumber = shfitNumber,
+            ShiftId = FindIdByName<OeeShift>(context, "晚班"),
             AssetNumber = assetNumber,
             PartNumber = partNumber,
             Start = DateTime.Now.Date.AddHours(11.5),
@@ -164,10 +164,5 @@ public class OeeDbSeeder() : BaseDbSeeder<PlatformDbContext>
             StatusId = FindIdByName<OeeStatus>(context, "非设备因素停产"),
             Operator = "admin",
         });
-    }
-
-    private static string GetStatus(PlatformDbContext context, string name)
-    {
-        return context.Set<OeeStatus>().First(o => o.Name == name).Number;
     }
 }

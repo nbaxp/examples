@@ -4,7 +4,6 @@ namespace Wta.Application.Oee.Resources;
 
 [Oee]
 [Display(Name = "OEE仪表盘", Order = -10)]
-[KeyValue("url", "oee-dashboard/index")]
 public class OeeDashboard : IResource, IValidatableObject
 {
     [Display(Name = "开始日期")]
@@ -18,6 +17,7 @@ public class OeeDashboard : IResource, IValidatableObject
     [KeyValue("value", "number")]
     [KeyValue("label", "name")]
     [KeyValue("isTree", true)]
+    [KeyValue("checkStrictly", true)]
     [Display(Name = "资产")]
     public string? AssetNumber { get; set; }
 
