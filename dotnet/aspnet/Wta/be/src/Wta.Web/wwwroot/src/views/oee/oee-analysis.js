@@ -4,10 +4,11 @@ import AppForm from '@/components/form/index.js';
 import { ElMessageBox } from 'element-plus';
 import Chart from '@/components/chart/index.js';
 import html from 'utils';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { dayjs, ElMessage, useFormItem } from 'element-plus';
-import { DATETIME_VALUE_FORMAT } from '@/constants/index.js';
+import { dayjs } from 'element-plus';
+import { listToTree } from '@/utils/index.js';
+import { DATE_VALUE_FORMAT, DATETIME_VALUE_FORMAT } from '@/constants/index.js';
 
 export default {
   components: { AppForm, Chart },
@@ -40,16 +41,6 @@ export default {
                     <el-select v-model="item.statusId">
                       <el-option
                         v-for="item2 in statusList"
-                        :key="item2.id"
-                        :label="item2.name"
-                        :value="item2.id"
-                      />
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item label="班次">
-                    <el-select v-model="item.shiftId">
-                      <el-option
-                        v-for="item2 in shiftList"
                         :key="item2.id"
                         :label="item2.name"
                         :value="item2.id"
@@ -109,29 +100,29 @@ export default {
   `,
   setup() {
     const { t } = useI18n();
-    const schema = ref(null);
-    const model = ref(null);
     const formRef = ref(null);
     const loading = ref(false);
     const currentTab = ref('DataEntry');
+    const schema = ref(null);
+    const model = ref(null);
     const oeeData = ref([]);
     const shiftList = ref([]);
+    const assetList = ref([]);
     const statusList = ref([]);
     const reasonList = ref([]);
-
-    const validate = async () => {
-      return formRef.value.validate();
-    };
-    const load = async () => {
+    const submit = async () => {
       loading.value = true;
       try {
-        const valid = await validate();
+        const valid = await formRef.value.validate();
         if (valid) {
           const url = 'oee-analysis/index';
           const result = (await request('POST', url, model.value)).data;
           if (!result.error) {
             const data = result.data;
             console.log(data);
+            oeeData.value = data.map((o) => {
+              return { range: [o.statr, o.end], ...o };
+            });
           } else {
             ElMessageBox.alert(result.message, t('提示'), { type: 'error' });
           }
@@ -139,13 +130,6 @@ export default {
       } finally {
         loading.value = false;
       }
-    };
-    const reset = async (formRef) => {
-      formRef.reset();
-      await load();
-    };
-    const submit = async () => {
-      await formRef.value.submit();
     };
     const success = (result) => {
       const data = result.data;
@@ -175,6 +159,9 @@ export default {
       shiftList.value = (
         await request('POST', 'oee-shift/search', { includeAll: true })
       ).data.data.items;
+      assetList.value = (
+        await request('POST', 'oee-asset/search', { includeAll: true })
+      ).data.data.items;
       statusList.value = (
         await request('POST', 'oee-status/search', { includeAll: true })
       ).data.data.items;
@@ -183,12 +170,13 @@ export default {
       ).data.data.items;
     });
     return {
+      DATE_VALUE_FORMAT,
       DATETIME_VALUE_FORMAT,
+      listToTree,
+      dayjs,
       formRef,
       currentTab,
       tabChange,
-      load,
-      reset,
       schema,
       model,
       loading,
@@ -196,9 +184,9 @@ export default {
       success,
       oeeData,
       shiftList,
+      assetList,
       statusList,
       reasonList,
-      dayjs,
     };
   },
 };

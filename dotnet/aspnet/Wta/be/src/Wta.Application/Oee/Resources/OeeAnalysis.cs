@@ -8,6 +8,12 @@ public class OeeAnalysis : IResource
     public DateOnly Day { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
     [UIHint("select")]
+    [KeyValue("url", "oee-shift/search")]
+    [KeyValue("value", "number")]
+    [KeyValue("label", "name")]
+    [Display(Name = "班次")] public string ShiftNumber { get; set; } = default!;
+
+    [UIHint("select")]
     [KeyValue("url", "oee-asset/search")]
     [KeyValue("value", "number")]
     [KeyValue("label", "name")]
