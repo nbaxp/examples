@@ -1,9 +1,21 @@
 using System.Text;
+using System.Text.Json;
+using InfluxDB.Client;
+using InfluxDB.Client.Writes;
+using Microsoft.EntityFrameworkCore;
 using MQTTnet.AspNetCore;
 using MQTTnet.Internal;
 using MQTTnet.Server;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString(nameof(ApplicationDbContext));
+
+builder.Services.AddDbContext<ApplicationDbContext>(o => o.UseSqlite(connectionString).UseSeeding((context, _) =>
+{
+    //context.Set<>().Add();
+    context.SaveChanges();
+}));
+builder.Services.AddScoped<DbContext, ApplicationDbContext>();
 builder.WebHost.UseKestrel(o =>
 {
     o.ListenAnyIP(1883, l => l.UseMqtt());
@@ -66,6 +78,31 @@ Task InterceptingPublishAsync(InterceptingPublishEventArgs arg)
         payloadText = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
     }
     Console.WriteLine($"publish: '{arg.ClientId}' => {payloadText}");
-    //写入 sqlite
+    using var client = new InfluxDBClient("http://localhost:8086",
+                            "admin",
+                            "aA123456",
+                            "wta",
+                            "autogen");
+    using var api = client.GetWriteApi();
+    var point = PointData.Measurement(arg.ApplicationMessage.Topic)
+    .Tag("topic", arg.ApplicationMessage.Topic)
+    .Tag("client", arg.ClientId)
+    .Field("raw", payloadText);
+    try
+    {
+        var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(payloadText);
+        if (dict != null)
+        {
+            foreach (var kvp in dict)
+            {
+                point.Field(kvp.Key, kvp.Value);
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex);
+    }
+    api.WritePoint(point);
     return CompletedTask.Instance;
 }
