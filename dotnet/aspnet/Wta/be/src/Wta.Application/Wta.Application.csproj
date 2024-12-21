@@ -34,6 +34,9 @@
     <EmbeddedResource Include="Resources\zh-CN.po" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Json.Microsoft" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Wta.Infrastructure\Wta.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

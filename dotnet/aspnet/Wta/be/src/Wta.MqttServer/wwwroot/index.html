@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MQTT over WebSocket</title>
+</head>
+<body>
+    <div id="app">{{message}}</div>
+    <script type="module">
+        import { createApp, ref } from '/lib/vue/vue.esm-browser.prod.js'
+        import mqtt from '/lib/mqtt/mqtt.esm.js';
+
+        const message = ref('');
+        const clientId = 'mqttjs_' + Math.random().toString(16).substring(2, 8);
+        const connectUrl = 'ws://localhost:18083/mqtt';
+        const options = {
+            keepalive: 60,
+            clientId: clientId,
+            clean: true,
+            connectTimeout: 30 * 1000,
+            /**
+             * By default, EMQX allows clients to connect without authentication.
+             * https://docs.emqx.com/en/enterprise/v4.4/advanced/auth.html#anonymous-login
+             */
+            username: 'admin',
+            password: 'aA123456!',
+            reconnectPeriod: 1000,
+            // for more options and details, please refer to https://github.com/mqttjs/MQTT.js#mqttclientstreambuilder-options
+        }
+        const topic = 'testtopic/#';
+        const payload = 'WebSocket mqtt test';
+        // https://github.com/mqttjs/MQTT.js#qos
+        const qos = 0
+        const client = mqtt.connect(connectUrl, options);
+        client.on('error', (err) => {
+            console.log('Connection error: ', err)
+            client.end()
+        });
+        client.on('reconnect', () => {
+            console.log('Reconnecting...')
+        });
+        client.on('connect', () => {
+            console.log('Client connected:' + clientId)
+
+            // subscribe topic
+            // https://github.com/mqttjs/MQTT.js#mqttclientsubscribetopictopic-arraytopic-object-options-callback
+            client.subscribe(topic, { qos }, (error) => {
+                if (error) {
+                    console.log('Subscribe error:', error)
+                    return
+                }
+                console.log(`Subscribe to topic ${topic}`)
+            })
+
+            // publish message
+            // https://github.com/mqttjs/MQTT.js#mqttclientpublishtopic-message-options-callback
+            client.publish('testtopic/'+clientId, payload, { qos }, (error) => {
+                if (error) {
+                    console.error(error)
+                }
+            })
+        })
+
+        // https://github.com/mqttjs/MQTT.js#event-message
+        client.on('message', (topic, payload) => {
+            console.log(
+                'Received Message: ' + payload.toString() + '\nOn topic: ' + topic
+            );
+            message.value = payload.toString();
+        })
+
+        createApp({
+            setup() {
+                return {
+                    message
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

@@ -5,6 +5,9 @@
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Json.Microsoft" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Wta.Application\Wta.Application.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -66,11 +66,15 @@
     <PackageReference Include="Serilog.Sinks.Async" />
     <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Serilog.Sinks.File" />
+    <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="ValueInjecter" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Devices\" />
   </ItemGroup>
 </Project>
