@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using InfluxDB.Client;
+using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
 using Microsoft.EntityFrameworkCore;
 using MQTTnet.AspNetCore;
@@ -70,39 +71,53 @@ Task OnClientConnectedAsync(ClientConnectedEventArgs args)
     return CompletedTask.Instance;
 }
 
-Task InterceptingPublishAsync(InterceptingPublishEventArgs arg)
+async Task InterceptingPublishAsync(InterceptingPublishEventArgs arg)
 {
-    var payloadText = string.Empty;
-    if (arg.ApplicationMessage.Payload.Length > 0)
-    {
-        payloadText = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
-    }
-    Console.WriteLine($"publish: '{arg.ClientId}' => {payloadText}");
-    using var client = new InfluxDBClient("http://localhost:8086",
-                            "admin",
-                            "aA123456",
-                            "wta",
-                            "autogen");
-    using var api = client.GetWriteApi();
-    var point = PointData.Measurement(arg.ApplicationMessage.Topic)
-    .Tag("topic", arg.ApplicationMessage.Topic)
-    .Tag("client", arg.ClientId)
-    .Field("raw", payloadText);
     try
     {
-        var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(payloadText);
-        if (dict != null)
+        var payloadText = string.Empty;
+        if (arg.ApplicationMessage.Payload.Length > 0)
         {
-            foreach (var kvp in dict)
+            payloadText = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
+        }
+        Console.WriteLine($"publish: '{arg.ClientId}' => {payloadText}");
+        using var client = new InfluxDBClient("http://localhost:8086",
+                                "admin",
+                                "aA123456",
+                                "wta",
+                                "autogen");
+        var list = new List<PointData>();
+        var point = PointData.Builder.Measurement("device_data")
+            .Timestamp(DateTime.UtcNow, InfluxDB.Client.Api.Domain.WritePrecision.Ns)
+            .Tag("topic", arg.ApplicationMessage.Topic)
+            .Tag("message", payloadText);
+        var paths = arg.ApplicationMessage.Topic.Split('/');
+        for (var i = 0; i < paths.Length; i++)
+        {
+            var path = paths[i].Trim();
+            point.Tag($"path{i + 1}", path);
+        }
+        try
+        {
+            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(payloadText);
+            if (dict != null)
             {
-                point.Field(kvp.Key, kvp.Value);
+                foreach (var kvp in dict)
+                {
+                    point.Field(kvp.Key, kvp.Value);
+                }
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+        list.Add(point.ToPointData());
+        var writeApi = client.GetWriteApiAsync();
+        await writeApi.WritePointsAsync(list).ConfigureAwait(false);
     }
     catch (Exception ex)
     {
         Console.WriteLine(ex);
     }
-    api.WritePoint(point);
-    return CompletedTask.Instance;
 }

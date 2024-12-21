@@ -100,6 +100,7 @@
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
     <PackageVersion Include="System.Runtime.WindowsRuntime" Version="4.7.0" />
     <PackageVersion Include="ValueInjecter" Version="3.2.0" />
+    <PackageVersion Include="Vibrant.InfluxDB.Client" Version="4.0.4" />
     <PackageVersion Include="WebView2.Runtime.X64" Version="131.0.2903.99" />
   </ItemGroup>
 </Project>
