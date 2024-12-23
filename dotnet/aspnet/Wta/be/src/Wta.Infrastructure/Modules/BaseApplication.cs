@@ -27,6 +27,7 @@ public abstract partial class BaseApplication : IApplication
         AddScheduler(builder);
         AddDbContext(builder);
         AddRepository(builder);
+        AddMqttServer(builder);
     }
 
     public virtual void Configure(WebApplication app)
@@ -40,6 +41,7 @@ public abstract partial class BaseApplication : IApplication
         UseAuth(app);
         UseEndpoints(app);
         UseSignalR(app);
+        UseMqttServer(app);
         UseCORS(app);
         UseLocalization(app);
         UseDbContext(app);

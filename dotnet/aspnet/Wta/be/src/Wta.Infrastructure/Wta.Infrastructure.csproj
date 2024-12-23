@@ -49,6 +49,8 @@
     <PackageReference Include="Minio" />
     <PackageReference Include="MQTTnet" />
     <PackageReference Include="MQTTnet.Extensions.ManagedClient" />
+    <PackageReference Include="MQTTnet.AspNetCore" />
+    <PackageReference Include="MQTTnet.Server" />
     <PackageReference Include="NCrontab" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
@@ -73,6 +75,7 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="ValueInjecter" />
+    <PackageReference Include="Vibrant.InfluxDB.Client" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Devices\" />

@@ -327,28 +327,28 @@ services:
       - ${DATA}/kafka:/bitnami/kafka
     healthcheck:
       test: [ "CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092" ]
-  emqx:
-    image: ${EMQX}
-    extends:
-      file: docker-compose.extend.yml
-      service: base
-    networks:
-      net:
-        ipv4_address: ${EMQX_IP}
-    user: root
-    environment:
-      EMQX_NAME: emqx
-      EMQX_HOST: ${EMQX_IP}
-      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD__DEFAULT_PASSWORD}
-    ports:
-      - 1883:1883
-      - 8083:8083
-      - 8084:8084
-      - 18083:18083
-    volumes:
-      - ./apps/emqx/emqx.conf:/opt/emqx/etc/emqx.conf
-      - ${DATA}/emqx:/opt/emqx/data
-      - ${LOGS}/emqx:/opt/emqx/log
+  # emqx:
+  #   image: ${EMQX}
+  #   extends:
+  #     file: docker-compose.extend.yml
+  #     service: base
+  #   networks:
+  #     net:
+  #       ipv4_address: ${EMQX_IP}
+  #   user: root
+  #   environment:
+  #     EMQX_NAME: emqx
+  #     EMQX_HOST: ${EMQX_IP}
+  #     EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD__DEFAULT_PASSWORD}
+  #   ports:
+  #     - 1883:1883
+  #     - 8083:8083
+  #     - 8084:8084
+  #     - 18083:18083
+  #   volumes:
+  #     - ./apps/emqx/emqx.conf:/opt/emqx/etc/emqx.conf
+  #     - ${DATA}/emqx:/opt/emqx/data
+  #     - ${LOGS}/emqx:/opt/emqx/log
   influxdb:
     image: ${INFLUXDB}
     extends:

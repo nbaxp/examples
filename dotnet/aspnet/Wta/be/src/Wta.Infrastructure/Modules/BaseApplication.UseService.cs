@@ -1,12 +1,29 @@
 using Hangfire;
+using MQTTnet.AspNetCore;
 using Prometheus;
 using Serilog;
+using Wta.Infrastructure.Mqtt;
 using Wta.Infrastructure.Tenant;
 
 namespace Wta.Infrastructure.Modules;
 
 public abstract partial class BaseApplication
 {
+    public virtual void UseMqttServer(WebApplication app)
+    {
+        var handler = app.Services.GetRequiredService<MqttServerHandler>();
+        app.UseMqttServer(server =>
+        {
+            server.ValidatingConnectionAsync += handler.ValidateConnectionAsync;
+            server.ClientConnectedAsync += handler.OnClientConnectedAsync;
+            server.InterceptingPublishAsync += handler.InterceptingPublishAsync;
+        });
+        app.MapConnectionHandler<MqttConnectionHandler>("/mqtt", o =>
+        {
+            o.WebSockets.SubProtocolSelector = protocolList => protocolList.FirstOrDefault() ?? string.Empty;
+        });
+    }
+
     public virtual void UseMonitoring(WebApplication app)
     {
         app.MapHealthChecks("/hc");

@@ -7,7 +7,6 @@ using MQTTnet.Internal;
 using MQTTnet.Server;
 using Vibrant.InfluxDB.Client;
 using Vibrant.InfluxDB.Client.Rows;
-using Wta.MqttServer;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString(nameof(ApplicationDbContext));
@@ -91,13 +90,13 @@ async Task InterceptingPublishAsync(InterceptingPublishEventArgs arg)
         {
             Timestamp = DateTime.UtcNow
         };
-        row.SetTag("topic", arg.ApplicationMessage.Topic.ToEscapeString());
-        row.SetField("message", payloadText.ToEscapeString());
+        row.SetField("topic", arg.ApplicationMessage.Topic);
+        row.SetField("message", payloadText);
         var paths = arg.ApplicationMessage.Topic.Split('/');
         for (var i = 0; i < paths.Length; i++)
         {
             var path = paths[i].Trim();
-            row.SetTag($"path{i + 1}", path.ToEscapeString());
+            row.SetTag($"path{i + 1}", path);
         }
         try
         {
@@ -106,10 +105,10 @@ async Task InterceptingPublishAsync(InterceptingPublishEventArgs arg)
             {
                 foreach (var kvp in dict)
                 {
-                    if(kvp.Value!=null)
+                    var value = GetValue(kvp.Value);
+                    if (value != null)
                     {
-                        var value = kvp.Value.GetType() == typeof(string) ? kvp.Value.ToString()!.ToEscapeString() : kvp.Value;
-                        row.SetField(kvp.Key, kvp.Value);
+                        row.SetField(kvp.Key, value);
                     }
                 }
             }
@@ -123,5 +122,38 @@ async Task InterceptingPublishAsync(InterceptingPublishEventArgs arg)
     catch (Exception ex)
     {
         Console.WriteLine(ex);
+    }
+}
+
+object? GetValue(object? value)
+{
+    if (value == null)
+    {
+        return null;
+    }
+    var element = (JsonElement)value;
+    if (element.ValueKind == JsonValueKind.Null)
+    {
+        return null;
+    }
+    else if (element.ValueKind == JsonValueKind.True)
+    {
+        return true;
+    }
+    else if (element.ValueKind == JsonValueKind.False)
+    {
+        return false;
+    }
+    else if (element.ValueKind == JsonValueKind.False)
+    {
+        return false;
+    }
+    else if (element.ValueKind == JsonValueKind.Number)
+    {
+        return element.GetDouble();
+    }
+    else
+    {
+        return value.ToString();
     }
 }

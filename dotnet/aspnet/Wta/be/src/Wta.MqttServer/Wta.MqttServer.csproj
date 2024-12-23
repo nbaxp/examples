@@ -12,7 +12,6 @@
     <PackageReference Include="MQTTnet" />
     <PackageReference Include="MQTTnet.AspNetCore" />
     <PackageReference Include="MQTTnet.Server" />
-    <PackageReference Include="InfluxDB.Client" />
     <PackageReference Include="Vibrant.InfluxDB.Client" />
   </ItemGroup>
 

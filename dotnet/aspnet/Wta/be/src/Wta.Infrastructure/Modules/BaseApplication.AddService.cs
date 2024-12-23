@@ -4,8 +4,10 @@ using Autofac.Extensions.DependencyInjection;
 using Hangfire;
 using Hangfire.Redis.StackExchange;
 using Hangfire.Storage.SQLite;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using MQTTnet.AspNetCore;
 using OrchardCore.Localization;
 using Prometheus;
 using Prometheus.SystemMetrics;
@@ -19,6 +21,20 @@ namespace Wta.Infrastructure.Modules;
 
 public abstract partial class BaseApplication
 {
+    public virtual void AddMqttServer(WebApplicationBuilder builder)
+    {
+        builder.WebHost.UseKestrel(o =>
+        {
+            o.ListenAnyIP(1883, l => l.UseMqtt());
+        });
+        builder.Services.AddHostedMqttServer(optionsBuilder =>
+        {
+            optionsBuilder.WithDefaultEndpoint();
+        });
+        builder.Services.AddMqttConnectionHandler();
+        builder.Services.AddConnections();
+    }
+
     public virtual void AddServiceProviderFactory(WebApplicationBuilder builder)
     {
         builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory(containerBuilder =>
