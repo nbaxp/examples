@@ -43,6 +43,7 @@ public class MqttServerService(IEncryptionService encryptionService, IRepository
                 Timestamp = DateTime.UtcNow
             };
             row.SetTag("tenant", clientId.Split('.').First());
+            row.SetTag("client", clientId);
             row.SetField("topic", applicationMessage.Topic);
             row.SetField("message", payloadText);
             var paths = applicationMessage.Topic.Split('/');
