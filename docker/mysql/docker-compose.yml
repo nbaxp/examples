@@ -1,0 +1,13 @@
+name: mysql
+services:
+  mysql:
+    image: ${REGISTRY}mysql:${MYSQL_VERSION}
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - 3306:3306
+    volumes:
+      - ${APPS}/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ${APPS}/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ${DATA}/mysql:/var/lib/mysql

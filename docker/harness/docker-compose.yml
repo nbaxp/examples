@@ -1,0 +1,16 @@
+name: gitness
+
+services:
+  harness:
+    container_name: harness
+    image: harness/harness:3.1.1
+    environment:
+      - GITNESS_URL_BASE=http://192.168.31.242:3000
+      - GITNESS_URL_CONTAINER=http://192.168.31.242:3000
+    ports:
+      - 3000:3000
+      - 3022:3022
+      - 8088:8088
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/harness:/data
