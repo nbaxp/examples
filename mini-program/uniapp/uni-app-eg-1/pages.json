@@ -38,10 +38,15 @@
             }
         },
         {
-            "path" : "pages/address/address",
-            "style" : 
-            {
-                "navigationBarTitleText" : "地址管理"
+            "path": "pages/address/address",
+            "style": {
+                "navigationBarTitleText": "地址管理"
+            }
+        },
+        {
+            "path": "pages/tos/tos",
+            "style": {
+                "navigationBarTitleText": "协议"
             }
         }
     ],

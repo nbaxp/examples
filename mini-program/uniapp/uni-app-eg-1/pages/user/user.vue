@@ -3,8 +3,8 @@
         <uni-card>
             <view class="flex align-items-center justify-content-between">
                 <image class="avatar-image" mode="aspectFit" :src="avatar" />
-                <button class="margin-right-0" size="mini" v-if="!token" @click="login">登录</button>
-                <button class="margin-right-0" size="mini" v-else @click="logout">退出</button>
+                <button class="margin-right-0" type="primary" size="mini" v-if="token" @click="logout">退出</button>
+                <button class="margin-right-0" type="primary" size="mini" v-else @click="login">登录</button>
             </view>
         </uni-card>
         <uni-card padding="0">

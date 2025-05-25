@@ -2,7 +2,7 @@
     <view>
         <uni-nav-bar class="w-full" status-bar fixed :border="false" left-icon="search" @clickLeft="onSearchClick"
             title="分类" />
-        <view id='tabs' class="flex w-full page">
+        <view id='tabs' class="flex w-full page-with-bar">
             <scroll-view class="width-auto" scroll-y :scroll-into-view="menuId" :scroll-top="menuScrollTop"
                 @scroll="onMenuScroll">
                 <view v-for="(item, index) in list" :key="index" :id="'id_'+index"
@@ -112,10 +112,6 @@
 <style>
     .uni-navbar {
         background-color: #f8f8f8;
-    }
-
-    .page {
-        height: calc(100vh - var(--window-top) - var(--window-bottom) - 44px);
     }
 
     .menu-item {
