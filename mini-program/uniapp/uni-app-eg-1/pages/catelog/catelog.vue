@@ -1,26 +1,22 @@
 <template>
-    <view>
-        <uni-nav-bar class="w-full" status-bar fixed :border="false" left-icon="search" @clickLeft="onSearchClick"
-            title="分类" />
-        <view id='tabs' class="flex w-full page-with-bar">
-            <scroll-view class="width-auto" scroll-y :scroll-into-view="menuId" :scroll-top="menuScrollTop"
-                @scroll="onMenuScroll">
-                <view v-for="(item, index) in list" :key="index" :id="'id_'+index"
-                    :class="['menu-item', index === activeIndex ? 'active' : '']" @tap="selectCategory(index)">
-                    {{ item.name }}
+    <view id='tabs' class="flex w-full page">
+        <scroll-view class="width-auto" scroll-y :scroll-into-view="menuId" :scroll-top="menuScrollTop"
+            @scroll="onMenuScroll">
+            <view v-for="(item, index) in list" :key="index" :id="'id_'+index"
+                :class="['menu-item', index === activeIndex ? 'active' : '']" @tap="selectCategory(index)">
+                {{ item.name }}
+            </view>
+        </scroll-view>
+        <scroll-view class="list-container width-auto flex-1" scroll-y :scroll-into-view="listId"
+            @scroll="onListScroll">
+            <view v-for="(item, index) in list" :key="index" :id="'id_'+index" class="list">
+                <view class="padding-15"><text>title:{{ item.name }}</text></view>
+                <view class="w-full flex-1 flex align-items-center padding-15" v-for="i in 3">
+                    <uni-icons type="image" :size="60" />
+                    <text class="text">{{item.name}} {{i}}</text>
                 </view>
-            </scroll-view>
-            <scroll-view class="list-container width-auto flex-1" scroll-y :scroll-into-view="listId"
-                @scroll="onListScroll">
-                <view v-for="(item, index) in list" :key="index" :id="'id_'+index" class="list">
-                    <view class="padding-15"><text>title:{{ item.name }}</text></view>
-                    <view class="w-full flex-1 flex align-items-center padding-15" v-for="i in 3">
-                        <uni-icons type="image" :size="60" />
-                        <text class="text">{{item.name}} {{i}}</text>
-                    </view>
-                </view>
-            </scroll-view>
-        </view>
+            </view>
+        </scroll-view>
     </view>
 </template>
 
@@ -64,28 +60,23 @@
                                 .select(`#${currentMenuId}`)
                                 .boundingClientRect(menu => {
                                     const menuTop = menu.top - offsetTop;
-                                    console.log(
-                                        `sta:${currentMenuId}:menuTop:${menuTop}, menuScrollTop.value:${menuScrollTop.value}`
-                                    );
-                                    // 当前项在可视区域中
+
                                     if (menuTop >= 0 && menuTop <= tabsHeight - menu.height) {
-                                        // 无需滚动
+                                        //当前项在可视区域中
                                     } else if (menuTop < 0) {
+                                        //在可视区域上面
                                         const newValue = menuScrollTop.value + menuTop;
                                         if (menuScrollTop.value !== newValue) {
                                             menuScrollTop.value = newValue;
                                         }
                                     } else {
+                                        //在可视区域下面
                                         const newValue = menuScrollTop.value + (menuTop + menu
-                                            .height - tabsHeight); //此处计算有误
+                                            .height - tabsHeight);
                                         if (menuScrollTop.value !== newValue) {
                                             menuScrollTop.value = newValue;
                                         }
-
                                     }
-                                    console.log(
-                                        `end:${currentMenuId}:menu.top:${menuTop}, menuScrollTop.value:${menuScrollTop.value}`
-                                    );
                                 })
                                 .exec();
                         }).exec();
@@ -115,7 +106,6 @@
     }
 
     .menu-item {
-        line-height: 3rem;
         padding: 15px;
         background-color: #eee;
         border-bottom: 1px solid #fff;
@@ -126,6 +116,6 @@
     }
 
     .list-container .list:last-child {
-        min-height: calc(100vh - var(--window-top) - var(--window-bottom) - 44px);
+        min-height: calc(100vh - var(--window-top) - var(--window-bottom) + 1px);
     }
 </style>

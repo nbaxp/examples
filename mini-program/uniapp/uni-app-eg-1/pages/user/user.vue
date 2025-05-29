@@ -1,22 +1,15 @@
 <template>
     <view>
-        <uni-card>
-            <view class="flex align-items-center justify-content-between">
-                <image class="avatar-image" mode="aspectFit" :src="avatar" />
-                <button class="margin-right-0" type="primary" size="mini" v-if="token" @click="logout">退出</button>
-                <button class="margin-right-0" type="primary" size="mini" v-else @click="login">登录</button>
-            </view>
-        </uni-card>
-        <uni-card padding="0">
-            <uni-list>
-                <uni-list-item title="我的订单" showArrow />
-                <uni-list-item title="收货地址" showArrow />
-                <uni-list-item title="个人资料" showArrow />
-                <uni-list-item title="我的收藏" showArrow />
-                <uni-list-item title="我的足迹" showArrow />
-                <uni-list-item title="积分、优惠券、卡券" showArrow />
-            </uni-list>
-        </uni-card>
+        <view class="flex align-items-center justify-content-between padding-15">
+            <image class="avatar-image" mode="aspectFit" :src="avatar" />
+            <button class="margin-right-0" type="primary" size="mini" v-if="token" @click="logout">退出</button>
+            <button class="margin-right-0" type="primary" size="mini" v-else @click="login">登录</button>
+        </view>
+        <uni-list>
+            <navigator url="/pages/address/address"><uni-list-item showExtraIcon :extraIcon="{type:'location'}"
+                    title="我的地址" showArrow />
+            </navigator>
+        </uni-list>
     </view>
 </template>
 

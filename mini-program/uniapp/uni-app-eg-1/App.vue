@@ -19,7 +19,7 @@
     }
 
     .h-full {
-        width: 100%;
+        height: 100%;
     }
 
     .w-full {
@@ -100,6 +100,21 @@
 
     .padding-15 {
         padding: 15px;
+    }
+
+
+    .padding-x-15 {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .padding-y-15 {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+
+    .padding-l-15 {
+        padding-left: 15px;
     }
 
     .margin-0 {

@@ -11,7 +11,8 @@
                 <radio />全选
             </label>
             <text>合计：</text>
-            <button class="margin-0" type="primary" size="mini">结算</button>
+            <navigator url="/pages/payment/payment"><button class="margin-0" type="primary" size="mini">结算</button>
+            </navigator>
         </view>
     </view>
 </template>

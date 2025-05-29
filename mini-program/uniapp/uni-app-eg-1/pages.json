@@ -9,8 +9,8 @@
         {
             "path": "pages/catelog/catelog",
             "style": {
-                "navigationBarTitleText": "分类",
-                "navigationStyle": "custom"
+                "navigationBarTitleText": "分类"
+                // "navigationStyle": "custom"
             }
         },
         {
@@ -48,13 +48,30 @@
             "style": {
                 "navigationBarTitleText": "协议"
             }
+        },
+        {
+            "path": "pages/payment/payment",
+            "style": {
+                "navigationBarTitleText": "支付"
+            }
+        },
+        {
+            "path": "pages/address/add",
+            "style": {
+                "navigationBarTitleText": "新增收获地址"
+            }
+        },
+        {
+            "path": "pages/address/city",
+            "style": {
+                "navigationBarTitleText": "选择城市"
+            }
         }
     ],
     "globalStyle": {
         "navigationBarTextStyle": "black",
         "navigationBarTitleText": "微小记事本",
-        "navigationBarBackgroundColor": "#F8F8F8",
-        "backgroundColor": "#F8F8F8"
+        "navigationBarBackgroundColor": "#fff"
     },
     "uniIdRouter": {},
     "tabBar": {
